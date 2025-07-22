@@ -1,7 +1,7 @@
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
@@ -9,6 +9,7 @@ import {
     BookOpen,
     LayoutGrid,
     Package,
+    Scan,
     Truck,
     Users,
     UserCog,
@@ -23,16 +24,14 @@ import {
     HeadphonesIcon,
     Activity,
     Wifi,
-    Sparkles,
-    Zap,
     Calculator,
     Home,
     HelpCircle
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
-// Admin navigation items
-const adminNavItems: NavItem[] = [
+// Core Operations - Daily workflow items (highest priority)
+const coreOperationsNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: '/dashboard',
@@ -44,20 +43,43 @@ const adminNavItems: NavItem[] = [
         icon: Package,
     },
     {
-        title: 'Analytics',
-        href: '/admin/analytics',
-        icon: BarChart3,
-    },
-    {
-        title: 'User Management',
-        href: '/admin/users',
-        icon: UserCog,
+        title: 'Live Tracking',
+        href: '/admin/tracking/live',
+        icon: Activity,
     },
     {
         title: 'Customers',
         href: '/admin/customers',
         icon: Users,
     },
+];
+
+// Business Management - Regular business operations
+const businessManagementNavItems: NavItem[] = [
+    {
+        title: 'Invoicing & Billing',
+        href: '/admin/billing',
+        icon: CreditCard,
+    },
+    {
+        title: 'Payments',
+        href: '/admin/payments',
+        icon: DollarSign,
+    },
+    {
+        title: 'Inventory',
+        href: '/admin/inventory',
+        icon: Package2,
+    },
+    {
+        title: 'Customs',
+        href: '/admin/customs',
+        icon: FileText,
+    },
+];
+
+// Infrastructure & Setup - Less frequent but important
+const infrastructureNavItems: NavItem[] = [
     {
         title: 'Warehouses',
         href: '/admin/warehouses',
@@ -67,6 +89,39 @@ const adminNavItems: NavItem[] = [
         title: 'Routes',
         href: '/admin/routes',
         icon: Truck,
+    },
+    {
+        title: 'User Management',
+        href: '/admin/users',
+        icon: UserCog,
+    },
+];
+
+// Analytics & Monitoring - Strategic oversight
+const analyticsNavItems: NavItem[] = [
+    {
+        title: 'Analytics',
+        href: '/admin/analytics',
+        icon: BarChart3,
+    },
+    {
+        title: 'Real-time Dashboard',
+        href: '/admin/tracking/dashboard',
+        icon: Wifi,
+    },
+];
+
+// Support & Communication - Customer service
+const supportNavItems: NavItem[] = [
+    {
+        title: 'Support',
+        href: '/admin/support',
+        icon: HeadphonesIcon,
+    },
+    {
+        title: 'Notifications',
+        href: '/admin/notifications',
+        icon: Bell,
     },
 ];
 
@@ -124,63 +179,7 @@ const customerNavItems: NavItem[] = [
     },
 ];
 
-// Admin-only navigation items
-const adminOnlyNavItems: NavItem[] = [
-    {
-        title: 'Invoicing & Billing',
-        href: '/admin/billing',
-        icon: CreditCard,
-    },
-    {
-        title: 'Payments',
-        href: '/admin/payments',
-        icon: DollarSign,
-    },
-    {
-        title: 'Inventory',
-        href: '/admin/inventory',
-        icon: Package2,
-    },
-    {
-        title: 'Customs',
-        href: '/admin/customs',
-        icon: FileText,
-    },
-    {
-        title: 'Support',
-        href: '/admin/support',
-        icon: HeadphonesIcon,
-    },
-    {
-        title: 'Notifications',
-        href: '/admin/notifications',
-        icon: Bell,
-    },
-];
 
-// Real-time tracking navigation items
-const realTimeNavItems: NavItem[] = [
-    {
-        title: 'Live Tracking',
-        href: '/admin/tracking/live',
-        icon: Activity,
-    },
-    {
-        title: 'Real-time Dashboard',
-        href: '/admin/tracking/dashboard',
-        icon: Wifi,
-    },
-    {
-        title: 'Advanced Features Demo',
-        href: '/admin/demo/advanced-features',
-        icon: Sparkles,
-    },
-    {
-        title: 'WebSocket Test',
-        href: '/admin/demo/websocket-test',
-        icon: Zap,
-    },
-];
 
 const footerNavItems: NavItem[] = [
     {
@@ -203,9 +202,6 @@ export function AppSidebar() {
     const isCustomer = user?.customer_id || user?.customer;
     const isAdmin = !isCustomer;
 
-    // Choose navigation items based on user role
-    const mainNavItems = isCustomer ? customerNavItems : adminNavItems;
-
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -221,15 +217,60 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent className="space-y-0">
-                <NavMain items={mainNavItems} />
-                {isAdmin && <NavMain items={adminOnlyNavItems} />}
-                {isAdmin && (
-                    <div className="px-3 py-2">
-                        <h4 className="mb-2 px-4 text-sm font-semibold tracking-tight text-muted-foreground">
-                            Real-time Tracking
-                        </h4>
-                        <NavMain items={realTimeNavItems} />
-                    </div>
+                {isCustomer ? (
+                    <NavMain items={customerNavItems} />
+                ) : (
+                    <>
+                        {/* Core Operations - Most frequently used */}
+                        <SidebarGroup>
+                            <SidebarGroupLabel>
+                                Core Operations
+                            </SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <NavMain items={coreOperationsNavItems} />
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+
+                        {/* Business Management - Regular operations */}
+                        <SidebarGroup>
+                            <SidebarGroupLabel>
+                                Business Management
+                            </SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <NavMain items={businessManagementNavItems} />
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+
+                        {/* Infrastructure & Setup - Configuration */}
+                        <SidebarGroup>
+                            <SidebarGroupLabel>
+                                Infrastructure
+                            </SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <NavMain items={infrastructureNavItems} />
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+
+                        {/* Analytics & Monitoring - Strategic oversight */}
+                        <SidebarGroup>
+                            <SidebarGroupLabel>
+                                Analytics & Monitoring
+                            </SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <NavMain items={analyticsNavItems} />
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+
+                        {/* Support & Communication - Customer service */}
+                        <SidebarGroup>
+                            <SidebarGroupLabel>
+                                Support & Communication
+                            </SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <NavMain items={supportNavItems} />
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </>
                 )}
             </SidebarContent>
 

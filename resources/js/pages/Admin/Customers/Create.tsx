@@ -5,14 +5,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from '@/components/ui/select';
-import { 
+import {
+    MobileForm,
+    MobileFormSection,
+    MobileFormField,
+    MobileInputGroup,
+    MobileFormActions,
+    MobileSubmitButton
+} from '@/components/ui/mobile-form';
+import {
     ArrowLeft,
     User,
     Building,
@@ -49,29 +57,31 @@ export default function CustomerCreate() {
     return (
         <AppLayout>
             <Head title="Create Customer" />
-            
-            <div className="space-y-6 p-4 md:p-6">
-                {/* Header */}
-                <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-                    <div className="flex items-center space-x-4">
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href="/admin/customers">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
-                                Back to Customers
-                            </Link>
-                        </Button>
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                Create New Customer
-                            </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                                Add a new customer to the system
-                            </p>
-                        </div>
+
+            <div className="space-y-4 sm:space-y-6 p-4 md:p-6">
+                {/* Mobile-First Header */}
+                <div className="flex items-center space-x-3 mb-4 sm:mb-6">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        asChild
+                        className="p-2 h-auto"
+                    >
+                        <Link href="/admin/customers">
+                            <ArrowLeft className="h-5 w-5" />
+                        </Link>
+                    </Button>
+                    <div className="flex-1 min-w-0">
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
+                            Create New Customer
+                        </h1>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Add a new customer to the system
+                        </p>
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <MobileForm onSubmit={handleSubmit}>
                     <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
                         {/* Company Information */}
                         <Card>
@@ -365,7 +375,7 @@ export default function CustomerCreate() {
                             {processing ? 'Creating...' : 'Create Customer'}
                         </Button>
                     </div>
-                </form>
+                </MobileForm>
             </div>
         </AppLayout>
     );

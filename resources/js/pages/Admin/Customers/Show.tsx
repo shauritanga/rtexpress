@@ -142,12 +142,12 @@ export default function CustomerShow({ customer }: Props) {
     };
 
     const handleToggleStatus = () => {
-        router.post(route('admin.customers.toggle-status', customer.id));
+        router.post(route('admin.customers.toggle-status', customer?.id || 0));
     };
 
     return (
         <AppLayout>
-            <Head title={`Customer ${customer.customer_code}`} />
+            <Head title={`Customer ${customer?.customer_code || 'Unknown'}`} />
             
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
@@ -161,26 +161,26 @@ export default function CustomerShow({ customer }: Props) {
                         </Button>
                         <div>
                             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                {customer.company_name}
+                                {customer?.company_name || 'Unknown Company'}
                             </h1>
                             <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                                Customer Code: {customer.customer_code}
+                                Customer Code: {customer?.customer_code || 'N/A'}
                             </p>
                         </div>
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Button variant="outline" asChild className="w-full sm:w-auto">
-                            <Link href={route('admin.customers.edit', customer.id)}>
+                            <Link href={route('admin.customers.edit', customer?.id || 0)}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Customer
                             </Link>
                         </Button>
-                        <Button 
-                            variant={customer.status === 'active' ? 'destructive' : 'default'}
+                        <Button
+                            variant={customer?.status === 'active' ? 'destructive' : 'default'}
                             onClick={handleToggleStatus}
                             className="w-full sm:w-auto"
                         >
-                            {customer.status === 'active' ? 'Deactivate' : 'Activate'}
+                            {customer?.status === 'active' ? 'Deactivate' : 'Activate'}
                         </Button>
                     </div>
                 </div>
@@ -194,7 +194,7 @@ export default function CustomerShow({ customer }: Props) {
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Status</p>
                                     <div className="mt-1">
-                                        {getStatusBadge(customer.status)}
+                                        {getStatusBadge(customer?.status || 'inactive')}
                                     </div>
                                 </div>
                             </div>
@@ -207,7 +207,7 @@ export default function CustomerShow({ customer }: Props) {
                                 <Package className="h-5 w-5 text-green-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Shipments</p>
-                                    <p className="text-2xl font-bold">{customer.shipments_count}</p>
+                                    <p className="text-2xl font-bold">{customer?.shipments_count || 0}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -219,7 +219,7 @@ export default function CustomerShow({ customer }: Props) {
                                 <DollarSign className="h-5 w-5 text-purple-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Spent</p>
-                                    <p className="text-2xl font-bold">{formatCurrency(customer.total_spent)}</p>
+                                    <p className="text-2xl font-bold">{formatCurrency(customer?.total_spent || 0)}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -231,7 +231,7 @@ export default function CustomerShow({ customer }: Props) {
                                 <CreditCard className="h-5 w-5 text-orange-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Credit Limit</p>
-                                    <p className="text-2xl font-bold">{formatCurrency(customer.credit_limit)}</p>
+                                    <p className="text-2xl font-bold">{formatCurrency(customer?.credit_limit || 0)}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -251,15 +251,15 @@ export default function CustomerShow({ customer }: Props) {
                         <CardContent className="space-y-4">
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Contact Person</p>
-                                <p className="font-medium">{customer.contact_person}</p>
+                                <p className="font-medium">{customer?.contact_person || 'N/A'}</p>
                             </div>
                             <Separator />
                             <div className="space-y-2">
                                 <div className="flex items-center space-x-2">
                                     <Mail className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm">{customer.email}</span>
+                                    <span className="text-sm">{customer?.email || 'N/A'}</span>
                                 </div>
-                                {customer.phone && (
+                                {customer?.phone && (
                                     <div className="flex items-center space-x-2">
                                         <Phone className="h-4 w-4 text-muted-foreground" />
                                         <span className="text-sm">{customer.phone}</span>
@@ -270,7 +270,7 @@ export default function CustomerShow({ customer }: Props) {
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Payment Terms</p>
                                 <div className="mt-1">
-                                    {getPaymentTermsBadge(customer.payment_terms)}
+                                    {getPaymentTermsBadge(customer?.payment_terms || 'net_30')}
                                 </div>
                             </div>
                         </CardContent>
@@ -288,14 +288,14 @@ export default function CustomerShow({ customer }: Props) {
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Business Address</p>
                                 <div className="mt-1">
-                                    <p className="text-sm">{customer.address_line_1}</p>
-                                    {customer.address_line_2 && (
+                                    <p className="text-sm">{customer?.address_line_1 || 'N/A'}</p>
+                                    {customer?.address_line_2 && (
                                         <p className="text-sm">{customer.address_line_2}</p>
                                     )}
                                     <p className="text-sm">
-                                        {customer.city}, {customer.state_province} {customer.postal_code}
+                                        {customer?.city || 'Unknown'}, {customer?.state_province || 'Unknown'} {customer?.postal_code || ''}
                                     </p>
-                                    <p className="text-sm font-medium">{customer.country}</p>
+                                    <p className="text-sm font-medium">{customer?.country || 'Unknown'}</p>
                                 </div>
                             </div>
                             <Separator />
@@ -303,7 +303,7 @@ export default function CustomerShow({ customer }: Props) {
                                 <p className="text-sm font-medium text-muted-foreground">Account Created</p>
                                 <div className="flex items-center space-x-2 mt-1">
                                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm">{formatDate(customer.created_at)}</span>
+                                    <span className="text-sm">{formatDate(customer?.created_at || new Date().toISOString())}</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -311,7 +311,7 @@ export default function CustomerShow({ customer }: Props) {
                 </div>
 
                 {/* Notes */}
-                {customer.notes && (
+                {customer?.notes && (
                     <Card>
                         <CardHeader>
                             <CardTitle>Notes</CardTitle>
@@ -331,7 +331,7 @@ export default function CustomerShow({ customer }: Props) {
                                 Recent Shipments
                             </span>
                             <Button variant="outline" size="sm" asChild>
-                                <Link href={`/admin/shipments?customer_id=${customer.id}`}>
+                                <Link href={`/admin/shipments?customer_id=${customer?.id || 0}`}>
                                     View All
                                 </Link>
                             </Button>
@@ -341,7 +341,7 @@ export default function CustomerShow({ customer }: Props) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {customer.shipments.length > 0 ? (
+                        {customer?.shipments?.length > 0 ? (
                             <div className="rounded-md border overflow-hidden">
                                 <div className="overflow-x-auto">
                                     <Table>
@@ -356,7 +356,7 @@ export default function CustomerShow({ customer }: Props) {
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {customer.shipments.slice(0, 5).map((shipment) => (
+                                            {customer?.shipments?.slice(0, 5).map((shipment) => (
                                                 <TableRow key={shipment.id}>
                                                     <TableCell>
                                                         <Link 
@@ -394,7 +394,7 @@ export default function CustomerShow({ customer }: Props) {
                                 <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
                                 <p>No shipments found for this customer.</p>
                                 <Button variant="outline" size="sm" className="mt-4" asChild>
-                                    <Link href={`/admin/shipments/create?customer_id=${customer.id}`}>
+                                    <Link href={`/admin/shipments/create?customer_id=${customer?.id || 0}`}>
                                         Create First Shipment
                                     </Link>
                                 </Button>

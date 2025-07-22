@@ -24,7 +24,7 @@ return new class extends Migration
             $table->json('filters')->nullable(); // Specific filters for this notification type
             $table->timestamps();
 
-            $table->unique(['user_type', 'user_id', 'notification_type']);
+            $table->unique(['user_type', 'user_id', 'notification_type'], 'notif_prefs_user_type_id_unique');
             $table->index(['user_type', 'user_id']);
             $table->index('notification_type');
         });

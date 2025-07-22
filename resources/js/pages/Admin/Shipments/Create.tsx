@@ -6,14 +6,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from '@/components/ui/select';
-import { 
+import {
+    MobileForm,
+    MobileFormSection,
+    MobileFormField,
+    MobileInputGroup,
+    MobileFormActions,
+    MobileSubmitButton
+} from '@/components/ui/mobile-form';
+import {
     ArrowLeft,
     Package,
     User,
@@ -109,97 +117,97 @@ export default function ShipmentCreate({ customers, warehouses }: Props) {
             <Head title="Create Shipment" />
             
             <div className="space-y-6 p-4 md:p-6">
-                {/* Header */}
-                <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-                    <div className="flex items-center space-x-4">
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href="/admin/shipments">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
-                                Back to Shipments
-                            </Link>
-                        </Button>
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                Create New Shipment
-                            </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                                Create a new shipment for a customer
-                            </p>
-                        </div>
+                {/* Mobile-First Header */}
+                <div className="flex items-center space-x-3 mb-4 sm:mb-6">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        asChild
+                        className="p-2 h-auto"
+                    >
+                        <Link href="/admin/shipments">
+                            <ArrowLeft className="h-5 w-5" />
+                        </Link>
+                    </Button>
+                    <div className="flex-1 min-w-0">
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
+                            Create New Shipment
+                        </h1>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Create a new shipment for a customer
+                        </p>
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                <MobileForm onSubmit={handleSubmit}>
+                    <div className="space-y-4 sm:space-y-6">
                         {/* Customer & Service Details */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center">
-                                    <User className="h-5 w-5 mr-2" />
-                                    Customer & Service
-                                </CardTitle>
-                                <CardDescription>
-                                    Select customer and service type
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="customer_id">Customer *</Label>
-                                    <Select 
-                                        value={data.customer_id} 
+                        <MobileFormSection
+                            title="Customer & Service"
+                            description="Select customer and service type"
+                            variant="card"
+                        >
+                            <MobileInputGroup columns={1}>
+                                <MobileFormField
+                                    label="Customer"
+                                    required
+                                    error={errors.customer_id}
+                                >
+                                    <Select
+                                        value={data.customer_id}
                                         onValueChange={(value) => setData('customer_id', value)}
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="h-11 text-base">
                                             <SelectValue placeholder="Select customer" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {customers.map((customer) => (
-                                                <SelectItem key={customer.id} value={customer.id.toString()}>
+                                                <SelectItem
+                                                    key={customer.id}
+                                                    value={customer.id.toString()}
+                                                    className="text-base py-3"
+                                                >
                                                     {customer.name} ({customer.customer_code})
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.customer_id && (
-                                        <p className="text-sm text-red-600">{errors.customer_id}</p>
-                                    )}
-                                </div>
+                                </MobileFormField>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="service_type">Service Type *</Label>
-                                    <Select 
-                                        value={data.service_type} 
+                                <MobileFormField
+                                    label="Service Type"
+                                    required
+                                    error={errors.service_type}
+                                >
+                                    <Select
+                                        value={data.service_type}
                                         onValueChange={(value) => setData('service_type', value)}
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="h-11 text-base">
                                             <SelectValue placeholder="Select service type" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="standard">Standard</SelectItem>
-                                            <SelectItem value="express">Express</SelectItem>
-                                            <SelectItem value="overnight">Overnight</SelectItem>
-                                            <SelectItem value="economy">Economy</SelectItem>
+                                            <SelectItem value="standard" className="text-base py-3">Standard</SelectItem>
+                                            <SelectItem value="express" className="text-base py-3">Express</SelectItem>
+                                            <SelectItem value="overnight" className="text-base py-3">Overnight</SelectItem>
+                                            <SelectItem value="economy" className="text-base py-3">Economy</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.service_type && (
-                                        <p className="text-sm text-red-600">{errors.service_type}</p>
-                                    )}
-                                </div>
+                                </MobileFormField>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="estimated_delivery_date">Estimated Delivery Date</Label>
+                                <MobileFormField
+                                    label="Estimated Delivery Date"
+                                    error={errors.estimated_delivery_date}
+                                >
                                     <Input
-                                        id="estimated_delivery_date"
                                         type="date"
                                         value={data.estimated_delivery_date}
                                         onChange={(e) => setData('estimated_delivery_date', e.target.value)}
+                                        className="h-11 text-base"
                                     />
-                                    {errors.estimated_delivery_date && (
-                                        <p className="text-sm text-red-600">{errors.estimated_delivery_date}</p>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
+                                </MobileFormField>
+                            </MobileInputGroup>
+                        </MobileFormSection>
 
                         {/* Shipment Details */}
                         <Card>
@@ -483,7 +491,7 @@ export default function ShipmentCreate({ customers, warehouses }: Props) {
                             {processing ? 'Creating...' : 'Create Shipment'}
                         </Button>
                     </div>
-                </form>
+                </MobileForm>
             </div>
         </AppLayout>
     );

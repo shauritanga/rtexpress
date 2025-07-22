@@ -12,14 +12,15 @@ import {
     SelectTrigger, 
     SelectValue 
 } from '@/components/ui/select';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
 } from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { 
     Search,
     Plus,
@@ -336,112 +337,132 @@ export default function CustomersIndex({ customers, stats, filters }: Props) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="rounded-md border overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="min-w-[150px]">Customer</TableHead>
-                                            <TableHead className="min-w-[120px]">Contact</TableHead>
-                                            <TableHead className="min-w-[100px]">Status</TableHead>
-                                            <TableHead className="min-w-[100px]">Payment Terms</TableHead>
-                                            <TableHead className="min-w-[120px] hidden sm:table-cell">Location</TableHead>
-                                            <TableHead className="min-w-[100px] hidden md:table-cell">Shipments</TableHead>
-                                            <TableHead className="min-w-[100px] hidden lg:table-cell">Total Spent</TableHead>
-                                            <TableHead className="text-right min-w-[100px]">Actions</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {customers.data.length > 0 ? customers.data.map((customer) => (
-                                            <TableRow key={customer.id}>
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium">{customer.name}</p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {customer.customer_code}
-                                                        </p>
-                                                        {customer.company && (
-                                                            <div className="flex items-center space-x-1 mt-1">
-                                                                <Building className="h-3 w-3 text-muted-foreground" />
-                                                                <span className="text-xs text-muted-foreground">
-                                                                    {customer.company}
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="space-y-1">
-                                                        <div className="flex items-center space-x-1">
-                                                            <Mail className="h-3 w-3 text-muted-foreground" />
-                                                            <span className="text-xs">{customer.email}</span>
-                                                        </div>
-                                                        {customer.phone && (
-                                                            <div className="flex items-center space-x-1">
-                                                                <Phone className="h-3 w-3 text-muted-foreground" />
-                                                                <span className="text-xs">{customer.phone}</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {getStatusBadge(customer.status)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {getPaymentTermsBadge(customer.payment_terms)}
-                                                </TableCell>
-                                                <TableCell className="hidden sm:table-cell">
-                                                    <div>
-                                                        <p className="text-sm font-medium">
-                                                            {customer.city}, {customer.state}
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {customer.country}
-                                                        </p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="hidden md:table-cell">
-                                                    <div className="text-center">
-                                                        <p className="text-lg font-bold">{customer.shipments_count}</p>
-                                                        <p className="text-xs text-muted-foreground">shipments</p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="hidden lg:table-cell">
-                                                    <div className="text-right">
-                                                        <p className="font-medium">
-                                                            {formatCurrency(customer.total_spent)}
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            Limit: {formatCurrency(customer.credit_limit)}
-                                                        </p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex justify-end space-x-1">
-                                                        <Button variant="ghost" size="sm" asChild>
-                                                            <Link href={route('admin.customers.show', customer.id)}>
-                                                                <Eye className="h-4 w-4" />
-                                                            </Link>
-                                                        </Button>
-                                                        <Button variant="ghost" size="sm" asChild>
-                                                            <Link href={route('admin.customers.edit', customer.id)}>
-                                                                <Edit className="h-4 w-4" />
-                                                            </Link>
-                                                        </Button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        )) : (
-                                            <TableRow>
-                                                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                                                    No customers found matching your criteria.
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </div>
+                        <ResponsiveTable
+                            data={customers.data}
+                            columns={[
+                                {
+                                    key: 'name',
+                                    label: 'Customer',
+                                    mobileVisible: true,
+                                    mobilePriority: 1,
+                                    render: (value, customer) => (
+                                        <div>
+                                            <p className="font-medium text-base">{customer.name}</p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {customer.customer_code}
+                                            </p>
+                                            {customer.company && (
+                                                <div className="flex items-center space-x-1 mt-1">
+                                                    <Building className="h-3 w-3 text-muted-foreground" />
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {customer.company}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )
+                                },
+                                {
+                                    key: 'status',
+                                    label: 'Status',
+                                    mobileVisible: true,
+                                    mobilePriority: 2,
+                                    render: (value, customer) => getStatusBadge(customer.status)
+                                },
+                                {
+                                    key: 'contact',
+                                    label: 'Contact',
+                                    mobileVisible: false,
+                                    tabletVisible: true,
+                                    render: (value, customer) => (
+                                        <div className="space-y-1">
+                                            <div className="flex items-center space-x-1">
+                                                <Mail className="h-3 w-3 text-muted-foreground" />
+                                                <span className="text-xs">{customer.email}</span>
+                                            </div>
+                                            {customer.phone && (
+                                                <div className="flex items-center space-x-1">
+                                                    <Phone className="h-3 w-3 text-muted-foreground" />
+                                                    <span className="text-xs">{customer.phone}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )
+                                },
+                                {
+                                    key: 'payment_terms',
+                                    label: 'Payment Terms',
+                                    mobileVisible: false,
+                                    tabletVisible: true,
+                                    render: (value, customer) => getPaymentTermsBadge(customer.payment_terms)
+                                },
+                                {
+                                    key: 'location',
+                                    label: 'Location',
+                                    mobileVisible: false,
+                                    desktopVisible: true,
+                                    render: (value, customer) => (
+                                        <div>
+                                            <p className="text-sm font-medium">
+                                                {customer.city}, {customer.state}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {customer.country}
+                                            </p>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    key: 'shipments_count',
+                                    label: 'Shipments',
+                                    mobileVisible: false,
+                                    desktopVisible: true,
+                                    render: (value, customer) => (
+                                        <div className="text-center">
+                                            <p className="text-lg font-bold">{customer.shipments_count}</p>
+                                            <p className="text-xs text-muted-foreground">shipments</p>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    key: 'total_spent',
+                                    label: 'Total Spent',
+                                    mobileVisible: false,
+                                    desktopVisible: true,
+                                    render: (value, customer) => (
+                                        <div className="text-right">
+                                            <p className="font-medium">
+                                                {formatCurrency(customer.total_spent)}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Limit: {formatCurrency(customer.credit_limit)}
+                                            </p>
+                                        </div>
+                                    )
+                                }
+                            ]}
+                            actions={[
+                                {
+                                    label: 'View',
+                                    icon: Eye,
+                                    onClick: (customer) => router.visit(route('admin.customers.show', customer.id)),
+                                    variant: 'ghost'
+                                },
+                                {
+                                    label: 'Edit',
+                                    icon: Edit,
+                                    onClick: (customer) => router.visit(route('admin.customers.edit', customer.id)),
+                                    variant: 'ghost'
+                                }
+                            ]}
+                            emptyState={{
+                                icon: Users,
+                                title: 'No customers found',
+                                description: 'No customers found matching your criteria.'
+                            }}
+                            mobileCardStyle="detailed"
+                            showMobileSearch={true}
+                        />
 
                         {/* Pagination */}
                         {customers?.meta?.last_page > 1 && (

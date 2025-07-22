@@ -22,6 +22,20 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/tracking/{trackingNumber}', [App\Http\Controllers\Customer\TrackingController::class, 'track']);
 Route::get('/tracking/{trackingNumber}/updates', [App\Http\Controllers\Customer\TrackingController::class, 'updates']);
 
+// Scanner API routes (require authentication)
+Route::middleware('auth')->group(function () {
+    // Admin scanner routes
+    Route::prefix('admin')->middleware('role:admin,warehouse_staff')->group(function () {
+        Route::get('/shipments/lookup/{trackingNumber}', [App\Http\Controllers\Admin\ScannerController::class, 'lookupShipment']);
+        Route::patch('/shipments/{trackingNumber}/status', [App\Http\Controllers\Admin\ScannerController::class, 'updateStatus']);
+    });
+
+    // Customer scanner routes
+    Route::prefix('customer')->group(function () {
+        Route::get('/tracking/{trackingNumber}', [App\Http\Controllers\Customer\ScannerController::class, 'trackPackage']);
+    });
+});
+
 // Communication routes (require authentication)
 Route::middleware('auth')->group(function () {
     Route::post('/communication/messages', [App\Http\Controllers\Customer\CommunicationController::class, 'sendMessage']);

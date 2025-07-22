@@ -78,8 +78,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                 <h2 className="text-4xl sm:text-5xl font-bold text-white leading-tight">
                                     Welcome to RT Express
                                 </h2>
-                                <p className="text-xl text-blue-200 mt-4">
-                                    Cargo Management System
+                                <p className="text-xl text-white/80 mt-4">
+                                    Professional Cargo Management
                                 </p>
                             </div>
                         </div>
@@ -197,7 +197,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                     <Button
                                         type="submit"
                                         disabled={processing}
-                                        className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                                        className="w-full h-12 bg-rt-red hover:bg-rt-red-700 text-white font-medium shadow-rt-red hover:shadow-rt-red-lg transition-all duration-200"
                                     >
                                         {processing ? (
                                             <>

@@ -12,14 +12,15 @@ import {
     SelectTrigger, 
     SelectValue 
 } from '@/components/ui/select';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow
 } from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { 
     Search,
     Plus,
@@ -333,101 +334,121 @@ export default function WarehousesIndex({ warehouses, stats, filters }: Props) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="rounded-md border overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="min-w-[150px]">Warehouse</TableHead>
-                                            <TableHead className="min-w-[100px]">Type</TableHead>
-                                            <TableHead className="min-w-[100px]">Status</TableHead>
-                                            <TableHead className="min-w-[120px]">Location</TableHead>
-                                            <TableHead className="min-w-[100px] hidden sm:table-cell">Utilization</TableHead>
-                                            <TableHead className="min-w-[100px] hidden md:table-cell">Inventory</TableHead>
-                                            <TableHead className="min-w-[100px] hidden lg:table-cell">Manager</TableHead>
-                                            <TableHead className="text-right min-w-[100px]">Actions</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {warehouses.data.length > 0 ? warehouses.data.map((warehouse) => (
-                                            <TableRow key={warehouse.id}>
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium">{warehouse.name}</p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {warehouse.warehouse_code}
-                                                        </p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {getTypeBadge(warehouse.type)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {getStatusBadge(warehouse.status)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="flex items-center space-x-1">
-                                                        <MapPin className="h-3 w-3 text-muted-foreground" />
-                                                        <div>
-                                                            <p className="text-sm font-medium">
-                                                                {warehouse.city}, {warehouse.state}
-                                                            </p>
-                                                            <p className="text-xs text-muted-foreground">
-                                                                {warehouse.country}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="hidden sm:table-cell">
-                                                    <div>
-                                                        <p className={`text-sm font-medium ${getUtilizationColor(warehouse.current_utilization)}`}>
-                                                            {warehouse.current_utilization}%
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            of {formatNumber(warehouse.capacity)}
-                                                        </p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="hidden md:table-cell">
-                                                    <div className="text-center">
-                                                        <p className="text-lg font-bold">{formatNumber(warehouse.inventory_count)}</p>
-                                                        <p className="text-xs text-muted-foreground">items</p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="hidden lg:table-cell">
-                                                    <div className="flex items-center space-x-1">
-                                                        <Users className="h-3 w-3 text-muted-foreground" />
-                                                        <span className="text-sm">
-                                                            {warehouse.manager_name || 'Not assigned'}
-                                                        </span>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex justify-end space-x-1">
-                                                        <Button variant="ghost" size="sm" asChild>
-                                                            <Link href={route('admin.warehouses.show', warehouse.id)}>
-                                                                <Eye className="h-4 w-4" />
-                                                            </Link>
-                                                        </Button>
-                                                        <Button variant="ghost" size="sm" asChild>
-                                                            <Link href={route('admin.warehouses.edit', warehouse.id)}>
-                                                                <Edit className="h-4 w-4" />
-                                                            </Link>
-                                                        </Button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        )) : (
-                                            <TableRow>
-                                                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                                                    No warehouses found matching your criteria.
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </div>
+                        <ResponsiveTable
+                            data={warehouses.data}
+                            columns={[
+                                {
+                                    key: 'name',
+                                    label: 'Warehouse',
+                                    mobileVisible: true,
+                                    mobilePriority: 1,
+                                    render: (value, warehouse) => (
+                                        <div>
+                                            <p className="font-medium text-base">{warehouse.name}</p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {warehouse.warehouse_code}
+                                            </p>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    key: 'status',
+                                    label: 'Status',
+                                    mobileVisible: true,
+                                    mobilePriority: 2,
+                                    render: (value, warehouse) => getStatusBadge(warehouse.status)
+                                },
+                                {
+                                    key: 'type',
+                                    label: 'Type',
+                                    mobileVisible: false,
+                                    tabletVisible: true,
+                                    render: (value, warehouse) => getTypeBadge(warehouse.type)
+                                },
+                                {
+                                    key: 'location',
+                                    label: 'Location',
+                                    mobileVisible: false,
+                                    tabletVisible: true,
+                                    render: (value, warehouse) => (
+                                        <div className="flex items-center space-x-1">
+                                            <MapPin className="h-3 w-3 text-muted-foreground" />
+                                            <div>
+                                                <p className="text-sm font-medium">
+                                                    {warehouse.city}, {warehouse.state}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {warehouse.country}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    key: 'utilization',
+                                    label: 'Utilization',
+                                    mobileVisible: false,
+                                    desktopVisible: true,
+                                    render: (value, warehouse) => (
+                                        <div>
+                                            <p className={`text-sm font-medium ${getUtilizationColor(warehouse.current_utilization)}`}>
+                                                {warehouse.current_utilization}%
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                of {formatNumber(warehouse.capacity)}
+                                            </p>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    key: 'inventory_count',
+                                    label: 'Inventory',
+                                    mobileVisible: false,
+                                    desktopVisible: true,
+                                    render: (value, warehouse) => (
+                                        <div className="text-center">
+                                            <p className="text-lg font-bold">{formatNumber(warehouse.inventory_count)}</p>
+                                            <p className="text-xs text-muted-foreground">items</p>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    key: 'manager_name',
+                                    label: 'Manager',
+                                    mobileVisible: false,
+                                    desktopVisible: true,
+                                    render: (value, warehouse) => (
+                                        <div className="flex items-center space-x-1">
+                                            <Users className="h-3 w-3 text-muted-foreground" />
+                                            <span className="text-sm">
+                                                {warehouse.manager_name || 'Not assigned'}
+                                            </span>
+                                        </div>
+                                    )
+                                }
+                            ]}
+                            actions={[
+                                {
+                                    label: 'View',
+                                    icon: Eye,
+                                    onClick: (warehouse) => router.visit(route('admin.warehouses.show', warehouse.id)),
+                                    variant: 'ghost'
+                                },
+                                {
+                                    label: 'Edit',
+                                    icon: Edit,
+                                    onClick: (warehouse) => router.visit(route('admin.warehouses.edit', warehouse.id)),
+                                    variant: 'ghost'
+                                }
+                            ]}
+                            emptyState={{
+                                icon: Building,
+                                title: 'No warehouses found',
+                                description: 'No warehouses found matching your criteria.'
+                            }}
+                            mobileCardStyle="detailed"
+                            showMobileSearch={true}
+                        />
 
                         {/* Pagination */}
                         {warehouses?.meta?.last_page > 1 && (

@@ -124,7 +124,7 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
 
     return (
         <AppLayout>
-            <Head title={`Warehouse - ${warehouse.name}`} />
+            <Head title={`Warehouse - ${warehouse?.name || 'Unknown'}`} />
             
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
@@ -139,12 +139,12 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
                         <div>
                             <div className="flex items-center space-x-3">
                                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                    {warehouse.name}
+                                    {warehouse?.name || 'Unknown Warehouse'}
                                 </h1>
-                                {getStatusBadge(warehouse.status)}
+                                {getStatusBadge(warehouse?.status || 'inactive')}
                             </div>
                             <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                                {warehouse.code} • {warehouse.city}, {warehouse.state}
+                                {warehouse?.code || 'N/A'} • {warehouse?.city || 'Unknown'}, {warehouse?.state || 'Unknown'}
                             </p>
                         </div>
                     </div>
@@ -154,7 +154,7 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
                             View Reports
                         </Button>
                         <Button size="sm" asChild>
-                            <Link href={`/admin/warehouses/${warehouse.id}/edit`}>
+                            <Link href={`/admin/warehouses/${warehouse?.id || 0}/edit`}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Warehouse
                             </Link>
@@ -170,7 +170,7 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
                                 <Package className="h-5 w-5 text-blue-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Shipments</p>
-                                    <p className="text-2xl font-bold">{stats.total_shipments.toLocaleString()}</p>
+                                    <p className="text-2xl font-bold">{stats?.total_shipments?.toLocaleString() || '0'}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -182,7 +182,7 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
                                 <TrendingUp className="h-5 w-5 text-green-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Monthly Throughput</p>
-                                    <p className="text-2xl font-bold">{stats.monthly_throughput.toLocaleString()}</p>
+                                    <p className="text-2xl font-bold">{stats?.monthly_throughput?.toLocaleString() || '0'}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -194,7 +194,7 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
                                 <Users className="h-5 w-5 text-purple-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Staff Count</p>
-                                    <p className="text-2xl font-bold">{stats.staff_count}</p>
+                                    <p className="text-2xl font-bold">{stats?.staff_count || '0'}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -206,7 +206,7 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
                                 <Clock className="h-5 w-5 text-orange-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Avg Processing</p>
-                                    <p className="text-2xl font-bold">{stats.avg_processing_time}h</p>
+                                    <p className="text-2xl font-bold">{stats?.avg_processing_time || '0'}h</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -248,24 +248,24 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
                                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                                     <div>
                                         <p className="text-sm font-medium text-muted-foreground">Warehouse Code</p>
-                                        <p className="text-sm">{warehouse.code}</p>
+                                        <p className="text-sm">{warehouse?.code || 'N/A'}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-muted-foreground">Manager</p>
-                                        <p className="text-sm">{warehouse.manager_name}</p>
+                                        <p className="text-sm">{warehouse?.manager_name || 'Not assigned'}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-muted-foreground">Phone</p>
                                         <p className="text-sm flex items-center">
                                             <Phone className="h-3 w-3 mr-1" />
-                                            {warehouse.phone}
+                                            {warehouse?.phone || 'N/A'}
                                         </p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-muted-foreground">Email</p>
                                         <p className="text-sm flex items-center">
                                             <Mail className="h-3 w-3 mr-1" />
-                                            {warehouse.email}
+                                            {warehouse?.email || 'N/A'}
                                         </p>
                                     </div>
                                 </div>
@@ -277,9 +277,9 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
                                     <div className="flex items-start space-x-2">
                                         <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
                                         <div className="text-sm">
-                                            <p>{warehouse.address}</p>
-                                            <p>{warehouse.city}, {warehouse.state} {warehouse.postal_code}</p>
-                                            <p>{warehouse.country}</p>
+                                            <p>{warehouse?.address || 'N/A'}</p>
+                                            <p>{warehouse?.city || 'Unknown'}, {warehouse?.state || 'Unknown'} {warehouse?.postal_code || ''}</p>
+                                            <p>{warehouse?.country || 'Unknown'}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -288,7 +288,7 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
                                     <p className="text-sm font-medium text-muted-foreground mb-2">Operating Hours</p>
                                     <div className="flex items-center space-x-2">
                                         <Clock className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-sm">{warehouse.operating_hours}</p>
+                                        <p className="text-sm">{warehouse?.operating_hours || 'Not specified'}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -304,19 +304,19 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
                                     <div className="flex justify-between items-center mb-2">
                                         <p className="text-sm font-medium">Storage Capacity</p>
                                         <p className="text-sm text-muted-foreground">
-                                            {warehouse.capacity_sqft.toLocaleString()} sq ft
+                                            {warehouse?.capacity_sqft?.toLocaleString() || '0'} sq ft
                                         </p>
                                     </div>
                                     <div className="w-full bg-gray-200 rounded-full h-3">
                                         <div
-                                            className={`h-3 rounded-full transition-all duration-500 ${getUtilizationColor(stats.utilization_rate)}`}
-                                            style={{ width: `${stats.utilization_rate}%` }}
+                                            className={`h-3 rounded-full transition-all duration-500 ${getUtilizationColor(stats?.utilization_rate || 0)}`}
+                                            style={{ width: `${stats?.utilization_rate || 0}%` }}
                                         ></div>
                                     </div>
                                     <div className="flex justify-between items-center mt-2">
                                         <p className="text-xs text-muted-foreground">Current Utilization</p>
-                                        <p className={`text-xs font-medium px-2 py-1 rounded ${getUtilizationColor(stats.utilization_rate)}`}>
-                                            {stats.utilization_rate}%
+                                        <p className={`text-xs font-medium px-2 py-1 rounded ${getUtilizationColor(stats?.utilization_rate || 0)}`}>
+                                            {stats?.utilization_rate || 0}%
                                         </p>
                                     </div>
                                 </div>
@@ -325,11 +325,11 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
 
                                 <div className="grid gap-4 grid-cols-2">
                                     <div className="text-center p-4 bg-muted rounded-lg">
-                                        <p className="text-2xl font-bold text-blue-600">{stats.active_shipments}</p>
+                                        <p className="text-2xl font-bold text-blue-600">{stats?.active_shipments || '0'}</p>
                                         <p className="text-sm text-muted-foreground">Active Shipments</p>
                                     </div>
                                     <div className="text-center p-4 bg-muted rounded-lg">
-                                        <p className="text-2xl font-bold text-green-600">{stats.staff_count}</p>
+                                        <p className="text-2xl font-bold text-green-600">{stats?.staff_count || '0'}</p>
                                         <p className="text-sm text-muted-foreground">Staff Members</p>
                                     </div>
                                 </div>
@@ -340,7 +340,7 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
                                         <p className="text-sm font-medium text-blue-800">Location Coordinates</p>
                                     </div>
                                     <p className="text-sm text-blue-700 mt-1">
-                                        {warehouse.latitude}, {warehouse.longitude}
+                                        {warehouse?.latitude || 'N/A'}, {warehouse?.longitude || 'N/A'}
                                     </p>
                                 </div>
                             </CardContent>

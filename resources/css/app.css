@@ -269,74 +269,104 @@
 }
 
 :root {
+    /* RT Express Brand Colors */
+    --rt-red-50: oklch(0.97 0.02 15);
+    --rt-red-100: oklch(0.94 0.04 15);
+    --rt-red-200: oklch(0.88 0.08 15);
+    --rt-red-300: oklch(0.82 0.12 15);
+    --rt-red-400: oklch(0.76 0.16 15);
+    --rt-red-500: oklch(0.70 0.20 15);
+    --rt-red-600: oklch(0.64 0.24 15);
+    --rt-red-700: oklch(0.58 0.28 15);
+    --rt-red-800: oklch(0.52 0.32 15);
+    --rt-red-900: oklch(0.46 0.36 15);
+    --rt-red: oklch(0.52 0.24 15);
+    /* Primary RT Express Red #C41E3A */
+
+    --rt-gray-50: oklch(0.98 0 0);
+    --rt-gray-100: oklch(0.96 0 0);
+    --rt-gray-200: oklch(0.90 0 0);
+    --rt-gray-300: oklch(0.82 0 0);
+    --rt-gray-400: oklch(0.64 0 0);
+    --rt-gray-500: oklch(0.46 0 0);
+    --rt-gray-600: oklch(0.32 0 0);
+    --rt-gray-700: oklch(0.24 0 0);
+    --rt-gray-800: oklch(0.16 0 0);
+    --rt-gray-900: oklch(0.08 0 0);
+    --rt-gray: oklch(0.32 0 0);
+    /* Professional Gray #4A4A4A */
+
+    /* System Colors (Updated to use RT Express branding) */
     --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
+    --foreground: var(--rt-gray);
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
+    --card-foreground: var(--rt-gray);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
+    --popover-foreground: var(--rt-gray);
+    --primary: var(--rt-red);
+    --primary-foreground: oklch(1 0 0);
     --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
+    --secondary-foreground: var(--rt-gray);
     --muted: oklch(0.97 0 0);
     --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
+    --accent: var(--rt-red-100);
+    --accent-foreground: var(--rt-red);
     --destructive: oklch(0.577 0.245 27.325);
     --destructive-foreground: oklch(0.577 0.245 27.325);
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
-    --ring: oklch(0.87 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
+    --ring: var(--rt-red);
+    --chart-1: var(--rt-red);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
     --chart-4: oklch(0.828 0.189 84.429);
     --chart-5: oklch(0.769 0.188 70.08);
     --radius: 0.625rem;
     --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-foreground: var(--rt-gray);
+    --sidebar-primary: var(--rt-red);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: var(--rt-red-50);
+    --sidebar-accent-foreground: var(--rt-red);
     --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.87 0 0);
+    --sidebar-ring: var(--rt-red);
 }
 
 .dark {
+    /* Dark mode with RT Express branding */
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.145 0 0);
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.145 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
+    --primary: var(--rt-red-400);
+    /* Lighter red for dark mode */
+    --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.269 0 0);
     --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
+    --accent: var(--rt-red-900);
+    --accent-foreground: var(--rt-red-300);
     --destructive: oklch(0.396 0.141 25.723);
     --destructive-foreground: oklch(0.637 0.237 25.331);
     --border: oklch(0.269 0 0);
     --input: oklch(0.269 0 0);
-    --ring: oklch(0.439 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
+    --ring: var(--rt-red-400);
+    --chart-1: var(--rt-red-400);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
     --chart-4: oklch(0.627 0.265 303.9);
     --chart-5: oklch(0.645 0.246 16.439);
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
+    --sidebar-primary: var(--rt-red-400);
     --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-accent: var(--rt-red-900);
+    --sidebar-accent-foreground: var(--rt-red-300);
     --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+    --sidebar-ring: var(--rt-red-400);
 }
 
 @layer base {
@@ -346,5 +376,396 @@
 
     body {
         @apply bg-background text-foreground;
+    }
+}
+
+/* RT Express Brand Utility Classes */
+@layer utilities {
+
+    /* RT Express Red Variants */
+    .bg-rt-red {
+        background-color: var(--rt-red);
+    }
+
+    .text-rt-red {
+        color: var(--rt-red);
+    }
+
+    .border-rt-red {
+        border-color: var(--rt-red);
+    }
+
+    .ring-rt-red {
+        --tw-ring-color: var(--rt-red);
+    }
+
+    .bg-rt-red-50 {
+        background-color: var(--rt-red-50);
+    }
+
+    .bg-rt-red-100 {
+        background-color: var(--rt-red-100);
+    }
+
+    .bg-rt-red-200 {
+        background-color: var(--rt-red-200);
+    }
+
+    .bg-rt-red-300 {
+        background-color: var(--rt-red-300);
+    }
+
+    .bg-rt-red-400 {
+        background-color: var(--rt-red-400);
+    }
+
+    .bg-rt-red-500 {
+        background-color: var(--rt-red-500);
+    }
+
+    .bg-rt-red-600 {
+        background-color: var(--rt-red-600);
+    }
+
+    .bg-rt-red-700 {
+        background-color: var(--rt-red-700);
+    }
+
+    .bg-rt-red-800 {
+        background-color: var(--rt-red-800);
+    }
+
+    .bg-rt-red-900 {
+        background-color: var(--rt-red-900);
+    }
+
+    .text-rt-red-50 {
+        color: var(--rt-red-50);
+    }
+
+    .text-rt-red-100 {
+        color: var(--rt-red-100);
+    }
+
+    .text-rt-red-200 {
+        color: var(--rt-red-200);
+    }
+
+    .text-rt-red-300 {
+        color: var(--rt-red-300);
+    }
+
+    .text-rt-red-400 {
+        color: var(--rt-red-400);
+    }
+
+    .text-rt-red-500 {
+        color: var(--rt-red-500);
+    }
+
+    .text-rt-red-600 {
+        color: var(--rt-red-600);
+    }
+
+    .text-rt-red-700 {
+        color: var(--rt-red-700);
+    }
+
+    .text-rt-red-800 {
+        color: var(--rt-red-800);
+    }
+
+    .text-rt-red-900 {
+        color: var(--rt-red-900);
+    }
+
+    /* RT Express Gray Variants */
+    .bg-rt-gray {
+        background-color: var(--rt-gray);
+    }
+
+    .text-rt-gray {
+        color: var(--rt-gray);
+    }
+
+    .border-rt-gray {
+        border-color: var(--rt-gray);
+    }
+
+    .bg-rt-gray-50 {
+        background-color: var(--rt-gray-50);
+    }
+
+    .bg-rt-gray-100 {
+        background-color: var(--rt-gray-100);
+    }
+
+    .bg-rt-gray-200 {
+        background-color: var(--rt-gray-200);
+    }
+
+    .bg-rt-gray-300 {
+        background-color: var(--rt-gray-300);
+    }
+
+    .bg-rt-gray-400 {
+        background-color: var(--rt-gray-400);
+    }
+
+    .bg-rt-gray-500 {
+        background-color: var(--rt-gray-500);
+    }
+
+    .bg-rt-gray-600 {
+        background-color: var(--rt-gray-600);
+    }
+
+    .bg-rt-gray-700 {
+        background-color: var(--rt-gray-700);
+    }
+
+    .bg-rt-gray-800 {
+        background-color: var(--rt-gray-800);
+    }
+
+    .bg-rt-gray-900 {
+        background-color: var(--rt-gray-900);
+    }
+
+    .text-rt-gray-50 {
+        color: var(--rt-gray-50);
+    }
+
+    .text-rt-gray-100 {
+        color: var(--rt-gray-100);
+    }
+
+    .text-rt-gray-200 {
+        color: var(--rt-gray-200);
+    }
+
+    .text-rt-gray-300 {
+        color: var(--rt-gray-300);
+    }
+
+    .text-rt-gray-400 {
+        color: var(--rt-gray-400);
+    }
+
+    .text-rt-gray-500 {
+        color: var(--rt-gray-500);
+    }
+
+    .text-rt-gray-600 {
+        color: var(--rt-gray-600);
+    }
+
+    .text-rt-gray-700 {
+        color: var(--rt-gray-700);
+    }
+
+    .text-rt-gray-800 {
+        color: var(--rt-gray-800);
+    }
+
+    .text-rt-gray-900 {
+        color: var(--rt-gray-900);
+    }
+
+    /* RT Express Brand Gradients */
+    .bg-rt-gradient {
+        background: linear-gradient(135deg, var(--rt-red) 0%, var(--rt-red-700) 100%);
+    }
+
+    .bg-rt-gradient-subtle {
+        background: linear-gradient(135deg, var(--rt-red-50) 0%, var(--rt-red-100) 100%);
+    }
+
+    /* RT Express Professional Shadows */
+    .shadow-rt-red {
+        box-shadow: 0 4px 14px 0 rgba(196, 30, 58, 0.15);
+    }
+
+    .shadow-rt-red-lg {
+        box-shadow: 0 10px 25px -3px rgba(196, 30, 58, 0.1), 0 4px 6px -2px rgba(196, 30, 58, 0.05);
+    }
+}
+
+/* PWA & Mobile Optimizations */
+@layer utilities {
+
+    /* Touch-friendly interactions */
+    .touch-manipulation {
+        touch-action: manipulation;
+    }
+
+    .touch-none {
+        touch-action: none;
+    }
+
+    .touch-pan-x {
+        touch-action: pan-x;
+    }
+
+    .touch-pan-y {
+        touch-action: pan-y;
+    }
+
+    /* Safe area support for notched devices */
+    .safe-top {
+        padding-top: env(safe-area-inset-top);
+    }
+
+    .safe-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .safe-left {
+        padding-left: env(safe-area-inset-left);
+    }
+
+    .safe-right {
+        padding-right: env(safe-area-inset-right);
+    }
+
+    .safe-area {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+
+    /* iOS-specific styles */
+    .ios-bounce-fix {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+
+    /* Android-specific styles */
+    .android-tap-highlight-none {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* PWA-specific styles */
+    .pwa-standalone {
+        display: none;
+    }
+
+    @media (display-mode: standalone) {
+        .pwa-standalone {
+            display: block;
+        }
+
+        .pwa-browser-only {
+            display: none;
+        }
+    }
+
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        .rt-red-accessible {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .rt-red-accessible:hover {
+            background-color: #333333;
+        }
+    }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+
+        .animate-float,
+        .animate-spin,
+        .animate-pulse {
+            animation: none;
+        }
+
+        .transition-all,
+        .transition-transform,
+        .transition-colors {
+            transition: none;
+        }
+    }
+
+    /* Dark mode improvements for mobile */
+    @media (prefers-color-scheme: dark) {
+        .dark-mode-shadow {
+            box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.3);
+        }
+    }
+}
+
+/* Mobile-first responsive breakpoints */
+@media (max-width: 640px) {
+
+    /* Mobile-specific styles */
+    .mobile-full-width {
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+    }
+
+    .mobile-padding {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Touch-friendly button sizes */
+    .btn-touch {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 12px 16px;
+    }
+
+    /* Mobile navigation */
+    .mobile-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--background);
+        border-top: 1px solid var(--border);
+        padding: env(safe-area-inset-bottom) 0 0 0;
+        z-index: 50;
+    }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .tablet-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+
+/* Desktop optimizations */
+@media (min-width: 1025px) {
+    .desktop-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+/* Print styles for PWA */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    .rt-red {
+        background: black !important;
+        color: white !important;
     }
 }

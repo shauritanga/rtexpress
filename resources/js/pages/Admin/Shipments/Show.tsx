@@ -154,7 +154,7 @@ export default function ShipmentShow({ shipment }: Props) {
 
     const handleStatusUpdate = (newStatus: string) => {
         setIsUpdating(true);
-        router.post(route('admin.shipments.update-status', shipment.id), {
+        router.post(route('admin.shipments.update-status', shipment?.id || 0), {
             status: newStatus,
         }, {
             onFinish: () => setIsUpdating(false),
@@ -163,7 +163,7 @@ export default function ShipmentShow({ shipment }: Props) {
 
     return (
         <AppLayout>
-            <Head title={`Shipment ${shipment.tracking_number}`} />
+            <Head title={`Shipment ${shipment?.tracking_number || 'Unknown'}`} />
             
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
@@ -177,7 +177,7 @@ export default function ShipmentShow({ shipment }: Props) {
                         </Button>
                         <div>
                             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                {shipment.tracking_number}
+                                {shipment?.tracking_number || 'Unknown Tracking Number'}
                             </h1>
                             <p className="text-sm sm:text-base text-muted-foreground mt-1">
                                 Shipment Details
@@ -186,7 +186,7 @@ export default function ShipmentShow({ shipment }: Props) {
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Button variant="outline" asChild className="w-full sm:w-auto">
-                            <Link href={route('admin.shipments.edit', shipment.id)}>
+                            <Link href={route('admin.shipments.edit', shipment?.id || 0)}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Shipment
                             </Link>
@@ -203,7 +203,7 @@ export default function ShipmentShow({ shipment }: Props) {
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Status</p>
                                     <div className="mt-1">
-                                        {getStatusBadge(shipment.status)}
+                                        {getStatusBadge(shipment?.status || 'pending')}
                                     </div>
                                 </div>
                             </div>
@@ -217,7 +217,7 @@ export default function ShipmentShow({ shipment }: Props) {
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Service Type</p>
                                     <div className="mt-1">
-                                        {getServiceTypeBadge(shipment.service_type)}
+                                        {getServiceTypeBadge(shipment?.service_type || 'standard')}
                                     </div>
                                 </div>
                             </div>
@@ -231,7 +231,7 @@ export default function ShipmentShow({ shipment }: Props) {
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Declared Value</p>
                                     <p className="text-lg font-bold">
-                                        {formatCurrency(shipment.declared_value)}
+                                        {formatCurrency(shipment?.declared_value || 0)}
                                     </p>
                                 </div>
                             </div>
@@ -245,7 +245,7 @@ export default function ShipmentShow({ shipment }: Props) {
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Est. Delivery</p>
                                     <p className="text-sm font-medium">
-                                        {shipment.estimated_delivery_date 
+                                        {shipment?.estimated_delivery_date
                                             ? formatDate(shipment.estimated_delivery_date)
                                             : 'Not set'
                                         }
@@ -269,18 +269,18 @@ export default function ShipmentShow({ shipment }: Props) {
                         <CardContent className="space-y-4">
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Customer</p>
-                                <p className="font-medium">{shipment.customer.name}</p>
+                                <p className="font-medium">{shipment?.customer?.name || 'Unknown Customer'}</p>
                                 <p className="text-sm text-muted-foreground">
-                                    Code: {shipment.customer.customer_code}
+                                    Code: {shipment?.customer?.customer_code || 'N/A'}
                                 </p>
                             </div>
                             <Separator />
                             <div className="space-y-2">
                                 <div className="flex items-center space-x-2">
                                     <Mail className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm">{shipment.customer.email}</span>
+                                    <span className="text-sm">{shipment?.customer?.email || 'N/A'}</span>
                                 </div>
-                                {shipment.customer.phone && (
+                                {shipment?.customer?.phone && (
                                     <div className="flex items-center space-x-2">
                                         <Phone className="h-4 w-4 text-muted-foreground" />
                                         <span className="text-sm">{shipment.customer.phone}</span>
@@ -304,23 +304,23 @@ export default function ShipmentShow({ shipment }: Props) {
                                     <p className="text-sm font-medium text-muted-foreground">Weight</p>
                                     <div className="flex items-center space-x-1">
                                         <Weight className="h-4 w-4 text-muted-foreground" />
-                                        <span className="font-medium">{shipment.weight} kg</span>
+                                        <span className="font-medium">{shipment?.weight || 0} kg</span>
                                     </div>
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Dimensions</p>
                                     <div className="flex items-center space-x-1">
                                         <Ruler className="h-4 w-4 text-muted-foreground" />
-                                        <span className="font-medium">{shipment.dimensions}</span>
+                                        <span className="font-medium">{shipment?.dimensions || 'N/A'}</span>
                                     </div>
                                 </div>
                             </div>
                             <Separator />
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Created</p>
-                                <p className="text-sm">{formatDateTime(shipment.created_at)}</p>
+                                <p className="text-sm">{formatDateTime(shipment?.created_at || new Date().toISOString())}</p>
                             </div>
-                            {shipment.actual_delivery_date && (
+                            {shipment?.actual_delivery_date && (
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Delivered</p>
                                     <p className="text-sm">{formatDateTime(shipment.actual_delivery_date)}</p>
@@ -340,8 +340,8 @@ export default function ShipmentShow({ shipment }: Props) {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-sm">{shipment.origin_address}</p>
-                            {shipment.origin_warehouse && (
+                            <p className="text-sm">{shipment?.origin_address || 'N/A'}</p>
+                            {shipment?.origin_warehouse && (
                                 <div className="mt-2 pt-2 border-t">
                                     <div className="flex items-center space-x-2">
                                         <Building className="h-4 w-4 text-muted-foreground" />
@@ -362,8 +362,8 @@ export default function ShipmentShow({ shipment }: Props) {
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-sm">{shipment.destination_address}</p>
-                            {shipment.destination_warehouse && (
+                            <p className="text-sm">{shipment?.destination_address || 'N/A'}</p>
+                            {shipment?.destination_warehouse && (
                                 <div className="mt-2 pt-2 border-t">
                                     <div className="flex items-center space-x-2">
                                         <Building className="h-4 w-4 text-muted-foreground" />
@@ -378,7 +378,7 @@ export default function ShipmentShow({ shipment }: Props) {
                 </div>
 
                 {/* Special Instructions */}
-                {shipment.special_instructions && (
+                {shipment?.special_instructions && (
                     <Card>
                         <CardHeader>
                             <CardTitle>Special Instructions</CardTitle>
@@ -388,6 +388,54 @@ export default function ShipmentShow({ shipment }: Props) {
                         </CardContent>
                     </Card>
                 )}
+
+                {/* Tracking Events */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center">
+                            <Clock className="h-5 w-5 mr-2" />
+                            Tracking History
+                        </CardTitle>
+                        <CardDescription>
+                            Complete tracking history for this shipment
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {shipment?.tracking_events?.length > 0 ? (
+                            <div className="space-y-4">
+                                {shipment.tracking_events.map((event, index) => (
+                                    <div key={index} className="flex items-start space-x-3">
+                                        <div className="flex-shrink-0">
+                                            <div className={`w-3 h-3 rounded-full mt-1 ${
+                                                index === 0 ? 'bg-green-500' : 'bg-gray-300'
+                                            }`} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-medium">
+                                                {event.status || 'Status Update'}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {event.location || 'Unknown Location'} • {formatDateTime(event.timestamp || new Date().toISOString())}
+                                            </p>
+                                            {event.description && (
+                                                <p className="text-xs text-muted-foreground mt-1">
+                                                    {event.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-6">
+                                <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                                <p className="text-sm text-muted-foreground">
+                                    No tracking events available yet
+                                </p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </AppLayout>
     );

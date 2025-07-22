@@ -245,6 +245,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     })->name('tracking.dashboard');
 
 
+
 });
 
 // Payment webhook routes (outside auth middleware)
@@ -284,8 +285,10 @@ Route::middleware(['auth', 'customer.auth'])->prefix('customer')->group(function
     Route::post('returns', [App\Http\Controllers\Customer\ReturnController::class, 'store'])->name('customer.returns.store');
     Route::post('returns/{return}/label', [App\Http\Controllers\Customer\ReturnController::class, 'generateLabel'])->name('customer.returns.label');
 
-    // Tracking Routes
-    Route::get('tracking', [App\Http\Controllers\Customer\TrackingController::class, 'index'])->name('customer.tracking.index');
+    // Tracking Routes (Enhanced with Scanner)
+    Route::get('tracking', function () {
+        return inertia('Customer/Scanner/Index');
+    })->name('customer.tracking.index');
 
     // Communication Routes
     Route::get('communication', [App\Http\Controllers\Customer\CommunicationController::class, 'index'])->name('customer.communication.index');
@@ -327,6 +330,8 @@ Route::middleware(['auth', 'customer.auth'])->prefix('customer')->group(function
     Route::get('help/category/{category}', [App\Http\Controllers\Customer\KnowledgeBaseController::class, 'category'])->name('customer.help.category');
     Route::get('help/article/{article}', [App\Http\Controllers\Customer\KnowledgeBaseController::class, 'show'])->name('customer.help.article');
     Route::post('help/article/{article}/helpful', [App\Http\Controllers\Customer\KnowledgeBaseController::class, 'helpful'])->name('customer.help.helpful');
+
+
 
     Route::get('profile', [App\Http\Controllers\Customer\ProfileController::class, 'show'])->name('customer.profile.show');
     Route::get('profile/edit', [App\Http\Controllers\Customer\ProfileController::class, 'edit'])->name('customer.profile.edit');
