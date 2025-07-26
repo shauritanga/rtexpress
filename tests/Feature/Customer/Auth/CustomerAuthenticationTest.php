@@ -73,11 +73,23 @@ test('customer registration requires all fields', function () {
 });
 
 test('customer can login with valid credentials', function () {
+    // Create customer role if it doesn't exist
+    $customerRole = \App\Models\Role::firstOrCreate(
+        ['name' => 'customer'],
+        [
+            'display_name' => 'Customer',
+            'description' => 'Customer role with access to customer portal'
+        ]
+    );
+
     // Create a customer user
     $user = User::factory()->create([
         'email' => 'customer@test.com',
         'password' => Hash::make('password123'),
     ]);
+
+    // Assign customer role
+    $user->assignRole('customer');
 
     $customer = Customer::factory()->create([
         'email' => 'customer@test.com',

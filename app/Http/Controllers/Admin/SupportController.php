@@ -74,8 +74,7 @@ class SupportController extends Controller
         ];
 
         // Get agents for assignment
-        $agents = User::where('role', 'admin')
-            ->orWhere('role', 'support_agent')
+        $agents = User::withRole(['admin', 'customer_support'])
             ->select('id', 'name')
             ->get();
 
@@ -102,8 +101,7 @@ class SupportController extends Controller
         ]);
 
         // Get agents for assignment
-        $agents = User::where('role', 'admin')
-            ->orWhere('role', 'support_agent')
+        $agents = User::withRole(['admin', 'customer_support'])
             ->select('id', 'name')
             ->get();
 
@@ -118,7 +116,7 @@ class SupportController extends Controller
      */
     public function create()
     {
-        $customers = Customer::select('id', 'name', 'email')->get();
+        $customers = Customer::select('id', 'company_name', 'contact_person', 'email', 'address_line_1', 'address_line_2', 'city', 'state_province', 'customer_code')->get();
 
         return Inertia::render('Admin/Support/Create', [
             'customers' => $customers,

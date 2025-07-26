@@ -305,13 +305,7 @@ class InventoryController extends Controller
      */
     private function getLowStockCount(): int
     {
-        return InventoryItem::active()
-            ->whereHas('warehouseStock', function ($query) {
-                $query->selectRaw('inventory_item_id, SUM(quantity_available) as total_qty')
-                      ->groupBy('inventory_item_id')
-                      ->havingRaw('total_qty <= (SELECT reorder_point FROM inventory_items WHERE id = inventory_item_id)');
-            })
-            ->count();
+        return InventoryItem::active()->lowStock()->count();
     }
 
     /**
@@ -319,13 +313,7 @@ class InventoryController extends Controller
      */
     private function getOutOfStockCount(): int
     {
-        return InventoryItem::active()
-            ->whereHas('warehouseStock', function ($query) {
-                $query->selectRaw('inventory_item_id, SUM(quantity_available) as total_qty')
-                      ->groupBy('inventory_item_id')
-                      ->havingRaw('total_qty <= 0');
-            })
-            ->count();
+        return InventoryItem::active()->outOfStock()->count();
     }
 
     /**

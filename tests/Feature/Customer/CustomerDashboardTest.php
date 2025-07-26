@@ -12,9 +12,7 @@ test('customer dashboard requires authentication', function () {
 
 test('customer dashboard can be accessed by authenticated customer', function () {
     // Create customer user
-    $user = User::factory()->create();
-    $customer = Customer::factory()->create();
-    $user->update(['customer_id' => $customer->id]);
+    $user = $this->createCustomerUser();
 
     $this->actingAs($user);
 
@@ -25,9 +23,8 @@ test('customer dashboard can be accessed by authenticated customer', function ()
 
 test('customer dashboard displays correct statistics', function () {
     // Create customer user
-    $user = User::factory()->create();
-    $customer = Customer::factory()->create();
-    $user->update(['customer_id' => $customer->id]);
+    $user = $this->createCustomerUser();
+    $customer = $user->customer;
 
     // Create some shipments for the customer
     Shipment::factory()->count(5)->create([
@@ -74,9 +71,8 @@ test('non_customer_user_cannot_access_dashboard', function () {
 
 test('customer dashboard shows recent shipments', function () {
     // Create customer user
-    $user = User::factory()->create();
-    $customer = Customer::factory()->create();
-    $user->update(['customer_id' => $customer->id]);
+    $user = $this->createCustomerUser();
+    $customer = $user->customer;
 
     // Create recent shipments
     $shipments = Shipment::factory()->count(3)->create([

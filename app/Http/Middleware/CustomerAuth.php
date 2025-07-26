@@ -23,8 +23,8 @@ class CustomerAuth
 
         $user = Auth::user();
 
-        // Check if user has customer role or is associated with a customer record
-        if (!$user->hasRole('customer') && !$user->customer) {
+        // Check if user has customer role
+        if (!$user->hasRole('customer')) {
             return redirect('/login')->withErrors([
                 'access' => 'You do not have permission to access the customer portal.'
             ]);

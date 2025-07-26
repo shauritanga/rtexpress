@@ -21,14 +21,13 @@ class CustomsManagementTest extends TestCase
     {
         parent::setUp();
 
-        $this->customer = Customer::factory()->create([
+        $this->customerUser = $this->createCustomerUser([
+            'email' => 'customer@test.com',
+        ], [
             'email' => 'customer@test.com',
         ]);
-        
-        $this->customerUser = User::factory()->create([
-            'email' => 'customer@test.com',
-            'customer_id' => $this->customer->id,
-        ]);
+
+        $this->customer = $this->customerUser->customer;
 
         $warehouses = Warehouse::factory()->count(2)->create();
         

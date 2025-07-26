@@ -43,8 +43,8 @@ class InvoiceController extends Controller
      */
     public function create(Request $request)
     {
-        $customers = Customer::select('id', 'name', 'email', 'phone', 'address')
-            ->orderBy('name')
+        $customers = Customer::select('id', 'company_name', 'contact_person', 'email', 'phone', 'address_line_1', 'address_line_2', 'city', 'state_province', 'customer_code')
+            ->orderBy('company_name')
             ->get();
 
         $shipments = [];

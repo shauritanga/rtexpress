@@ -1,6 +1,6 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import { LoaderCircle, Eye, EyeOff, CheckCircle, ArrowRight, Truck, Shield } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useState, useEffect, useRef } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
+import ParticleBackground from '@/components/ParticleBackground';
 
 type LoginForm = {
     email: string;
@@ -41,49 +42,9 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             <Head title="Sign In - RT Express" />
 
             <div className="min-h-screen flex">
-                {/* Left Side - Branding & Features */}
-                <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 relative overflow-hidden">
-                    {/* Background Pattern */}
-                    <div className="absolute inset-0 opacity-10">
-                        <div className="absolute inset-0" style={{
-                            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-                        }}></div>
-                    </div>
-
-                    {/* Floating Elements */}
-                    <div className="absolute inset-0">
-                        <div className="absolute top-20 left-20 w-3 h-3 bg-cyan-400 rounded-full animate-float opacity-60"></div>
-                        <div className="absolute top-40 right-32 w-2 h-2 bg-blue-300 rounded-full animate-float opacity-40" style={{animationDelay: '1s'}}></div>
-                        <div className="absolute bottom-32 left-32 w-4 h-4 bg-indigo-300 rounded-full animate-float opacity-50" style={{animationDelay: '2s'}}></div>
-                        <div className="absolute bottom-20 right-20 w-2 h-2 bg-purple-300 rounded-full animate-float opacity-70" style={{animationDelay: '3s'}}></div>
-                    </div>
-
-                    <div className="relative z-10 flex flex-col justify-center px-12 py-12 text-white">
-                        {/* Logo */}
-                        <div className="mb-12">
-                            <div className="flex items-center space-x-3">
-                                <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
-                                    <Truck className="h-8 w-8 text-white" />
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl font-bold">RT Express</h1>
-                                    <p className="text-blue-200 text-sm">Global Shipping Solutions</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Welcome Message */}
-                        <div className="flex items-center justify-center h-full">
-                            <div className="text-center">
-                                <h2 className="text-4xl sm:text-5xl font-bold text-white leading-tight">
-                                    Welcome to RT Express
-                                </h2>
-                                <p className="text-xl text-white/80 mt-4">
-                                    Professional Cargo Management
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+                {/* Left Side - Pure Particle Animation */}
+                <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+                    <ParticleBackground />
                 </div>
 
                 {/* Right Side - Login Form */}

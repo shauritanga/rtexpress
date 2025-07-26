@@ -192,10 +192,12 @@ class InventoryItem extends Model
      */
     public function scopeLowStock($query)
     {
-        return $query->whereHas('warehouseStock', function ($q) {
-            $q->selectRaw('inventory_item_id, SUM(quantity_available) as total_qty')
+        return $query->whereExists(function ($q) {
+            $q->selectRaw('1')
+              ->from('warehouse_stock')
+              ->whereColumn('warehouse_stock.inventory_item_id', 'inventory_items.id')
               ->groupBy('inventory_item_id')
-              ->havingRaw('total_qty <= inventory_items.reorder_point');
+              ->havingRaw('SUM(quantity_available) <= (SELECT reorder_point FROM inventory_items WHERE id = warehouse_stock.inventory_item_id)');
         });
     }
 
@@ -204,10 +206,12 @@ class InventoryItem extends Model
      */
     public function scopeOutOfStock($query)
     {
-        return $query->whereHas('warehouseStock', function ($q) {
-            $q->selectRaw('inventory_item_id, SUM(quantity_available) as total_qty')
+        return $query->whereExists(function ($q) {
+            $q->selectRaw('1')
+              ->from('warehouse_stock')
+              ->whereColumn('warehouse_stock.inventory_item_id', 'inventory_items.id')
               ->groupBy('inventory_item_id')
-              ->havingRaw('total_qty <= 0');
+              ->havingRaw('SUM(quantity_available) <= 0');
         });
     }
 }

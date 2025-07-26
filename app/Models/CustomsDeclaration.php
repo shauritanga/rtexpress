@@ -157,7 +157,7 @@ class CustomsDeclaration extends Model
     /**
      * Clear declaration through customs.
      */
-    public function clear(string $customsReference = null): void
+    public function clear(?string $customsReference = null): void
     {
         $this->update([
             'status' => 'cleared',

@@ -90,7 +90,7 @@ class BillingController extends Controller
         $invoices = $query->paginate(15)->withQueryString();
 
         // Get filter options
-        $customers = Customer::select('id', 'name')->orderBy('name')->get();
+        $customers = Customer::select('id', 'company_name', 'contact_person', 'address_line_1', 'address_line_2', 'city', 'state_province', 'customer_code')->orderBy('company_name')->get();
         $stats = $this->getInvoiceStats();
 
         return Inertia::render('Admin/Billing/Invoices/Index', [

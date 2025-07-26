@@ -182,16 +182,16 @@ const customerNavItems: NavItem[] = [
 
 
 const footerNavItems: NavItem[] = [
-    {
-        title: 'Settings',
-        href: '/settings',
-        icon: Settings,
-    },
-    {
-        title: 'Documentation',
-        href: '/docs',
-        icon: BookOpen,
-    },
+    // {
+    //     title: 'Settings',
+    //     href: '/settings',
+    //     icon: Settings,
+    // },
+    // {
+    //     title: 'Documentation',
+    //     href: '/docs',
+    //     icon: BookOpen,
+    // },
 ];
 
 export function AppSidebar() {

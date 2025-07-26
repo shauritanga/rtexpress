@@ -63,12 +63,20 @@ class AuthenticatedSessionController extends Controller
         $user->updateLastActivity();
 
         // Route based on user role
-        if ($user->hasRole('customer') || $user->customer) {
+        if ($user->hasRole('customer')) {
             return redirect()->intended('/customer/dashboard');
         }
 
-        // Default to admin dashboard
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Check if user has any admin role
+        if ($user->hasAnyRole(['admin', 'warehouse_staff', 'billing_admin', 'customer_support'])) {
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+
+        // If user has no roles, logout and redirect to login with error
+        Auth::logout();
+        return redirect()->route('login')->withErrors([
+            'email' => 'Your account does not have the necessary permissions to access the system.'
+        ]);
     }
 
     /**
@@ -135,11 +143,20 @@ class AuthenticatedSessionController extends Controller
         $user->updateLastActivity();
 
         // Route based on user role
-        if ($user->hasRole('customer') || $user->customer) {
+        if ($user->hasRole('customer')) {
             return redirect()->intended('/customer/dashboard');
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Check if user has any admin role
+        if ($user->hasAnyRole(['admin', 'warehouse_staff', 'billing_admin', 'customer_support'])) {
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+
+        // If user has no roles, logout and redirect to login with error
+        Auth::logout();
+        return redirect()->route('login')->withErrors([
+            'email' => 'Your account does not have the necessary permissions to access the system.'
+        ]);
     }
 
     /**

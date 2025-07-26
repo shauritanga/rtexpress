@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Shipment extends Model
@@ -160,6 +161,14 @@ class Shipment extends Model
     public function trackingHistory(): HasMany
     {
         return $this->hasMany(ShipmentTracking::class)->orderBy('occurred_at', 'desc');
+    }
+
+    /**
+     * Get the customs declaration for this shipment.
+     */
+    public function customsDeclaration(): HasOne
+    {
+        return $this->hasOne(CustomsDeclaration::class);
     }
 
     // Note: Invoice, CustomsDocument, ComplianceCheck, and SupportTicket relationships

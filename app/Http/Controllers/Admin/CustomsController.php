@@ -103,12 +103,12 @@ class CustomsController extends Controller
     {
         $shipment = null;
         if ($request->filled('shipment_id')) {
-            $shipment = Shipment::with(['customer', 'origin', 'destination'])->find($request->shipment_id);
+            $shipment = Shipment::with(['customer', 'originWarehouse', 'destinationWarehouse'])->find($request->shipment_id);
         }
 
         $pendingShipments = Shipment::whereDoesntHave('customsDeclaration')
             ->whereIn('status', ['pending', 'picked_up'])
-            ->with(['customer', 'destination'])
+            ->with(['customer', 'destinationWarehouse'])
             ->orderBy('created_at', 'desc')
             ->limit(50)
             ->get();

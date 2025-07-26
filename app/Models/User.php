@@ -99,23 +99,8 @@ class User extends Authenticatable
      */
     public function hasRole(string $role): bool
     {
-        // For customer role, check if user has customer_id
-        if ($role === 'customer') {
-            return !is_null($this->customer_id);
-        }
-
-        // For admin roles, check if user is not a customer
-        if (in_array($role, ['admin', 'warehouse_staff', 'manager'])) {
-            return is_null($this->customer_id);
-        }
-
-        // For other roles, use the roles relationship if it exists
-        if (method_exists($this, 'roles')) {
-            return $this->roles()->where('name', $role)->exists();
-        }
-
-        // Default: false for unknown roles
-        return false;
+        // Always use the roles relationship for role checking
+        return $this->roles()->where('name', $role)->exists();
     }
 
     /**

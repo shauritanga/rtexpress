@@ -21,10 +21,22 @@ test('authenticated users without customer association are redirected', function
 });
 
 test('authenticated customer users can access customer routes', function () {
+    // Create customer role if it doesn't exist
+    $customerRole = \App\Models\Role::firstOrCreate(
+        ['name' => 'customer'],
+        [
+            'display_name' => 'Customer',
+            'description' => 'Customer role with access to customer portal'
+        ]
+    );
+
     // Create customer user
     $user = User::factory()->create();
     $customer = Customer::factory()->create();
     $user->update(['customer_id' => $customer->id]);
+
+    // Assign customer role
+    $user->assignRole('customer');
 
     $this->actingAs($user);
 
