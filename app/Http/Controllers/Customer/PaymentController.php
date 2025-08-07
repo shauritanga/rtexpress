@@ -11,6 +11,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
+use App\Models\User;
+use App\Notifications\PaymentSuccessNotification;
 use Inertia\Inertia;
 
 class PaymentController extends Controller
@@ -221,6 +225,7 @@ class PaymentController extends Controller
         }
 
         $query = Invoice::where('customer_id', $customer->id)
+            ->whereIn('status', ['sent', 'viewed', 'paid', 'overdue']) // Show sent, viewed, paid, and overdue invoices
             ->with(['payments'])
             ->orderBy('created_at', 'desc');
 
@@ -228,7 +233,7 @@ class PaymentController extends Controller
         if ($request->filled('status')) {
             if ($request->status === 'unpaid') {
                 // For payments page, show only invoices that need payment
-                $query->whereIn('status', ['sent', 'overdue'])
+                $query->whereIn('status', ['sent', 'viewed', 'overdue'])
                       ->where('balance_due', '>', 0);
             } else {
                 $query->where('status', $request->status);
@@ -323,6 +328,7 @@ class PaymentController extends Controller
         $validated = $request->validate([
             'payment_method_id' => 'required|string',
             'amount' => 'required|numeric|min:0.01|max:' . $invoice->balance_due,
+            'phone_number' => 'nullable|regex:/^(\+255|0)[67][0-9]{8}$/',
         ]);
 
         try {
@@ -349,6 +355,14 @@ class PaymentController extends Controller
             } elseif (str_contains($validated['payment_method_id'], 'clickpesa')) {
                 $gateway = 'clickpesa';
                 $method = 'mobile_money';
+
+                // Phone number is required for ClickPesa
+                if (empty($validated['phone_number'])) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Phone number is required for mobile money payments',
+                    ], 400);
+                }
             }
 
             $paymentData = [
@@ -356,6 +370,7 @@ class PaymentController extends Controller
                 'method' => $method,
                 'amount' => $validated['amount'],
                 'payment_method_id' => $validated['payment_method_id'],
+                'phone_number' => $validated['phone_number'] ?? null,
             ];
 
             $result = $this->paymentService->processPayment($invoice, $paymentData);
@@ -363,11 +378,19 @@ class PaymentController extends Controller
             if ($result['success']) {
                 DB::commit();
 
-                return response()->json([
+                $response = [
                     'success' => true,
                     'payment' => $result['payment'],
                     'message' => 'Payment processed successfully',
-                ]);
+                ];
+
+                // Add ClickPesa-specific response data
+                if ($gateway === 'clickpesa') {
+                    $response['order_reference'] = $result['gateway_response']['order_reference'] ?? null;
+                    $response['message'] = 'Payment initiated successfully. Please check your phone for USSD prompt.';
+                }
+
+                return response()->json($response);
             } else {
                 DB::rollBack();
 
@@ -520,5 +543,194 @@ class PaymentController extends Controller
         ];
 
         return $names[$gateway][$methodType] ?? ucfirst($methodType);
+    }
+
+    /**
+     * Process ClickPesa payment for invoice
+     */
+    public function processInvoicePayment(Request $request)
+    {
+        $validated = $request->validate([
+            'invoice_id' => 'required|exists:invoices,id',
+            'payment_method' => 'required|in:clickpesa,card',
+            'phone_number' => 'required_if:payment_method,clickpesa|string|min:10|max:13',
+            'amount' => 'required|numeric|min:0.01',
+        ]);
+
+        // Additional phone number validation for ClickPesa
+        if ($validated['payment_method'] === 'clickpesa' && !empty($validated['phone_number'])) {
+            $phone = $validated['phone_number'];
+            if (!preg_match('/^(\+255|0)[67][0-9]{8}$/', $phone)) {
+                return redirect()->back()
+                    ->withErrors(['phone_number' => 'Invalid phone number format. Please use +255XXXXXXXXX or 0XXXXXXXXX format.'])
+                    ->withInput();
+            }
+        }
+
+        $user = Auth::user();
+        $customer = $user->customer;
+        $invoice = Invoice::findOrFail($validated['invoice_id']);
+
+        // Verify the invoice belongs to the customer
+        if ($invoice->customer_id !== $customer->id) {
+            return redirect()->route('customer.invoices.index')
+                ->with('error', 'Unauthorized access to invoice.');
+        }
+
+        // Verify the amount matches the balance due
+        if ($validated['amount'] != $invoice->balance_due) {
+            return response()->json(['error' => 'Payment amount does not match invoice balance.'], 400);
+        }
+
+        try {
+            if ($validated['payment_method'] === 'clickpesa') {
+                $paymentData = [
+                    'gateway' => 'clickpesa',
+                    'method' => 'mobile_money',
+                    'amount' => $validated['amount'],
+                    'currency' => $invoice->currency,
+                    'phone_number' => $validated['phone_number'],
+                ];
+
+                // Check ClickPesa configuration first
+                $clickpesaConfig = config('payment.gateways.clickpesa');
+                Log::info('ClickPesa configuration check', [
+                    'client_id_set' => !empty($clickpesaConfig['client_id']),
+                    'api_key_set' => !empty($clickpesaConfig['api_key']),
+                    'checksum_secret_set' => !empty($clickpesaConfig['checksum_secret']),
+                    'enabled' => $clickpesaConfig['enabled'] ?? false,
+                ]);
+
+                Log::info('Processing ClickPesa payment', [
+                    'invoice_id' => $invoice->id,
+                    'customer_id' => $customer->id,
+                    'payment_data' => $paymentData,
+                ]);
+
+                // Check if ClickPesa is properly configured
+                if (!$this->paymentService->validateGatewayConfig('clickpesa')) {
+                    Log::error('ClickPesa not configured', [
+                        'invoice_id' => $invoice->id,
+                        'config' => $clickpesaConfig,
+                    ]);
+
+                    return redirect()->back()
+                        ->withErrors(['payment' => 'ClickPesa payment gateway is not properly configured. Please contact support.'])
+                        ->withInput();
+                }
+
+                $result = $this->paymentService->processPayment($invoice, $paymentData);
+
+                Log::info('ClickPesa payment result', [
+                    'invoice_id' => $invoice->id,
+                    'result' => $result,
+                ]);
+
+                if ($result['success']) {
+                    return redirect()->route('customer.invoices.index')
+                        ->with('success', 'Payment initiated successfully. Please check your phone for USSD prompt.');
+                } else {
+                    Log::error('ClickPesa payment failed', [
+                        'invoice_id' => $invoice->id,
+                        'error' => $result['error'] ?? 'Unknown error',
+                        'result' => $result,
+                    ]);
+
+                    return redirect()->back()
+                        ->withErrors(['payment' => $result['error'] ?? 'Payment processing failed'])
+                        ->withInput();
+                }
+            } else {
+                // Card payment not implemented yet
+                return redirect()->back()
+                    ->withErrors(['payment' => 'Card payment is not available yet. Please use ClickPesa mobile money.'])
+                    ->withInput();
+            }
+        } catch (\Exception $e) {
+            Log::error('Payment processing failed', [
+                'invoice_id' => $invoice->id,
+                'customer_id' => $customer->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()
+                ->withErrors(['payment' => 'Payment processing failed. Please try again.'])
+                ->withInput();
+        }
+    }
+
+
+
+    /**
+     * Handle successful payment callback
+     */
+    public function paymentSuccess(Request $request)
+    {
+        $transactionId = $request->get('vendor_order_id');
+        $payment = Payment::where('transaction_id', $transactionId)->first();
+
+        if (!$payment) {
+            return redirect()->route('customer.invoices.index')
+                           ->with('error', 'Payment record not found.');
+        }
+
+        // Update payment status
+        $payment->update([
+            'status' => 'completed',
+            'paid_at' => now(),
+            'gateway_response' => json_encode($request->all())
+        ]);
+
+        // Update invoice
+        $invoice = $payment->invoice;
+        $invoice->update([
+            'paid_amount' => $invoice->paid_amount + $payment->amount,
+            'balance_due' => $invoice->total_amount - ($invoice->paid_amount + $payment->amount),
+            'status' => 'paid'
+        ]);
+
+        // Notify admins of successful payment
+        $this->notifyAdminsOfPayment($payment);
+
+        return redirect()->route('customer.invoices.index')
+                       ->with('success', 'Payment completed successfully!');
+    }
+
+    /**
+     * Handle failed payment callback
+     */
+    public function paymentFailed(Request $request)
+    {
+        $transactionId = $request->get('vendor_order_id');
+        $payment = Payment::where('transaction_id', $transactionId)->first();
+
+        if ($payment) {
+            $payment->update([
+                'status' => 'failed',
+                'gateway_response' => json_encode($request->all())
+            ]);
+        }
+
+        return redirect()->route('customer.invoices.index')
+                       ->with('error', 'Payment failed. Please try again.');
+    }
+
+    /**
+     * Notify admins of successful payment
+     */
+    private function notifyAdminsOfPayment($payment)
+    {
+        // Get all admin users
+        $admins = User::where('role', 'admin')->get();
+
+        // Send notification to all admins
+        Notification::send($admins, new PaymentSuccessNotification($payment));
+
+        Log::info('Payment completed - Admin notification sent', [
+            'payment_id' => $payment->id,
+            'invoice_id' => $payment->invoice_id,
+            'amount' => $payment->amount,
+            'customer_id' => $payment->customer_id
+        ]);
     }
 }

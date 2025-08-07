@@ -1,286 +1,428 @@
 import { Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import ShippingVolumeTrends from '@/components/customer/ShippingVolumeTrends';
-import CostAnalysisDashboard from '@/components/customer/CostAnalysisDashboard';
-import DeliveryPerformanceWidget from '@/components/customer/DeliveryPerformanceWidget';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { 
-    BarChart3,
-    Download,
-    Calendar,
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+    Package,
     TrendingUp,
+    Clock,
     DollarSign,
-    Package
+    CheckCircle,
+    AlertTriangle,
+    Truck,
+    Calendar,
+    BarChart3,
+    PieChart
 } from 'lucide-react';
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    PieChart as RechartsPieChart,
+    Pie,
+    Cell,
+    LineChart,
+    Line,
+    Area,
+    AreaChart
+} from 'recharts';
 
 interface Customer {
     id: number;
     company_name: string;
     customer_code: string;
-    contact_person: string;
 }
 
-interface VolumeData {
-    period: string;
-    shipments: number;
-    growth_rate: number;
-    service_breakdown: {
-        express: number;
-        standard: number;
-        overnight: number;
-        international: number;
-    };
+interface SimpleStats {
+    total_shipments: number;
+    this_month_shipments: number;
+    total_spent: number;
+    this_month_spent: number;
+    on_time_rate: number;
+    average_delivery_days: number;
+    pending_shipments: number;
+    delivered_shipments: number;
 }
 
-interface CostData {
-    period: string;
-    total_cost: number;
-    cost_per_shipment: number;
-    savings_from_discounts: number;
-    service_costs: {
-        express: number;
-        standard: number;
-        overnight: number;
-        international: number;
-    };
-    cost_breakdown: {
-        shipping: number;
-        fuel_surcharge: number;
-        insurance: number;
-        customs: number;
-        other: number;
-    };
-}
-
-interface PerformanceMetrics {
-    on_time_delivery_rate: number;
-    average_delivery_time: number;
-    total_deliveries_this_month: number;
-    total_deliveries_last_month: number;
-    early_deliveries: number;
-    on_time_deliveries: number;
-    late_deliveries: number;
-    average_delivery_time_last_month: number;
-    performance_trend: 'up' | 'down' | 'stable';
-    customer_satisfaction_score?: number;
+interface ChartData {
+    monthly_shipments: Array<{
+        month: string;
+        shipments: number;
+        cost: number;
+    }>;
+    status_breakdown: Array<{
+        name: string;
+        value: number;
+        color: string;
+    }>;
+    service_breakdown: Array<{
+        name: string;
+        value: number;
+        color: string;
+    }>;
 }
 
 interface Props {
     customer: Customer;
-    volumeData: VolumeData[];
-    costData: CostData[];
-    performanceMetrics: PerformanceMetrics;
-    totalShipments: number;
-    averageMonthlyGrowth: number;
-    totalSpent: number;
-    averageCostPerShipment: number;
-    totalSavings: number;
+    stats: SimpleStats;
+    chartData: ChartData;
 }
 
-export default function CustomerAnalytics({ 
-    customer,
-    volumeData,
-    costData,
-    performanceMetrics,
-    totalShipments,
-    averageMonthlyGrowth,
-    totalSpent,
-    averageCostPerShipment,
-    totalSavings
-}: Props) {
+export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 
-    const currentMonth = new Date().toLocaleDateString('en-US', { 
-        month: 'long', 
-        year: 'numeric' 
+    const formatCurrencyShort = (amount: number) => {
+        if (amount >= 1000000000) {
+            return `${(amount / 1000000000).toFixed(1)}B TZS`;
+        } else if (amount >= 1000000) {
+            return `${(amount / 1000000).toFixed(1)}M TZS`;
+        } else if (amount >= 1000) {
+            return `${(amount / 1000).toFixed(1)}K TZS`;
+        } else {
+            return `${amount.toFixed(0)} TZS`;
+        }
+    };
+
+    const currentMonth = new Date().toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric'
     });
+
+    // Simple calculations for visual indicators
+    const monthlyGrowth = stats.total_shipments > stats.this_month_shipments
+        ? ((stats.this_month_shipments / (stats.total_shipments - stats.this_month_shipments)) * 100)
+        : 0;
+
+    const avgCostPerShipment = stats.total_shipments > 0
+        ? stats.total_spent / stats.total_shipments
+        : 0;
+
+    // Ensure chart data is properly formatted with fallbacks
+    const safeChartData = {
+        monthly_shipments: chartData?.monthly_shipments || [],
+        status_breakdown: Array.isArray(chartData?.status_breakdown) ? chartData.status_breakdown : [
+            { name: 'No Data', value: 1, color: '#e5e7eb' }
+        ],
+        service_breakdown: Array.isArray(chartData?.service_breakdown) ? chartData.service_breakdown : [
+            { name: 'Standard', value: 1, color: '#3b82f6' }
+        ]
+    };
 
     return (
         <AppLayout>
-            <Head title="Analytics" />
-            
-            <div className="space-y-6 px-4 sm:px-6 lg:px-8">
+            <Head title="Analytics Dashboard" />
+
+            <div className="space-y-6 px-4 sm:px-6 lg:px-8 pb-8">
                 {/* Header */}
-                <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-                                <BarChart3 className="h-8 w-8 mr-3 text-blue-600" />
-                                Analytics Dashboard
-                            </h1>
-                            <p className="text-sm sm:text-base text-gray-600 mt-1">
-                                {customer.company_name} • Comprehensive shipping insights for {currentMonth}
-                            </p>
-                        </div>
-                        <div className="mt-4 sm:mt-0 flex space-x-2">
-                            <Button variant="outline">
-                                <Calendar className="h-4 w-4 mr-2" />
-                                Date Range
-                            </Button>
-                            <Button>
-                                <Download className="h-4 w-4 mr-2" />
-                                Export Report
-                            </Button>
-                        </div>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+                            <BarChart3 className="h-6 w-6 mr-2 text-blue-600" />
+                            Analytics Dashboard
+                        </h1>
+                        <p className="text-gray-600 mt-1">
+                            {customer.company_name} • {currentMonth}
+                        </p>
                     </div>
                 </div>
 
-                {/* Key Metrics Overview */}
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                {/* Key Metrics - Compact */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex items-center space-x-2">
-                                <Package className="h-5 w-5 text-blue-600" />
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600">Total Shipments</p>
-                                    <p className="text-2xl font-bold text-gray-900">{totalShipments.toLocaleString()}</p>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {averageMonthlyGrowth > 0 ? '+' : ''}{averageMonthlyGrowth.toFixed(1)}% growth
-                                    </p>
+                                    <p className="text-sm text-gray-600">Total Shipments</p>
+                                    <p className="text-2xl font-bold">{stats.total_shipments.toLocaleString()}</p>
                                 </div>
+                                <Package className="h-8 w-8 text-blue-600" />
                             </div>
                         </CardContent>
                     </Card>
 
                     <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex items-center space-x-2">
-                                <DollarSign className="h-5 w-5 text-green-600" />
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600">Total Spent</p>
-                                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalSpent)}</p>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {formatCurrency(averageCostPerShipment)} avg per shipment
-                                    </p>
+                                    <p className="text-sm text-gray-600">Total Spent</p>
+                                    <p className="text-2xl font-bold">{formatCurrency(stats.total_spent)}</p>
                                 </div>
+                                <DollarSign className="h-8 w-8 text-green-600" />
                             </div>
                         </CardContent>
                     </Card>
 
                     <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex items-center space-x-2">
-                                <TrendingUp className="h-5 w-5 text-purple-600" />
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600">On-Time Rate</p>
-                                    <p className="text-2xl font-bold text-gray-900">
-                                        {performanceMetrics.on_time_delivery_rate.toFixed(1)}%
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {performanceMetrics.performance_trend === 'up' ? '↗' : 
-                                         performanceMetrics.performance_trend === 'down' ? '↘' : '→'} 
-                                        {performanceMetrics.performance_trend}
-                                    </p>
+                                    <p className="text-sm text-gray-600">On-Time Rate</p>
+                                    <p className="text-2xl font-bold">{stats.on_time_rate.toFixed(1)}%</p>
                                 </div>
+                                <CheckCircle className="h-8 w-8 text-green-600" />
                             </div>
                         </CardContent>
                     </Card>
 
                     <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex items-center space-x-2">
-                                <DollarSign className="h-5 w-5 text-orange-600" />
+                        <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-600">Total Savings</p>
-                                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalSavings)}</p>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {((totalSavings / totalSpent) * 100).toFixed(1)}% of total spend
-                                    </p>
+                                    <p className="text-sm text-gray-600">Avg Delivery</p>
+                                    <p className="text-2xl font-bold">{stats.average_delivery_days.toFixed(1)} days</p>
                                 </div>
+                                <Clock className="h-8 w-8 text-blue-600" />
                             </div>
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Analytics Components */}
-                <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
-                    {/* Shipping Volume Trends */}
-                    <ShippingVolumeTrends 
-                        volumeData={volumeData}
-                        totalShipments={totalShipments}
-                        averageMonthlyGrowth={averageMonthlyGrowth}
-                        className="xl:col-span-1"
-                    />
+                {/* Charts Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Monthly Shipments Trend */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
+                                Monthly Shipments Trend
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="h-80">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={safeChartData.monthly_shipments}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="month" />
+                                        <YAxis />
+                                        <Tooltip
+                                            formatter={(value, name) => [
+                                                name === 'shipments' ? `${value} shipments` : formatCurrency(value as number),
+                                                name === 'shipments' ? 'Shipments' : 'Cost'
+                                            ]}
+                                            labelFormatter={(label) => `Month: ${label}`}
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="shipments"
+                                            stroke="#3b82f6"
+                                            fill="#3b82f6"
+                                            fillOpacity={0.3}
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                    {/* Cost Analysis Dashboard */}
-                    <CostAnalysisDashboard 
-                        costData={costData}
-                        totalSpent={totalSpent}
-                        averageCostPerShipment={averageCostPerShipment}
-                        totalSavings={totalSavings}
-                        className="xl:col-span-1"
-                    />
+                    {/* Shipment Status Breakdown */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <PieChart className="h-5 w-5 mr-2 text-green-600" />
+                                Shipment Status
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="h-80">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <RechartsPieChart>
+                                        <Pie
+                                            data={safeChartData.status_breakdown}
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={100}
+                                            fill="#8884d8"
+                                            dataKey="value"
+                                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                            labelLine={false}
+                                        >
+                                            {safeChartData.status_breakdown.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip formatter={(value) => [`${value} shipments`, 'Count']} />
+                                    </RechartsPieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
 
-                {/* Delivery Performance - Full Width */}
-                <DeliveryPerformanceWidget 
-                    metrics={performanceMetrics}
-                    className="w-full"
-                />
+                {/* Service Type & Cost Analysis */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Service Type Distribution */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <Truck className="h-5 w-5 mr-2 text-purple-600" />
+                                Service Types
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="h-80">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={safeChartData.service_breakdown}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="name" />
+                                        <YAxis />
+                                        <Tooltip
+                                            formatter={(value) => [`${value} shipments`, 'Count']}
+                                            labelFormatter={(label) => `Service: ${label}`}
+                                        />
+                                        <Bar dataKey="value" fill="#8b5cf6" />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                {/* Additional Insights */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Business Insights & Recommendations</CardTitle>
-                        <CardDescription>
-                            AI-powered insights to optimize your shipping strategy
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                            <div className="p-4 bg-blue-50 rounded-lg">
-                                <h4 className="font-medium text-blue-900 mb-2">Volume Optimization</h4>
-                                <p className="text-sm text-blue-800">
-                                    {averageMonthlyGrowth > 10 
-                                        ? "Your shipping volume is growing rapidly. Consider negotiating volume discounts for better rates."
-                                        : averageMonthlyGrowth > 0
-                                        ? "Steady growth detected. You're on track for higher volume tiers with better pricing."
-                                        : "Volume has been stable. Consider promotional campaigns to drive growth."
-                                    }
-                                </p>
+                    {/* Monthly Cost Trend */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <DollarSign className="h-5 w-5 mr-2 text-green-600" />
+                                Monthly Spending
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="h-80">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={safeChartData.monthly_shipments}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="month" />
+                                        <YAxis
+                                            tickFormatter={(value) => formatCurrencyShort(value)}
+                                        />
+                                        <Tooltip
+                                            formatter={(value) => [formatCurrency(value as number), 'Cost']}
+                                            labelFormatter={(label) => `Month: ${label}`}
+                                        />
+                                        <Line
+                                            type="monotone"
+                                            dataKey="cost"
+                                            stroke="#10b981"
+                                            strokeWidth={3}
+                                            dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
                             </div>
-                            
-                            <div className="p-4 bg-green-50 rounded-lg">
-                                <h4 className="font-medium text-green-900 mb-2">Cost Savings</h4>
-                                <p className="text-sm text-green-800">
-                                    You've saved {formatCurrency(totalSavings)} this year. 
-                                    {totalSavings / totalSpent < 0.1 
-                                        ? " Consider using more standard shipping options to increase savings."
-                                        : " Great job optimizing your shipping costs!"
-                                    }
-                                </p>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Current Status Overview */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* This Month Activity */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <Calendar className="h-5 w-5 mr-2 text-blue-600" />
+                                This Month
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-600">Shipments</span>
+                                    <span className="font-semibold">{stats.this_month_shipments}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-600">Spending</span>
+                                    <span className="font-semibold">{formatCurrency(stats.this_month_spent)}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-600">Pending</span>
+                                    <span className="font-semibold text-orange-600">{stats.pending_shipments}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-600">Delivered</span>
+                                    <span className="font-semibold text-green-600">{stats.delivered_shipments}</span>
+                                </div>
                             </div>
-                            
-                            <div className="p-4 bg-purple-50 rounded-lg">
-                                <h4 className="font-medium text-purple-900 mb-2">Performance</h4>
-                                <p className="text-sm text-purple-800">
-                                    {performanceMetrics.on_time_delivery_rate > 95
-                                        ? "Excellent delivery performance! Your customers are getting reliable service."
-                                        : performanceMetrics.on_time_delivery_rate > 85
-                                        ? "Good delivery performance with room for improvement. Consider premium services for critical shipments."
-                                        : "Delivery performance needs attention. Let's discuss service upgrades to improve reliability."
-                                    }
-                                </p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Quick Insights */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <TrendingUp className="h-5 w-5 mr-2 text-green-600" />
+                                Quick Insights
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                {/* Performance Status */}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-600">Performance</span>
+                                    {stats.on_time_rate >= 95 ? (
+                                        <div className="flex items-center text-green-600">
+                                            <CheckCircle className="h-4 w-4 mr-1" />
+                                            <span className="font-semibold">Excellent</span>
+                                        </div>
+                                    ) : stats.on_time_rate >= 85 ? (
+                                        <div className="flex items-center text-yellow-600">
+                                            <Clock className="h-4 w-4 mr-1" />
+                                            <span className="font-semibold">Good</span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center text-red-600">
+                                            <AlertTriangle className="h-4 w-4 mr-1" />
+                                            <span className="font-semibold">Needs Attention</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Growth Status */}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-600">Growth</span>
+                                    {monthlyGrowth > 10 ? (
+                                        <div className="flex items-center text-green-600">
+                                            <TrendingUp className="h-4 w-4 mr-1" />
+                                            <span className="font-semibold">Strong</span>
+                                        </div>
+                                    ) : monthlyGrowth > 0 ? (
+                                        <div className="flex items-center text-blue-600">
+                                            <TrendingUp className="h-4 w-4 mr-1" />
+                                            <span className="font-semibold">Steady</span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center text-gray-600">
+                                            <span className="font-semibold">Stable</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Cost Efficiency */}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-600">Cost per Shipment</span>
+                                    <span className="font-semibold">{formatCurrency(avgCostPerShipment)}</span>
+                                </div>
+
+                                {/* Active Shipments */}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-600">Active Shipments</span>
+                                    <div className="flex items-center text-blue-600">
+                                        <Truck className="h-4 w-4 mr-1" />
+                                        <span className="font-semibold">{stats.pending_shipments}</span>
+                                    </div>
+                                </div>
                             </div>
-                            
-                            <div className="p-4 bg-orange-50 rounded-lg">
-                                <h4 className="font-medium text-orange-900 mb-2">Service Mix</h4>
-                                <p className="text-sm text-orange-800">
-                                    {costData.length > 0 && costData[costData.length - 1].service_costs.express > costData[costData.length - 1].service_costs.standard
-                                        ? "You're using more express services. Consider standard shipping for non-urgent deliveries to reduce costs."
-                                        : "Good balance of service types. You're optimizing for both cost and speed effectively."
-                                    }
-                                </p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </AppLayout>
     );

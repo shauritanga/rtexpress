@@ -26,9 +26,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { 
-    Users, 
-    UserPlus, 
+import {
+    Users,
+    UserPlus,
     Search,
     Filter,
     MoreHorizontal,
@@ -36,10 +36,9 @@ import {
     Eye,
     UserX,
     UserCheck,
-    Shield,
     Clock,
-    TrendingUp,
-    AlertTriangle
+    AlertTriangle,
+    Trash2
 } from 'lucide-react';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
@@ -122,7 +121,6 @@ export default function UsersIndex({
 
     const handleToggleStatus = (user: User) => {
         const action = user.status === 'active' ? 'deactivate' : 'activate';
-        const actionPast = user.status === 'active' ? 'deactivated' : 'activated';
 
         openModal({
             title: `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
@@ -137,6 +135,68 @@ export default function UsersIndex({
                 router.post(`/admin/users/${user.id}/toggle-status`, {}, {
                     preserveScroll: true,
                 });
+            },
+        });
+    };
+
+    const handleDeleteUser = (user: User) => {
+        // Check if user has active assignments
+        if (user.assigned_shipments_count > 0) {
+            openModal({
+                title: 'Cannot Delete User',
+                description: `${user.name} has ${user.assigned_shipments_count} active shipment assignments. Please reassign or complete these shipments before deleting the user.`,
+                confirmText: 'Understood',
+                variant: 'warning',
+                onConfirm: () => {
+                    // Just close the modal
+                },
+            });
+            return;
+        }
+
+        // Check if user is an admin
+        const isAdmin = user.roles?.some(role => role.name === 'admin');
+        const adminWarning = isAdmin
+            ? ' WARNING: This is an admin user with elevated privileges.'
+            : '';
+
+        openModal({
+            title: 'Delete User',
+            description: `Are you sure you want to permanently delete ${user.name}? This action cannot be undone and will remove all user data including their shipment history and activity records.${adminWarning}`,
+            confirmText: 'Delete User',
+            variant: 'destructive',
+            onConfirm: () => {
+                // Perform the delete request
+                // Note: Modal will close automatically after this function
+                try {
+                    router.delete(`/admin/users/${user.id}`, {
+                        preserveState: false,
+                        preserveScroll: false,
+                        onStart: () => {
+                            console.log('Deleting user...');
+                        },
+                        onSuccess: (page) => {
+                            console.log('User deleted successfully', page);
+                            // The backend redirect should handle the page update
+                            // Force a reload if the page data hasn't updated
+                            setTimeout(() => {
+                                if (users?.data?.some(u => u.id === user.id)) {
+                                    console.log('User still in list, forcing reload...');
+                                    window.location.reload();
+                                }
+                            }, 100);
+                        },
+                        onError: (errors) => {
+                            console.error('Failed to delete user:', errors);
+                            // Error message will be shown by the backend via flash message
+                        },
+                        onFinish: () => {
+                            console.log('Delete request finished');
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initiating delete request:', error);
+                }
             },
         });
     };
@@ -271,7 +331,7 @@ export default function UsersIndex({
                                         placeholder="Search by name or email..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                         className="pl-10"
                                     />
                                 </div>
@@ -334,7 +394,7 @@ export default function UsersIndex({
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {users?.data?.length > 0 ? users.data.map((user) => (
+                                    {users?.data && users.data.length > 0 ? users.data.map((user) => (
                                         <TableRow key={user.id}>
                                             <TableCell>
                                                 <div>
@@ -406,6 +466,18 @@ export default function UsersIndex({
                                                                 </>
                                                             )}
                                                         </DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem
+                                                            onClick={() => handleDeleteUser(user)}
+                                                            className="text-red-600 focus:text-red-600"
+                                                            disabled={user.assigned_shipments_count > 0}
+                                                        >
+                                                            <Trash2 className="h-4 w-4 mr-2" />
+                                                            {user.assigned_shipments_count > 0
+                                                                ? `Cannot Delete (${user.assigned_shipments_count} active assignments)`
+                                                                : 'Delete User'
+                                                            }
+                                                        </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>
@@ -423,7 +495,7 @@ export default function UsersIndex({
                         </div>
 
                         {/* Pagination */}
-                        {users?.meta?.last_page > 1 && (
+                        {users?.meta?.last_page && users.meta.last_page > 1 && (
                             <div className="flex items-center justify-between space-x-2 py-4">
                                 <div className="text-sm text-muted-foreground">
                                     Showing {users?.meta?.from || 0} to {users?.meta?.to || 0} of {users?.meta?.total || 0} users

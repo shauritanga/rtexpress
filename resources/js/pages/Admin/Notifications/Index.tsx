@@ -1,5 +1,6 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import { toast } from '@/hooks/useToast';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,23 @@ import {
     TableHeader, 
     TableRow 
 } from '@/components/ui/table';
-import { 
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
     Search,
     Plus,
     Bell,
@@ -36,7 +53,10 @@ import {
     Calendar,
     Send,
     TrendingUp,
-    Activity
+    Activity,
+    Archive,
+    Trash2,
+    MoreHorizontal
 } from 'lucide-react';
 
 interface User {
@@ -96,9 +116,42 @@ interface Props {
         date_from?: string;
         date_to?: string;
     };
+    flash?: {
+        success?: string;
+        error?: string;
+    };
 }
 
-export default function NotificationsIndex({ notifications, stats, filters }: Props) {
+export default function NotificationsIndex({ notifications, stats, filters, flash }: Props) {
+    const { props } = usePage();
+
+    // Handle flash messages
+    useEffect(() => {
+        if (flash?.success) {
+            toast({
+                title: "Success",
+                description: flash.success,
+                variant: "default",
+            });
+        }
+        if (flash?.error) {
+            toast({
+                title: "Error",
+                description: flash.error,
+                variant: "destructive",
+            });
+        }
+    }, [flash]);
+
+    // Reset processing state on component mount to ensure buttons are interactive
+    useEffect(() => {
+        setProcessingAction(null);
+        setDeleteConfirmation({
+            isOpen: false,
+            notificationId: null,
+            notificationTitle: '',
+        });
+    }, []);
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const [selectedStatus, setSelectedStatus] = useState(filters.status || 'all');
     const [selectedChannel, setSelectedChannel] = useState(filters.channel || 'all');
@@ -106,6 +159,17 @@ export default function NotificationsIndex({ notifications, stats, filters }: Pr
     const [selectedPriority, setSelectedPriority] = useState(filters.priority || 'all');
     const [dateFrom, setDateFrom] = useState(filters.date_from || '');
     const [dateTo, setDateTo] = useState(filters.date_to || '');
+    const [processingAction, setProcessingAction] = useState<string | null>(null);
+    const [deleteConfirmation, setDeleteConfirmation] = useState<{
+        isOpen: boolean;
+        notificationId: number | null;
+        notificationTitle: string;
+    }>({
+        isOpen: false,
+        notificationId: null,
+        notificationTitle: '',
+    });
+    const [openDropdown, setOpenDropdown] = useState<number | null>(null);
 
     const formatDateTime = (dateString: string) => {
         return new Date(dateString).toLocaleString('en-US', {
@@ -203,6 +267,69 @@ export default function NotificationsIndex({ notifications, stats, filters }: Pr
             onSuccess: () => {
                 router.reload();
             },
+        });
+    };
+
+    const handleArchive = (notificationId: number) => {
+        if (processingAction) return;
+
+        setProcessingAction(`archive-${notificationId}`);
+        setOpenDropdown(null); // Close dropdown immediately
+
+        router.post(route('admin.notifications.archive', notificationId), {}, {
+            onSuccess: () => {
+                // Reset processing state and reload the page data
+                setProcessingAction(null);
+                router.reload({ only: ['notifications', 'stats'] });
+            },
+            onError: () => {
+                setProcessingAction(null);
+            },
+        });
+    };
+
+    const handleDeleteClick = (notificationId: number, notificationTitle: string) => {
+        if (processingAction) return;
+
+        setOpenDropdown(null); // Close dropdown immediately
+        setDeleteConfirmation({
+            isOpen: true,
+            notificationId,
+            notificationTitle,
+        });
+    };
+
+    const handleDeleteConfirm = () => {
+        if (!deleteConfirmation.notificationId || processingAction) return;
+
+        setProcessingAction(`delete-${deleteConfirmation.notificationId}`);
+        router.delete(route('admin.notifications.destroy', deleteConfirmation.notificationId), {
+            onSuccess: () => {
+                // Reset all states and reload the page data
+                setProcessingAction(null);
+                setDeleteConfirmation({
+                    isOpen: false,
+                    notificationId: null,
+                    notificationTitle: '',
+                });
+                router.reload({ only: ['notifications', 'stats'] });
+            },
+            onError: () => {
+                setProcessingAction(null);
+                setDeleteConfirmation({
+                    isOpen: false,
+                    notificationId: null,
+                    notificationTitle: '',
+                });
+            },
+        });
+    };
+
+    const handleDeleteCancel = () => {
+        setDeleteConfirmation({
+            isOpen: false,
+            notificationId: null,
+            notificationTitle: '',
         });
     };
 
@@ -491,11 +618,41 @@ export default function NotificationsIndex({ notifications, stats, filters }: Pr
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="ghost" size="sm" asChild>
-                                                        <Link href={route('admin.notifications.show', notification.id)}>
-                                                            <Eye className="h-4 w-4" />
-                                                        </Link>
-                                                    </Button>
+                                                    <div className="flex items-center justify-end space-x-1">
+                                                        <Button variant="ghost" size="sm" asChild>
+                                                            <Link href={route('admin.notifications.show', notification.id)}>
+                                                                <Eye className="h-4 w-4" />
+                                                            </Link>
+                                                        </Button>
+
+                                                        <DropdownMenu
+                                                            open={openDropdown === notification.id}
+                                                            onOpenChange={(open) => setOpenDropdown(open ? notification.id : null)}
+                                                        >
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="sm">
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuItem
+                                                                    onClick={() => handleArchive(notification.id)}
+                                                                    disabled={processingAction === `archive-${notification.id}` || notification.archived_at}
+                                                                >
+                                                                    <Archive className="h-4 w-4 mr-2" />
+                                                                    {processingAction === `archive-${notification.id}` ? 'Archiving...' : 'Archive'}
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem
+                                                                    onClick={() => handleDeleteClick(notification.id, notification.title)}
+                                                                    disabled={processingAction === `delete-${notification.id}`}
+                                                                    className="text-red-600 focus:text-red-600"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4 mr-2" />
+                                                                    {processingAction === `delete-${notification.id}` ? 'Deleting...' : 'Delete'}
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         )) : (
@@ -534,6 +691,34 @@ export default function NotificationsIndex({ notifications, stats, filters }: Pr
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={deleteConfirmation.isOpen} onOpenChange={(open) => !open && handleDeleteCancel()}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Notification</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete the notification "{deleteConfirmation.notificationTitle}"?
+                            This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel
+                            onClick={handleDeleteCancel}
+                            disabled={processingAction === `delete-${deleteConfirmation.notificationId}`}
+                        >
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteConfirm}
+                            disabled={processingAction === `delete-${deleteConfirmation.notificationId}`}
+                            className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+                        >
+                            {processingAction === `delete-${deleteConfirmation.notificationId}` ? 'Deleting...' : 'Delete'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </AppLayout>
     );
 }

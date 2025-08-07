@@ -74,6 +74,36 @@ class InvoiceController extends Controller
     }
 
     /**
+     * Get shipments for a specific customer (API endpoint).
+     */
+    public function getCustomerShipments(Request $request)
+    {
+        $request->validate([
+            'customer_id' => 'required|exists:customers,id'
+        ]);
+
+        $shipments = Shipment::where('customer_id', $request->customer_id)
+            ->whereDoesntHave('invoice') // Only shipments without invoices
+            ->select('id', 'tracking_number', 'recipient_name', 'total_cost', 'service_type', 'created_at')
+            ->latest()
+            ->get()
+            ->map(function ($shipment) {
+                return [
+                    'id' => $shipment->id,
+                    'tracking_number' => $shipment->tracking_number,
+                    'recipient_name' => $shipment->recipient_name,
+                    'total_amount' => $shipment->total_cost ?: 0, // Use total_cost as total_amount, default to 0
+                    'service_type' => ucfirst($shipment->service_type),
+                    'created_at' => $shipment->created_at->format('M d, Y'),
+                ];
+            });
+
+        return response()->json($shipments);
+
+        return response()->json($shipments);
+    }
+
+    /**
      * Store a newly created invoice.
      */
     public function store(Request $request)
@@ -156,8 +186,12 @@ class InvoiceController extends Controller
             // Calculate totals (this will be done automatically by the model)
             $invoice->refresh();
 
+            // Send notifications
+            $invoice->sendCreatedNotification();
+            $invoice->sendAdminNotification();
+
             return redirect()->route('admin.invoices.show', $invoice)
-                ->with('success', 'Invoice created successfully.');
+                ->with('success', 'Invoice created successfully. Customer has been notified.');
 
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to create invoice: ' . $e->getMessage()]);
@@ -173,9 +207,10 @@ class InvoiceController extends Controller
             if ($invoice->status === 'draft') {
                 $invoice->markAsSent(auth()->user());
 
-                // TODO: Send email notification to customer
+                // Send email and in-app notification to customer
+                $invoice->sendSentNotification();
 
-                return back()->with('success', 'Invoice sent successfully.');
+                return back()->with('success', 'Invoice sent successfully. Customer has been notified.');
             }
 
             return back()->withErrors(['error' => 'Invoice has already been sent.']);
@@ -184,6 +219,8 @@ class InvoiceController extends Controller
             return back()->withErrors(['error' => 'Failed to send invoice: ' . $e->getMessage()]);
         }
     }
+
+
 
     /**
      * Mark invoice as paid.
@@ -232,9 +269,14 @@ class InvoiceController extends Controller
     {
         try {
             if (in_array($invoice->status, ['draft', 'sent', 'viewed'])) {
-                $invoice->update(['status' => 'cancelled']);
+                $invoice->update([
+                    'status' => 'cancelled',
+                    'cancelled_at' => now(),
+                    'cancelled_by' => auth()->id(),
+                ]);
 
-                return back()->with('success', 'Invoice cancelled successfully.');
+                $statusText = $invoice->status === 'draft' ? 'Draft invoice' : 'Invoice';
+                return back()->with('success', "{$statusText} cancelled successfully.");
             }
 
             return back()->withErrors(['error' => 'Cannot cancel a paid invoice.']);

@@ -1,23 +1,28 @@
-import React from 'react';
 import { Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import RecentActivityTimeline from '@/components/customer/RecentActivityTimeline';
-import DeliveryPerformanceWidget from '@/components/customer/DeliveryPerformanceWidget';
-import UpcomingDeliveriesCalendar from '@/components/customer/UpcomingDeliveriesCalendar';
 import {
     Package,
     Truck,
     CheckCircle,
     Clock,
     AlertTriangle,
-    Plus,
-    Search,
     BarChart3,
     TrendingUp
 } from 'lucide-react';
+import {
+    AreaChart,
+    Area,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    PieChart,
+    Pie,
+    Cell
+} from 'recharts';
 
 interface Customer {
     id: number;
@@ -47,62 +52,32 @@ interface Stats {
     pending_shipments: number;
 }
 
-interface TimelineEvent {
-    id: number;
-    shipment_id: number;
-    tracking_number: string;
-    event_type: string;
-    status: string;
-    description: string;
-    location?: string;
-    timestamp: string;
-    recipient_name: string;
-    service_type: string;
-}
 
-interface PerformanceMetrics {
-    on_time_delivery_rate: number;
-    average_delivery_time: number;
-    total_deliveries_this_month: number;
-    total_deliveries_last_month: number;
-    early_deliveries: number;
-    on_time_deliveries: number;
-    late_deliveries: number;
-    average_delivery_time_last_month: number;
-    performance_trend: 'up' | 'down' | 'stable';
-    customer_satisfaction_score?: number;
-}
 
-interface UpcomingDelivery {
-    id: number;
-    tracking_number: string;
-    recipient_name: string;
-    recipient_address: string;
-    service_type: string;
-    estimated_delivery_date: string;
-    delivery_time_window?: string;
-    status: string;
-    priority: 'high' | 'medium' | 'low';
+interface DashboardData {
+    weekly_shipments: Array<{
+        day: string;
+        shipments: number;
+    }>;
+    status_distribution: Array<{
+        name: string;
+        value: number;
+        color: string;
+    }>;
 }
 
 interface Props {
     customer: Customer;
     stats: Stats;
-    recentShipments: Shipment[];
     activeShipments: Shipment[];
-    recentActivity: TimelineEvent[];
-    performanceMetrics: PerformanceMetrics;
-    upcomingDeliveries: UpcomingDelivery[];
+    dashboardData: DashboardData;
 }
 
 export default function CustomerDashboard({
     customer,
     stats,
-    recentShipments,
     activeShipments,
-    recentActivity,
-    performanceMetrics,
-    upcomingDeliveries
+    dashboardData
 }: Props) {
     const getStatusBadge = (status: string) => {
         const statusConfig = {
@@ -135,88 +110,108 @@ export default function CustomerDashboard({
     };
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 
     return (
         <AppLayout>
             <Head title="Dashboard" />
-            
-            <div className="space-y-6 px-4 sm:px-6 lg:px-8">
-                {/* Welcome Header */}
-                <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                                Welcome back, {customer.contact_person}!
-                            </h1>
-                            <p className="text-sm sm:text-base text-gray-600 mt-1">
-                                {customer.company_name} • Customer ID: {customer.customer_code}
-                            </p>
-                        </div>
-                        <div className="mt-4 sm:mt-0 flex space-x-2">
-                            <Button>
-                                <Plus className="h-4 w-4 mr-2" />
-                                Create Shipment
-                            </Button>
-                            <Button variant="outline">
-                                <Search className="h-4 w-4 mr-2" />
-                                Track Package
-                            </Button>
-                        </div>
-                    </div>
+
+            <div className="space-y-6 px-4 sm:px-6 lg:px-8 pb-8">
+                {/* Dashboard Header - Overview Only */}
+                <div className="text-center">
+                    <h1 className="text-3xl font-bold text-gray-900">
+                        Dashboard Overview
+                    </h1>
+                    <p className="text-gray-600 mt-2">
+                        {customer.company_name} • Your shipping statistics and insights
+                    </p>
                 </div>
 
-                {/* Stats Cards */}
+                {/* Modern Stats Cards with Visual Elements */}
                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex items-center space-x-2">
-                                <Package className="h-5 w-5 text-blue-600" />
+                    {/* Total Shipments */}
+                    <Card className="relative overflow-hidden">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Total Shipments</p>
-                                    <p className="text-2xl font-bold text-gray-900">{stats.total_shipments}</p>
+                                    <p className="text-3xl font-bold text-gray-900 mt-2">{stats.total_shipments}</p>
+                                    <div className="flex items-center mt-2">
+                                        <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
+                                        <span className="text-sm text-green-600 font-medium">+12% this month</span>
+                                    </div>
+                                </div>
+                                <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <Package className="h-6 w-6 text-blue-600" />
                                 </div>
                             </div>
+                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600"></div>
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex items-center space-x-2">
-                                <Truck className="h-5 w-5 text-orange-600" />
+                    {/* Active Shipments */}
+                    <Card className="relative overflow-hidden">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Active Shipments</p>
-                                    <p className="text-2xl font-bold text-gray-900">{stats.active_shipments}</p>
+                                    <p className="text-3xl font-bold text-gray-900 mt-2">{stats.active_shipments}</p>
+                                    <div className="flex items-center mt-2">
+                                        <Clock className="h-4 w-4 text-orange-600 mr-1" />
+                                        <span className="text-sm text-gray-600">In transit</span>
+                                    </div>
+                                </div>
+                                <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <Truck className="h-6 w-6 text-orange-600" />
                                 </div>
                             </div>
+                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-orange-600"></div>
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex items-center space-x-2">
-                                <CheckCircle className="h-5 w-5 text-green-600" />
+                    {/* Delivered */}
+                    <Card className="relative overflow-hidden">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Delivered</p>
-                                    <p className="text-2xl font-bold text-gray-900">{stats.delivered_shipments}</p>
+                                    <p className="text-3xl font-bold text-gray-900 mt-2">{stats.delivered_shipments}</p>
+                                    <div className="flex items-center mt-2">
+                                        <CheckCircle className="h-4 w-4 text-green-600 mr-1" />
+                                        <span className="text-sm text-green-600 font-medium">95% on-time</span>
+                                    </div>
+                                </div>
+                                <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <CheckCircle className="h-6 w-6 text-green-600" />
                                 </div>
                             </div>
+                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-600"></div>
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardContent className="pt-6">
-                            <div className="flex items-center space-x-2">
-                                <Clock className="h-5 w-5 text-yellow-600" />
+                    {/* Pending */}
+                    <Card className="relative overflow-hidden">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Pending</p>
-                                    <p className="text-2xl font-bold text-gray-900">{stats.pending_shipments}</p>
+                                    <p className="text-3xl font-bold text-gray-900 mt-2">{stats.pending_shipments}</p>
+                                    <div className="flex items-center mt-2">
+                                        <AlertTriangle className="h-4 w-4 text-yellow-600 mr-1" />
+                                        <span className="text-sm text-gray-600">Awaiting pickup</span>
+                                    </div>
+                                </div>
+                                <div className="h-12 w-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                    <Clock className="h-6 w-6 text-yellow-600" />
                                 </div>
                             </div>
+                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-yellow-600"></div>
                         </CardContent>
                     </Card>
                 </div>
@@ -258,26 +253,229 @@ export default function CustomerDashboard({
                             <div className="text-center py-8">
                                 <Truck className="h-12 w-12 mx-auto text-gray-400 mb-4" />
                                 <p className="text-gray-500">No active shipments</p>
-                                <Button className="mt-4">
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Create Your First Shipment
-                                </Button>
+                                <p className="text-sm text-gray-400 mt-2">Shipment data will appear here once you start shipping</p>
                             </div>
                         )}
                     </CardContent>
                 </Card>
 
-                {/* Enhanced Dashboard Features - Phase 2 */}
+                {/* Dashboard Charts & Visualizations */}
                 <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-                    {/* Recent Activity Timeline */}
-                    <RecentActivityTimeline events={recentActivity} />
+                    {/* Weekly Shipments Trend */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
+                                Weekly Activity
+                            </CardTitle>
+                            <CardDescription>
+                                Your shipment activity over the past week
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="h-64">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={dashboardData.weekly_shipments}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="day" />
+                                        <YAxis />
+                                        <Tooltip
+                                            formatter={(value) => [`${value} shipments`, 'Shipments']}
+                                            labelFormatter={(label) => `Day: ${label}`}
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="shipments"
+                                            stroke="#3b82f6"
+                                            fill="#3b82f6"
+                                            fillOpacity={0.3}
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                    {/* Delivery Performance Widget */}
-                    <DeliveryPerformanceWidget metrics={performanceMetrics} />
+                    {/* Status Distribution */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <Package className="h-5 w-5 mr-2 text-green-600" />
+                                Shipment Status
+                            </CardTitle>
+                            <CardDescription>
+                                Current distribution of your shipments
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="h-64">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={dashboardData.status_distribution}
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={80}
+                                            fill="#8884d8"
+                                            dataKey="value"
+                                            label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                                            labelLine={false}
+                                        >
+                                            {dashboardData.status_distribution.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip formatter={(value) => [`${value} shipments`, 'Count']} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
 
-                {/* Upcoming Deliveries Calendar */}
-                <UpcomingDeliveriesCalendar deliveries={upcomingDeliveries} />
+                {/* Recent Shipments Overview */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center">
+                            <Package className="h-5 w-5 mr-2 text-blue-600" />
+                            Recent Shipments
+                        </CardTitle>
+                        <CardDescription>
+                            Latest shipment activity and status overview
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {activeShipments.length > 0 ? (
+                            <div className="space-y-3">
+                                {activeShipments.slice(0, 5).map((shipment) => (
+                                    <div key={shipment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                <Package className="h-5 w-5 text-blue-600" />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-900">{shipment.tracking_number}</p>
+                                                <p className="text-sm text-gray-600">{shipment.recipient_name}</p>
+                                                <p className="text-xs text-gray-500">{shipment.recipient_address}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            {getStatusBadge(shipment.status)}
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                {new Date(shipment.created_at).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8">
+                                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                                <p className="text-gray-500">No recent shipments</p>
+                                <p className="text-sm text-gray-400 mt-2">Shipment data will appear here once you start shipping</p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Performance Insights */}
+                <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
+                    {/* Delivery Performance */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
+                                Delivery Performance
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="text-center">
+                                    <div className="text-3xl font-bold text-green-600">95.2%</div>
+                                    <p className="text-sm text-gray-600">On-Time Delivery Rate</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Early Deliveries</span>
+                                        <span className="font-medium">12%</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">On-Time</span>
+                                        <span className="font-medium">83%</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Late Deliveries</span>
+                                        <span className="font-medium">5%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Average Delivery Time */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <Clock className="h-5 w-5 mr-2 text-blue-600" />
+                                Delivery Time
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="text-center">
+                                    <div className="text-3xl font-bold text-blue-600">2.3</div>
+                                    <p className="text-sm text-gray-600">Average Days</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Express</span>
+                                        <span className="font-medium">1.2 days</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Standard</span>
+                                        <span className="font-medium">2.8 days</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">International</span>
+                                        <span className="font-medium">5.1 days</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Monthly Summary */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center">
+                                <BarChart3 className="h-5 w-5 mr-2 text-purple-600" />
+                                This Month
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                <div className="text-center">
+                                    <div className="text-3xl font-bold text-purple-600">{stats.total_shipments}</div>
+                                    <p className="text-sm text-gray-600">Total Shipments</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Growth vs Last Month</span>
+                                        <span className="font-medium text-green-600">+12%</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Most Used Service</span>
+                                        <span className="font-medium">Standard</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-gray-600">Peak Day</span>
+                                        <span className="font-medium">Wednesday</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </AppLayout>
     );

@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
+import {
     ArrowLeft,
     Download,
     CreditCard,
@@ -18,7 +18,8 @@ import {
     CheckCircle,
     Clock,
     AlertCircle,
-    Send
+    Send,
+    Eye
 } from 'lucide-react';
 
 interface Invoice {
@@ -35,8 +36,25 @@ interface Invoice {
     issue_date: string;
     due_date: string;
     payment_terms: string;
-    billing_address: string;
-    company_address: string;
+    billing_address: {
+        city?: string;
+        name?: string;
+        email?: string;
+        phone?: string;
+        address?: string;
+        country?: string;
+        postal_code?: string;
+    };
+    company_address: {
+        city?: string;
+        name?: string;
+        email?: string;
+        phone?: string;
+        tax_id?: string;
+        address?: string;
+        country?: string;
+        postal_code?: string;
+    };
     created_at: string;
     payments?: Array<{
         id: number;
@@ -63,15 +81,18 @@ interface Props {
 const statusConfig = {
     draft: { label: 'Draft', color: 'bg-gray-100 text-gray-800', icon: FileText },
     sent: { label: 'Sent', color: 'bg-blue-100 text-blue-800', icon: Send },
+    viewed: { label: 'Viewed', color: 'bg-purple-100 text-purple-800', icon: Eye },
     paid: { label: 'Paid', color: 'bg-green-100 text-green-800', icon: CheckCircle },
     overdue: { label: 'Overdue', color: 'bg-red-100 text-red-800', icon: AlertCircle },
 };
 
 export default function InvoiceShow({ invoice, customer }: Props) {
-    const formatCurrency = (amount: number, currency: string = 'USD') => {
-        return new Intl.NumberFormat('en-US', {
+    const formatCurrency = (amount: number, currency: string = 'TZS') => {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
             currency: currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 
@@ -82,6 +103,10 @@ export default function InvoiceShow({ invoice, customer }: Props) {
             day: 'numeric',
         });
     };
+
+    // Handle address fields (they're already arrays from Laravel casts)
+    const companyAddress = invoice.company_address || {};
+    const billingAddress = invoice.billing_address || {};
 
     const getStatusInfo = (invoice: Invoice) => {
         if (invoice.status === 'sent' && new Date(invoice.due_date) < new Date()) {
@@ -149,8 +174,25 @@ export default function InvoiceShow({ invoice, customer }: Props) {
                                             From
                                         </h3>
                                         <div className="text-sm text-gray-600 space-y-1">
-                                            <p className="font-medium">RT Express</p>
-                                            <p>{invoice.company_address}</p>
+                                            <p className="font-medium">{companyAddress.name || 'RT Express'}</p>
+                                            {companyAddress.address && <p>{companyAddress.address}</p>}
+                                            {companyAddress.city && companyAddress.country && (
+                                                <p>{companyAddress.city}, {companyAddress.country}</p>
+                                            )}
+                                            {companyAddress.postal_code && <p>{companyAddress.postal_code}</p>}
+                                            {companyAddress.email && (
+                                                <p className="flex items-center gap-1">
+                                                    <Mail className="w-3 h-3" />
+                                                    {companyAddress.email}
+                                                </p>
+                                            )}
+                                            {companyAddress.phone && (
+                                                <p className="flex items-center gap-1">
+                                                    <Phone className="w-3 h-3" />
+                                                    {companyAddress.phone}
+                                                </p>
+                                            )}
+                                            {companyAddress.tax_id && <p>Tax ID: {companyAddress.tax_id}</p>}
                                         </div>
                                     </div>
 
@@ -162,16 +204,20 @@ export default function InvoiceShow({ invoice, customer }: Props) {
                                         </h3>
                                         <div className="text-sm text-gray-600 space-y-1">
                                             <p className="font-medium">{customer.company_name}</p>
-                                            <p>{customer.contact_person}</p>
+                                            <p>{billingAddress.name || customer.contact_person}</p>
                                             <p className="flex items-center gap-1">
                                                 <Mail className="w-3 h-3" />
-                                                {customer.email}
+                                                {billingAddress.email || customer.email}
                                             </p>
                                             <p className="flex items-center gap-1">
                                                 <Phone className="w-3 h-3" />
-                                                {customer.phone}
+                                                {billingAddress.phone || customer.phone}
                                             </p>
-                                            <p>{invoice.billing_address}</p>
+                                            {billingAddress.address && <p>{billingAddress.address}</p>}
+                                            {billingAddress.city && billingAddress.country && (
+                                                <p>{billingAddress.city}, {billingAddress.country}</p>
+                                            )}
+                                            {billingAddress.postal_code && <p>{billingAddress.postal_code}</p>}
                                         </div>
                                     </div>
                                 </div>

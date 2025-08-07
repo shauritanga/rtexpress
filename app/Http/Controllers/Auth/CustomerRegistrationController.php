@@ -9,6 +9,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -36,7 +37,13 @@ class CustomerRegistrationController extends Controller
             'last_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'phone' => 'required|string|max:20',
+            'phone' => [
+                'required',
+                'string',
+                'regex:/^[\+]?[1-9][\d]{0,15}$/', // International format
+                'min:10',
+                'max:20'
+            ],
             
             // Company Information
             'company_name' => 'required|string|max:255',
@@ -56,11 +63,13 @@ class CustomerRegistrationController extends Controller
         // Generate unique customer code
         $customerCode = $this->generateCustomerCode($validated['company_name']);
 
-        // Create user account
+        // Create user account with OTP enabled by default
         $user = User::create([
             'name' => $validated['first_name'] . ' ' . $validated['last_name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'phone' => $validated['phone'],
+            'otp_enabled' => config('otp.enabled_by_default', true), // Enable OTP by default for security
         ]);
 
         // Assign customer role
@@ -79,7 +88,7 @@ class CustomerRegistrationController extends Controller
             'state_province' => $validated['state_province'],
             'postal_code' => $validated['postal_code'],
             'country' => $validated['country'],
-            'status' => 'active', // Set to active by default
+            'status' => 'inactive', // Require admin approval - use inactive until approved
             'credit_limit' => 1000.00, // Default credit limit
             'payment_terms' => 'net_30', // Use enum value
             'created_by' => null, // Self-registration, no admin created this
@@ -88,16 +97,28 @@ class CustomerRegistrationController extends Controller
         // Link user to customer
         $user->update(['customer_id' => $customer->id]);
 
-        // Fire registered event
+        // Fire registered event (this sends the verification email)
         event(new Registered($user));
 
-        // Log the user in
+        // Log security event
+        Log::info('Customer registration completed', [
+            'user_id' => $user->id,
+            'email' => $validated['email'],
+            'company' => $validated['company_name'],
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        // Log in the user temporarily for verification process
         Auth::login($user);
 
-        // Redirect to customer dashboard with welcome message
-        return redirect()->route('customer.dashboard')->with('success', 
-            'Welcome to RT Express! Your account has been created and is pending approval. You can start exploring your dashboard.'
-        );
+        // Redirect to email verification notice with detailed success message
+        return redirect()->route('verification.notice')->with([
+            'success' => 'Registration successful! Welcome to RT Express.',
+            'email_sent' => true,
+            'user_email' => $validated['email'],
+            'company_name' => $validated['company_name']
+        ]);
     }
 
     /**

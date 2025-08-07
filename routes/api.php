@@ -14,13 +14,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Public tracking routes (no authentication required) - MUST BE FIRST
+Route::get('/tracking/{trackingNumber}', [App\Http\Controllers\Customer\TrackingController::class, 'track'])->name('api.tracking.show');
+Route::get('/tracking/{trackingNumber}/updates', [App\Http\Controllers\Customer\TrackingController::class, 'updates'])->name('api.tracking.updates');
+
+// Webhook routes (no authentication required)
+Route::post('/webhooks/clickpesa', [App\Http\Controllers\Webhooks\ClickPesaWebhookController::class, 'handle'])
+    ->name('webhooks.clickpesa');
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
-// Public tracking routes (no authentication required)
-Route::get('/tracking/{trackingNumber}', [App\Http\Controllers\Customer\TrackingController::class, 'track']);
-Route::get('/tracking/{trackingNumber}/updates', [App\Http\Controllers\Customer\TrackingController::class, 'updates']);
 
 // Scanner API routes (require authentication)
 Route::middleware('auth')->group(function () {
@@ -32,7 +36,7 @@ Route::middleware('auth')->group(function () {
 
     // Customer scanner routes
     Route::prefix('customer')->group(function () {
-        Route::get('/tracking/{trackingNumber}', [App\Http\Controllers\Customer\ScannerController::class, 'trackPackage']);
+        Route::get('/scanner/tracking/{trackingNumber}', [App\Http\Controllers\Customer\ScannerController::class, 'trackPackage']);
     });
 });
 

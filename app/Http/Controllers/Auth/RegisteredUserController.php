@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,7 +36,13 @@ class RegisteredUserController extends Controller
             'company_name' => 'required|string|max:255',
             'contact_person' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:users,email|unique:customers,email',
-            'phone' => 'required|string|max:20',
+            'phone' => [
+                'required',
+                'string',
+                'regex:/^[\+]?[1-9][\d]{0,15}$/', // International format
+                'min:10',
+                'max:20'
+            ],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'address_line_1' => 'required|string|max:255',
             'address_line_2' => 'nullable|string|max:255',
@@ -47,12 +54,14 @@ class RegisteredUserController extends Controller
         ]);
 
         try {
-            // Create user account
+            // Create user account with OTP enabled by default
             $user = User::create([
                 'name' => $request->contact_person,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'phone' => $request->phone,
                 'status' => 'active',
+                'otp_enabled' => config('otp.enabled_by_default', true), // Enable OTP by default for security
             ]);
 
             // Create customer record
@@ -69,17 +78,34 @@ class RegisteredUserController extends Controller
                 'country' => $request->country,
                 'credit_limit' => 5000.00, // Default credit limit
                 'payment_terms' => 'net_30', // Default payment terms
-                'status' => 'active',
+                'status' => 'inactive', // Require admin approval - use inactive until approved
                 'created_by' => $user->id,
             ]);
 
             // Link user to customer
             $user->update(['customer_id' => $customer->id]);
 
+            // Fire registered event (this sends the verification email)
             event(new Registered($user));
+
+            // Log security event
+            Log::info('Customer registration completed', [
+                'user_id' => $user->id,
+                'email' => $request->email,
+                'company' => $request->company_name,
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
+            // Log in the user temporarily for verification process
             Auth::login($user);
 
-            return redirect('/customer/dashboard')->with('success', 'Welcome to RT Express! Your account has been created successfully.');
+            return redirect()->route('verification.notice')->with([
+                'success' => 'Registration successful! Welcome to RT Express.',
+                'email_sent' => true,
+                'user_email' => $request->email,
+                'company_name' => $request->company_name
+            ]);
 
         } catch (\Exception $e) {
             return back()

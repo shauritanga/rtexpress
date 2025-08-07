@@ -134,7 +134,7 @@ class RouteController extends Controller
     public function create()
     {
         $drivers = Driver::available()->select('id', 'name', 'driver_id', 'vehicle_type', 'vehicle_capacity')->get();
-        $warehouses = Warehouse::select('id', 'name', 'address')->get();
+        $warehouses = Warehouse::select('id', 'name', 'address_line_1', 'address_line_2', 'city', 'state_province')->get();
 
         // Get pending shipments for route planning
         $pendingShipments = Shipment::with(['customer', 'origin', 'destination'])
@@ -285,6 +285,41 @@ class RouteController extends Controller
         return redirect()
             ->route('admin.routes.show', $route)
             ->with('success', 'Route completed successfully');
+    }
+
+    /**
+     * Remove the specified route.
+     */
+    public function destroy(DeliveryRoute $route)
+    {
+        try {
+            // Check if route is in progress or completed
+            if (in_array($route->status, ['in_progress', 'completed'])) {
+                return back()->withErrors([
+                    'error' => "Cannot delete route {$route->route_number}. Routes that are in progress or completed cannot be deleted."
+                ]);
+            }
+
+            $routeNumber = $route->route_number;
+
+            // Make driver available again if route is planned
+            if ($route->status === 'planned' && $route->driver) {
+                $route->driver->update(['is_available' => true]);
+            }
+
+            // Delete route stops first
+            $route->stops()->delete();
+
+            // Delete the route
+            $route->delete();
+
+            return redirect()
+                ->route('admin.routes.index')
+                ->with('success', "Route {$routeNumber} deleted successfully!");
+
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to delete route. Please try again.']);
+        }
     }
 
     /**

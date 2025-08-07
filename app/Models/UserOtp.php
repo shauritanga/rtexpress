@@ -11,7 +11,7 @@ class UserOtp extends Model
     protected $fillable = [
         'user_id',
         'otp_code',
-        'phone_number',
+        'phone_number', // Keep for backward compatibility, but will store email for email-based OTP
         'type',
         'expires_at',
         'is_used',
@@ -54,19 +54,21 @@ class UserOtp extends Model
         return str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
 
-    public static function createForUser(User $user, string $type = 'login', ?string $phoneNumber = null): self
+    public static function createForUser(User $user, string $type = 'login', ?string $contactInfo = null): self
     {
         // Clean up old OTPs for this user and type
         self::where('user_id', $user->id)
             ->where('type', $type)
             ->delete();
 
+        $expirationMinutes = config('otp.expiration_minutes', 5);
+
         return self::create([
             'user_id' => $user->id,
             'otp_code' => self::generateOtp(),
-            'phone_number' => $phoneNumber ?? $user->phone,
+            'phone_number' => $contactInfo ?? $user->email, // Store email in phone_number field for email-based OTP
             'type' => $type,
-            'expires_at' => now()->addMinutes(5), // OTP expires in 5 minutes
+            'expires_at' => now()->addMinutes($expirationMinutes),
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);

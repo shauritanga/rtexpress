@@ -85,7 +85,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
         shipment_type: 'commercial',
         origin_country: 'TZA',
         destination_country: '',
-        currency: 'USD',
+        currency: 'TZS',
         total_value: 0,
         insurance_value: 0,
         freight_charges: 0,
@@ -262,7 +262,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                     </SelectItem>
                                                 ))
                                             ) : (
-                                                <SelectItem value="" disabled className="text-base py-3">
+                                                <SelectItem value="no-shipments" disabled className="text-base py-3">
                                                     No pending shipments available
                                                 </SelectItem>
                                             )}

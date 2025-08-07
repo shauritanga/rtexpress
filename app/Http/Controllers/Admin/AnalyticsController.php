@@ -28,6 +28,7 @@ class AnalyticsController extends Controller
             'topCustomers' => $this->getTopCustomers($startDate),
             'warehousePerformance' => $this->getWarehousePerformance($startDate),
             'serviceTypeDistribution' => $this->getServiceTypeDistribution($startDate),
+            'statusDistribution' => $this->getStatusDistribution($startDate),
             'revenueAnalytics' => $this->getRevenueAnalytics($startDate),
         ];
 
@@ -97,13 +98,17 @@ class AnalyticsController extends Controller
      */
     private function getPerformanceMetrics(Carbon $startDate): array
     {
-        $shipments = Shipment::where('created_at', '>=', $startDate);
+        // Values are already in TZS in the database
+        $totalShipments = Shipment::where('created_at', '>=', $startDate)->count();
+        $averageCost = Shipment::where('created_at', '>=', $startDate)
+            ->whereNotNull('total_cost')
+            ->avg('total_cost') ?? 0;
 
         return [
             'on_time_delivery_rate' => $this->getOnTimeDeliveryRate($startDate),
             'average_transit_time' => $this->getAverageTransitTime($startDate),
-            'customer_satisfaction' => 4.2, // TODO: Implement when feedback system is ready
-            'cost_per_shipment' => 0, // TODO: Implement when billing is ready
+            'customer_satisfaction' => $this->getCustomerSatisfactionScore($startDate),
+            'cost_per_shipment' => round($averageCost, 2),
             'exception_rate' => $this->getExceptionRate($startDate),
         ];
     }
@@ -185,17 +190,81 @@ class AnalyticsController extends Controller
     }
 
     /**
-     * Get revenue analytics (placeholder for when billing is implemented).
+     * Get status distribution.
+     */
+    private function getStatusDistribution(Carbon $startDate): array
+    {
+        return Shipment::where('created_at', '>=', $startDate)
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'status' => $item->status,
+                    'count' => $item->count,
+                ];
+            })
+            ->toArray();
+    }
+
+    /**
+     * Get revenue analytics based on shipment costs in TZS.
      */
     private function getRevenueAnalytics(Carbon $startDate): array
     {
-        // TODO: Implement when billing system is ready
+        // Values are already in TZS in the database
+        $currentPeriodRevenue = Shipment::where('created_at', '>=', $startDate)
+            ->whereNotNull('total_cost')
+            ->sum('total_cost');
+
+        $previousPeriodStart = $startDate->copy()->subDays($startDate->diffInDays(now()));
+        $previousPeriodRevenue = Shipment::whereBetween('created_at', [$previousPeriodStart, $startDate])
+            ->whereNotNull('total_cost')
+            ->sum('total_cost');
+
+        $revenueGrowth = $previousPeriodRevenue > 0
+            ? (($currentPeriodRevenue - $previousPeriodRevenue) / $previousPeriodRevenue) * 100
+            : 0;
+
+        $totalShipments = Shipment::where('created_at', '>=', $startDate)->count();
+        $averageOrderValue = $totalShipments > 0 ? $currentPeriodRevenue / $totalShipments : 0;
+
+        // Revenue by service type (already in TZS)
+        $revenueByServiceType = Shipment::where('created_at', '>=', $startDate)
+            ->whereNotNull('total_cost')
+            ->selectRaw('service_type, SUM(total_cost) as revenue')
+            ->groupBy('service_type')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'service_type' => ucfirst($item->service_type),
+                    'revenue' => round($item->revenue, 2),
+                ];
+            })
+            ->toArray();
+
+        // Monthly revenue trend (last 6 months, already in TZS)
+        $monthlyRevenueTrend = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthStart = now()->subMonths($i)->startOfMonth();
+            $monthEnd = $monthStart->copy()->endOfMonth();
+
+            $monthRevenue = Shipment::whereBetween('created_at', [$monthStart, $monthEnd])
+                ->whereNotNull('total_cost')
+                ->sum('total_cost');
+
+            $monthlyRevenueTrend[] = [
+                'month' => $monthStart->format('M Y'),
+                'revenue' => round($monthRevenue, 2),
+            ];
+        }
+
         return [
-            'total_revenue' => 0,
-            'revenue_growth' => 0,
-            'average_order_value' => 0,
-            'revenue_by_service_type' => [],
-            'monthly_revenue_trend' => [],
+            'total_revenue' => round($currentPeriodRevenue, 2),
+            'revenue_growth' => round($revenueGrowth, 1),
+            'average_order_value' => round($averageOrderValue, 2),
+            'revenue_by_service_type' => $revenueByServiceType,
+            'monthly_revenue_trend' => $monthlyRevenueTrend,
         ];
     }
 
@@ -359,5 +428,23 @@ class AnalyticsController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Get customer satisfaction score based on delivery performance.
+     */
+    private function getCustomerSatisfactionScore(Carbon $startDate): float
+    {
+        $onTimeRate = $this->getOnTimeDeliveryRate($startDate);
+        $exceptionRate = $this->getExceptionRate($startDate);
+
+        // Calculate satisfaction based on performance metrics
+        // Base score of 3.0, add points for good performance, subtract for poor performance
+        $score = 3.0;
+        $score += ($onTimeRate / 100) * 2; // Up to 2 points for on-time delivery
+        $score -= ($exceptionRate / 100) * 1.5; // Subtract up to 1.5 points for exceptions
+
+        // Ensure score is between 1.0 and 5.0
+        return round(max(1.0, min(5.0, $score)), 1);
     }
 }

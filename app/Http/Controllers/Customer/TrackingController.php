@@ -38,10 +38,8 @@ class TrackingController extends Controller
      */
     public function track(Request $request, string $trackingNumber)
     {
-        $user = Auth::user();
-        $customer = $user->customer ?? null;
-
-        $trackingData = $this->getTrackingData($trackingNumber, $customer);
+        // Public tracking - no authentication required
+        $trackingData = $this->getTrackingData($trackingNumber, null);
 
         if (!$trackingData) {
             return response()->json([
@@ -83,24 +81,16 @@ class TrackingController extends Controller
      */
     private function getTrackingData(string $trackingNumber, $customer = null): ?array
     {
-        // First, try to find the shipment in the database
+        // Find the shipment in the database - ONLY REAL DATA
         $shipment = Shipment::where('tracking_number', $trackingNumber)->first();
 
         if ($shipment) {
-            // If customer is provided and has access, return real data
-            if (!$customer || $shipment->customer_id === $customer->id) {
-                return $this->formatShipmentTrackingData($shipment);
-            }
-            // If customer doesn't have access, fall through to mock data
+            // Return real data from database
+            return $this->formatShipmentTrackingData($shipment);
         }
 
-        // If not found in database and tracking number doesn't look valid, return null
-        if (!preg_match('/^RT\d{8}$/', $trackingNumber)) {
-            return null;
-        }
-
-        // For valid-looking tracking numbers not in database, return mock data for demonstration
-        return $this->getMockTrackingData($trackingNumber);
+        // If shipment not found, return null (no mock data)
+        return null;
     }
 
     /**
@@ -108,158 +98,138 @@ class TrackingController extends Controller
      */
     private function formatShipmentTrackingData(Shipment $shipment): array
     {
-        // Generate mock tracking events based on shipment status
-        $events = $this->generateTrackingEvents($shipment);
+        // Get real tracking events from database
+        $events = $shipment->trackingHistory()
+            ->orderBy('occurred_at', 'desc')
+            ->with('recordedBy')
+            ->get()
+            ->map(function ($tracking) {
+                return [
+                    'id' => (string) $tracking->id,
+                    'timestamp' => $tracking->occurred_at->toISOString(),
+                    'status' => $tracking->status,
+                    'location' => $tracking->location,
+                    'description' => $tracking->notes ?? $this->getStatusDescription($tracking->status),
+                    'recorded_by' => $tracking->recordedBy?->name,
+                    'coordinates' => $this->getLocationCoordinates($tracking->location),
+                ];
+            });
+
+        // Get current location from latest tracking event
+        $latestTracking = $shipment->trackingHistory()->latest('occurred_at')->first();
+        $currentLocation = $latestTracking ? [
+            'lat' => $this->getLocationCoordinates($latestTracking->location)['lat'] ?? null,
+            'lng' => $this->getLocationCoordinates($latestTracking->location)['lng'] ?? null,
+            'address' => $latestTracking->location,
+            'type' => 'current'
+        ] : [
+            'lat' => null,
+            'lng' => null,
+            'address' => $shipment->originWarehouse?->address ?? 'Origin Location',
+            'type' => 'current'
+        ];
 
         return [
             'tracking_number' => $shipment->tracking_number,
             'current_status' => $shipment->status,
-            'estimated_delivery' => $shipment->estimated_delivery_date,
-            'current_location' => [
-                'lat' => 40.7128 + (rand(-100, 100) / 1000), // Mock coordinates
-                'lng' => -74.0060 + (rand(-100, 100) / 1000),
-                'address' => $this->getCurrentLocationAddress($shipment->status),
+            'estimated_delivery' => $shipment->estimated_delivery_date?->toISOString(),
+            'actual_delivery' => $shipment->actual_delivery_date?->toISOString(),
+            'current_location' => $currentLocation,
+            'origin' => [
+                'address' => $shipment->sender_address,
+                'warehouse' => $shipment->originWarehouse?->name,
             ],
             'destination' => [
-                'lat' => 40.7589,
-                'lng' => -73.9851,
+                'lat' => $this->getLocationCoordinates($shipment->recipient_address)['lat'] ?? -6.7924,
+                'lng' => $this->getLocationCoordinates($shipment->recipient_address)['lng'] ?? 39.2083,
                 'address' => $shipment->recipient_address,
+                'warehouse' => $shipment->destinationWarehouse?->name,
             ],
-            'driver' => $this->getDriverInfo($shipment),
+            'shipment_details' => [
+                'weight' => $shipment->weight_kg,
+                'dimensions' => [
+                    'length' => $shipment->dimensions_length_cm,
+                    'width' => $shipment->dimensions_width_cm,
+                    'height' => $shipment->dimensions_height_cm,
+                ],
+                'declared_value' => $shipment->declared_value,
+                'service_type' => $shipment->service_type,
+                'package_type' => $shipment->package_type,
+            ],
+            'customer_info' => [
+                'sender_name' => $shipment->sender_name,
+                'sender_phone' => $shipment->sender_phone,
+                'recipient_name' => $shipment->recipient_name,
+                'recipient_phone' => $shipment->recipient_phone,
+            ],
             'events' => $events,
             'delivery_window' => $this->getDeliveryWindow($shipment),
             'special_instructions' => $shipment->special_instructions,
+            'insurance_value' => $shipment->insurance_value,
+            'created_at' => $shipment->created_at->toISOString(),
+            'updated_at' => $shipment->updated_at->toISOString(),
         ];
     }
 
     /**
-     * Generate tracking events based on shipment status.
+     * Get real tracking events from database.
      */
     private function generateTrackingEvents(Shipment $shipment): array
     {
+        // Get real tracking history from database
+        $trackingHistory = $shipment->trackingHistory()
+            ->with('recordedBy')
+            ->orderBy('occurred_at', 'desc')
+            ->get();
+
         $events = [];
-        $baseTime = $shipment->created_at;
 
-        // Always include creation event
-        $events[] = [
-            'id' => '1',
-            'timestamp' => $baseTime->toISOString(),
-            'status' => 'pending',
-            'location' => 'RT Express Facility',
-            'description' => 'Shipment created and ready for pickup',
-            'details' => 'Package has been processed and is ready for collection.',
-        ];
-
-        // Add events based on current status
-        $statusOrder = ['pending', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered'];
-        $currentIndex = array_search($shipment->status, $statusOrder);
-
-        if ($currentIndex >= 1) {
+        // If no tracking history exists, create a default creation event
+        if ($trackingHistory->isEmpty()) {
             $events[] = [
-                'id' => '2',
-                'timestamp' => $baseTime->addHours(4)->toISOString(),
-                'status' => 'picked_up',
-                'location' => 'Customer Location',
-                'description' => 'Package picked up from sender',
-                'driver' => [
-                    'name' => 'Sarah Wilson',
-                    'phone' => '+1 (555) 987-6543',
-                ],
-                'details' => 'Package successfully collected from sender location.',
+                'id' => 'created',
+                'timestamp' => $shipment->created_at->toISOString(),
+                'status' => 'pending',
+                'location' => $shipment->originWarehouse?->name ?? 'RT Express Facility',
+                'description' => 'Shipment created and ready for pickup',
+                'details' => 'Package has been processed and is ready for collection.',
             ];
+        } else {
+            // Use real tracking history
+            foreach ($trackingHistory as $index => $tracking) {
+                $events[] = [
+                    'id' => (string) $tracking->id,
+                    'timestamp' => $tracking->occurred_at->toISOString(),
+                    'status' => $tracking->status,
+                    'location' => $tracking->location,
+                    'description' => $this->getStatusDescription($tracking->status),
+                    'details' => $tracking->notes ?? $this->getStatusDescription($tracking->status),
+                    'recorded_by' => $tracking->recordedBy?->name,
+                ];
+            }
         }
 
-        if ($currentIndex >= 2) {
-            $events[] = [
-                'id' => '3',
-                'timestamp' => $baseTime->addHours(8)->toISOString(),
-                'status' => 'in_transit',
-                'location' => 'Distribution Center',
-                'description' => 'Package in transit',
-                'details' => 'Package is being transported to destination.',
-            ];
-        }
-
-        if ($currentIndex >= 3) {
-            $events[] = [
-                'id' => '4',
-                'timestamp' => $baseTime->addDay()->toISOString(),
-                'status' => 'out_for_delivery',
-                'location' => 'Local Delivery Hub',
-                'description' => 'Out for delivery',
-                'driver' => [
-                    'name' => 'Mike Johnson',
-                    'phone' => '+1 (555) 123-4567',
-                ],
-                'details' => 'Package is on the delivery vehicle.',
-            ];
-        }
-
-        if ($currentIndex >= 4) {
-            $events[] = [
-                'id' => '5',
-                'timestamp' => $baseTime->addDay()->addHours(6)->toISOString(),
-                'status' => 'delivered',
-                'location' => $shipment->recipient_address,
-                'description' => 'Package delivered successfully',
-                'details' => 'Package has been delivered to the recipient.',
-            ];
-        }
-
-        return array_reverse($events); // Most recent first
+        return $events; // Already ordered by occurred_at desc
     }
 
     /**
-     * Get mock tracking data for demonstration.
+     * Get human-readable description for status.
      */
-    private function getMockTrackingData(string $trackingNumber): array
+    private function getStatusDescription(string $status): string
     {
-        // Return mock data for demonstration purposes
-        return [
-            'tracking_number' => $trackingNumber,
-            'current_status' => 'in_transit',
-            'estimated_delivery' => now()->addDays(2)->toISOString(),
-            'current_location' => [
-                'lat' => 40.7128,
-                'lng' => -74.0060,
-                'address' => 'New York Distribution Center, 123 Logistics Ave, New York, NY 10001',
-            ],
-            'destination' => [
-                'lat' => 40.7589,
-                'lng' => -73.9851,
-                'address' => '456 Business St, New York, NY 10019',
-            ],
-            'driver' => [
-                'name' => 'Mike Johnson',
-                'phone' => '+1 (555) 123-4567',
-                'vehicle' => 'Truck #RT-2024',
-            ],
-            'events' => [
-                [
-                    'id' => '1',
-                    'timestamp' => now()->subDays(2)->toISOString(),
-                    'status' => 'pending',
-                    'location' => 'RT Express Facility',
-                    'description' => 'Shipment created and ready for pickup',
-                ],
-                [
-                    'id' => '2',
-                    'timestamp' => now()->subDays(1)->toISOString(),
-                    'status' => 'picked_up',
-                    'location' => 'Customer Location',
-                    'description' => 'Package picked up from sender',
-                ],
-                [
-                    'id' => '3',
-                    'timestamp' => now()->subHours(8)->toISOString(),
-                    'status' => 'in_transit',
-                    'location' => 'Distribution Center',
-                    'description' => 'Package in transit',
-                ],
-            ],
-            'delivery_window' => '2:00 PM - 6:00 PM',
-        ];
+        return match($status) {
+            'pending' => 'Shipment created and ready for pickup',
+            'picked_up' => 'Package picked up from sender',
+            'in_transit' => 'Package in transit',
+            'out_for_delivery' => 'Out for delivery',
+            'delivered' => 'Package delivered successfully',
+            'exception' => 'Delivery exception occurred',
+            'cancelled' => 'Shipment cancelled',
+            default => 'Status updated',
+        };
     }
+
+
 
     /**
      * Get current location address based on status.
@@ -298,10 +268,61 @@ class TrackingController extends Controller
      */
     private function getDeliveryWindow(Shipment $shipment): ?string
     {
-        if (in_array($shipment->status, ['out_for_delivery', 'delivered'])) {
-            return '2:00 PM - 6:00 PM';
+        if (!$shipment->estimated_delivery_date) {
+            return null;
         }
 
-        return null;
+        // Delivery window based on service type
+        return match($shipment->service_type ?? 'standard') {
+            'express' => '9:00 AM - 1:00 PM',
+            'overnight' => '8:00 AM - 12:00 PM',
+            'same_day' => '2:00 PM - 6:00 PM',
+            default => '9:00 AM - 6:00 PM',
+        };
     }
+
+    /**
+     * Get location coordinates for a given address/location.
+     */
+    private function getLocationCoordinates(string $location): array
+    {
+        // Tanzania major cities and locations
+        $coordinates = [
+            // Major cities
+            'Dar es Salaam' => ['lat' => -6.7924, 'lng' => 39.2083],
+            'Dodoma' => ['lat' => -6.1630, 'lng' => 35.7516],
+            'Mwanza' => ['lat' => -2.5164, 'lng' => 32.9175],
+            'Arusha' => ['lat' => -3.3869, 'lng' => 36.6830],
+            'Mbeya' => ['lat' => -8.9094, 'lng' => 33.4607],
+            'Morogoro' => ['lat' => -6.8235, 'lng' => 37.6614],
+            'Tanga' => ['lat' => -5.0692, 'lng' => 39.0962],
+            'Tabora' => ['lat' => -5.0165, 'lng' => 32.8033],
+            'Kigoma' => ['lat' => -4.8765, 'lng' => 29.6269],
+            'Mtwara' => ['lat' => -10.2692, 'lng' => 40.1806],
+
+            // RT Express facilities
+            'RT Express Facility' => ['lat' => -6.7924, 'lng' => 39.2083],
+            'Dar es Salaam Distribution Center' => ['lat' => -6.8000, 'lng' => 39.2500],
+            'Dodoma Distribution Center' => ['lat' => -6.1630, 'lng' => 35.7516],
+            'Mwanza Distribution Center' => ['lat' => -2.5164, 'lng' => 32.9175],
+            'Arusha Distribution Center' => ['lat' => -3.3869, 'lng' => 36.6830],
+
+            // Common locations
+            'Customer Location' => ['lat' => -6.7924, 'lng' => 39.2083],
+            'Distribution Center' => ['lat' => -6.8000, 'lng' => 39.2500],
+            'Local Delivery Hub' => ['lat' => -6.7800, 'lng' => 39.2200],
+        ];
+
+        // Check for exact match first
+        foreach ($coordinates as $place => $coords) {
+            if (stripos($location, $place) !== false) {
+                return $coords;
+            }
+        }
+
+        // Default to Dar es Salaam if no match found
+        return ['lat' => -6.7924, 'lng' => 39.2083];
+    }
+
+
 }

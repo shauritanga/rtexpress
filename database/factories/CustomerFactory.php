@@ -31,7 +31,7 @@ class CustomerFactory extends Factory
             'tax_number' => $this->faker->optional()->numerify('TAX-########'),
             'credit_limit' => $this->faker->randomFloat(2, 1000, 50000),
             'payment_terms' => $this->faker->randomElement(['net_15', 'net_30', 'net_60', 'net_90', 'cash_on_delivery']),
-            'status' => $this->faker->randomElement(['active', 'inactive', 'suspended']),
+            'status' => $this->faker->randomElement(['active', 'inactive', 'suspended', 'pending_approval']),
             'notes' => $this->faker->optional()->paragraph(),
             'created_by' => User::factory(),
         ];

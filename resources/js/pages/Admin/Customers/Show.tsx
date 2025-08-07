@@ -13,7 +13,7 @@ import {
     TableHeader, 
     TableRow 
 } from '@/components/ui/table';
-import { 
+import {
     ArrowLeft,
     User,
     Building,
@@ -23,7 +23,7 @@ import {
     CreditCard,
     Edit,
     Package,
-    DollarSign,
+    Banknote,
     Calendar,
     TrendingUp,
     UserCheck,
@@ -71,9 +71,11 @@ interface Props {
 
 export default function CustomerShow({ customer }: Props) {
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
-            currency: 'USD',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 
@@ -216,7 +218,7 @@ export default function CustomerShow({ customer }: Props) {
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
-                                <DollarSign className="h-5 w-5 text-purple-600" />
+                                <Banknote className="h-5 w-5 text-purple-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Spent</p>
                                     <p className="text-2xl font-bold">{formatCurrency(customer?.total_spent || 0)}</p>

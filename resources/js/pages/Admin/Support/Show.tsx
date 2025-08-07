@@ -43,8 +43,12 @@ interface User {
 interface SupportMessage {
     id: number;
     message: string;
-    sender_type: string;
-    sender_name: string;
+    user_id?: number;
+    customer_id?: number;
+    user?: User;
+    customer?: Customer;
+    type: string;
+    is_internal: boolean;
     created_at: string;
     attachments?: any[];
 }
@@ -62,17 +66,17 @@ interface SupportTicket {
     resolved_at?: string;
     customer: Customer;
     assigned_to?: User;
-    messages: SupportMessage[];
+    replies: SupportMessage[];
     rating?: number;
     feedback?: string;
 }
 
 interface Props {
     ticket: SupportTicket;
-    users: User[];
+    agents: User[];
 }
 
-export default function SupportShow({ ticket, users }: Props) {
+export default function SupportShow({ ticket, agents }: Props) {
     const [isReplying, setIsReplying] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -310,30 +314,37 @@ export default function SupportShow({ ticket, users }: Props) {
                         </Card>
 
                         {/* Messages */}
-                        {ticket.messages.length > 0 && (
+                        {ticket.replies && ticket.replies.length > 0 && (
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Conversation</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-4">
-                                        {ticket.messages.map((message, index) => (
+                                        {ticket.replies.map((message, index) => (
                                             <div key={message.id} className="flex space-x-3">
                                                 <div className="flex-shrink-0">
                                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                                        message.sender_type === 'customer' ? 'bg-blue-100' : 'bg-green-100'
+                                                        message.customer_id ? 'bg-blue-100' : 'bg-green-100'
                                                     }`}>
                                                         <User className={`h-4 w-4 ${
-                                                            message.sender_type === 'customer' ? 'text-blue-600' : 'text-green-600'
+                                                            message.customer_id ? 'text-blue-600' : 'text-green-600'
                                                         }`} />
                                                     </div>
                                                 </div>
                                                 <div className="flex-1">
                                                     <div className="flex items-center space-x-2">
-                                                        <p className="text-sm font-medium">{message.sender_name}</p>
+                                                        <p className="text-sm font-medium">
+                                                            {message.user?.name || message.customer?.name || 'Unknown'}
+                                                        </p>
                                                         <p className="text-xs text-muted-foreground">
                                                             {formatDateTime(message.created_at)}
                                                         </p>
+                                                        {message.is_internal && (
+                                                            <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                                                                Internal Note
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     <div className="mt-1 p-3 bg-muted rounded-md">
                                                         <p className="text-sm whitespace-pre-wrap">{message.message}</p>
@@ -429,7 +440,7 @@ export default function SupportShow({ ticket, users }: Props) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="0">Unassigned</SelectItem>
-                                        {users.map((user) => (
+                                        {agents.map((user) => (
                                             <SelectItem key={user.id} value={user.id.toString()}>
                                                 {user.name}
                                             </SelectItem>

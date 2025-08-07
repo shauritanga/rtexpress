@@ -29,6 +29,7 @@ class Shipment extends Model
         'recipient_name',
         'recipient_phone',
         'recipient_address',
+        'recipient_country',
         'service_type',
         'package_type',
         'weight_kg',
@@ -87,6 +88,11 @@ class Shipment extends Model
                     // Fallback if generation fails
                     $shipment->tracking_number = 'RT-' . date('Y') . '-' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
                 }
+            }
+
+            // Set default status if not provided
+            if (empty($shipment->status)) {
+                $shipment->status = 'pending';
             }
         });
     }
@@ -171,7 +177,81 @@ class Shipment extends Model
         return $this->hasOne(CustomsDeclaration::class);
     }
 
-    // Note: Invoice, CustomsDocument, ComplianceCheck, and SupportTicket relationships
+    /**
+     * Check if shipment requires customs declaration.
+     */
+    public function requiresCustomsDeclaration(): bool
+    {
+        // International shipments require customs declaration
+        if ($this->service_type === 'international') {
+            return true;
+        }
+
+        // High-value shipments may require customs declaration
+        if ($this->declared_value > 1000) {
+            return true;
+        }
+
+        // Check if destination country is different from origin
+        $originCountry = $this->getOriginCountry();
+        $destinationCountry = $this->getDestinationCountry();
+
+        return $originCountry !== $destinationCountry;
+    }
+
+    /**
+     * Get origin country from sender address.
+     */
+    public function getOriginCountry(): string
+    {
+        // Extract country from sender address or use default
+        return $this->extractCountryFromAddress($this->sender_address) ?? 'TZ';
+    }
+
+    /**
+     * Get destination country from recipient address.
+     */
+    public function getDestinationCountry(): string
+    {
+        // Use recipient_country field if available, otherwise extract from address
+        return $this->recipient_country ?? $this->extractCountryFromAddress($this->recipient_address) ?? 'TZ';
+    }
+
+    /**
+     * Extract country code from address string.
+     */
+    private function extractCountryFromAddress(?string $address): ?string
+    {
+        if (!$address) {
+            return null;
+        }
+
+        // Simple country extraction - in real app, would use more sophisticated parsing
+        $countries = [
+            'Tanzania' => 'TZ', 'Kenya' => 'KE', 'Uganda' => 'UG',
+            'Canada' => 'CA', 'United States' => 'US', 'USA' => 'US',
+            'United Kingdom' => 'GB', 'UK' => 'GB', 'Germany' => 'DE',
+            'Australia' => 'AU', 'South Africa' => 'ZA'
+        ];
+
+        foreach ($countries as $country => $code) {
+            if (stripos($address, $country) !== false) {
+                return $code;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the invoice for this shipment.
+     */
+    public function invoice(): HasOne
+    {
+        return $this->hasOne(Invoice::class);
+    }
+
+    // Note: CustomsDocument, ComplianceCheck, and SupportTicket relationships
     // will be added in later phases when those models and tables are created
 
     /**

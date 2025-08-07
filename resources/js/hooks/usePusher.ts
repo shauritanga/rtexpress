@@ -244,35 +244,7 @@ export function useRouteTracking(routeId?: string) {
     };
 }
 
-// Hook for dashboard stats with Pusher
-export function useDashboardStats() {
-    const { subscribe, unsubscribe, ...pusherState } = usePusher({
-        onMessage: (message) => {
-            if (message.type === 'stats.updated') {
-                console.log('Stats update received:', message.data);
-                
-                // Refresh dashboard data
-                if (window.location.pathname.includes('/admin/tracking/dashboard')) {
-                    router.reload({ only: ['stats'] });
-                }
-            }
-        }
-    });
 
-    useEffect(() => {
-        if (pusherState.isConnected) {
-            const dashboardChannel = subscribe('dashboard', 'stats.updated');
-            
-            return () => {
-                if (dashboardChannel) unsubscribe('dashboard');
-            };
-        }
-    }, [pusherState.isConnected, subscribe, unsubscribe]);
-
-    return {
-        ...pusherState
-    };
-}
 
 // Utility function for notifications
 const showNotification = (title: string, body: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {

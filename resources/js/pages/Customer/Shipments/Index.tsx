@@ -120,9 +120,11 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
     };
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
-            currency: 'USD',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 

@@ -48,8 +48,8 @@ test('customer registration with valid data creates user and customer', function
         'first_name' => 'John',
         'last_name' => 'Doe',
         'email' => 'john@example.com',
-        'password' => 'password123',
-        'password_confirmation' => 'password123',
+        'password' => 'MyVerySecureP@ssw0rd2024!',
+        'password_confirmation' => 'MyVerySecureP@ssw0rd2024!',
         'phone' => '+1234567890',
         'company_name' => 'Test Company Ltd',
         'address_line_1' => '123 Test Street',
@@ -78,16 +78,16 @@ test('customer registration with valid data creates user and customer', function
     expect($customer->address_line_1)->toBe('123 Test Street');
     expect($customer->city)->toBe('Test City');
     expect($customer->country)->toBe('US');
-    expect($customer->status)->toBe('active');
+    expect($customer->status)->toBe('pending_approval'); // Updated for security enhancement
 
     // Check user is linked to customer
     expect($user->customer_id)->toBe($customer->id);
 
-    // Check user is authenticated
-    $this->assertAuthenticated();
+    // With security enhancements, users are not auto-authenticated
+    $this->assertGuest();
 
-    // Check redirect
-    $response->assertRedirect('/customer/dashboard');
+    // Check redirect to email verification
+    $response->assertRedirect(route('verification.notice'));
 });
 
 test('customer registration generates unique customer code', function () {
@@ -102,8 +102,8 @@ test('customer registration generates unique customer code', function () {
         'first_name' => 'Jane',
         'last_name' => 'Smith',
         'email' => 'jane@example.com',
-        'password' => 'password123',
-        'password_confirmation' => 'password123',
+        'password' => 'MyVerySecureP@ssw0rd2024!',
+        'password_confirmation' => 'MyVerySecureP@ssw0rd2024!',
         'phone' => '+1234567891',
         'company_name' => 'Another Test Company',
         'address_line_1' => '456 Another Street',

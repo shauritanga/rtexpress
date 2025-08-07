@@ -21,7 +21,7 @@ import {
     TableRow
 } from '@/components/ui/table';
 import { ResponsiveTable } from '@/components/ui/responsive-table';
-import { 
+import {
     Search,
     Plus,
     Warehouse,
@@ -33,8 +33,19 @@ import {
     Building,
     Users,
     TrendingUp,
-    Activity
+    Activity,
+    MoreHorizontal,
+    Clock,
+    Trash2
 } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 interface Warehouse {
     id: number;
@@ -55,6 +66,8 @@ interface Warehouse {
     created_at: string;
     shipments_count: number;
     inventory_count: number;
+    formatted_operating_hours: string;
+    short_operating_hours: string;
 }
 
 interface Stats {
@@ -85,6 +98,37 @@ export default function WarehousesIndex({ warehouses, stats, filters }: Props) {
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const [selectedStatus, setSelectedStatus] = useState(filters.status || 'all');
     const [selectedType, setSelectedType] = useState(filters.type || 'all');
+
+    // Simple delete function using form submission
+    const handleDelete = (warehouseId: number) => {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (!csrfToken) {
+            console.error('CSRF token not found');
+            alert('Security token not found. Please refresh the page and try again.');
+            return;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = route('admin.warehouses.destroy', warehouseId);
+
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        // Add method override for DELETE
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    };
     const [selectedCountry, setSelectedCountry] = useState(filters.country || '');
 
     const formatNumber = (num: number) => {
@@ -425,20 +469,72 @@ export default function WarehousesIndex({ warehouses, stats, filters }: Props) {
                                             </span>
                                         </div>
                                     )
-                                }
-                            ]}
-                            actions={[
-                                {
-                                    label: 'View',
-                                    icon: Eye,
-                                    onClick: (warehouse) => router.visit(route('admin.warehouses.show', warehouse.id)),
-                                    variant: 'ghost'
                                 },
                                 {
-                                    label: 'Edit',
-                                    icon: Edit,
-                                    onClick: (warehouse) => router.visit(route('admin.warehouses.edit', warehouse.id)),
-                                    variant: 'ghost'
+                                    key: 'short_operating_hours',
+                                    label: 'Operating Hours',
+                                    mobileVisible: false,
+                                    desktopVisible: true,
+                                    render: (value, warehouse) => (
+                                        <div className="flex items-center space-x-2 text-sm">
+                                            <Clock className="h-4 w-4 text-muted-foreground" />
+                                            <span className="text-muted-foreground">
+                                                {warehouse.short_operating_hours || '24/7'}
+                                            </span>
+                                        </div>
+                                    )
+                                },
+                                {
+                                    key: 'actions',
+                                    label: 'Actions',
+                                    mobileVisible: true,
+                                    desktopVisible: true,
+                                    render: (value, warehouse) => (
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <span className="sr-only">Open menu</span>
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-48">
+                                                <DropdownMenuItem
+                                                    onClick={() => router.visit(route('admin.warehouses.show', warehouse.id))}
+                                                    className="cursor-pointer"
+                                                >
+                                                    <Eye className="mr-2 h-4 w-4" />
+                                                    View Details
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => router.visit(route('admin.warehouses.edit', warehouse.id))}
+                                                    className="cursor-pointer"
+                                                >
+                                                    <Edit className="mr-2 h-4 w-4" />
+                                                    Edit Warehouse
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <ConfirmationDialog
+                                                    title="Delete Warehouse"
+                                                    description={`Are you sure you want to delete warehouse ${warehouse.code} (${warehouse.name})?\n\nThis action will:\n• Delete the warehouse record\n• Remove all associated inventory\n• Cannot be undone if there are no active shipments\n\nPlease confirm this action.`}
+                                                    confirmText="Delete Warehouse"
+                                                    cancelText="Cancel"
+                                                    variant="destructive"
+                                                    icon="delete"
+                                                    onConfirm={() => {
+                                                        handleDelete(warehouse.id);
+                                                    }}
+                                                >
+                                                    <DropdownMenuItem
+                                                        onSelect={(e) => e.preventDefault()}
+                                                        className="cursor-pointer text-red-600 focus:text-red-600"
+                                                    >
+                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                        Delete Warehouse
+                                                    </DropdownMenuItem>
+                                                </ConfirmationDialog>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    )
                                 }
                             ]}
                             emptyState={{

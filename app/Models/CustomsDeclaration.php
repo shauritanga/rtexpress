@@ -121,6 +121,14 @@ class CustomsDeclaration extends Model
     }
 
     /**
+     * Alias for documents relationship.
+     */
+    public function complianceDocuments(): HasMany
+    {
+        return $this->documents();
+    }
+
+    /**
      * Submit declaration for processing.
      */
     public function submit(): void

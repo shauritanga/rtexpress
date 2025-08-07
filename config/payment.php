@@ -29,7 +29,7 @@ return [
             'public_key' => env('STRIPE_PUBLIC_KEY'),
             'secret_key' => env('STRIPE_SECRET_KEY'),
             'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
-            'currency' => env('STRIPE_CURRENCY', 'USD'),
+            'currency' => env('STRIPE_CURRENCY', 'TZS'),
             'mode' => env('STRIPE_MODE', 'sandbox'), // sandbox or live
         ],
 
@@ -38,18 +38,21 @@ return [
             'client_id' => env('PAYPAL_CLIENT_ID'),
             'client_secret' => env('PAYPAL_CLIENT_SECRET'),
             'webhook_id' => env('PAYPAL_WEBHOOK_ID'),
-            'currency' => env('PAYPAL_CURRENCY', 'USD'),
+            'currency' => env('PAYPAL_CURRENCY', 'TZS'),
             'mode' => env('PAYPAL_MODE', 'sandbox'), // sandbox or live
         ],
 
         'clickpesa' => [
             'enabled' => env('CLICKPESA_ENABLED', true),
+            'client_id' => env('CLICKPESA_CLIENT_ID'),
             'api_key' => env('CLICKPESA_API_KEY'),
-            'secret_key' => env('CLICKPESA_SECRET_KEY'),
-            'merchant_id' => env('CLICKPESA_MERCHANT_ID'),
+            'checksum_secret' => env('CLICKPESA_CHECKSUM_SECRET'),
             'webhook_secret' => env('CLICKPESA_WEBHOOK_SECRET'),
             'currency' => env('CLICKPESA_CURRENCY', 'TZS'),
             'mode' => env('CLICKPESA_MODE', 'sandbox'), // sandbox or live
+            'api_url' => env('CLICKPESA_MODE', 'sandbox') === 'sandbox'
+                ? 'https://api.clickpesa.com/third-parties'
+                : 'https://api.clickpesa.com/third-parties',
         ],
     ],
 
@@ -63,6 +66,12 @@ return [
     */
 
     'currencies' => [
+        'TZS' => [
+            'name' => 'Tanzanian Shilling',
+            'symbol' => 'TSh',
+            'code' => 'TZS',
+            'decimal_places' => 0,
+        ],
         'USD' => [
             'name' => 'US Dollar',
             'symbol' => '$',
@@ -80,12 +89,6 @@ return [
             'symbol' => '£',
             'code' => 'GBP',
             'decimal_places' => 2,
-        ],
-        'TZS' => [
-            'name' => 'Tanzanian Shilling',
-            'symbol' => 'TSh',
-            'code' => 'TZS',
-            'decimal_places' => 0,
         ],
     ],
 

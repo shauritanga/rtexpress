@@ -248,26 +248,7 @@ export default function SupportCreate({ customer }: Props) {
                             </CardContent>
                         </Card>
 
-                        {/* Quick Links */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-lg">Need Help Now?</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                                <Button variant="outline" className="w-full justify-start" asChild>
-                                    <Link href="/customer/help">
-                                        <HelpCircle className="h-4 w-4 mr-2" />
-                                        Browse Help Center
-                                    </Link>
-                                </Button>
-                                <Button variant="outline" className="w-full justify-start" asChild>
-                                    <Link href="/customer/help/search">
-                                        <MessageSquare className="h-4 w-4 mr-2" />
-                                        Search FAQ
-                                    </Link>
-                                </Button>
-                            </CardContent>
-                        </Card>
+
 
                         {/* Contact Info */}
                         <Card>

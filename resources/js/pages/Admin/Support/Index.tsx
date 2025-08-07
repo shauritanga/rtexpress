@@ -5,13 +5,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from '@/components/ui/select';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { 
     Table, 
     TableBody, 
@@ -20,7 +27,7 @@ import {
     TableHeader, 
     TableRow 
 } from '@/components/ui/table';
-import { 
+import {
     Search,
     Plus,
     HeadphonesIcon,
@@ -32,7 +39,14 @@ import {
     Filter,
     TrendingUp,
     Users,
-    Timer
+    Timer,
+    MoreHorizontal,
+    UserCheck,
+    PlayCircle,
+    Archive,
+    Trash2,
+    RotateCcw,
+    CheckSquare
 } from 'lucide-react';
 
 interface Ticket {
@@ -93,6 +107,87 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
     const [selectedPriority, setSelectedPriority] = useState(filters.priority || 'all');
     const [selectedCategory, setSelectedCategory] = useState(filters.category || 'all');
     const [selectedAgent, setSelectedAgent] = useState(filters.assigned_to || 'all');
+    const [processingTicket, setProcessingTicket] = useState<number | null>(null);
+    const [selectedTickets, setSelectedTickets] = useState<number[]>([]);
+    const [showArchived, setShowArchived] = useState(false);
+
+    // Quick action handlers
+    const handleQuickStatusChange = (ticketId: number, newStatus: string) => {
+        setProcessingTicket(ticketId);
+        router.post(route('admin.support.status', ticketId), {
+            status: newStatus,
+        }, {
+            onFinish: () => setProcessingTicket(null),
+        });
+    };
+
+    const handleQuickAssign = (ticketId: number, agentId: string) => {
+        setProcessingTicket(ticketId);
+        router.post(route('admin.support.assign', ticketId), {
+            assigned_to: agentId || null,
+        }, {
+            onFinish: () => setProcessingTicket(null),
+        });
+    };
+
+    const handleArchive = (ticketId: number) => {
+        setProcessingTicket(ticketId);
+        router.post(route('admin.support.archive', ticketId), {}, {
+            onFinish: () => setProcessingTicket(null),
+        });
+    };
+
+    const handleDelete = (ticketId: number) => {
+        if (confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
+            setProcessingTicket(ticketId);
+            router.delete(route('admin.support.destroy', ticketId), {
+                onFinish: () => setProcessingTicket(null),
+            });
+        }
+    };
+
+    const handleRestore = (ticketId: number) => {
+        setProcessingTicket(ticketId);
+        router.post(route('admin.support.restore', ticketId), {}, {
+            onFinish: () => setProcessingTicket(null),
+        });
+    };
+
+    const handleBulkAction = (action: string) => {
+        if (selectedTickets.length === 0) {
+            alert('Please select tickets first');
+            return;
+        }
+
+        if (action === 'delete' && !confirm(`Are you sure you want to delete ${selectedTickets.length} tickets? This action cannot be undone.`)) {
+            return;
+        }
+
+        router.post(route('admin.support.bulk-action'), {
+            action,
+            ticket_ids: selectedTickets,
+        }, {
+            onSuccess: () => {
+                setSelectedTickets([]);
+            },
+        });
+    };
+
+    const handleSelectAll = (checked: boolean) => {
+        if (checked) {
+            setSelectedTickets(tickets.data.map(ticket => ticket.id));
+        } else {
+            setSelectedTickets([]);
+        }
+    };
+
+    const handleSelectTicket = (ticketId: number, checked: boolean) => {
+        if (checked) {
+            setSelectedTickets([...selectedTickets, ticketId]);
+        } else {
+            setSelectedTickets(selectedTickets.filter(id => id !== ticketId));
+        }
+    };
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -128,6 +223,7 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
             waiting_customer: { label: 'Waiting Customer', variant: 'secondary' as const, icon: Clock },
             resolved: { label: 'Resolved', variant: 'success' as const, icon: CheckCircle },
             closed: { label: 'Closed', variant: 'secondary' as const, icon: XCircle },
+            archived: { label: 'Archived', variant: 'outline' as const, icon: Archive },
         };
 
         const config = statusConfig[status as keyof typeof statusConfig] || 
@@ -311,6 +407,7 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                                         <SelectItem value="waiting_customer">Waiting Customer</SelectItem>
                                         <SelectItem value="resolved">Resolved</SelectItem>
                                         <SelectItem value="closed">Closed</SelectItem>
+                                        <SelectItem value="archived">Archived</SelectItem>
                                         <SelectItem value="overdue">Overdue</SelectItem>
                                     </SelectContent>
                                 </Select>
@@ -366,6 +463,49 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                     </CardContent>
                 </Card>
 
+                {/* Bulk Actions */}
+                {selectedTickets.length > 0 && (
+                    <Card className="border-blue-200 bg-blue-50">
+                        <CardContent className="pt-6">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                    <CheckSquare className="h-5 w-5 text-blue-600" />
+                                    <span className="font-medium text-blue-900">
+                                        {selectedTickets.length} ticket{selectedTickets.length !== 1 ? 's' : ''} selected
+                                    </span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleBulkAction('archive')}
+                                        className="text-blue-700 border-blue-300 hover:bg-blue-100"
+                                    >
+                                        <Archive className="h-4 w-4 mr-2" />
+                                        Archive
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleBulkAction('delete')}
+                                        className="text-red-700 border-red-300 hover:bg-red-100"
+                                    >
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Delete
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setSelectedTickets([])}
+                                    >
+                                        Clear Selection
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
                 {/* Tickets Table */}
                 <Card>
                     <CardHeader>
@@ -380,6 +520,12 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
+                                            <TableHead className="w-12">
+                                                <Checkbox
+                                                    checked={selectedTickets.length === tickets.data.length && tickets.data.length > 0}
+                                                    onCheckedChange={handleSelectAll}
+                                                />
+                                            </TableHead>
                                             <TableHead className="min-w-[150px]">Ticket</TableHead>
                                             <TableHead className="min-w-[200px]">Subject</TableHead>
                                             <TableHead className="min-w-[150px]">Customer</TableHead>
@@ -393,6 +539,12 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                                     <TableBody>
                                         {tickets.data.length > 0 ? tickets.data.map((ticket) => (
                                             <TableRow key={ticket.id}>
+                                                <TableCell>
+                                                    <Checkbox
+                                                        checked={selectedTickets.includes(ticket.id)}
+                                                        onCheckedChange={(checked) => handleSelectTicket(ticket.id, checked as boolean)}
+                                                    />
+                                                </TableCell>
                                                 <TableCell>
                                                     <div>
                                                         <p className="font-medium">{ticket.ticket_number}</p>
@@ -436,11 +588,89 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="ghost" size="sm" asChild>
-                                                        <Link href={route('admin.support.show', ticket.id)}>
-                                                            <Eye className="h-4 w-4" />
-                                                        </Link>
-                                                    </Button>
+                                                    <div className="flex items-center justify-end space-x-1">
+                                                        <Button variant="ghost" size="sm" asChild>
+                                                            <Link href={route('admin.support.show', ticket.id)}>
+                                                                <Eye className="h-4 w-4" />
+                                                            </Link>
+                                                        </Button>
+
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    disabled={processingTicket === ticket.id}
+                                                                >
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                {/* Quick Status Changes */}
+                                                                {ticket.status !== 'in_progress' && (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleQuickStatusChange(ticket.id, 'in_progress')}
+                                                                        disabled={processingTicket === ticket.id}
+                                                                    >
+                                                                        <PlayCircle className="h-4 w-4 mr-2" />
+                                                                        Mark In Progress
+                                                                    </DropdownMenuItem>
+                                                                )}
+
+                                                                {ticket.status !== 'resolved' && (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleQuickStatusChange(ticket.id, 'resolved')}
+                                                                        disabled={processingTicket === ticket.id}
+                                                                        className="text-green-600 focus:text-green-600"
+                                                                    >
+                                                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                                                        Mark Resolved
+                                                                    </DropdownMenuItem>
+                                                                )}
+
+                                                                {/* Quick Assignment */}
+                                                                {!ticket.assigned_to && (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleQuickAssign(ticket.id, '101')}
+                                                                        disabled={processingTicket === ticket.id}
+                                                                    >
+                                                                        <UserCheck className="h-4 w-4 mr-2" />
+                                                                        Assign to Me
+                                                                    </DropdownMenuItem>
+                                                                )}
+
+                                                                {/* Management Actions */}
+                                                                {ticket.status !== 'archived' ? (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleArchive(ticket.id)}
+                                                                        disabled={processingTicket === ticket.id}
+                                                                        className="text-orange-600 focus:text-orange-600"
+                                                                    >
+                                                                        <Archive className="h-4 w-4 mr-2" />
+                                                                        Archive
+                                                                    </DropdownMenuItem>
+                                                                ) : (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleRestore(ticket.id)}
+                                                                        disabled={processingTicket === ticket.id}
+                                                                        className="text-blue-600 focus:text-blue-600"
+                                                                    >
+                                                                        <RotateCcw className="h-4 w-4 mr-2" />
+                                                                        Restore
+                                                                    </DropdownMenuItem>
+                                                                )}
+
+                                                                <DropdownMenuItem
+                                                                    onClick={() => handleDelete(ticket.id)}
+                                                                    disabled={processingTicket === ticket.id}
+                                                                    className="text-red-600 focus:text-red-600"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4 mr-2" />
+                                                                    Delete
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         )) : (

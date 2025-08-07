@@ -21,10 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->web(append: [
+            \App\Http\Middleware\SecurityHeaders::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\TrackUserActivity::class,
+            \App\Http\Middleware\SanitizeInput::class,
         ]);
 
         // Register custom middleware aliases

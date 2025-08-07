@@ -129,10 +129,12 @@ export default function ShowInvoice({ invoice }: Props) {
     const { openModal, ConfirmationModal } = useConfirmationModal();
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-    const formatCurrency = (amount: number, currency: string = 'USD') => {
-        return new Intl.NumberFormat('en-US', {
+    const formatCurrency = (amount: number, currency: string = 'TZS') => {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
             currency: currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 
@@ -245,6 +247,22 @@ export default function ShowInvoice({ invoice }: Props) {
         });
     };
 
+    const handleCancelDraftInvoice = () => {
+        openModal({
+            title: 'Cancel Draft Invoice',
+            description: `Are you sure you want to cancel draft invoice ${invoice.invoice_number}? This will mark the invoice as cancelled and it cannot be sent to the customer.`,
+            confirmText: 'Cancel Invoice',
+            variant: 'destructive',
+            onConfirm: () => {
+                router.post(`/admin/invoices/${invoice.id}/cancel`, {}, {
+                    onSuccess: () => {
+                        // Navigation will be handled by the controller
+                    },
+                });
+            },
+        });
+    };
+
     const getDaysUntilDue = () => {
         const today = new Date();
         const dueDate = new Date(invoice.due_date);
@@ -264,7 +282,7 @@ export default function ShowInvoice({ invoice }: Props) {
                 <div className="flex flex-col space-y-4">
                     <div className="flex items-center space-x-2">
                         <Button variant="outline" size="sm" asChild>
-                            <Link href="/admin/billing/invoices">
+                            <Link href="/admin/invoices">
                                 <ArrowLeft className="h-4 w-4 mr-2" />
                                 <span className="hidden sm:inline">Back to Invoices</span>
                                 <span className="sm:hidden">Back</span>
@@ -309,10 +327,18 @@ export default function ShowInvoice({ invoice }: Props) {
                                 <span className="hidden sm:inline">Download PDF</span>
                                 <span className="sm:hidden">PDF</span>
                             </Button>
-                            {['draft', 'sent', 'viewed'].includes(invoice.status) && (
+                            {invoice.status === 'draft' && (
+                                <Button onClick={handleCancelDraftInvoice} variant="destructive" className="w-full sm:w-auto">
+                                    <AlertTriangle className="h-4 w-4 mr-2" />
+                                    <span className="hidden sm:inline">Cancel Invoice</span>
+                                    <span className="sm:hidden">Cancel</span>
+                                </Button>
+                            )}
+                            {['sent', 'viewed'].includes(invoice.status) && (
                                 <Button onClick={handleCancelInvoice} variant="destructive" className="w-full sm:w-auto">
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Cancel
+                                    <AlertTriangle className="h-4 w-4 mr-2" />
+                                    <span className="hidden sm:inline">Cancel Invoice</span>
+                                    <span className="sm:hidden">Cancel</span>
                                 </Button>
                             )}
                         </div>

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->date('paid_date')->nullable();
 
             // Financial details
-            $table->string('currency', 3)->default('USD'); // ISO currency code
+            $table->string('currency', 3)->default('TZS'); // ISO currency code
             $table->decimal('exchange_rate', 10, 6)->default(1.000000);
             $table->decimal('subtotal', 12, 2);
             $table->decimal('tax_amount', 12, 2)->default(0);

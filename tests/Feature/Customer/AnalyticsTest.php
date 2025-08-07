@@ -9,11 +9,12 @@ use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Tests\Traits\CreatesTestUsers;
 use Carbon\Carbon;
 
 class AnalyticsTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase, WithFaker, CreatesTestUsers;
 
     private User $customerUser;
     private Customer $customer;

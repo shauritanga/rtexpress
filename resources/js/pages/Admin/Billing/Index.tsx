@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-    DollarSign, 
+    Banknote,
     FileText, 
     CreditCard, 
     AlertTriangle,
@@ -80,10 +80,12 @@ interface Props {
 }
 
 export default function BillingIndex({ stats, recentInvoices, recentPayments, overdueInvoices }: Props) {
-    const formatCurrency = (amount: number, currency: string = 'USD') => {
-        return new Intl.NumberFormat('en-US', {
+    const formatCurrency = (amount: number, currency: string = 'TZS') => {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
             currency: currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 
@@ -127,7 +129,7 @@ export default function BillingIndex({ stats, recentInvoices, recentPayments, ov
             title: 'Monthly Revenue',
             value: formatCurrency(stats.total_revenue.current),
             description: `${revenueChange >= 0 ? '+' : ''}${Number(revenueChange).toFixed(1)}% from last month`,
-            icon: DollarSign,
+            icon: Banknote,
             color: 'text-green-600',
             trend: revenueChange >= 0 ? 'up' : 'down',
         },
@@ -220,7 +222,7 @@ export default function BillingIndex({ stats, recentInvoices, recentPayments, ov
                         <CardContent>
                             <div className="space-y-2">
                                 <Button asChild className="w-full">
-                                    <Link href="/admin/billing/invoices">
+                                    <Link href="/admin/invoices">
                                         <Eye className="h-4 w-4 mr-2" />
                                         View All Invoices
                                     </Link>
@@ -276,13 +278,13 @@ export default function BillingIndex({ stats, recentInvoices, recentPayments, ov
                         <CardContent>
                             <div className="space-y-2">
                                 <Button asChild variant="destructive" className="w-full">
-                                    <Link href="/admin/billing/invoices?status=overdue">
+                                    <Link href="/admin/invoices?status=overdue">
                                         <AlertTriangle className="h-4 w-4 mr-2" />
                                         View Overdue ({stats.overdue_invoices})
                                     </Link>
                                 </Button>
                                 <Button asChild variant="outline" className="w-full">
-                                    <Link href="/admin/billing/invoices?status=sent">
+                                    <Link href="/admin/invoices?status=sent">
                                         <Send className="h-4 w-4 mr-2" />
                                         Send Reminders
                                     </Link>

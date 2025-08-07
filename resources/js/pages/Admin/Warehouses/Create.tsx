@@ -22,12 +22,12 @@ import {
     Building,
     Clock
 } from 'lucide-react';
+import { countries } from '@/lib/countries';
 
 export default function WarehouseCreate() {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         code: '',
-        type: 'distribution',
         address_line_1: '',
         address_line_2: '',
         city: '',
@@ -50,12 +50,22 @@ export default function WarehouseCreate() {
             saturday: { open: '09:00', close: '13:00', closed: false },
             sunday: { open: '09:00', close: '13:00', closed: true },
         },
-        notes: '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.warehouses.store'));
+        console.log('Form data being submitted:', data);
+        post(route('admin.warehouses.store'), {
+            onSuccess: () => {
+                console.log('Form submitted successfully');
+            },
+            onError: (errors) => {
+                console.log('Form submission errors:', errors);
+            },
+            onFinish: () => {
+                console.log('Form submission finished');
+            }
+        });
     };
 
     const updateOperatingHours = (day: string, field: string, value: any) => {
@@ -94,6 +104,27 @@ export default function WarehouseCreate() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* General Error Display */}
+                    {errors.error && (
+                        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                            <div className="flex">
+                                <div className="flex-shrink-0">
+                                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div className="ml-3">
+                                    <h3 className="text-sm font-medium text-red-800">
+                                        Error creating warehouse
+                                    </h3>
+                                    <div className="mt-2 text-sm text-red-700">
+                                        <p>{errors.error}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
                         {/* Basic Information */}
                         <Card>
@@ -132,27 +163,6 @@ export default function WarehouseCreate() {
                                     />
                                     {errors.code && (
                                         <p className="text-sm text-red-600">{errors.code}</p>
-                                    )}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="type">Warehouse Type</Label>
-                                    <Select 
-                                        value={data.type} 
-                                        onValueChange={(value) => setData('type', value)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select warehouse type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="distribution">Distribution Center</SelectItem>
-                                            <SelectItem value="fulfillment">Fulfillment Center</SelectItem>
-                                            <SelectItem value="storage">Storage Facility</SelectItem>
-                                            <SelectItem value="cross_dock">Cross Dock</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.type && (
-                                        <p className="text-sm text-red-600">{errors.type}</p>
                                     )}
                                 </div>
 
@@ -259,19 +269,7 @@ export default function WarehouseCreate() {
                                     )}
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="notes">Notes</Label>
-                                    <Textarea
-                                        id="notes"
-                                        value={data.notes}
-                                        onChange={(e) => setData('notes', e.target.value)}
-                                        placeholder="Any additional notes about this warehouse..."
-                                        rows={4}
-                                    />
-                                    {errors.notes && (
-                                        <p className="text-sm text-red-600">{errors.notes}</p>
-                                    )}
-                                </div>
+
                             </CardContent>
                         </Card>
                     </div>
@@ -367,17 +365,12 @@ export default function WarehouseCreate() {
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select country" />
                                         </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="US">United States</SelectItem>
-                                            <SelectItem value="CA">Canada</SelectItem>
-                                            <SelectItem value="GB">United Kingdom</SelectItem>
-                                            <SelectItem value="AU">Australia</SelectItem>
-                                            <SelectItem value="DE">Germany</SelectItem>
-                                            <SelectItem value="FR">France</SelectItem>
-                                            <SelectItem value="JP">Japan</SelectItem>
-                                            <SelectItem value="CN">China</SelectItem>
-                                            <SelectItem value="IN">India</SelectItem>
-                                            <SelectItem value="BR">Brazil</SelectItem>
+                                        <SelectContent className="max-h-60">
+                                            {countries.map((country) => (
+                                                <SelectItem key={country.code} value={country.name}>
+                                                    {country.name}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                     {errors.country && (

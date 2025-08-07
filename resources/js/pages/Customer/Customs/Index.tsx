@@ -2,7 +2,7 @@ import React from 'react';
 import { Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import CustomsDocumentation from '@/components/customer/customs/CustomsDocumentation';
-import DutyTaxCalculator from '@/components/customer/customs/DutyTaxCalculator';
+
 import ComplianceChecker from '@/components/customer/customs/ComplianceChecker';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { 
     FileText,
-    Calculator,
+
     Shield,
     ArrowLeft,
     Globe,
@@ -229,14 +229,10 @@ export default function CustomsIndex({
 
                 {/* Main Content - Mobile Responsive Tabs */}
                 <Tabs defaultValue="documentation" className="space-y-6">
-                    <TabsList className="grid w-full grid-cols-3">
+                    <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="documentation" className="flex items-center">
                             <FileText className="h-4 w-4 mr-2" />
                             <span className="hidden sm:inline">Documents</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="calculator" className="flex items-center">
-                            <Calculator className="h-4 w-4 mr-2" />
-                            <span className="hidden sm:inline">Calculator</span>
                         </TabsTrigger>
                         <TabsTrigger value="compliance" className="flex items-center">
                             <Shield className="h-4 w-4 mr-2" />
@@ -253,13 +249,7 @@ export default function CustomsIndex({
                         />
                     </TabsContent>
 
-                    <TabsContent value="calculator">
-                        <DutyTaxCalculator
-                            destinationCountry={destinationCountry}
-                            originCountry="US"
-                            onCalculationComplete={handleCalculationComplete}
-                        />
-                    </TabsContent>
+
 
                     <TabsContent value="compliance">
                         <ComplianceChecker

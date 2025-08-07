@@ -36,7 +36,7 @@ import {
     MoreHorizontal,
     Eye,
     Send,
-    DollarSign,
+    Banknote,
     Calendar,
     Download,
     Edit,
@@ -49,7 +49,8 @@ interface Invoice {
     invoice_number: string;
     customer: {
         id: number;
-        name: string;
+        company_name: string;
+        contact_person: string;
         email: string;
     };
     shipment?: {
@@ -69,7 +70,9 @@ interface Invoice {
 
 interface Customer {
     id: number;
-    name: string;
+    company_name: string;
+    contact_person: string;
+    email: string;
 }
 
 interface InvoiceStats {
@@ -122,7 +125,7 @@ export default function InvoicesIndex({
         if (selectedStatus !== 'all') params.set('status', selectedStatus);
         if (selectedCustomer !== 'all') params.set('customer_id', selectedCustomer);
         
-        router.get('/admin/billing/invoices', Object.fromEntries(params));
+        router.get('/admin/invoices', Object.fromEntries(params));
     };
 
     const handleClearFilters = () => {
@@ -132,10 +135,12 @@ export default function InvoicesIndex({
         router.get('/admin/billing/invoices');
     };
 
-    const formatCurrency = (amount: number, currency: string = 'USD') => {
-        return new Intl.NumberFormat('en-US', {
+    const formatCurrency = (amount: number, currency: string = 'TZS') => {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
             currency: currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 
@@ -170,7 +175,7 @@ export default function InvoicesIndex({
     const handleSendInvoice = (invoice: Invoice) => {
         openModal({
             title: 'Send Invoice',
-            description: `Send invoice ${invoice.invoice_number} to ${invoice.customer.name}?`,
+            description: `Send invoice ${invoice.invoice_number} to ${invoice.customer.company_name || invoice.customer.contact_person}?`,
             confirmText: 'Send Invoice',
             variant: 'default',
             onConfirm: () => {
@@ -208,7 +213,7 @@ export default function InvoicesIndex({
             title: 'Total Amount',
             value: formatCurrency(stats.total_amount),
             description: `${stats.paid} paid invoices`,
-            icon: DollarSign,
+            icon: Banknote,
             color: 'text-green-600',
         },
         {
@@ -222,7 +227,7 @@ export default function InvoicesIndex({
             title: 'Collection Rate',
             value: `${stats.total_amount > 0 ? Math.round((stats.paid_amount / stats.total_amount) * 100) : 0}%`,
             description: `${formatCurrency(stats.paid_amount)} collected`,
-            icon: DollarSign,
+            icon: Banknote,
             color: 'text-purple-600',
         },
     ];
@@ -322,7 +327,7 @@ export default function InvoicesIndex({
                                         <SelectItem value="all">All Customers</SelectItem>
                                         {customers.map((customer) => (
                                             <SelectItem key={customer.id} value={customer.id.toString()}>
-                                                {customer.name}
+                                                {customer.company_name || customer.contact_person}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -347,12 +352,7 @@ export default function InvoicesIndex({
 
                 {/* Invoice Table */}
                 <Card>
-                    <CardHeader>
-                        <CardTitle>Invoices ({invoices?.meta?.total || 0})</CardTitle>
-                        <CardDescription>
-                            Manage and track all customer invoices
-                        </CardDescription>
-                    </CardHeader>
+                    
                     <CardContent>
                         <div className="rounded-md border overflow-hidden">
                             <div className="overflow-x-auto">
@@ -386,7 +386,7 @@ export default function InvoicesIndex({
                                             </TableCell>
                                             <TableCell>
                                                 <div>
-                                                    <div className="font-medium">{invoice.customer.name}</div>
+                                                    <div className="font-medium">{invoice.customer.company_name || invoice.customer.contact_person}</div>
                                                     <div className="text-sm text-muted-foreground">
                                                         {invoice.customer.email}
                                                     </div>

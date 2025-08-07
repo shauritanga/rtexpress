@@ -7,6 +7,7 @@ import {
     UpdateNotification,
     NotificationPermissionRequest
 } from '@/components/pwa/TouchOptimized';
+import { Toaster } from '@/components/ui/toaster';
 
 interface AppLayoutProps {
     children: ReactNode;
@@ -24,5 +25,8 @@ export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => (
         <OfflineIndicator />
         <UpdateNotification />
         <NotificationPermissionRequest />
+
+        {/* Toast Notifications */}
+        <Toaster />
     </>
 );

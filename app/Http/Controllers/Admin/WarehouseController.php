@@ -62,7 +62,7 @@ class WarehouseController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:10|unique:warehouses,code',
+            'code' => 'nullable|string|max:10|unique:warehouses,code',
             'address_line_1' => 'required|string|max:255',
             'address_line_2' => 'nullable|string|max:255',
             'city' => 'required|string|max:100',
@@ -71,16 +71,70 @@ class WarehouseController extends Controller
             'country' => 'required|string|max:100',
             'phone' => 'required|string|max:20',
             'email' => 'required|email|unique:warehouses,email',
+            'contact_person' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'capacity_cubic_meters' => 'nullable|numeric|min:0|max:1000000',
-            'operating_hours_start' => 'required|date_format:H:i',
-            'operating_hours_end' => 'required|date_format:H:i|after:operating_hours_start',
-            'timezone' => 'required|string|max:50',
-            'status' => ['required', Rule::in(['active', 'inactive', 'maintenance'])],
+            'operating_hours' => 'required|array',
+            'operating_hours.monday' => 'required|array',
+            'operating_hours.monday.open' => 'required_if:operating_hours.monday.closed,false|date_format:H:i',
+            'operating_hours.monday.close' => 'required_if:operating_hours.monday.closed,false|date_format:H:i',
+            'operating_hours.monday.closed' => 'required|boolean',
+            'operating_hours.tuesday' => 'required|array',
+            'operating_hours.tuesday.open' => 'required_if:operating_hours.tuesday.closed,false|date_format:H:i',
+            'operating_hours.tuesday.close' => 'required_if:operating_hours.tuesday.closed,false|date_format:H:i',
+            'operating_hours.tuesday.closed' => 'required|boolean',
+            'operating_hours.wednesday' => 'required|array',
+            'operating_hours.wednesday.open' => 'required_if:operating_hours.wednesday.closed,false|date_format:H:i',
+            'operating_hours.wednesday.close' => 'required_if:operating_hours.wednesday.closed,false|date_format:H:i',
+            'operating_hours.wednesday.closed' => 'required|boolean',
+            'operating_hours.thursday' => 'required|array',
+            'operating_hours.thursday.open' => 'required_if:operating_hours.thursday.closed,false|date_format:H:i',
+            'operating_hours.thursday.close' => 'required_if:operating_hours.thursday.closed,false|date_format:H:i',
+            'operating_hours.thursday.closed' => 'required|boolean',
+            'operating_hours.friday' => 'required|array',
+            'operating_hours.friday.open' => 'required_if:operating_hours.friday.closed,false|date_format:H:i',
+            'operating_hours.friday.close' => 'required_if:operating_hours.friday.closed,false|date_format:H:i',
+            'operating_hours.friday.closed' => 'required|boolean',
+            'operating_hours.saturday' => 'required|array',
+            'operating_hours.saturday.open' => 'required_if:operating_hours.saturday.closed,false|date_format:H:i',
+            'operating_hours.saturday.close' => 'required_if:operating_hours.saturday.closed,false|date_format:H:i',
+            'operating_hours.saturday.closed' => 'required|boolean',
+            'operating_hours.sunday' => 'required|array',
+            'operating_hours.sunday.open' => 'required_if:operating_hours.sunday.closed,false|date_format:H:i',
+            'operating_hours.sunday.close' => 'required_if:operating_hours.sunday.closed,false|date_format:H:i',
+            'operating_hours.sunday.closed' => 'required|boolean',
+            'status' => 'required|string|in:active,inactive,maintenance',
         ]);
 
         try {
+            // Generate warehouse code if not provided
+            if (empty($validated['code'])) {
+                $validated['code'] = $this->generateWarehouseCode($validated['city']);
+            }
+
+            // Convert empty strings to null for decimal fields
+            if (empty($validated['latitude'])) {
+                $validated['latitude'] = null;
+            }
+            if (empty($validated['longitude'])) {
+                $validated['longitude'] = null;
+            }
+            if (empty($validated['capacity_cubic_meters'])) {
+                $validated['capacity_cubic_meters'] = null;
+            }
+
+            // Convert operating hours to the format expected by the database
+            $operatingHours = [];
+            foreach ($validated['operating_hours'] as $day => $hours) {
+                if ($hours['closed']) {
+                    $operatingHours[$day] = 'closed';
+                } else {
+                    $operatingHours[$day] = $hours['open'] . '-' . $hours['close'];
+                }
+            }
+            $validated['operating_hours'] = $operatingHours;
+
             $warehouse = Warehouse::create($validated);
 
             return redirect()
@@ -88,6 +142,11 @@ class WarehouseController extends Controller
                 ->with('success', "Warehouse {$warehouse->code} created successfully!");
 
         } catch (\Exception $e) {
+            \Log::error('Warehouse creation failed: ' . $e->getMessage(), [
+                'request_data' => $request->all(),
+                'user_id' => auth()->id(),
+            ]);
+
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Failed to create warehouse. Please try again.']);
@@ -146,7 +205,7 @@ class WarehouseController extends Controller
         $nearbyWarehouses = Warehouse::where('id', '!=', $warehouse->id)
             ->where('status', 'active')
             ->limit(5)
-            ->get(['id', 'name', 'code', 'city', 'state', 'status']);
+            ->get(['id', 'name', 'code', 'city', 'state_province', 'status']);
 
         return Inertia::render('Admin/Warehouses/Show', [
             'warehouse' => $warehouse,
@@ -182,16 +241,65 @@ class WarehouseController extends Controller
             'country' => 'required|string|max:100',
             'phone' => 'required|string|max:20',
             'email' => ['required', 'email', Rule::unique('warehouses', 'email')->ignore($warehouse->id)],
+            'contact_person' => 'nullable|string|max:255',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'capacity_cubic_meters' => 'nullable|numeric|min:0|max:1000000',
-            'operating_hours_start' => 'required|date_format:H:i',
-            'operating_hours_end' => 'required|date_format:H:i|after:operating_hours_start',
-            'timezone' => 'required|string|max:50',
-            'status' => ['required', Rule::in(['active', 'inactive', 'maintenance'])],
+            'operating_hours' => 'required|array',
+            'operating_hours.monday' => 'required|array',
+            'operating_hours.monday.open' => 'required_if:operating_hours.monday.closed,false|date_format:H:i',
+            'operating_hours.monday.close' => 'required_if:operating_hours.monday.closed,false|date_format:H:i',
+            'operating_hours.monday.closed' => 'required|boolean',
+            'operating_hours.tuesday' => 'required|array',
+            'operating_hours.tuesday.open' => 'required_if:operating_hours.tuesday.closed,false|date_format:H:i',
+            'operating_hours.tuesday.close' => 'required_if:operating_hours.tuesday.closed,false|date_format:H:i',
+            'operating_hours.tuesday.closed' => 'required|boolean',
+            'operating_hours.wednesday' => 'required|array',
+            'operating_hours.wednesday.open' => 'required_if:operating_hours.wednesday.closed,false|date_format:H:i',
+            'operating_hours.wednesday.close' => 'required_if:operating_hours.wednesday.closed,false|date_format:H:i',
+            'operating_hours.wednesday.closed' => 'required|boolean',
+            'operating_hours.thursday' => 'required|array',
+            'operating_hours.thursday.open' => 'required_if:operating_hours.thursday.closed,false|date_format:H:i',
+            'operating_hours.thursday.close' => 'required_if:operating_hours.thursday.closed,false|date_format:H:i',
+            'operating_hours.thursday.closed' => 'required|boolean',
+            'operating_hours.friday' => 'required|array',
+            'operating_hours.friday.open' => 'required_if:operating_hours.friday.closed,false|date_format:H:i',
+            'operating_hours.friday.close' => 'required_if:operating_hours.friday.closed,false|date_format:H:i',
+            'operating_hours.friday.closed' => 'required|boolean',
+            'operating_hours.saturday' => 'required|array',
+            'operating_hours.saturday.open' => 'required_if:operating_hours.saturday.closed,false|date_format:H:i',
+            'operating_hours.saturday.close' => 'required_if:operating_hours.saturday.closed,false|date_format:H:i',
+            'operating_hours.saturday.closed' => 'required|boolean',
+            'operating_hours.sunday' => 'required|array',
+            'operating_hours.sunday.open' => 'required_if:operating_hours.sunday.closed,false|date_format:H:i',
+            'operating_hours.sunday.close' => 'required_if:operating_hours.sunday.closed,false|date_format:H:i',
+            'operating_hours.sunday.closed' => 'required|boolean',
+            'status' => 'required|string|in:active,inactive,maintenance',
         ]);
 
         try {
+            // Convert empty strings to null for decimal fields
+            if (empty($validated['latitude'])) {
+                $validated['latitude'] = null;
+            }
+            if (empty($validated['longitude'])) {
+                $validated['longitude'] = null;
+            }
+            if (empty($validated['capacity_cubic_meters'])) {
+                $validated['capacity_cubic_meters'] = null;
+            }
+
+            // Convert operating hours to the format expected by the database
+            $operatingHours = [];
+            foreach ($validated['operating_hours'] as $day => $hours) {
+                if ($hours['closed']) {
+                    $operatingHours[$day] = 'closed';
+                } else {
+                    $operatingHours[$day] = $hours['open'] . '-' . $hours['close'];
+                }
+            }
+            $validated['operating_hours'] = $operatingHours;
+
             $warehouse->update($validated);
 
             return redirect()
@@ -199,6 +307,12 @@ class WarehouseController extends Controller
                 ->with('success', "Warehouse {$warehouse->code} updated successfully!");
 
         } catch (\Exception $e) {
+            \Log::error('Warehouse update failed: ' . $e->getMessage(), [
+                'warehouse_id' => $warehouse->id,
+                'request_data' => $request->all(),
+                'user_id' => auth()->id(),
+            ]);
+
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Failed to update warehouse. Please try again.']);
@@ -304,5 +418,27 @@ class WarehouseController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to calculate distance.'], 500);
         }
+    }
+
+    /**
+     * Generate a unique warehouse code based on city.
+     */
+    private function generateWarehouseCode(string $city): string
+    {
+        // Get first 3 letters of city, uppercase
+        $prefix = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $city), 0, 3));
+
+        // If city is too short, pad with 'X'
+        $prefix = str_pad($prefix, 3, 'X');
+
+        // Find the next available number
+        $counter = 1;
+        do {
+            $code = $prefix . str_pad($counter, 3, '0', STR_PAD_LEFT);
+            $exists = Warehouse::where('code', $code)->exists();
+            $counter++;
+        } while ($exists && $counter <= 999);
+
+        return $code;
     }
 }

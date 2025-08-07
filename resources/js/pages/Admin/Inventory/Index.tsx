@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { route } from 'ziggy-js';
 import { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +21,7 @@ import {
     TableHeader, 
     TableRow 
 } from '@/components/ui/table';
-import { 
+import {
     Search,
     Plus,
     Package2,
@@ -30,8 +31,19 @@ import {
     Eye,
     Filter,
     Barcode,
-    Warehouse
+    Warehouse,
+    MoreHorizontal,
+    Edit,
+    Trash2
 } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 interface InventoryItem {
     id: number;
@@ -115,10 +127,24 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
     const [selectedStockStatus, setSelectedStockStatus] = useState(filters.stock_status || 'all');
     const [selectedWarehouse, setSelectedWarehouse] = useState(filters.warehouse_id || 'all');
 
+    // Delete function using Inertia router
+    const handleDelete = (itemId: number) => {
+        router.delete(route('admin.inventory.destroy', itemId), {
+            onSuccess: () => {
+                // Success message will be handled by the backend
+            },
+            onError: (errors) => {
+                console.error('Delete failed:', errors);
+            }
+        });
+    };
+
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
-            currency: 'USD',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 
@@ -422,7 +448,7 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                                                     <span className="capitalize">{item.category}</span>
                                                 </TableCell>
                                                 <TableCell>
-                                                    {getStockStatusBadge(item.stock_status, item.total_quantity)}
+                                                    {getStockStatusBadge(item.stock_status || 'in_stock', item.total_quantity)}
                                                 </TableCell>
                                                 <TableCell>
                                                     <div>
@@ -451,11 +477,50 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="ghost" size="sm" asChild>
-                                                        <Link href={route('admin.inventory.show', item.id)}>
-                                                            <Eye className="h-4 w-4" />
-                                                        </Link>
-                                                    </Button>
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                                <span className="sr-only">Open menu</span>
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end" className="w-48">
+                                                            <DropdownMenuItem
+                                                                onClick={() => router.visit(route('admin.inventory.show', item.id))}
+                                                                className="cursor-pointer"
+                                                            >
+                                                                <Eye className="mr-2 h-4 w-4" />
+                                                                View Details
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                onClick={() => router.visit(route('admin.inventory.edit', item.id))}
+                                                                className="cursor-pointer"
+                                                            >
+                                                                <Edit className="mr-2 h-4 w-4" />
+                                                                Edit Item
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <ConfirmationDialog
+                                                                title="Delete Inventory Item"
+                                                                description={`Are you sure you want to delete inventory item ${item.sku} (${item.name})?\n\nThis action will:\n• Delete the inventory item record\n• Remove all warehouse stock records\n• Cannot be undone if there are no stock movements\n\nPlease confirm this action.`}
+                                                                confirmText="Delete Item"
+                                                                cancelText="Cancel"
+                                                                variant="destructive"
+                                                                icon="delete"
+                                                                onConfirm={() => {
+                                                                    handleDelete(item.id);
+                                                                }}
+                                                            >
+                                                                <DropdownMenuItem
+                                                                    onSelect={(e) => e.preventDefault()}
+                                                                    className="cursor-pointer text-red-600 focus:text-red-600"
+                                                                >
+                                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                                    Delete Item
+                                                                </DropdownMenuItem>
+                                                            </ConfirmationDialog>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
                                                 </TableCell>
                                             </TableRow>
                                         )) : (

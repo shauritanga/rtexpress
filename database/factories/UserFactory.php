@@ -30,6 +30,7 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'status' => 'active',
+            'otp_enabled' => config('otp.enabled_by_default', true), // Default OTP enabled for security
         ];
     }
 

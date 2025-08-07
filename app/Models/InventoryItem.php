@@ -47,6 +47,13 @@ class InventoryItem extends Model
         'is_serialized' => 'boolean',
     ];
 
+    protected $appends = [
+        'stock_status',
+        'total_quantity',
+        'available_quantity',
+        'formatted_dimensions',
+    ];
+
     protected static function boot()
     {
         parent::boot();

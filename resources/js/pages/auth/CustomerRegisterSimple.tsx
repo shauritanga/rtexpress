@@ -166,11 +166,17 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
             return value && value.toString().trim() !== '';
         });
 
-        // Also check password match and length
+        // Enhanced password validation
         const passwordsMatch = data.password === data.password_confirmation;
-        const passwordLongEnough = data.password.length >= 8;
+        const passwordLongEnough = data.password.length >= 12;
+        const hasUpperCase = /[A-Z]/.test(data.password);
+        const hasLowerCase = /[a-z]/.test(data.password);
+        const hasNumbers = /\d/.test(data.password);
+        const hasSymbols = /[!@#$%^&*(),.?":{}|<>]/.test(data.password);
 
-        return allFieldsFilled && passwordsMatch && passwordLongEnough;
+        const passwordValid = passwordLongEnough && hasUpperCase && hasLowerCase && hasNumbers && hasSymbols;
+
+        return allFieldsFilled && passwordsMatch && passwordValid;
     };
 
     const nextStep = () => {

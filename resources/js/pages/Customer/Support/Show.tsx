@@ -394,11 +394,6 @@ export default function SupportShow({ customer, ticket }: Props) {
                             </CardHeader>
                             <CardContent className="space-y-3">
                                 <Button variant="outline" className="w-full justify-start" asChild>
-                                    <Link href="/customer/help">
-                                        Browse Help Center
-                                    </Link>
-                                </Button>
-                                <Button variant="outline" className="w-full justify-start" asChild>
                                     <Link href="/customer/support/create">
                                         Create New Ticket
                                     </Link>

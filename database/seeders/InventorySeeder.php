@@ -34,8 +34,8 @@ class InventorySeeder extends Seeder
                 'weight' => 0.2,
                 'dimensions' => ['length' => 20, 'width' => 15, 'height' => 10],
                 'unit_of_measure' => 'piece',
-                'unit_cost' => 1.50,
-                'unit_price' => 2.25,
+                'unit_cost' => 3750,  // ~1.50 USD converted to TZS
+                'unit_price' => 5625, // ~2.25 USD converted to TZS
                 'supplier' => 'Packaging Solutions Ltd',
                 'min_stock_level' => 100,
                 'max_stock_level' => 1000,
@@ -51,8 +51,8 @@ class InventorySeeder extends Seeder
                 'weight' => 0.4,
                 'dimensions' => ['length' => 30, 'width' => 25, 'height' => 20],
                 'unit_of_measure' => 'piece',
-                'unit_cost' => 2.75,
-                'unit_price' => 4.00,
+                'unit_cost' => 6875,  // ~2.75 USD converted to TZS
+                'unit_price' => 10000, // ~4.00 USD converted to TZS
                 'supplier' => 'Packaging Solutions Ltd',
                 'min_stock_level' => 75,
                 'max_stock_level' => 750,
@@ -68,8 +68,8 @@ class InventorySeeder extends Seeder
                 'weight' => 0.8,
                 'dimensions' => ['length' => 40, 'width' => 35, 'height' => 30],
                 'unit_of_measure' => 'piece',
-                'unit_cost' => 4.50,
-                'unit_price' => 6.75,
+                'unit_cost' => 11250, // ~4.50 USD converted to TZS
+                'unit_price' => 16875, // ~6.75 USD converted to TZS
                 'supplier' => 'Packaging Solutions Ltd',
                 'min_stock_level' => 50,
                 'max_stock_level' => 500,
@@ -85,8 +85,8 @@ class InventorySeeder extends Seeder
                 'weight' => 2.5,
                 'dimensions' => ['length' => 100, 'width' => 60, 'height' => 15],
                 'unit_of_measure' => 'roll',
-                'unit_cost' => 12.00,
-                'unit_price' => 18.00,
+                'unit_cost' => 30000, // ~12.00 USD converted to TZS
+                'unit_price' => 45000, // ~18.00 USD converted to TZS
                 'supplier' => 'Protective Materials Inc',
                 'min_stock_level' => 10,
                 'max_stock_level' => 100,
@@ -101,8 +101,8 @@ class InventorySeeder extends Seeder
                 'brand' => 'TapeMax',
                 'weight' => 0.3,
                 'unit_of_measure' => 'roll',
-                'unit_cost' => 3.25,
-                'unit_price' => 5.00,
+                'unit_cost' => 8125,  // ~3.25 USD converted to TZS
+                'unit_price' => 12500, // ~5.00 USD converted to TZS
                 'supplier' => 'Adhesive Solutions',
                 'min_stock_level' => 20,
                 'max_stock_level' => 200,
@@ -116,8 +116,8 @@ class InventorySeeder extends Seeder
                 'category' => 'supplies',
                 'brand' => 'LabelPro',
                 'unit_of_measure' => 'sheet',
-                'unit_cost' => 0.15,
-                'unit_price' => 0.25,
+                'unit_cost' => 375,   // ~0.15 USD converted to TZS
+                'unit_price' => 625,  // ~0.25 USD converted to TZS
                 'supplier' => 'Label Solutions',
                 'min_stock_level' => 500,
                 'max_stock_level' => 5000,
@@ -131,8 +131,8 @@ class InventorySeeder extends Seeder
                 'category' => 'supplies',
                 'brand' => 'WarnLabel',
                 'unit_of_measure' => 'piece',
-                'unit_cost' => 0.05,
-                'unit_price' => 0.10,
+                'unit_cost' => 125,   // ~0.05 USD converted to TZS
+                'unit_price' => 250,  // ~0.10 USD converted to TZS
                 'supplier' => 'Warning Labels Inc',
                 'min_stock_level' => 200,
                 'max_stock_level' => 2000,
@@ -149,8 +149,8 @@ class InventorySeeder extends Seeder
                 'weight' => 0.5,
                 'dimensions' => ['length' => 20, 'width' => 8, 'height' => 5],
                 'unit_of_measure' => 'piece',
-                'unit_cost' => 150.00,
-                'unit_price' => 225.00,
+                'unit_cost' => 375000, // ~150.00 USD converted to TZS
+                'unit_price' => 562500, // ~225.00 USD converted to TZS
                 'supplier' => 'Tech Equipment Ltd',
                 'manufacturer' => 'ScanTech Industries',
                 'min_stock_level' => 2,
@@ -167,8 +167,8 @@ class InventorySeeder extends Seeder
                 'brand' => 'WrapSecure',
                 'weight' => 3.0,
                 'unit_of_measure' => 'roll',
-                'unit_cost' => 25.00,
-                'unit_price' => 37.50,
+                'unit_cost' => 62500,  // ~25.00 USD converted to TZS
+                'unit_price' => 93750, // ~37.50 USD converted to TZS
                 'supplier' => 'Industrial Packaging',
                 'min_stock_level' => 5,
                 'max_stock_level' => 50,
@@ -185,8 +185,8 @@ class InventorySeeder extends Seeder
                 'weight' => 5.0,
                 'dimensions' => ['length' => 40, 'width' => 30, 'height' => 10],
                 'unit_of_measure' => 'piece',
-                'unit_cost' => 200.00,
-                'unit_price' => 300.00,
+                'unit_cost' => 500000, // ~200.00 USD converted to TZS
+                'unit_price' => 750000, // ~300.00 USD converted to TZS
                 'supplier' => 'Precision Instruments',
                 'manufacturer' => 'AccuWeight Corp',
                 'min_stock_level' => 1,

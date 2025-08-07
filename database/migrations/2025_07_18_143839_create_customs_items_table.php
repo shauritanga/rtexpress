@@ -22,7 +22,7 @@ return new class extends Migration
             $table->decimal('unit_weight', 8, 3); // in kg
             $table->decimal('unit_value', 10, 2);
             $table->decimal('total_value', 12, 2);
-            $table->string('currency', 3)->default('USD');
+            $table->string('currency', 3)->default('TZS');
             $table->string('manufacturer')->nullable();
             $table->string('brand')->nullable();
             $table->string('model')->nullable();

@@ -64,7 +64,9 @@ class Warehouse extends Model
         'current_utilization',
         'manager_name',
         'inventory_count',
-        'shipments_count'
+        'shipments_count',
+        'formatted_operating_hours',
+        'short_operating_hours'
     ];
 
     /**
@@ -172,6 +174,159 @@ class Warehouse extends Model
     public function getShipmentsCountAttribute(): int
     {
         return $this->originShipments()->count() + $this->destinationShipments()->count();
+    }
+
+    /**
+     * Get formatted operating hours.
+     */
+    public function getFormattedOperatingHoursAttribute(): string
+    {
+        $operatingHours = $this->operating_hours;
+
+        // Handle case where operating_hours might be a JSON string
+        if (is_string($operatingHours)) {
+            $operatingHours = json_decode($operatingHours, true);
+        }
+
+        if (!$operatingHours || empty($operatingHours)) {
+            return '24/7 Operation';
+        }
+
+        $formatted = [];
+        $days = [
+            'monday' => 'Mon',
+            'tuesday' => 'Tue',
+            'wednesday' => 'Wed',
+            'thursday' => 'Thu',
+            'friday' => 'Fri',
+            'saturday' => 'Sat',
+            'sunday' => 'Sun'
+        ];
+
+        foreach ($days as $day => $abbrev) {
+            if (isset($operatingHours[$day])) {
+                $hours = $operatingHours[$day];
+                if ($hours === 'closed') {
+                    $formatted[] = "{$abbrev}: Closed";
+                } else {
+                    // Convert 24-hour format to 12-hour format
+                    $times = explode('-', $hours);
+                    if (count($times) === 2) {
+                        $start = $this->formatTime($times[0]);
+                        $end = $this->formatTime($times[1]);
+                        $formatted[] = "{$abbrev}: {$start}-{$end}";
+                    } else {
+                        $formatted[] = "{$abbrev}: {$hours}";
+                    }
+                }
+            }
+        }
+
+        return implode(', ', $formatted);
+    }
+
+    /**
+     * Get short formatted operating hours for table display.
+     */
+    public function getShortOperatingHoursAttribute(): string
+    {
+        $operatingHours = $this->operating_hours;
+
+        // Handle case where operating_hours might be a JSON string
+        if (is_string($operatingHours)) {
+            $operatingHours = json_decode($operatingHours, true);
+        }
+
+        if (!$operatingHours || empty($operatingHours)) {
+            return '24/7';
+        }
+
+        // Check if weekdays are the same
+        $weekdayHours = [];
+        $weekendHours = [];
+
+        $weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+        $weekends = ['saturday', 'sunday'];
+
+        foreach ($weekdays as $day) {
+            if (isset($operatingHours[$day])) {
+                $weekdayHours[] = $operatingHours[$day];
+            }
+        }
+
+        foreach ($weekends as $day) {
+            if (isset($operatingHours[$day])) {
+                $weekendHours[] = $operatingHours[$day];
+            }
+        }
+
+        // If all weekdays are the same
+        $uniqueWeekdays = array_unique($weekdayHours);
+        $uniqueWeekends = array_unique($weekendHours);
+
+        if (count($uniqueWeekdays) === 1 && count($uniqueWeekends) <= 2) {
+            $weekdayTime = $uniqueWeekdays[0];
+            $result = "Mon-Fri: " . ($weekdayTime === 'closed' ? 'Closed' : $this->formatTimeRange($weekdayTime));
+
+            if (!empty($uniqueWeekends)) {
+                if (count($uniqueWeekends) === 1) {
+                    $weekendTime = $uniqueWeekends[0];
+                    $result .= ", Sat-Sun: " . ($weekendTime === 'closed' ? 'Closed' : $this->formatTimeRange($weekendTime));
+                } else {
+                    // Different weekend hours
+                    if (isset($operatingHours['saturday'])) {
+                        $satTime = $operatingHours['saturday'];
+                        $result .= ", Sat: " . ($satTime === 'closed' ? 'Closed' : $this->formatTimeRange($satTime));
+                    }
+                    if (isset($operatingHours['sunday'])) {
+                        $sunTime = $operatingHours['sunday'];
+                        $result .= ", Sun: " . ($sunTime === 'closed' ? 'Closed' : $this->formatTimeRange($sunTime));
+                    }
+                }
+            }
+
+            return $result;
+        }
+
+        // Fallback to showing just today's hours or first available
+        $today = strtolower(date('l'));
+        if (isset($operatingHours[$today])) {
+            $todayHours = $operatingHours[$today];
+            return "Today: " . ($todayHours === 'closed' ? 'Closed' : $this->formatTimeRange($todayHours));
+        }
+
+        return 'Varies';
+    }
+
+    /**
+     * Format time range for short display.
+     */
+    private function formatTimeRange(string $timeRange): string
+    {
+        $times = explode('-', $timeRange);
+        if (count($times) === 2) {
+            $start = $this->formatTime($times[0]);
+            $end = $this->formatTime($times[1]);
+            return "{$start}-{$end}";
+        }
+        return $timeRange;
+    }
+
+    /**
+     * Format time from 24-hour to 12-hour format.
+     */
+    private function formatTime(string $time): string
+    {
+        try {
+            $dateTime = \DateTime::createFromFormat('H:i', trim($time));
+            if ($dateTime) {
+                return $dateTime->format('g:i A');
+            }
+        } catch (\Exception $e) {
+            // If parsing fails, return original time
+        }
+
+        return $time;
     }
 
     /**

@@ -33,39 +33,82 @@ class DashboardController extends Controller
             'pending_shipments' => $customer->shipments()->where('status', 'pending')->count(),
         ];
 
-        // Get recent shipments
-        $recentShipments = $customer->shipments()
-            ->with(['originWarehouse', 'destinationWarehouse'])
-            ->latest()
-            ->limit(5)
-            ->get();
-
-        // Get active shipments for tracking
+        // Get active shipments for overview
         $activeShipments = $customer->shipments()
-            ->with(['originWarehouse', 'destinationWarehouse'])
             ->whereNotIn('status', ['delivered', 'cancelled'])
             ->latest()
             ->limit(10)
             ->get();
 
-        // Get recent activity timeline events
-        $recentActivity = $this->getRecentActivityEvents($customer);
-
-        // Get delivery performance metrics
-        $performanceMetrics = $this->getDeliveryPerformanceMetrics($customer);
-
-        // Get upcoming deliveries
-        $upcomingDeliveries = $this->getUpcomingDeliveries($customer);
+        // Get dashboard visualization data
+        $dashboardData = $this->getDashboardData($customer);
 
         return Inertia::render('Customer/Dashboard/Index', [
             'customer' => $customer,
             'stats' => $stats,
-            'recentShipments' => $recentShipments,
             'activeShipments' => $activeShipments,
-            'recentActivity' => $recentActivity,
-            'performanceMetrics' => $performanceMetrics,
-            'upcomingDeliveries' => $upcomingDeliveries,
+            'dashboardData' => $dashboardData,
         ]);
+    }
+
+    /**
+     * Get dashboard visualization data.
+     */
+    private function getDashboardData($customer): array
+    {
+        // Weekly shipments for the last 7 days
+        $weeklyData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $dayName = $date->format('D'); // Mon, Tue, etc.
+
+            $shipments = $customer->shipments()
+                ->whereDate('created_at', $date->toDateString())
+                ->count();
+
+            $weeklyData[] = [
+                'day' => $dayName,
+                'shipments' => $shipments,
+            ];
+        }
+
+        // Status distribution
+        $statusData = [
+            [
+                'name' => 'Delivered',
+                'value' => $customer->shipments()->where('status', 'delivered')->count(),
+                'color' => '#10b981',
+            ],
+            [
+                'name' => 'In Transit',
+                'value' => $customer->shipments()->where('status', 'in_transit')->count(),
+                'color' => '#3b82f6',
+            ],
+            [
+                'name' => 'Pending',
+                'value' => $customer->shipments()->where('status', 'pending')->count(),
+                'color' => '#f59e0b',
+            ],
+            [
+                'name' => 'Out for Delivery',
+                'value' => $customer->shipments()->where('status', 'out_for_delivery')->count(),
+                'color' => '#8b5cf6',
+            ],
+        ];
+
+        // Filter out zero values and add fallback
+        $filteredStatusData = array_values(array_filter($statusData, fn($item) => $item['value'] > 0));
+
+        if (empty($filteredStatusData)) {
+            $filteredStatusData = [
+                ['name' => 'No Data', 'value' => 1, 'color' => '#e5e7eb']
+            ];
+        }
+
+        return [
+            'weekly_shipments' => $weeklyData,
+            'status_distribution' => $filteredStatusData,
+        ];
     }
 
     /**

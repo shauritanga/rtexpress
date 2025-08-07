@@ -5,15 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from '@/components/ui/select';
-import { 
+import {
     ArrowLeft,
     Save,
     Warehouse,
@@ -23,24 +23,26 @@ import {
     Clock,
     Users
 } from 'lucide-react';
+import { countries } from '@/lib/countries';
 
 interface Warehouse {
     id: number;
     name: string;
     code: string;
-    address: string;
+    address_line_1: string;
+    address_line_2?: string;
     city: string;
-    state: string;
+    state_province: string;
     postal_code: string;
     country: string;
     phone: string;
     email: string;
-    manager_name: string;
-    capacity_sqft: number;
-    latitude: number;
-    longitude: number;
+    contact_person?: string;
+    capacity_cubic_meters?: number;
+    latitude?: number;
+    longitude?: number;
     status: string;
-    operating_hours: string;
+    operating_hours: any;
 }
 
 interface Props {
@@ -48,27 +50,82 @@ interface Props {
 }
 
 export default function WarehouseEdit({ warehouse }: Props) {
+    // Helper function to parse operating hours from database format
+    const parseOperatingHours = (hours: any) => {
+        if (typeof hours === 'string') {
+            try {
+                hours = JSON.parse(hours);
+            } catch {
+                // If it's not valid JSON, return default hours
+                return {
+                    monday: { open: '09:00', close: '17:00', closed: false },
+                    tuesday: { open: '09:00', close: '17:00', closed: false },
+                    wednesday: { open: '09:00', close: '17:00', closed: false },
+                    thursday: { open: '09:00', close: '17:00', closed: false },
+                    friday: { open: '09:00', close: '17:00', closed: false },
+                    saturday: { open: '09:00', close: '17:00', closed: false },
+                    sunday: { open: '09:00', close: '17:00', closed: true },
+                };
+            }
+        }
+
+        // Convert database format to form format
+        const formHours: any = {};
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+        days.forEach(day => {
+            if (hours && hours[day]) {
+                if (hours[day] === 'closed') {
+                    formHours[day] = { open: '09:00', close: '17:00', closed: true };
+                } else {
+                    const times = hours[day].split('-');
+                    if (times.length === 2) {
+                        formHours[day] = { open: times[0], close: times[1], closed: false };
+                    } else {
+                        formHours[day] = { open: '09:00', close: '17:00', closed: false };
+                    }
+                }
+            } else {
+                formHours[day] = { open: '09:00', close: '17:00', closed: false };
+            }
+        });
+
+        return formHours;
+    };
+
     const { data, setData, put, processing, errors } = useForm({
-        name: warehouse.name,
-        code: warehouse.code,
-        address: warehouse.address,
-        city: warehouse.city,
-        state: warehouse.state,
-        postal_code: warehouse.postal_code,
-        country: warehouse.country,
-        phone: warehouse.phone,
-        email: warehouse.email,
-        manager_name: warehouse.manager_name,
-        capacity_sqft: warehouse.capacity_sqft,
-        latitude: warehouse.latitude,
-        longitude: warehouse.longitude,
-        status: warehouse.status,
-        operating_hours: warehouse.operating_hours,
+        name: warehouse.name || '',
+        code: warehouse.code || '',
+        address_line_1: warehouse.address_line_1 || '',
+        address_line_2: warehouse.address_line_2 || '',
+        city: warehouse.city || '',
+        state_province: warehouse.state_province || '',
+        postal_code: warehouse.postal_code || '',
+        country: warehouse.country || '',
+        phone: warehouse.phone || '',
+        email: warehouse.email || '',
+        contact_person: warehouse.contact_person || '',
+        capacity_cubic_meters: warehouse.capacity_cubic_meters || '',
+        latitude: warehouse.latitude || '',
+        longitude: warehouse.longitude || '',
+        status: warehouse.status || 'active',
+        operating_hours: parseOperatingHours(warehouse.operating_hours),
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        put(route('admin.warehouses.update', warehouse.id));
+        console.log('Update form data being submitted:', data);
+        put(route('admin.warehouses.update', warehouse.id), {
+            onSuccess: () => {
+                console.log('Update form submitted successfully');
+            },
+            onError: (errors) => {
+                console.log('Update form submission errors:', errors);
+            },
+            onFinish: () => {
+                console.log('Update form submission finished');
+            }
+        });
     };
 
     return (
@@ -97,6 +154,27 @@ export default function WarehouseEdit({ warehouse }: Props) {
                 </div>
 
                 <form onSubmit={submit} className="space-y-6">
+                    {/* General Error Display */}
+                    {errors.error && (
+                        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                            <div className="flex">
+                                <div className="flex-shrink-0">
+                                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div className="ml-3">
+                                    <h3 className="text-sm font-medium text-red-800">
+                                        Error updating warehouse
+                                    </h3>
+                                    <div className="mt-2 text-sm text-red-700">
+                                        <p>{errors.error}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
                         {/* Basic Information */}
                         <Card>
@@ -144,20 +222,20 @@ export default function WarehouseEdit({ warehouse }: Props) {
 
                                 <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                                     <div className="space-y-2">
-                                        <Label htmlFor="manager_name">Manager Name</Label>
+                                        <Label htmlFor="contact_person">Contact Person</Label>
                                         <div className="relative">
                                             <Users className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                                             <Input
-                                                id="manager_name"
+                                                id="contact_person"
                                                 type="text"
-                                                value={data.manager_name}
-                                                onChange={(e) => setData('manager_name', e.target.value)}
-                                                placeholder="Manager name"
-                                                className={`pl-8 ${errors.manager_name ? 'border-red-500' : ''}`}
+                                                value={data.contact_person}
+                                                onChange={(e) => setData('contact_person', e.target.value)}
+                                                placeholder="Contact person name"
+                                                className={`pl-8 ${errors.contact_person ? 'border-red-500' : ''}`}
                                             />
                                         </div>
-                                        {errors.manager_name && (
-                                            <p className="text-sm text-red-600">{errors.manager_name}</p>
+                                        {errors.contact_person && (
+                                            <p className="text-sm text-red-600">{errors.contact_person}</p>
                                         )}
                                     </div>
 
@@ -180,32 +258,83 @@ export default function WarehouseEdit({ warehouse }: Props) {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="capacity_sqft">Capacity (sq ft)</Label>
+                                    <Label htmlFor="capacity_cubic_meters">Capacity (Cubic Meters)</Label>
                                     <Input
-                                        id="capacity_sqft"
+                                        id="capacity_cubic_meters"
                                         type="number"
-                                        value={data.capacity_sqft}
-                                        onChange={(e) => setData('capacity_sqft', parseInt(e.target.value) || 0)}
-                                        placeholder="Storage capacity in square feet"
-                                        className={errors.capacity_sqft ? 'border-red-500' : ''}
+                                        min="0"
+                                        step="0.01"
+                                        value={data.capacity_cubic_meters}
+                                        onChange={(e) => setData('capacity_cubic_meters', e.target.value)}
+                                        placeholder="Storage capacity in cubic meters"
+                                        className={errors.capacity_cubic_meters ? 'border-red-500' : ''}
                                     />
-                                    {errors.capacity_sqft && (
-                                        <p className="text-sm text-red-600">{errors.capacity_sqft}</p>
+                                    {errors.capacity_cubic_meters && (
+                                        <p className="text-sm text-red-600">{errors.capacity_cubic_meters}</p>
                                     )}
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="operating_hours">Operating Hours</Label>
-                                    <div className="relative">
-                                        <Clock className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            id="operating_hours"
-                                            type="text"
-                                            value={data.operating_hours}
-                                            onChange={(e) => setData('operating_hours', e.target.value)}
-                                            placeholder="e.g., Mon-Fri 8:00 AM - 6:00 PM"
-                                            className={`pl-8 ${errors.operating_hours ? 'border-red-500' : ''}`}
-                                        />
+                                <div className="space-y-4">
+                                    <Label className="text-base font-medium">Operating Hours</Label>
+                                    <div className="space-y-3">
+                                        {Object.entries(data.operating_hours).map(([day, hours]: [string, any]) => (
+                                            <div key={day} className="flex items-center space-x-4 p-3 border rounded-lg">
+                                                <div className="w-20 text-sm font-medium capitalize">
+                                                    {day}
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <Checkbox
+                                                        id={`${day}-closed`}
+                                                        checked={hours.closed}
+                                                        onCheckedChange={(checked) => {
+                                                            setData('operating_hours', {
+                                                                ...data.operating_hours,
+                                                                [day]: {
+                                                                    ...hours,
+                                                                    closed: checked
+                                                                }
+                                                            });
+                                                        }}
+                                                    />
+                                                    <Label htmlFor={`${day}-closed`} className="text-sm">
+                                                        Closed
+                                                    </Label>
+                                                </div>
+                                                {!hours.closed && (
+                                                    <div className="flex items-center space-x-2">
+                                                        <Input
+                                                            type="time"
+                                                            value={hours.open}
+                                                            onChange={(e) => {
+                                                                setData('operating_hours', {
+                                                                    ...data.operating_hours,
+                                                                    [day]: {
+                                                                        ...hours,
+                                                                        open: e.target.value
+                                                                    }
+                                                                });
+                                                            }}
+                                                            className="w-32"
+                                                        />
+                                                        <span className="text-sm text-muted-foreground">to</span>
+                                                        <Input
+                                                            type="time"
+                                                            value={hours.close}
+                                                            onChange={(e) => {
+                                                                setData('operating_hours', {
+                                                                    ...data.operating_hours,
+                                                                    [day]: {
+                                                                        ...hours,
+                                                                        close: e.target.value
+                                                                    }
+                                                                });
+                                                            }}
+                                                            className="w-32"
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
                                     </div>
                                     {errors.operating_hours && (
                                         <p className="text-sm text-red-600">{errors.operating_hours}</p>
@@ -227,17 +356,32 @@ export default function WarehouseEdit({ warehouse }: Props) {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="address">Street Address *</Label>
-                                    <Textarea
-                                        id="address"
-                                        value={data.address}
-                                        onChange={(e) => setData('address', e.target.value)}
-                                        placeholder="Enter full street address"
-                                        className={errors.address ? 'border-red-500' : ''}
-                                        rows={2}
+                                    <Label htmlFor="address_line_1">Address Line 1 *</Label>
+                                    <Input
+                                        id="address_line_1"
+                                        type="text"
+                                        value={data.address_line_1}
+                                        onChange={(e) => setData('address_line_1', e.target.value)}
+                                        placeholder="Enter street address"
+                                        className={errors.address_line_1 ? 'border-red-500' : ''}
                                     />
-                                    {errors.address && (
-                                        <p className="text-sm text-red-600">{errors.address}</p>
+                                    {errors.address_line_1 && (
+                                        <p className="text-sm text-red-600">{errors.address_line_1}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="address_line_2">Address Line 2</Label>
+                                    <Input
+                                        id="address_line_2"
+                                        type="text"
+                                        value={data.address_line_2}
+                                        onChange={(e) => setData('address_line_2', e.target.value)}
+                                        placeholder="Apartment, suite, etc. (optional)"
+                                        className={errors.address_line_2 ? 'border-red-500' : ''}
+                                    />
+                                    {errors.address_line_2 && (
+                                        <p className="text-sm text-red-600">{errors.address_line_2}</p>
                                     )}
                                 </div>
 
@@ -258,17 +402,17 @@ export default function WarehouseEdit({ warehouse }: Props) {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="state">State/Province *</Label>
+                                        <Label htmlFor="state_province">State/Province *</Label>
                                         <Input
-                                            id="state"
+                                            id="state_province"
                                             type="text"
-                                            value={data.state}
-                                            onChange={(e) => setData('state', e.target.value)}
+                                            value={data.state_province}
+                                            onChange={(e) => setData('state_province', e.target.value)}
                                             placeholder="State or Province"
-                                            className={errors.state ? 'border-red-500' : ''}
+                                            className={errors.state_province ? 'border-red-500' : ''}
                                         />
-                                        {errors.state && (
-                                            <p className="text-sm text-red-600">{errors.state}</p>
+                                        {errors.state_province && (
+                                            <p className="text-sm text-red-600">{errors.state_province}</p>
                                         )}
                                     </div>
                                 </div>

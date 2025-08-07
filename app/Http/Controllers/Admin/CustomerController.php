@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use App\Models\User;
+use App\Notifications\CustomerAccountCreated;
 
 class CustomerController extends Controller
 {
@@ -16,7 +20,7 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Customer::with(['creator'])
+        $query = Customer::with(['creator', 'user'])
             ->withCount(['shipments'])
             ->latest();
 
@@ -38,6 +42,12 @@ class CustomerController extends Controller
         }
 
         $customers = $query->paginate(15)->withQueryString();
+
+        // Add has_user_account attribute to each customer
+        $customers->getCollection()->transform(function ($customer) {
+            $customer->has_user_account = $customer->hasUserAccount();
+            return $customer;
+        });
 
         // Get filter options
         $countries = Customer::distinct()->pluck('country')->filter()->sort()->values();
@@ -85,13 +95,34 @@ class CustomerController extends Controller
         ]);
 
         try {
+            // Create customer record
             $customer = Customer::create(array_merge($validated, [
                 'created_by' => Auth::id(),
             ]));
 
+            // Generate temporary password
+            $temporaryPassword = Str::random(12);
+
+            // Create user account for customer portal access
+            $user = User::create([
+                'name' => $validated['contact_person'],
+                'email' => $validated['email'],
+                'password' => Hash::make($temporaryPassword),
+                'phone' => $validated['phone'],
+                'status' => 'active',
+                'customer_id' => $customer->id,
+                'otp_enabled' => true, // Enable OTP for security
+            ]);
+
+            // Assign customer role
+            $user->assignRole('customer');
+
+            // Send welcome email with credentials
+            $user->notify(new CustomerAccountCreated($customer, $user, $temporaryPassword));
+
             return redirect()
                 ->route('admin.customers.show', $customer)
-                ->with('success', "Customer {$customer->customer_code} created successfully!");
+                ->with('success', "Customer {$customer->customer_code} created successfully! Login credentials have been sent to {$validated['email']}.");
 
         } catch (\Exception $e) {
             return back()
@@ -182,17 +213,42 @@ class CustomerController extends Controller
     public function destroy(Customer $customer)
     {
         try {
+            // Get the associated user before deleting customer
+            $user = $customer->user;
+            $customerCode = $customer->customer_code;
+            $companyName = $customer->company_name;
+
             // Check if customer has active shipments
-            if ($customer->shipments()->active()->exists()) {
-                return back()->withErrors(['error' => 'Cannot delete customer with active shipments.']);
+            $activeShipmentsCount = $customer->shipments()
+                ->whereNotIn('status', ['delivered', 'cancelled'])
+                ->count();
+
+            if ($activeShipmentsCount > 0) {
+                return back()->withErrors([
+                    'error' => "Cannot delete customer {$customerCode}. They have {$activeShipmentsCount} active shipment(s). Please complete or cancel all shipments first."
+                ]);
             }
 
-            $customerCode = $customer->customer_code;
+            // Delete associated user account if exists
+            if ($user) {
+                // Remove all role assignments
+                $user->roles()->detach();
+
+                // Delete the user account (soft delete)
+                $user->delete();
+            }
+
+            // Delete the customer (this will soft delete due to SoftDeletes trait)
             $customer->delete();
+
+            $message = "Customer {$customerCode} ({$companyName}) deleted successfully!";
+            if ($user) {
+                $message = "Customer {$customerCode} ({$companyName}) and associated user account deleted successfully!";
+            }
 
             return redirect()
                 ->route('admin.customers.index')
-                ->with('success', "Customer {$customerCode} deleted successfully!");
+                ->with('success', $message);
 
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to delete customer. Please try again.']);
@@ -315,5 +371,121 @@ class CustomerController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Create user account for existing customer and send credentials.
+     */
+    public function createUserAccount(Customer $customer)
+    {
+        try {
+            // Check if customer already has a user account
+            if ($customer->hasUserAccount()) {
+                return back()->withErrors(['error' => 'Customer already has a user account.']);
+            }
+
+            // Generate temporary password
+            $temporaryPassword = Str::random(12);
+
+            // Create user account for customer portal access
+            $user = User::create([
+                'name' => $customer->contact_person,
+                'email' => $customer->email,
+                'password' => Hash::make($temporaryPassword),
+                'phone' => $customer->phone,
+                'status' => 'active',
+                'customer_id' => $customer->id,
+                'otp_enabled' => true, // Enable OTP for security
+            ]);
+
+            // Assign customer role
+            $user->assignRole('customer');
+
+            // Send welcome email with credentials
+            $user->notify(new CustomerAccountCreated($customer, $user, $temporaryPassword));
+
+            return back()->with('success', "User account created for {$customer->customer_code}! Login credentials have been sent to {$customer->email}.");
+
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to create user account. Please try again.']);
+        }
+    }
+
+    /**
+     * Resend login credentials to customer.
+     */
+    public function resendCredentials(Customer $customer)
+    {
+        try {
+            $user = $customer->user;
+
+            if (!$user) {
+                return back()->withErrors(['error' => 'Customer does not have a user account.']);
+            }
+
+            // Generate new temporary password
+            $temporaryPassword = Str::random(12);
+            $user->update(['password' => Hash::make($temporaryPassword)]);
+
+            // Send email with new credentials
+            $user->notify(new CustomerAccountCreated($customer, $user, $temporaryPassword));
+
+            return back()->with('success', "New login credentials have been sent to {$customer->email}.");
+
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to resend credentials. Please try again.']);
+        }
+    }
+
+    /**
+     * Force delete a customer permanently (admin only).
+     */
+    public function forceDestroy($customerId)
+    {
+        try {
+            $customer = Customer::withTrashed()->findOrFail($customerId);
+            $user = User::where('customer_id', $customer->id)->first();
+            $customerCode = $customer->customer_code;
+
+            // Delete associated user permanently if exists
+            if ($user) {
+                $user->roles()->detach();
+                $user->forceDelete();
+            }
+
+            // Force delete the customer permanently
+            $customer->forceDelete();
+
+            return redirect()
+                ->route('admin.customers.index')
+                ->with('success', "Customer {$customerCode} has been permanently deleted from the system.");
+
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to permanently delete customer. Please try again.']);
+        }
+    }
+
+    /**
+     * Restore a soft-deleted customer.
+     */
+    public function restore($customerId)
+    {
+        try {
+            $customer = Customer::withTrashed()->findOrFail($customerId);
+            $customer->restore();
+
+            // Restore associated user if it was soft deleted
+            $user = User::withTrashed()->where('customer_id', $customer->id)->first();
+            if ($user && $user->trashed()) {
+                $user->restore();
+            }
+
+            return redirect()
+                ->route('admin.customers.index')
+                ->with('success', "Customer {$customer->customer_code} has been restored successfully.");
+
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to restore customer. Please try again.']);
+        }
     }
 }

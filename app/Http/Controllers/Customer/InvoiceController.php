@@ -23,8 +23,9 @@ class InvoiceController extends Controller
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
-        // Get customer's invoices with filtering
-        $query = Invoice::where('customer_id', $customer->id);
+        // Get customer's invoices with filtering (show sent, viewed, paid, and overdue invoices)
+        $query = Invoice::where('customer_id', $customer->id)
+            ->whereIn('status', ['sent', 'viewed', 'paid', 'overdue']);
 
         // Apply search filter
         if (request('search')) {
@@ -46,19 +47,21 @@ class InvoiceController extends Controller
 
         $invoices = $query->orderBy('issue_date', 'desc')->paginate(20);
 
-        // Calculate stats for the customer
+        // Calculate stats for the customer (include sent, viewed, paid, and overdue invoices)
+        $baseCondition = ['customer_id' => $customer->id];
+        $allowedStatuses = ['sent', 'viewed', 'paid', 'overdue'];
+
         $stats = [
-            'total' => Invoice::where('customer_id', $customer->id)->count(),
-            'draft' => Invoice::where('customer_id', $customer->id)->where('status', 'draft')->count(),
-            'sent' => Invoice::where('customer_id', $customer->id)->where('status', 'sent')->count(),
-            'paid' => Invoice::where('customer_id', $customer->id)->where('status', 'paid')->count(),
-            'overdue' => Invoice::where('customer_id', $customer->id)
+            'total' => Invoice::where($baseCondition)->whereIn('status', $allowedStatuses)->count(),
+            'sent' => Invoice::where($baseCondition)->where('status', 'sent')->count(),
+            'paid' => Invoice::where($baseCondition)->where('status', 'paid')->count(),
+            'overdue' => Invoice::where($baseCondition)
                 ->where('status', 'sent')
                 ->where('due_date', '<', now())
                 ->count(),
-            'total_amount' => Invoice::where('customer_id', $customer->id)->sum('total_amount'),
-            'paid_amount' => Invoice::where('customer_id', $customer->id)->sum('paid_amount'),
-            'balance_due' => Invoice::where('customer_id', $customer->id)->sum('balance_due'),
+            'total_amount' => Invoice::where($baseCondition)->whereIn('status', $allowedStatuses)->sum('total_amount'),
+            'paid_amount' => Invoice::where($baseCondition)->whereIn('status', $allowedStatuses)->sum('paid_amount'),
+            'balance_due' => Invoice::where($baseCondition)->whereIn('status', $allowedStatuses)->sum('balance_due'),
         ];
 
         return Inertia::render('Customer/Invoices/Index', [
@@ -81,6 +84,11 @@ class InvoiceController extends Controller
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
+        // Only allow access to sent, viewed, paid, and overdue invoices
+        if (!in_array($invoice->status, ['sent', 'viewed', 'paid', 'overdue'])) {
+            return Inertia::render('Customer/Dashboard/NoAccess');
+        }
+
         // Load related data
         $invoice->load(['customer', 'payments']);
 
@@ -100,6 +108,11 @@ class InvoiceController extends Controller
 
         if (!$customer || $invoice->customer_id !== $customer->id) {
             abort(403, 'Unauthorized access to invoice');
+        }
+
+        // Only allow access to sent, viewed, paid, and overdue invoices
+        if (!in_array($invoice->status, ['sent', 'viewed', 'paid', 'overdue'])) {
+            abort(403, 'Invoice not available');
         }
 
         // For now, return a simple response

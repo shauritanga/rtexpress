@@ -3,60 +3,94 @@
 namespace App\Services\Gateways;
 
 use App\Models\Payment;
+use App\Services\ClickPesaAuthService;
+use App\Services\ClickPesaChecksumService;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
 class ClickPesaGateway implements PaymentGatewayInterface
 {
     protected array $config;
+    protected ClickPesaAuthService $authService;
+    protected ClickPesaChecksumService $checksumService;
+    protected string $baseUrl;
 
     public function __construct()
     {
         $this->config = config('payment.gateways.clickpesa', []);
+        $this->baseUrl = $this->config['api_url'] ?? 'https://api.clickpesa.com/third-parties';
+
+        // Only initialize services if properly configured
+        if ($this->isConfigured()) {
+            $this->authService = new ClickPesaAuthService();
+            $this->checksumService = new ClickPesaChecksumService();
+        }
     }
 
     /**
-     * Process a payment.
+     * Process a payment using ClickPesa Mobile Money API.
      */
     public function processPayment(Payment $payment, array $paymentData): array
     {
         try {
             if (!$this->isConfigured()) {
-                throw new Exception('ClickPesa gateway not configured');
+                throw new Exception('ClickPesa gateway not configured. Please check your environment variables.');
             }
 
-            // Simulate ClickPesa payment processing
-            $transactionId = 'cp_' . uniqid();
-            $paymentId = 'CPAY-' . strtoupper(uniqid());
+            // Validate payment data
+            $validationErrors = $this->validatePaymentData($paymentData);
+            if (!empty($validationErrors)) {
+                throw new Exception('Validation failed: ' . implode(', ', $validationErrors));
+            }
 
-            // Simulate processing delay
-            usleep(1000000); // 1 second
+            // Generate order reference
+            $orderReference = $this->checksumService->generateOrderReference('PAY');
 
-            // Calculate fees (ClickPesa: 3.5% for M-Pesa)
+            // Prepare payment request data
+            $requestData = [
+                'amount' => (string) $payment->amount,
+                'currency' => $payment->currency,
+                'orderReference' => $orderReference,
+                'phoneNumber' => $this->formatPhoneNumber($paymentData['phone_number']),
+            ];
+
+            // Generate checksum
+            $requestData['checksum'] = $this->checksumService->generatePaymentChecksum($requestData);
+
+            // Step 1: Preview the payment request
+            $previewResult = $this->previewPayment($requestData);
+
+            if (!$previewResult['success']) {
+                throw new Exception('Payment preview failed: ' . $previewResult['error']);
+            }
+
+            // Step 2: Initiate the USSD push request
+            $initiateResult = $this->initiatePayment($requestData);
+
+            if (!$initiateResult['success']) {
+                throw new Exception('Payment initiation failed: ' . $initiateResult['error']);
+            }
+
+            // Calculate fees
             $fees = $this->calculateFees($payment->amount, $payment->currency);
 
             return [
-                'status' => 'completed',
-                'transaction_id' => $transactionId,
-                'payment_id' => $paymentId,
+                'status' => 'processing', // ClickPesa payments are async
+                'transaction_id' => $initiateResult['data']['id'] ?? $orderReference,
+                'payment_id' => $orderReference,
+                'order_reference' => $orderReference,
                 'fee_amount' => $fees['fee_amount'],
                 'net_amount' => $fees['net_amount'],
-                'gateway_response' => [
-                    'id' => $paymentId,
-                    'status' => 'SUCCESS',
-                    'amount' => $payment->amount,
-                    'currency' => $payment->currency,
-                    'payment_method' => $paymentData['payment_method'] ?? 'mpesa',
-                    'phone_number' => $paymentData['phone_number'] ?? null,
-                    'reference' => $paymentData['reference'] ?? null,
-                    'timestamp' => now()->toISOString(),
-                ],
+                'gateway_response' => $initiateResult['data'],
+                'ussd_code' => $previewResult['ussd_code'] ?? null,
             ];
 
         } catch (Exception $e) {
             Log::error('ClickPesa payment failed', [
                 'payment_id' => $payment->id,
                 'error' => $e->getMessage(),
+                'payment_data' => $paymentData,
             ]);
 
             return [
@@ -76,18 +110,33 @@ class ClickPesaGateway implements PaymentGatewayInterface
                 throw new Exception('ClickPesa gateway not configured');
             }
 
-            // Simulate ClickPesa payment request
-            $requestId = 'REQ-' . strtoupper(uniqid());
-            $checkoutUrl = "https://api.clickpesa.com/checkout/{$requestId}";
+            // Generate order reference
+            $orderReference = $this->checksumService->generateOrderReference('INT');
+
+            // Prepare payment request data
+            $requestData = [
+                'amount' => (string) $paymentData['amount'],
+                'currency' => $paymentData['currency'],
+                'orderReference' => $orderReference,
+            ];
+
+            // Generate checksum
+            $requestData['checksum'] = $this->checksumService->generatePaymentChecksum($requestData);
+
+            // Preview the payment to get available methods
+            $previewResult = $this->previewPayment($requestData);
+
+            if (!$previewResult['success']) {
+                throw new Exception('Payment preview failed: ' . $previewResult['error']);
+            }
 
             return [
                 'success' => true,
-                'request_id' => $requestId,
-                'checkout_url' => $checkoutUrl,
+                'order_reference' => $orderReference,
                 'amount' => $paymentData['amount'],
                 'currency' => $paymentData['currency'],
-                'payment_url' => $checkoutUrl,
-                'ussd_code' => '*150*00#', // Example USSD code for M-Pesa
+                'available_methods' => $previewResult['data']['activeMethods'] ?? [],
+                'ussd_code' => $previewResult['ussd_code'] ?? '*150*00#',
             ];
 
         } catch (Exception $e) {
@@ -97,6 +146,99 @@ class ClickPesaGateway implements PaymentGatewayInterface
             ]);
 
             throw $e;
+        }
+    }
+
+    /**
+     * Preview payment request to validate and get available methods.
+     */
+    protected function previewPayment(array $requestData): array
+    {
+        try {
+            $token = $this->authService->getAuthToken();
+
+            $response = Http::withHeaders([
+                'Authorization' => $token,
+                'Content-Type' => 'application/json',
+            ])->post($this->baseUrl . '/payments/preview-ussd-push-request', $requestData);
+
+            if (!$response->successful()) {
+                Log::error('ClickPesa preview payment failed', [
+                    'status' => $response->status(),
+                    'response' => $response->body(),
+                    'request_data' => $requestData,
+                ]);
+
+                return [
+                    'success' => false,
+                    'error' => 'Preview request failed: ' . $response->body(),
+                ];
+            }
+
+            $data = $response->json();
+
+            return [
+                'success' => true,
+                'data' => $data,
+                'ussd_code' => '*150*00#', // Default M-Pesa USSD code
+            ];
+
+        } catch (Exception $e) {
+            Log::error('ClickPesa preview payment error', [
+                'error' => $e->getMessage(),
+                'request_data' => $requestData,
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Initiate USSD push payment request.
+     */
+    protected function initiatePayment(array $requestData): array
+    {
+        try {
+            $token = $this->authService->getAuthToken();
+
+            $response = Http::withHeaders([
+                'Authorization' => $token,
+                'Content-Type' => 'application/json',
+            ])->post($this->baseUrl . '/payments/initiate-ussd-push-request', $requestData);
+
+            if (!$response->successful()) {
+                Log::error('ClickPesa initiate payment failed', [
+                    'status' => $response->status(),
+                    'response' => $response->body(),
+                    'request_data' => $requestData,
+                ]);
+
+                return [
+                    'success' => false,
+                    'error' => 'Payment initiation failed: ' . $response->body(),
+                ];
+            }
+
+            $data = $response->json();
+
+            return [
+                'success' => true,
+                'data' => $data,
+            ];
+
+        } catch (Exception $e) {
+            Log::error('ClickPesa initiate payment error', [
+                'error' => $e->getMessage(),
+                'request_data' => $requestData,
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
         }
     }
 
@@ -192,9 +334,37 @@ class ClickPesaGateway implements PaymentGatewayInterface
      */
     public function isConfigured(): bool
     {
-        return !empty($this->config['api_key']) && 
-               !empty($this->config['secret_key']) &&
-               !empty($this->config['merchant_id']);
+        return !empty($this->config['client_id']) &&
+               !empty($this->config['api_key']) &&
+               !empty($this->config['checksum_secret']);
+    }
+
+    /**
+     * Format phone number for ClickPesa API.
+     * ClickPesa expects phone numbers with country code but without the + sign.
+     */
+    protected function formatPhoneNumber(string $phoneNumber): string
+    {
+        // Remove any spaces, dashes, or other characters
+        $phone = preg_replace('/[^\d+]/', '', $phoneNumber);
+
+        // If it starts with +255, remove the +
+        if (str_starts_with($phone, '+255')) {
+            return substr($phone, 1); // Remove the + sign
+        }
+
+        // If it starts with 0, replace with 255
+        if (str_starts_with($phone, '0')) {
+            return '255' . substr($phone, 1);
+        }
+
+        // If it already starts with 255, return as is
+        if (str_starts_with($phone, '255')) {
+            return $phone;
+        }
+
+        // Default: assume it's a local number and add 255
+        return '255' . $phone;
     }
 
     /**
@@ -344,5 +514,52 @@ class ClickPesaGateway implements PaymentGatewayInterface
             'payment_id' => $payment?->id,
             'action' => 'payment_failed',
         ];
+    }
+
+    /**
+     * Query payment status from ClickPesa API.
+     */
+    public function queryPaymentStatus(string $orderReference): array
+    {
+        try {
+            $token = $this->authService->getAuthToken();
+
+            $response = Http::withHeaders([
+                'Authorization' => $token,
+            ])->get($this->baseUrl . '/payments/querying-for-payments', [
+                'orderReference' => $orderReference,
+            ]);
+
+            if (!$response->successful()) {
+                Log::error('ClickPesa payment status query failed', [
+                    'status' => $response->status(),
+                    'response' => $response->body(),
+                    'order_reference' => $orderReference,
+                ]);
+
+                return [
+                    'success' => false,
+                    'error' => 'Status query failed: ' . $response->body(),
+                ];
+            }
+
+            $data = $response->json();
+
+            return [
+                'success' => true,
+                'data' => $data,
+            ];
+
+        } catch (Exception $e) {
+            Log::error('ClickPesa payment status query error', [
+                'error' => $e->getMessage(),
+                'order_reference' => $orderReference,
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
     }
 }

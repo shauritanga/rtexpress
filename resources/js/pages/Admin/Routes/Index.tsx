@@ -32,8 +32,19 @@ import {
     Filter,
     Calendar,
     Route,
-    Navigation
+    Navigation,
+    MoreHorizontal,
+    Edit,
+    Trash2
 } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 
 interface Driver {
     id: number;
@@ -104,6 +115,37 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
     const [selectedDriver, setSelectedDriver] = useState(filters.driver_id || 'all');
     const [selectedWarehouse, setSelectedWarehouse] = useState(filters.warehouse_id || 'all');
     const [selectedDate, setSelectedDate] = useState(filters.date || '');
+
+    // Simple delete function using form submission
+    const handleDelete = (routeId: number) => {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (!csrfToken) {
+            console.error('CSRF token not found');
+            alert('Security token not found. Please refresh the page and try again.');
+            return;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = route('admin.routes.destroy', routeId);
+
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        // Add method override for DELETE
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    };
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -427,11 +469,50 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
                                                     </span>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button variant="ghost" size="sm" asChild>
-                                                        <Link href={route('admin.routes.show', deliveryRoute.id)}>
-                                                            <Eye className="h-4 w-4" />
-                                                        </Link>
-                                                    </Button>
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                                <span className="sr-only">Open menu</span>
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end" className="w-48">
+                                                            <DropdownMenuItem
+                                                                onClick={() => router.visit(route('admin.routes.show', deliveryRoute.id))}
+                                                                className="cursor-pointer"
+                                                            >
+                                                                <Eye className="mr-2 h-4 w-4" />
+                                                                View Details
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                onClick={() => router.visit(route('admin.routes.edit', deliveryRoute.id))}
+                                                                className="cursor-pointer"
+                                                            >
+                                                                <Edit className="mr-2 h-4 w-4" />
+                                                                Edit Route
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <ConfirmationDialog
+                                                                title="Delete Route"
+                                                                description={`Are you sure you want to delete route ${deliveryRoute.route_number}?\n\nThis action will:\n• Delete the route record\n• Remove all route stops\n• Make the driver available again\n• Cannot be undone for planned routes\n\nPlease confirm this action.`}
+                                                                confirmText="Delete Route"
+                                                                cancelText="Cancel"
+                                                                variant="destructive"
+                                                                icon="delete"
+                                                                onConfirm={() => {
+                                                                    handleDelete(deliveryRoute.id);
+                                                                }}
+                                                            >
+                                                                <DropdownMenuItem
+                                                                    onSelect={(e) => e.preventDefault()}
+                                                                    className="cursor-pointer text-red-600 focus:text-red-600"
+                                                                >
+                                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                                    Delete Route
+                                                                </DropdownMenuItem>
+                                                            </ConfirmationDialog>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
                                                 </TableCell>
                                             </TableRow>
                                         )) : (

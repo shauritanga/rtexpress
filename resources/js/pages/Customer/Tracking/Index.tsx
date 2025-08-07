@@ -1,12 +1,16 @@
 import { Head } from '@inertiajs/react';
+import { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import RealTimeTracker from '@/components/customer/tracking/RealTimeTracker';
 import TrackingTimeline from '@/components/customer/tracking/TrackingTimeline';
 import TrackingMap from '@/components/customer/tracking/TrackingMap';
+import { BarcodeScanner } from '@/components/ui/barcode-scanner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
+import { BarcodeScanResult } from '@/hooks/useBarcodeScanner';
+import { router } from '@inertiajs/react';
+import {
     MapPin,
     ArrowLeft,
     Share,
@@ -14,7 +18,9 @@ import {
     Download,
     Clock,
     Truck,
-    Package
+    Package,
+    Scan,
+    Search
 } from 'lucide-react';
 
 interface TrackingEvent {
@@ -74,84 +80,69 @@ interface Props {
 }
 
 export default function TrackingIndex({ customer, trackingNumber, trackingData }: Props) {
-    // Mock tracking data for demonstration
-    const mockTrackingData: ShipmentTracking = trackingData || {
-        tracking_number: 'RT12345678',
-        current_status: 'in_transit',
-        estimated_delivery: '2024-01-25T17:00:00Z',
-        current_location: {
-            lat: 40.7128,
-            lng: -74.0060,
-            address: 'New York Distribution Center, 123 Logistics Ave, New York, NY 10001'
-        },
-        destination: {
-            lat: 40.7589,
-            lng: -73.9851,
-            address: '456 Business St, New York, NY 10019'
-        },
-        driver: {
-            name: 'Mike Johnson',
-            phone: '+1 (555) 123-4567',
-            photo: '/images/drivers/mike.jpg',
-            vehicle: 'Truck #RT-2024'
-        },
-        delivery_window: '2:00 PM - 6:00 PM',
-        special_instructions: 'Ring doorbell twice, leave at front desk if no answer',
-        events: [
-            {
-                id: '1',
-                timestamp: '2024-01-23T09:00:00Z',
-                status: 'pending',
-                location: 'RT Express Facility, Los Angeles, CA',
-                description: 'Shipment created and ready for pickup',
-                details: 'Package has been processed and is ready for collection by our driver.'
-            },
-            {
-                id: '2',
-                timestamp: '2024-01-23T14:30:00Z',
-                status: 'picked_up',
-                location: 'Customer Location, Los Angeles, CA',
-                description: 'Package picked up from sender',
-                driver: {
-                    name: 'Sarah Wilson',
-                    phone: '+1 (555) 987-6543',
-                    photo: '/images/drivers/sarah.jpg'
-                },
-                details: 'Package successfully collected from sender location.',
-                photos: ['/images/pickup1.jpg', '/images/pickup2.jpg']
-            },
-            {
-                id: '3',
-                timestamp: '2024-01-23T18:45:00Z',
-                status: 'in_transit',
-                location: 'Los Angeles Distribution Center, CA',
-                description: 'Package arrived at sorting facility',
-                details: 'Package has been sorted and loaded for transport to destination city.'
-            },
-            {
-                id: '4',
-                timestamp: '2024-01-24T22:15:00Z',
-                status: 'in_transit',
-                location: 'Phoenix Distribution Center, AZ',
-                description: 'Package in transit - Phoenix hub',
-                details: 'Package passed through Phoenix distribution center and is continuing to destination.'
-            },
-            {
-                id: '5',
-                timestamp: '2024-01-25T08:30:00Z',
-                status: 'in_transit',
-                location: 'New York Distribution Center, NY',
-                description: 'Package arrived at destination facility',
-                details: 'Package has arrived at the destination distribution center and is being prepared for final delivery.'
-            }
-        ]
+    const [activeTab, setActiveTab] = useState('search');
+
+    // Handle barcode scan
+    const handleScan = async (result: BarcodeScanResult) => {
+        const code = result.decodedText.trim().toUpperCase();
+
+        // Navigate to tracking page with the scanned code
+        router.get('/customer/tracking', { tracking_number: code });
     };
+
+    // Show tracking search interface when no tracking data
+    if (!trackingData) {
+        return (
+            <AppLayout customer={customer}>
+                <Head title="Track Shipment" />
+                <div className="container mx-auto px-4 py-8">
+                    <div className="text-center mb-8">
+                        <h1 className="text-2xl font-bold text-gray-900 mb-4">Package Tracking</h1>
+                        <p className="text-gray-600">Search for your shipment using tracking number or scan barcode.</p>
+                    </div>
+
+                    {/* Tracking Methods Tabs */}
+                    <div className="max-w-4xl mx-auto">
+                        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                            <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="search" className="flex items-center gap-2">
+                                    <Search className="h-4 w-4" />
+                                    Search
+                                </TabsTrigger>
+                                <TabsTrigger value="scanner" className="flex items-center gap-2">
+                                    <Scan className="h-4 w-4" />
+                                    Scanner
+                                </TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="search" className="space-y-4">
+                                <RealTimeTracker trackingNumber={trackingNumber} />
+                            </TabsContent>
+
+                            <TabsContent value="scanner" className="space-y-4">
+                                <BarcodeScanner
+                                    onScan={handleScan}
+                                    title="Scan Tracking Barcode"
+                                    description="Point your camera at the barcode on your shipping label"
+                                    size="lg"
+                                    autoStop={true}
+                                />
+                            </TabsContent>
+                        </Tabs>
+                    </div>
+                </div>
+            </AppLayout>
+        );
+    }
+
+    // Use real tracking data only - NO MOCK DATA
+    const realTrackingData: ShipmentTracking = trackingData;
 
     const handleShare = async () => {
         if (navigator.share) {
             try {
                 await navigator.share({
-                    title: `Track Shipment ${mockTrackingData.tracking_number}`,
+                    title: `Track Shipment ${realTrackingData.tracking_number}`,
                     text: `Track your RT Express shipment`,
                     url: window.location.href,
                 });
@@ -224,7 +215,7 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                                 <div className="min-w-0">
                                     <p className="text-xs sm:text-sm font-medium text-gray-600">ETA</p>
                                     <p className="text-sm sm:text-lg font-bold text-gray-900 truncate">
-                                        {new Date(mockTrackingData.estimated_delivery).toLocaleDateString()}
+                                        {new Date(realTrackingData.estimated_delivery).toLocaleDateString()}
                                     </p>
                                 </div>
                             </div>
@@ -238,7 +229,7 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                                 <div className="min-w-0">
                                     <p className="text-xs sm:text-sm font-medium text-gray-600">Status</p>
                                     <p className="text-sm sm:text-lg font-bold text-gray-900 capitalize truncate">
-                                        {mockTrackingData.current_status.replace('_', ' ')}
+                                        {realTrackingData.current_status.replace('_', ' ')}
                                     </p>
                                 </div>
                             </div>
@@ -252,7 +243,7 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                                 <div className="min-w-0">
                                     <p className="text-xs sm:text-sm font-medium text-gray-600">Location</p>
                                     <p className="text-sm sm:text-lg font-bold text-gray-900 truncate">
-                                        New York, NY
+                                        {realTrackingData.current_location?.address || 'Location updating...'}
                                     </p>
                                 </div>
                             </div>
@@ -266,7 +257,7 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                                 <div className="min-w-0">
                                     <p className="text-xs sm:text-sm font-medium text-gray-600">Events</p>
                                     <p className="text-sm sm:text-lg font-bold text-gray-900">
-                                        {mockTrackingData.events.length}
+                                        {realTrackingData.events.length}
                                     </p>
                                 </div>
                             </div>
@@ -293,29 +284,29 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                                 <RealTimeTracker trackingNumber={trackingNumber} />
                                 <TrackingMap
-                                    currentLocation={mockTrackingData.current_location}
-                                    destination={mockTrackingData.destination}
+                                    currentLocation={realTrackingData.current_location}
+                                    destination={realTrackingData.destination}
                                     height="h-96"
                                 />
                             </div>
-                            <TrackingTimeline 
-                                events={mockTrackingData.events}
-                                currentStatus={mockTrackingData.current_status}
+                            <TrackingTimeline
+                                events={realTrackingData.events}
+                                currentStatus={realTrackingData.current_status}
                             />
                         </TabsContent>
 
                         <TabsContent value="map">
                             <TrackingMap
-                                currentLocation={mockTrackingData.current_location}
-                                destination={mockTrackingData.destination}
+                                currentLocation={realTrackingData.current_location}
+                                destination={realTrackingData.destination}
                                 height="h-[600px]"
                             />
                         </TabsContent>
 
                         <TabsContent value="timeline">
-                            <TrackingTimeline 
-                                events={mockTrackingData.events}
-                                currentStatus={mockTrackingData.current_status}
+                            <TrackingTimeline
+                                events={realTrackingData.events}
+                                currentStatus={realTrackingData.current_status}
                             />
                         </TabsContent>
                     </Tabs>
@@ -324,13 +315,13 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                 {/* Mobile Layout - Stacked Components */}
                 <div className="lg:hidden space-y-4">
                     <TrackingMap
-                        currentLocation={mockTrackingData.current_location}
-                        destination={mockTrackingData.destination}
+                        currentLocation={realTrackingData.current_location}
+                        destination={realTrackingData.destination}
                         height="h-64"
                     />
-                    <TrackingTimeline 
-                        events={mockTrackingData.events}
-                        currentStatus={mockTrackingData.current_status}
+                    <TrackingTimeline
+                        events={realTrackingData.events}
+                        currentStatus={realTrackingData.current_status}
                     />
                 </div>
             </div>

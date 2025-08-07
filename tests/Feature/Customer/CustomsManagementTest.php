@@ -368,7 +368,7 @@ class CustomsManagementTest extends TestCase
             'item_value' => 100.00,
             'destination_country' => 'CA',
             'origin_country' => 'US',
-            'currency' => 'USD',
+            'currency' => 'TZS',
         ];
 
         // Test different HS codes

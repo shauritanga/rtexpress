@@ -30,6 +30,7 @@ import {
     Save,
     Send
 } from 'lucide-react';
+import { useToast } from '@/hooks/useToast';
 
 interface Customer {
     id: number;
@@ -43,6 +44,7 @@ interface Shipment {
     id: number;
     tracking_number: string;
     recipient_name: string;
+    service_type: string;
     total_amount?: number;
 }
 
@@ -68,19 +70,22 @@ interface Props {
     };
 }
 
-export default function CreateInvoice({ 
-    customers = [], 
-    shipments = [], 
+export default function CreateInvoice({
+    customers = [],
+    shipments = [],
     selectedShipment,
-    preselected = {} 
+    preselected = {}
 }: Props) {
+    const { toast } = useToast();
+    const [availableShipments, setAvailableShipments] = useState<Shipment[]>(shipments);
+    const [loadingShipments, setLoadingShipments] = useState(false);
     const [formData, setFormData] = useState({
         customer_id: preselected.customer_id || '',
         shipment_id: preselected.shipment_id || '',
         type: 'standard',
         issue_date: new Date().toISOString().split('T')[0],
         due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
-        currency: 'USD',
+        currency: 'TZS',
         tax_rate: 18, // Default VAT rate
         tax_type: 'VAT',
         discount_amount: 0,
@@ -155,6 +160,56 @@ export default function CreateInvoice({
         }
     }, [selectedShipment]);
 
+    // Load shipments if customer is pre-selected
+    useEffect(() => {
+        if (formData.customer_id && !selectedShipment) {
+            fetchCustomerShipments(formData.customer_id);
+        }
+    }, []); // Only run on mount
+
+    // Fetch customer shipments when customer is selected
+    const fetchCustomerShipments = async (customerId: string) => {
+        if (!customerId) {
+            setAvailableShipments([]);
+            return;
+        }
+
+        setLoadingShipments(true);
+        try {
+            const response = await fetch(`/admin/api/invoices/customer-shipments?customer_id=${customerId}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                }
+            });
+
+            if (response.ok) {
+                const shipments = await response.json();
+                setAvailableShipments(shipments);
+            } else {
+                console.error('Failed to fetch customer shipments');
+                setAvailableShipments([]);
+            }
+        } catch (error) {
+            console.error('Error fetching customer shipments:', error);
+            setAvailableShipments([]);
+        } finally {
+            setLoadingShipments(false);
+        }
+    };
+
+    // Handle customer selection change
+    const handleCustomerChange = (customerId: string) => {
+        setFormData(prev => ({
+            ...prev,
+            customer_id: customerId,
+            shipment_id: '' // Reset shipment selection
+        }));
+
+        // Fetch shipments for the selected customer
+        fetchCustomerShipments(customerId);
+    };
+
     const addItem = () => {
         setItems([...items, {
             description: '',
@@ -185,6 +240,22 @@ export default function CreateInvoice({
         const afterDiscount = lineTotal - discountAmount;
         const taxAmount = afterDiscount * (item.tax_rate / 100);
         return afterDiscount + taxAmount;
+    };
+
+    const formatCurrency = (amount: number, currency: string) => {
+        if (currency === 'TZS') {
+            return new Intl.NumberFormat('sw-TZ', {
+                style: 'currency',
+                currency: 'TZS',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+            }).format(amount);
+        }
+
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: currency,
+        }).format(amount);
     };
 
     const calculateTotals = () => {
@@ -234,13 +305,38 @@ export default function CreateInvoice({
                 onError: (errors) => {
                     setErrors(errors);
                     setIsSubmitting(false);
+
+                    // Show error toast
+                    toast({
+                        title: "Error Creating Invoice",
+                        description: "Please check the form for errors and try again.",
+                        variant: "destructive",
+                    });
                 },
-                onSuccess: () => {
+                onSuccess: (page) => {
                     setIsSubmitting(false);
+
+                    // Show success toast
+                    const actionText = action === 'send' ? 'created and sent' : 'created';
+                    toast({
+                        title: "Invoice Created Successfully!",
+                        description: `Invoice has been ${actionText}. ${action === 'send' ? 'Customer has been notified.' : ''}`,
+                        variant: "success",
+                    });
+
+                    // Navigate to invoices list after a short delay
+                    setTimeout(() => {
+                        router.visit('/admin/invoices');
+                    }, 1500);
                 }
             });
         } catch (error) {
             setIsSubmitting(false);
+            toast({
+                title: "Unexpected Error",
+                description: "An unexpected error occurred. Please try again.",
+                variant: "destructive",
+            });
         }
     };
 
@@ -253,7 +349,7 @@ export default function CreateInvoice({
                 <div className="flex flex-col space-y-4">
                     <div className="flex items-center space-x-2">
                         <Button variant="outline" size="sm" asChild>
-                            <Link href="/admin/billing/invoices">
+                            <Link href="/admin/invoices">
                                 <ArrowLeft className="h-4 w-4 mr-2" />
                                 <span className="hidden sm:inline">Back to Invoices</span>
                                 <span className="sm:hidden">Back</span>
@@ -281,9 +377,9 @@ export default function CreateInvoice({
                             <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="customer_id">Customer *</Label>
-                                    <Select 
-                                        value={formData.customer_id} 
-                                        onValueChange={(value) => setFormData(prev => ({ ...prev, customer_id: value }))}
+                                    <Select
+                                        value={formData.customer_id}
+                                        onValueChange={handleCustomerChange}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select customer" />
@@ -303,22 +399,45 @@ export default function CreateInvoice({
 
                                 <div className="space-y-2">
                                     <Label htmlFor="shipment_id">Related Shipment (Optional)</Label>
-                                    <Select 
-                                        value={formData.shipment_id} 
+                                    <Select
+                                        value={formData.shipment_id}
                                         onValueChange={(value) => setFormData(prev => ({ ...prev, shipment_id: value }))}
+                                        disabled={!formData.customer_id || loadingShipments}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select shipment" />
+                                            <SelectValue placeholder={
+                                                !formData.customer_id
+                                                    ? "Select customer first"
+                                                    : loadingShipments
+                                                        ? "Loading shipments..."
+                                                        : "Select shipment"
+                                            } />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="none">No shipment</SelectItem>
-                                            {shipments.map((shipment) => (
+                                            {availableShipments.map((shipment) => (
                                                 <SelectItem key={shipment.id} value={shipment.id.toString()}>
-                                                    {shipment.tracking_number} - {shipment.recipient_name}
+                                                    <div className="flex flex-col">
+                                                        <span className="font-medium">{shipment.tracking_number}</span>
+                                                        <span className="text-sm text-gray-500">
+                                                            {shipment.recipient_name} • {shipment.service_type}
+                                                            {shipment.total_amount && ` • TSh ${shipment.total_amount.toLocaleString()}`}
+                                                        </span>
+                                                    </div>
                                                 </SelectItem>
                                             ))}
+                                            {availableShipments.length === 0 && formData.customer_id && !loadingShipments && (
+                                                <SelectItem value="no-shipments" disabled>
+                                                    No uninvoiced shipments found
+                                                </SelectItem>
+                                            )}
                                         </SelectContent>
                                     </Select>
+                                    {formData.customer_id && availableShipments.length === 0 && !loadingShipments && (
+                                        <p className="text-sm text-gray-500">
+                                            This customer has no uninvoiced shipments
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
@@ -361,8 +480,8 @@ export default function CreateInvoice({
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="USD">USD - US Dollar</SelectItem>
                                             <SelectItem value="TZS">TZS - Tanzanian Shilling</SelectItem>
+                                            <SelectItem value="USD">USD - US Dollar</SelectItem>
                                             <SelectItem value="EUR">EUR - Euro</SelectItem>
                                             <SelectItem value="GBP">GBP - British Pound</SelectItem>
                                         </SelectContent>
@@ -516,10 +635,7 @@ export default function CreateInvoice({
                                                 <Label>Total</Label>
                                                 <div className="flex items-center justify-between">
                                                     <span className="font-medium text-sm sm:text-base">
-                                                        {new Intl.NumberFormat('en-US', {
-                                                            style: 'currency',
-                                                            currency: formData.currency,
-                                                        }).format(calculateItemTotal(item))}
+                                                        {formatCurrency(calculateItemTotal(item), formData.currency)}
                                                     </span>
                                                     {items.length > 1 && (
                                                         <Button
@@ -596,32 +712,20 @@ export default function CreateInvoice({
                                     <div className="space-y-2">
                                         <div className="flex justify-between">
                                             <span>Subtotal:</span>
-                                            <span>{new Intl.NumberFormat('en-US', {
-                                                style: 'currency',
-                                                currency: formData.currency,
-                                            }).format(totals.subtotal)}</span>
+                                            <span>{formatCurrency(totals.subtotal, formData.currency)}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span>Discount:</span>
-                                            <span>-{new Intl.NumberFormat('en-US', {
-                                                style: 'currency',
-                                                currency: formData.currency,
-                                            }).format(totals.totalDiscount)}</span>
+                                            <span>-{formatCurrency(totals.totalDiscount, formData.currency)}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span>Tax:</span>
-                                            <span>{new Intl.NumberFormat('en-US', {
-                                                style: 'currency',
-                                                currency: formData.currency,
-                                            }).format(totals.taxAmount)}</span>
+                                            <span>{formatCurrency(totals.taxAmount, formData.currency)}</span>
                                         </div>
                                         <div className="border-t pt-2">
                                             <div className="flex justify-between font-bold text-lg">
                                                 <span>Total:</span>
-                                                <span>{new Intl.NumberFormat('en-US', {
-                                                    style: 'currency',
-                                                    currency: formData.currency,
-                                                }).format(totals.total)}</span>
+                                                <span>{formatCurrency(totals.total, formData.currency)}</span>
                                             </div>
                                         </div>
                                     </div>

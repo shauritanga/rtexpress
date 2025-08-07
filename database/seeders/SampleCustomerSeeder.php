@@ -236,7 +236,7 @@ class SampleCustomerSeeder extends Seeder
 
     private function createSampleInvoicesAndPayments(Customer $customer, User $adminUser): void
     {
-        $currencies = ['USD', 'EUR', 'GBP', 'TZS'];
+        $currencies = ['TZS', 'USD', 'EUR', 'GBP'];
         $statuses = ['draft', 'sent', 'paid', 'overdue'];
         
         for ($i = 1; $i <= 3; $i++) {

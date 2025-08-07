@@ -111,7 +111,11 @@ export default function RealTimeTracker({ trackingNumber: initialTrackingNumber,
 
         try {
             const response = await fetch(`/api/tracking/${trackingNum}`, {
+                method: 'GET',
                 headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
             });

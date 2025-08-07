@@ -9,7 +9,6 @@ import {
     BookOpen,
     LayoutGrid,
     Package,
-    Scan,
     Truck,
     Users,
     UserCog,
@@ -25,8 +24,7 @@ import {
     Activity,
     Wifi,
     Calculator,
-    Home,
-    HelpCircle
+    Home
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -58,7 +56,7 @@ const coreOperationsNavItems: NavItem[] = [
 const businessManagementNavItems: NavItem[] = [
     {
         title: 'Invoicing & Billing',
-        href: '/admin/billing',
+        href: '/admin/invoices',
         icon: CreditCard,
     },
     {
@@ -104,11 +102,6 @@ const analyticsNavItems: NavItem[] = [
         href: '/admin/analytics',
         icon: BarChart3,
     },
-    {
-        title: 'Real-time Dashboard',
-        href: '/admin/tracking/dashboard',
-        icon: Wifi,
-    },
 ];
 
 // Support & Communication - Customer service
@@ -143,18 +136,8 @@ const customerNavItems: NavItem[] = [
         icon: MapPin,
     },
     {
-        title: 'Rate Calculator',
-        href: '/customer/rates',
-        icon: Calculator,
-    },
-    {
-        title: 'Invoices',
+        title: 'Invoices & Payments',
         href: '/customer/invoices',
-        icon: FileText,
-    },
-    {
-        title: 'Payments',
-        href: '/customer/payments',
         icon: CreditCard,
     },
     {
@@ -171,11 +154,6 @@ const customerNavItems: NavItem[] = [
         title: 'Support',
         href: '/customer/support',
         icon: HeadphonesIcon,
-    },
-    {
-        title: 'Help Center',
-        href: '/customer/help',
-        icon: HelpCircle,
     },
 ];
 

@@ -210,19 +210,49 @@ class UserManagementController extends Controller
                 return back()->withErrors(['error' => 'Cannot delete user with active shipment assignments.']);
             }
 
+            // Check for shipments created by this user
+            if ($user->createdShipments()->exists()) {
+                return back()->withErrors(['error' => 'Cannot delete user who has created shipments. Please reassign these shipments first.']);
+            }
+
             // Prevent self-deletion
             if ($user->id === auth()->id()) {
                 return back()->withErrors(['error' => 'You cannot delete your own account.']);
             }
 
+            // Prevent deletion of the last admin user
+            if ($user->hasRole('admin')) {
+                $adminCount = User::whereHas('roles', function ($query) {
+                    $query->where('name', 'admin');
+                })->count();
+
+                if ($adminCount <= 1) {
+                    return back()->withErrors(['error' => 'Cannot delete the last admin user. At least one admin must remain.']);
+                }
+            }
+
             $userName = $user->name;
-            $user->delete();
+
+            try {
+                $user->delete();
+            } catch (\Illuminate\Database\QueryException $e) {
+                // Handle foreign key constraint violations
+                if ($e->getCode() === '23000') {
+                    return back()->withErrors(['error' => 'Cannot delete user due to related records (payments, notifications, etc.). Please contact system administrator.']);
+                }
+                throw $e; // Re-throw if it's a different database error
+            }
 
             return redirect()
                 ->route('admin.users.index')
                 ->with('success', "User {$userName} deleted successfully!");
 
         } catch (\Exception $e) {
+            \Log::error('User deletion failed: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'deleted_by' => auth()->id(),
+            ]);
+
             return back()->withErrors(['error' => 'Failed to delete user. Please try again.']);
         }
     }

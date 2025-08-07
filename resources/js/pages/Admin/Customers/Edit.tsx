@@ -24,6 +24,7 @@ import {
     CreditCard,
     FileText
 } from 'lucide-react';
+import { countries } from '@/lib/countries';
 
 interface Customer {
     id: number;
@@ -312,14 +313,21 @@ export default function CustomerEdit({ customer }: Props) {
 
                                     <div className="space-y-2">
                                         <Label htmlFor="country">Country *</Label>
-                                        <Input
-                                            id="country"
-                                            type="text"
+                                        <Select
                                             value={data.country}
-                                            onChange={(e) => setData('country', e.target.value)}
-                                            placeholder="Country"
-                                            className={errors.country ? 'border-red-500' : ''}
-                                        />
+                                            onValueChange={(value) => setData('country', value)}
+                                        >
+                                            <SelectTrigger className={errors.country ? 'border-red-500' : ''}>
+                                                <SelectValue placeholder="Select country" />
+                                            </SelectTrigger>
+                                            <SelectContent className="max-h-60">
+                                                {countries.map((country) => (
+                                                    <SelectItem key={country.code} value={country.name}>
+                                                        {country.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                         {errors.country && (
                                             <p className="text-sm text-red-600">{errors.country}</p>
                                         )}

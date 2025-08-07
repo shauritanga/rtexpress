@@ -4,27 +4,27 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\UserOtp;
+use App\Notifications\OtpCodeNotification;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
 
 class OtpService
 {
     /**
-     * Send OTP via SMS using a mock service (replace with actual SMS provider)
+     * Send OTP via email notification
      */
     public function sendOtp(User $user, string $type = 'login'): UserOtp
     {
         // Generate OTP
         $otp = $user->generateOtp($type);
 
-        // Send SMS (mock implementation - replace with actual SMS service)
-        $this->sendSms($otp->phone_number, $otp->otp_code);
+        // Send email notification
+        $this->sendEmail($user, $otp->otp_code, $type);
 
         // Log OTP generation for security audit
         Log::info('OTP generated', [
             'user_id' => $user->id,
             'type' => $type,
-            'phone' => $otp->phone_number,
+            'email' => $user->email,
             'ip' => request()->ip(),
         ]);
 
@@ -65,33 +65,30 @@ class OtpService
     }
 
     /**
-     * Send SMS (mock implementation)
-     * Replace this with actual SMS service like Twilio, Nexmo, or local provider
+     * Send OTP via email notification
      */
-    private function sendSms(string $phoneNumber, string $otpCode): bool
+    private function sendEmail(User $user, string $otpCode, string $type): bool
     {
-        // Mock SMS sending - replace with actual implementation
-        Log::info('SMS sent (mock)', [
-            'phone' => $phoneNumber,
-            'message' => "Your RT Express verification code is: {$otpCode}. Valid for 5 minutes.",
-        ]);
-
-        // For actual implementation, you might use:
-        /*
         try {
-            Http::post('https://api.sms-provider.com/send', [
-                'to' => $phoneNumber,
-                'message' => "Your RT Express verification code is: {$otpCode}. Valid for 5 minutes.",
-                'api_key' => config('services.sms.api_key'),
+            $expirationMinutes = config('otp.expiration_minutes', 5);
+
+            $user->notify(new OtpCodeNotification($otpCode, $type, $expirationMinutes));
+
+            Log::info('OTP email sent', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'type' => $type,
             ]);
+
             return true;
         } catch (\Exception $e) {
-            Log::error('SMS sending failed', ['error' => $e->getMessage()]);
+            Log::error('OTP email sending failed', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage()
+            ]);
             return false;
         }
-        */
-
-        return true; // Mock success
     }
 
     /**

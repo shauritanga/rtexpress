@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('declaration_type', ['export', 'import', 'transit'])->default('export');
             $table->enum('shipment_type', ['commercial', 'gift', 'sample', 'return', 'personal'])->default('commercial');
             $table->string('incoterms')->nullable(); // EXW, FOB, CIF, etc.
-            $table->string('currency', 3)->default('USD'); // ISO 4217
+            $table->string('currency', 3)->default('TZS'); // ISO 4217
             $table->decimal('total_value', 12, 2)->default(0);
             $table->decimal('insurance_value', 12, 2)->default(0);
             $table->decimal('freight_charges', 10, 2)->default(0);

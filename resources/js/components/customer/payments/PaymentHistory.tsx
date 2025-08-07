@@ -280,10 +280,12 @@ export default function PaymentHistory({
         return icons[method as keyof typeof icons] || <CreditCard className="h-4 w-4" />;
     };
 
-    const formatCurrency = (amount: number, currency: string = 'USD') => {
-        return new Intl.NumberFormat('en-US', {
+    const formatCurrency = (amount: number, currency: string = 'TZS') => {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
             currency: currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 

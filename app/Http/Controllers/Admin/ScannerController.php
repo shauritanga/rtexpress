@@ -10,10 +10,20 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 use Carbon\Carbon;
 
 class ScannerController extends Controller
 {
+    /**
+     * Display the admin scanner page.
+     */
+    public function index(): Response
+    {
+        return Inertia::render('Admin/Scanner/Index');
+    }
+
     /**
      * Lookup shipment information by tracking number
      */

@@ -65,7 +65,8 @@ class BillingController extends Controller
             $query->where(function ($q) use ($request) {
                 $q->where('invoice_number', 'like', '%' . $request->search . '%')
                   ->orWhereHas('customer', function ($customerQuery) use ($request) {
-                      $customerQuery->where('name', 'like', '%' . $request->search . '%')
+                      $customerQuery->where('company_name', 'like', '%' . $request->search . '%')
+                                  ->orWhere('contact_person', 'like', '%' . $request->search . '%')
                                   ->orWhere('email', 'like', '%' . $request->search . '%');
                   });
             });
@@ -90,7 +91,7 @@ class BillingController extends Controller
         $invoices = $query->paginate(15)->withQueryString();
 
         // Get filter options
-        $customers = Customer::select('id', 'company_name', 'contact_person', 'address_line_1', 'address_line_2', 'city', 'state_province', 'customer_code')->orderBy('company_name')->get();
+        $customers = Customer::select('id', 'company_name', 'contact_person', 'address_line_1', 'address_line_2', 'city', 'state_province', 'customer_code', 'email')->orderBy('company_name')->get();
         $stats = $this->getInvoiceStats();
 
         return Inertia::render('Admin/Billing/Invoices/Index', [

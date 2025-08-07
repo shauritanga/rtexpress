@@ -52,7 +52,21 @@ interface AnalyticsData {
         on_time_delivery_rate: number;
         average_transit_time: number;
         customer_satisfaction: number;
+        cost_per_shipment: number;
         exception_rate: number;
+    };
+    revenueAnalytics: {
+        total_revenue: number;
+        revenue_growth: number;
+        average_order_value: number;
+        revenue_by_service_type: Array<{
+            service_type: string;
+            revenue: number;
+        }>;
+        monthly_revenue_trend: Array<{
+            month: string;
+            revenue: number;
+        }>;
     };
     topCustomers: Array<{
         id: number;
@@ -64,6 +78,10 @@ interface AnalyticsData {
 
     serviceTypeDistribution: Array<{
         service_type: string;
+        count: number;
+    }>;
+    statusDistribution: Array<{
+        status: string;
         count: number;
     }>;
 }
@@ -82,6 +100,15 @@ export default function AnalyticsIndex({ analytics, period }: Props) {
             preserveState: true,
             preserveScroll: true,
         });
+    };
+
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('sw-TZ', {
+            style: 'currency',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
     };
 
     // Prepare KPI cards data
@@ -120,6 +147,20 @@ export default function AnalyticsIndex({ analytics, period }: Props) {
             icon: Clock,
             color: analytics.overview.average_delivery_time <= 3 ? 'green' as const :
                    analytics.overview.average_delivery_time <= 5 ? 'yellow' as const : 'red' as const,
+        },
+        {
+            title: 'Total Revenue',
+            value: formatCurrency(analytics.revenueAnalytics?.total_revenue || 0),
+            description: 'Revenue in selected period',
+            icon: DollarSign,
+            color: 'green' as const,
+        },
+        {
+            title: 'Avg Cost/Shipment',
+            value: formatCurrency(analytics.performanceMetrics?.cost_per_shipment || 0),
+            description: 'Average cost per shipment',
+            icon: Target,
+            color: 'blue' as const,
         },
     ];
 
@@ -246,12 +287,7 @@ export default function AnalyticsIndex({ analytics, period }: Props) {
                 {/* Status Distribution */}
                 <div className="grid gap-6 lg:grid-cols-1">
                     <StatusDistributionChart
-                        data={[
-                            { status: 'pending', count: analytics.overview.total_shipments - analytics.overview.delivered_shipments - analytics.overview.overdue_shipments },
-                            { status: 'in_transit', count: Math.floor(analytics.overview.total_shipments * 0.3) },
-                            { status: 'delivered', count: analytics.overview.delivered_shipments },
-                            { status: 'exception', count: analytics.overview.overdue_shipments }
-                        ]}
+                        data={analytics.statusDistribution || []}
                         title="Current Status Distribution"
                         description="Real-time breakdown of shipment statuses"
                     />

@@ -14,7 +14,7 @@ import {
     ChevronRight,
     Star,
     Zap,
-    DollarSign,
+    Banknote,
     Info
 } from 'lucide-react';
 

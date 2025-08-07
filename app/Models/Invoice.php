@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
+use App\Notifications\InvoiceCreatedNotification;
+use App\Notifications\InvoiceSentNotification;
+use Illuminate\Support\Facades\Notification;
 
 class Invoice extends Model
 {
@@ -48,6 +51,8 @@ class Invoice extends Model
         'sent_at',
         'viewed_at',
         'view_count',
+        'cancelled_at',
+        'cancelled_by',
         'recurring_frequency',
         'next_recurring_date',
         'parent_invoice_id',
@@ -67,6 +72,7 @@ class Invoice extends Model
             'next_recurring_date' => 'date',
             'sent_at' => 'datetime',
             'viewed_at' => 'datetime',
+            'cancelled_at' => 'datetime',
             'billing_address' => 'array',
             'company_address' => 'array',
             'payment_methods' => 'array',
@@ -156,6 +162,14 @@ class Invoice extends Model
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sent_by');
+    }
+
+    /**
+     * Get the user who cancelled the invoice.
+     */
+    public function canceller(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
     }
 
     /**
@@ -266,7 +280,7 @@ class Invoice extends Model
     /**
      * Mark invoice as paid.
      */
-    public function markAsPaid(float $amount = null): void
+    public function markAsPaid(?float $amount = null): void
     {
         $amount = $amount ?? $this->total_amount;
 
@@ -293,5 +307,62 @@ class Invoice extends Model
             'total_amount' => $subtotal + $taxAmount - $discountAmount,
             'balance_due' => ($subtotal + $taxAmount - $discountAmount) - $this->paid_amount,
         ]);
+    }
+
+    /**
+     * Send invoice created notification to customer.
+     */
+    public function sendCreatedNotification(): void
+    {
+        if ($this->customer) {
+            // Find the user associated with this customer
+            $customerUser = \App\Models\User::where('customer_id', $this->customer->id)->first();
+
+            if ($customerUser) {
+                $customerUser->notify(new InvoiceCreatedNotification($this));
+            }
+
+            // Also send email directly to customer email if no user account exists
+            if (!$customerUser && $this->customer->email) {
+                \Illuminate\Support\Facades\Notification::route('mail', $this->customer->email)
+                    ->notify(new InvoiceCreatedNotification($this));
+            }
+        }
+    }
+
+    /**
+     * Send invoice sent notification to customer.
+     */
+    public function sendSentNotification(): void
+    {
+        if ($this->customer) {
+            // Find the user associated with this customer
+            $customerUser = \App\Models\User::where('customer_id', $this->customer->id)->first();
+
+            if ($customerUser) {
+                $customerUser->notify(new InvoiceSentNotification($this));
+            }
+
+            // Also send email directly to customer email if no user account exists
+            if (!$customerUser && $this->customer->email) {
+                \Illuminate\Support\Facades\Notification::route('mail', $this->customer->email)
+                    ->notify(new InvoiceSentNotification($this));
+            }
+        }
+    }
+
+    /**
+     * Send notification to admin users about invoice creation.
+     */
+    public function sendAdminNotification(): void
+    {
+        // Get admin users using the roles relationship
+        $adminUsers = \App\Models\User::whereHas('roles', function ($query) {
+            $query->where('name', 'admin');
+        })->get();
+
+        foreach ($adminUsers as $admin) {
+            $admin->notify(new InvoiceCreatedNotification($this));
+        }
     }
 }

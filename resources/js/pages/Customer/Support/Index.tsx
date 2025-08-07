@@ -16,7 +16,6 @@ import {
     AlertTriangle,
     Star,
     HeadphonesIcon,
-    BookOpen,
     MessageCircle,
     TrendingUp
 } from 'lucide-react';
@@ -134,12 +133,6 @@ export default function SupportIndex({ customer, tickets, stats, filters }: Prop
                             <Link href="/customer/support/create">
                                 <Plus className="h-4 w-4 mr-2" />
                                 New Ticket
-                            </Link>
-                        </Button>
-                        <Button variant="outline" asChild>
-                            <Link href="/customer/help">
-                                <BookOpen className="h-4 w-4 mr-2" />
-                                Help Center
                             </Link>
                         </Button>
                     </div>

@@ -47,7 +47,15 @@ interface TrackingInfo {
     }>;
 }
 
-export default function CustomerTrackingEnhanced() {
+interface Props {
+    customer: {
+        id: number;
+        company_name: string;
+        customer_code: string;
+    };
+}
+
+export default function CustomerTrackingEnhanced({ customer }: Props) {
     const [scannedCode, setScannedCode] = useState<string>('');
     const [manualCode, setManualCode] = useState<string>('');
     const [trackingInfo, setTrackingInfo] = useState<TrackingInfo | null>(null);
@@ -125,7 +133,7 @@ export default function CustomerTrackingEnhanced() {
     };
 
     return (
-        <AppLayout>
+        <AppLayout customer={customer}>
             <Head title="Track Package" />
 
             <div className="space-y-6 p-4 md:p-6">

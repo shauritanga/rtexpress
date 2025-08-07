@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Shipment;
 use App\Models\User;
 use App\Models\Warehouse;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -94,25 +95,33 @@ class ShipmentController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'origin_warehouse_id' => 'required|exists:warehouses,id',
+            'origin_warehouse_id' => 'nullable|exists:warehouses,id',
             'destination_warehouse_id' => 'nullable|exists:warehouses,id',
+            'origin_address' => 'required|string',
+            'destination_address' => 'required|string',
             'sender_name' => 'required|string|max:255',
             'sender_phone' => 'required|string|max:20',
             'sender_address' => 'required|string',
             'recipient_name' => 'required|string|max:255',
             'recipient_phone' => 'required|string|max:20',
             'recipient_address' => 'required|string',
-            'service_type' => ['required', Rule::in(['standard', 'express', 'overnight', 'international'])],
-            'package_type' => ['required', Rule::in(['document', 'package', 'pallet', 'container'])],
+            'service_type' => ['required', Rule::in(['standard', 'express', 'overnight', 'economy', 'international'])],
+            'package_type' => ['nullable', Rule::in(['document', 'package', 'pallet', 'container'])],
             'weight_kg' => 'required|numeric|min:0.01|max:10000',
-            'dimensions_length_cm' => 'required|numeric|min:1|max:1000',
-            'dimensions_width_cm' => 'required|numeric|min:1|max:1000',
-            'dimensions_height_cm' => 'required|numeric|min:1|max:1000',
+            'dimensions_length_cm' => 'nullable|numeric|min:0|max:1000',
+            'dimensions_width_cm' => 'nullable|numeric|min:0|max:1000',
+            'dimensions_height_cm' => 'nullable|numeric|min:0|max:1000',
             'declared_value' => 'required|numeric|min:0|max:1000000',
             'insurance_value' => 'nullable|numeric|min:0|max:100000',
             'special_instructions' => 'nullable|string|max:1000',
-            'estimated_delivery_date' => 'nullable|date|after:today',
+            'estimated_delivery_date' => 'nullable|date|after_or_equal:today',
             'assigned_to' => 'nullable|exists:users,id',
+            'items' => 'nullable|array',
+            'items.*.description' => 'required_with:items|string|max:255',
+            'items.*.quantity' => 'required_with:items|integer|min:1',
+            'items.*.weight' => 'required_with:items|numeric|min:0',
+            'items.*.value' => 'required_with:items|numeric|min:0',
+            'items.*.dimensions' => 'nullable|string|max:255',
         ]);
 
         try {
@@ -200,6 +209,7 @@ class ShipmentController extends Controller
             'recipient_address' => 'required|string',
             'service_type' => ['required', Rule::in(['standard', 'express', 'overnight', 'international'])],
             'package_type' => ['required', Rule::in(['document', 'package', 'pallet', 'container'])],
+            'status' => ['required', Rule::in(['pending', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered', 'exception', 'cancelled'])],
             'weight_kg' => 'required|numeric|min:0.01|max:10000',
             'dimensions_length_cm' => 'required|numeric|min:1|max:1000',
             'dimensions_width_cm' => 'required|numeric|min:1|max:1000',
@@ -212,11 +222,38 @@ class ShipmentController extends Controller
         ]);
 
         try {
+            $oldStatus = $shipment->status;
             $shipment->update($validated);
+
+            // If status changed, send email notification and add tracking update
+            if ($oldStatus !== $validated['status']) {
+                // Add tracking update for status change
+                $shipment->addTrackingUpdate(
+                    $validated['status'],
+                    $shipment->originWarehouse->city ?? 'Location Updated',
+                    'Status updated via shipment edit form',
+                    Auth::user()
+                );
+
+                // Update delivery date if delivered
+                if ($validated['status'] === 'delivered') {
+                    $shipment->update(['actual_delivery_date' => now()]);
+                }
+
+                // Send notification to customer using new global channel system
+                try {
+                    $notificationService = new NotificationService();
+                    $notificationService->sendShipmentStatusUpdate($shipment, $validated['status']);
+                } catch (\Exception $e) {
+                    // Log the error but don't fail the update
+                    \Log::error("Failed to send shipment update notification: " . $e->getMessage());
+                }
+            }
 
             return redirect()
                 ->route('admin.shipments.show', $shipment)
-                ->with('success', "Shipment {$shipment->tracking_number} updated successfully!");
+                ->with('success', "Shipment {$shipment->tracking_number} updated successfully!" .
+                    ($oldStatus !== $validated['status'] ? ' Customer has been notified via email.' : ''));
 
         } catch (\Exception $e) {
             return back()
@@ -260,6 +297,8 @@ class ShipmentController extends Controller
         ]);
 
         try {
+            $oldStatus = $shipment->status;
+
             $shipment->addTrackingUpdate(
                 $validated['status'],
                 $validated['location'],
@@ -272,7 +311,16 @@ class ShipmentController extends Controller
                 $shipment->update(['actual_delivery_date' => now()]);
             }
 
-            return back()->with('success', 'Shipment status updated successfully!');
+            // Send email notification to customer
+            try {
+                $notificationService = new NotificationService();
+                $notificationService->sendShipmentUpdate($shipment, $validated['status']);
+            } catch (\Exception $e) {
+                // Log the error but don't fail the status update
+                \Log::error("Failed to send shipment update notification: " . $e->getMessage());
+            }
+
+            return back()->with('success', 'Shipment status updated successfully! Customer has been notified via email.');
 
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to update status. Please try again.']);

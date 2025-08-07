@@ -322,10 +322,12 @@ export default function InvoiceManagement({
         return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-300';
     };
 
-    const formatCurrency = (amount: number, currency: string = 'USD') => {
-        return new Intl.NumberFormat('en-US', {
+    const formatCurrency = (amount: number, currency: string = 'TZS') => {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
             currency: currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 

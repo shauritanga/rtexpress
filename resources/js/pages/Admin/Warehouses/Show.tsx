@@ -49,6 +49,7 @@ interface Warehouse {
     longitude: number;
     status: string;
     operating_hours: string;
+    formatted_operating_hours: string;
     created_at: string;
     updated_at: string;
 }
@@ -288,7 +289,7 @@ export default function WarehouseShow({ warehouse, stats, recentActivity, nearby
                                     <p className="text-sm font-medium text-muted-foreground mb-2">Operating Hours</p>
                                     <div className="flex items-center space-x-2">
                                         <Clock className="h-4 w-4 text-muted-foreground" />
-                                        <p className="text-sm">{warehouse?.operating_hours || 'Not specified'}</p>
+                                        <p className="text-sm">{warehouse?.formatted_operating_hours || 'Not specified'}</p>
                                     </div>
                                 </div>
                             </CardContent>

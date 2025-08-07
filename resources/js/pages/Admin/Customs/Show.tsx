@@ -13,12 +13,12 @@ import {
     TableHeader, 
     TableRow 
 } from '@/components/ui/table';
-import { 
+import {
     ArrowLeft,
     FileText,
     Package,
     MapPin,
-    DollarSign,
+    Banknote,
     Calendar,
     CheckCircle,
     XCircle,
@@ -91,10 +91,12 @@ interface Props {
 export default function CustomsShow({ declaration }: Props) {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const formatCurrency = (amount: number, currency: string = 'USD') => {
-        return new Intl.NumberFormat('en-US', {
+    const formatCurrency = (amount: number, currency: string = 'TZS') => {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
             currency: currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 
@@ -269,7 +271,7 @@ export default function CustomsShow({ declaration }: Props) {
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
-                                <DollarSign className="h-5 w-5 text-purple-600" />
+                                <Banknote className="h-5 w-5 text-purple-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Customs Value</p>
                                     <p className="text-2xl font-bold">
@@ -283,7 +285,7 @@ export default function CustomsShow({ declaration }: Props) {
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
-                                <DollarSign className="h-5 w-5 text-orange-600" />
+                                <Banknote className="h-5 w-5 text-orange-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Charges</p>
                                     <p className="text-2xl font-bold">
@@ -350,7 +352,7 @@ export default function CustomsShow({ declaration }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <DollarSign className="h-5 w-5 mr-2" />
+                                <Banknote className="h-5 w-5 mr-2" />
                                 Charges Breakdown
                             </CardTitle>
                         </CardHeader>

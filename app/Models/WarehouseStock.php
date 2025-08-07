@@ -132,7 +132,7 @@ class WarehouseStock extends Model
     /**
      * Add stock quantity.
      */
-    public function addStock(int $quantity, float $unitCost = null): void
+    public function addStock(int $quantity, ?float $unitCost = null): void
     {
         $oldQuantity = $this->quantity_available;
         $oldCost = $this->average_cost;

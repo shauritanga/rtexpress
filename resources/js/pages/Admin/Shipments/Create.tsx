@@ -31,7 +31,8 @@ import {
     Weight,
     Ruler,
     Plus,
-    Trash2
+    Trash2,
+    X
 } from 'lucide-react';
 
 interface Customer {
@@ -70,6 +71,8 @@ export default function ShipmentCreate({ customers, warehouses }: Props) {
         recipient_name: '',
         recipient_phone: '',
         recipient_address: '',
+        origin_address: '',
+        destination_address: '',
         origin_warehouse_id: '',
         destination_warehouse_id: '',
         estimated_delivery_date: '',
@@ -78,6 +81,7 @@ export default function ShipmentCreate({ customers, warehouses }: Props) {
         dimensions_length_cm: 0,
         dimensions_width_cm: 0,
         dimensions_height_cm: 0,
+        dimensions: '', // Combined dimensions field for display
         special_instructions: '',
         items: items,
     });
@@ -99,12 +103,30 @@ export default function ShipmentCreate({ customers, warehouses }: Props) {
         newItems[index] = { ...newItems[index], [field]: value };
         setItems(newItems);
         setData('items', newItems);
-        
-        // Update total weight and value
+
+        // Update total weight and value automatically
         const totalWeight = newItems.reduce((sum, item) => sum + (parseFloat(item.weight.toString()) || 0), 0);
         const totalValue = newItems.reduce((sum, item) => sum + (parseFloat(item.value.toString()) || 0), 0);
-        setData('weight_kg', totalWeight);
-        setData('declared_value', totalValue);
+
+        // Only update if the current values are 0 or match the calculated values (auto-calculation mode)
+        if (data.weight_kg === 0 || Math.abs(data.weight_kg - (items.reduce((sum, item) => sum + (parseFloat(item.weight.toString()) || 0), 0))) < 0.01) {
+            setData('weight_kg', totalWeight);
+        }
+        if (data.declared_value === 0 || Math.abs(data.declared_value - (items.reduce((sum, item) => sum + (parseFloat(item.value.toString()) || 0), 0))) < 0.01) {
+            setData('declared_value', totalValue);
+        }
+    };
+
+    const handleDimensionsChange = (value: string) => {
+        setData('dimensions', value);
+
+        // Try to parse dimensions like "30 x 20 x 15" into individual fields
+        const parts = value.split(/[x×\s]+/).map(part => parseFloat(part.trim())).filter(num => !isNaN(num));
+        if (parts.length >= 3) {
+            setData('dimensions_length_cm', parts[0]);
+            setData('dimensions_width_cm', parts[1]);
+            setData('dimensions_height_cm', parts[2]);
+        }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -152,13 +174,14 @@ export default function ShipmentCreate({ customers, warehouses }: Props) {
                                     label="Customer"
                                     required
                                     error={errors.customer_id}
+                                    description="Select the customer for this shipment"
                                 >
                                     <Select
                                         value={data.customer_id}
                                         onValueChange={(value) => setData('customer_id', value)}
                                     >
                                         <SelectTrigger className="h-11 text-base">
-                                            <SelectValue placeholder="Select customer" />
+                                            <SelectValue placeholder="Choose customer..." />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {customers.map((customer) => (
@@ -167,7 +190,12 @@ export default function ShipmentCreate({ customers, warehouses }: Props) {
                                                     value={customer.id.toString()}
                                                     className="text-base py-3"
                                                 >
-                                                    {customer.name} ({customer.customer_code})
+                                                    <div className="flex flex-col">
+                                                        <span className="font-medium">{customer.name}</span>
+                                                        <span className="text-sm text-muted-foreground">
+                                                            {customer.customer_code} • {customer.email}
+                                                        </span>
+                                                    </div>
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -178,19 +206,81 @@ export default function ShipmentCreate({ customers, warehouses }: Props) {
                                     label="Service Type"
                                     required
                                     error={errors.service_type}
+                                    description="Delivery speed and priority level"
                                 >
                                     <Select
                                         value={data.service_type}
                                         onValueChange={(value) => setData('service_type', value)}
                                     >
                                         <SelectTrigger className="h-11 text-base">
-                                            <SelectValue placeholder="Select service type" />
+                                            <SelectValue placeholder="Select service..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="standard" className="text-base py-3">Standard</SelectItem>
-                                            <SelectItem value="express" className="text-base py-3">Express</SelectItem>
-                                            <SelectItem value="overnight" className="text-base py-3">Overnight</SelectItem>
-                                            <SelectItem value="economy" className="text-base py-3">Economy</SelectItem>
+                                            <SelectItem value="economy" className="text-base py-3">
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium">Economy</span>
+                                                    <span className="text-xs text-muted-foreground">5-7 business days • Lowest cost</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="standard" className="text-base py-3">
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium">Standard</span>
+                                                    <span className="text-xs text-muted-foreground">3-5 business days • Most popular</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="express" className="text-base py-3">
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium">Express</span>
+                                                    <span className="text-xs text-muted-foreground">1-2 business days • Fast delivery</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="overnight" className="text-base py-3">
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium">Overnight</span>
+                                                    <span className="text-xs text-muted-foreground">Next business day • Premium</span>
+                                                </div>
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </MobileFormField>
+
+                                <MobileFormField
+                                    label="Package Type"
+                                    error={errors.package_type}
+                                    description="Type of package being shipped"
+                                >
+                                    <Select
+                                        value={data.package_type}
+                                        onValueChange={(value) => setData('package_type', value)}
+                                    >
+                                        <SelectTrigger className="h-11 text-base">
+                                            <SelectValue placeholder="Select type..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="document" className="text-base py-3">
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium">Document</span>
+                                                    <span className="text-xs text-muted-foreground">Papers, letters, contracts</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="package" className="text-base py-3">
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium">Package</span>
+                                                    <span className="text-xs text-muted-foreground">Standard boxes and parcels</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="pallet" className="text-base py-3">
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium">Pallet</span>
+                                                    <span className="text-xs text-muted-foreground">Large freight on pallets</span>
+                                                </div>
+                                            </SelectItem>
+                                            <SelectItem value="container" className="text-base py-3">
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium">Container</span>
+                                                    <span className="text-xs text-muted-foreground">Full container loads</span>
+                                                </div>
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </MobileFormField>
@@ -198,298 +288,464 @@ export default function ShipmentCreate({ customers, warehouses }: Props) {
                                 <MobileFormField
                                     label="Estimated Delivery Date"
                                     error={errors.estimated_delivery_date}
+                                    description="Target delivery date (optional)"
                                 >
                                     <Input
                                         type="date"
                                         value={data.estimated_delivery_date}
                                         onChange={(e) => setData('estimated_delivery_date', e.target.value)}
                                         className="h-11 text-base"
+                                        min={new Date().toISOString().split('T')[0]}
                                     />
                                 </MobileFormField>
                             </MobileInputGroup>
                         </MobileFormSection>
 
-                        {/* Shipment Details */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center">
-                                    <Package className="h-5 w-5 mr-2" />
-                                    Shipment Details
-                                </CardTitle>
-                                <CardDescription>
-                                    Package dimensions and value
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="weight">Total Weight (kg)</Label>
-                                        <div className="relative">
-                                            <Weight className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        {/* Sender & Recipient Information */}
+                        <MobileFormSection
+                            title="Contact Information"
+                            icon={User}
+                            description="Sender and recipient details"
+                            variant="card"
+                        >
+                            <div className="space-y-6">
+                                {/* Sender Details */}
+                                <div className="space-y-4">
+                                    <h4 className="text-sm font-medium text-foreground flex items-center">
+                                        <User className="h-4 w-4 mr-2" />
+                                        Sender Information
+                                    </h4>
+                                    <MobileInputGroup columns={2}>
+                                        <MobileFormField
+                                            label="Sender Name"
+                                            required
+                                            error={errors.sender_name}
+                                        >
                                             <Input
-                                                id="weight"
-                                                type="number"
-                                                step="0.1"
-                                                value={data.weight}
-                                                onChange={(e) => setData('weight', parseFloat(e.target.value) || 0)}
-                                                className="pl-8"
-                                                readOnly
+                                                value={data.sender_name}
+                                                onChange={(e) => setData('sender_name', e.target.value)}
+                                                placeholder="Full name"
+                                                className="h-11 text-base"
+                                                required
                                             />
-                                        </div>
-                                        {errors.weight && (
-                                            <p className="text-sm text-red-600">{errors.weight}</p>
-                                        )}
-                                    </div>
+                                        </MobileFormField>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="declared_value">Total Value ($)</Label>
-                                        <div className="relative">
-                                            <DollarSign className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <MobileFormField
+                                            label="Sender Phone"
+                                            required
+                                            error={errors.sender_phone}
+                                        >
                                             <Input
-                                                id="declared_value"
-                                                type="number"
-                                                step="0.01"
-                                                value={data.declared_value}
-                                                onChange={(e) => setData('declared_value', parseFloat(e.target.value) || 0)}
-                                                className="pl-8"
-                                                readOnly
+                                                type="tel"
+                                                value={data.sender_phone}
+                                                onChange={(e) => setData('sender_phone', e.target.value)}
+                                                placeholder="+255 123 456 789"
+                                                className="h-11 text-base"
+                                                required
                                             />
-                                        </div>
-                                        {errors.declared_value && (
-                                            <p className="text-sm text-red-600">{errors.declared_value}</p>
-                                        )}
-                                    </div>
+                                        </MobileFormField>
+                                    </MobileInputGroup>
+
+                                    <MobileFormField
+                                        label="Sender Address"
+                                        required
+                                        error={errors.sender_address}
+                                    >
+                                        <Textarea
+                                            value={data.sender_address}
+                                            onChange={(e) => setData('sender_address', e.target.value)}
+                                            placeholder="Complete pickup address with street, city, and postal code"
+                                            rows={2}
+                                            required
+                                        />
+                                    </MobileFormField>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="dimensions">Package Dimensions (L x W x H cm)</Label>
+                                {/* Recipient Details */}
+                                <div className="space-y-4">
+                                    <h4 className="text-sm font-medium text-foreground flex items-center">
+                                        <MapPin className="h-4 w-4 mr-2" />
+                                        Recipient Information
+                                    </h4>
+                                    <MobileInputGroup columns={2}>
+                                        <MobileFormField
+                                            label="Recipient Name"
+                                            required
+                                            error={errors.recipient_name}
+                                        >
+                                            <Input
+                                                value={data.recipient_name}
+                                                onChange={(e) => setData('recipient_name', e.target.value)}
+                                                placeholder="Full name"
+                                                className="h-11 text-base"
+                                                required
+                                            />
+                                        </MobileFormField>
+
+                                        <MobileFormField
+                                            label="Recipient Phone"
+                                            required
+                                            error={errors.recipient_phone}
+                                        >
+                                            <Input
+                                                type="tel"
+                                                value={data.recipient_phone}
+                                                onChange={(e) => setData('recipient_phone', e.target.value)}
+                                                placeholder="+255 123 456 789"
+                                                className="h-11 text-base"
+                                                required
+                                            />
+                                        </MobileFormField>
+                                    </MobileInputGroup>
+
+                                    <MobileFormField
+                                        label="Recipient Address"
+                                        required
+                                        error={errors.recipient_address}
+                                    >
+                                        <Textarea
+                                            value={data.recipient_address}
+                                            onChange={(e) => setData('recipient_address', e.target.value)}
+                                            placeholder="Complete delivery address with street, city, and postal code"
+                                            rows={2}
+                                            required
+                                        />
+                                    </MobileFormField>
+                                </div>
+                            </div>
+                        </MobileFormSection>
+
+                        {/* Package Details */}
+                        <MobileFormSection
+                            title="Package Details"
+                            icon={Package}
+                            description="Weight, dimensions, and value information"
+                            variant="card"
+                        >
+                            <MobileInputGroup columns={2}>
+                                <MobileFormField
+                                    label="Total Weight (kg)"
+                                    required
+                                    error={errors.weight_kg}
+                                    description="Auto-calculated from items, or enter manually"
+                                >
                                     <div className="relative">
-                                        <Ruler className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Weight className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                                         <Input
-                                            id="dimensions"
-                                            value={data.dimensions}
-                                            onChange={(e) => setData('dimensions', e.target.value)}
-                                            placeholder="e.g., 30 x 20 x 15"
-                                            className="pl-8"
+                                            id="weight_kg"
+                                            type="number"
+                                            step="0.1"
+                                            min="0.01"
+                                            value={data.weight_kg}
+                                            onChange={(e) => setData('weight_kg', parseFloat(e.target.value) || 0)}
+                                            className="pl-8 h-11 text-base"
+                                            placeholder="0.0"
                                         />
                                     </div>
-                                    {errors.dimensions && (
-                                        <p className="text-sm text-red-600">{errors.dimensions}</p>
-                                    )}
-                                </div>
+                                </MobileFormField>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="special_instructions">Special Instructions</Label>
-                                    <Textarea
-                                        id="special_instructions"
-                                        value={data.special_instructions}
-                                        onChange={(e) => setData('special_instructions', e.target.value)}
-                                        placeholder="Any special handling instructions..."
-                                        rows={3}
+                                <MobileFormField
+                                    label="Total Value (TSh)"
+                                    required
+                                    error={errors.declared_value}
+                                    description="Auto-calculated from items, or enter manually"
+                                >
+                                    <div className="relative">
+                                        <DollarSign className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            id="declared_value"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            value={data.declared_value}
+                                            onChange={(e) => setData('declared_value', parseFloat(e.target.value) || 0)}
+                                            className="pl-8 h-11 text-base"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </MobileFormField>
+                            </MobileInputGroup>
+
+                            <MobileFormField
+                                label="Package Dimensions (L x W x H cm)"
+                                error={errors.dimensions}
+                                description="Enter dimensions separated by 'x' (e.g., 30 x 20 x 15)"
+                            >
+                                <div className="relative">
+                                    <Ruler className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        id="dimensions"
+                                        value={data.dimensions}
+                                        onChange={(e) => handleDimensionsChange(e.target.value)}
+                                        placeholder="e.g., 30 x 20 x 15"
+                                        className="pl-8 h-11 text-base"
                                     />
-                                    {errors.special_instructions && (
-                                        <p className="text-sm text-red-600">{errors.special_instructions}</p>
-                                    )}
                                 </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+                            </MobileFormField>
 
-                    {/* Addresses */}
-                    <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center">
-                                    <MapPin className="h-5 w-5 mr-2" />
-                                    Origin
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="origin_warehouse_id">Origin Warehouse (Optional)</Label>
-                                    <Select 
-                                        value={data.origin_warehouse_id} 
-                                        onValueChange={(value) => setData('origin_warehouse_id', value)}
+                            <MobileFormField
+                                label="Special Instructions"
+                                error={errors.special_instructions}
+                                description="Any special handling requirements (optional)"
+                            >
+                                <Textarea
+                                    id="special_instructions"
+                                    value={data.special_instructions}
+                                    onChange={(e) => setData('special_instructions', e.target.value)}
+                                    placeholder="Fragile items, delivery instructions, etc."
+                                    rows={3}
+                                />
+                            </MobileFormField>
+                        </MobileFormSection>
+
+                        {/* Pickup & Delivery Locations */}
+                        <MobileFormSection
+                            title="Pickup & Delivery"
+                            icon={Truck}
+                            description="Warehouse and address information"
+                            variant="card"
+                        >
+                            <div className="space-y-6">
+                                {/* Origin Section */}
+                                <div className="space-y-4">
+                                    <h4 className="text-sm font-medium text-foreground flex items-center">
+                                        <MapPin className="h-4 w-4 mr-2" />
+                                        Pickup Location
+                                    </h4>
+
+                                    <MobileFormField
+                                        label="Origin Warehouse"
+                                        error={errors.origin_warehouse_id}
+                                        description="Select warehouse for pickup (optional)"
                                     >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select origin warehouse" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="0">No warehouse</SelectItem>
-                                            {warehouses.map((warehouse) => (
-                                                <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
-                                                    {warehouse.name} ({warehouse.code})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                                        <Select
+                                            value={data.origin_warehouse_id}
+                                            onValueChange={(value) => setData('origin_warehouse_id', value)}
+                                        >
+                                            <SelectTrigger className="h-11 text-base">
+                                                <SelectValue placeholder="Select warehouse..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="no-warehouse">No warehouse</SelectItem>
+                                                {warehouses.map((warehouse) => (
+                                                    <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium">{warehouse.name}</span>
+                                                            <span className="text-sm text-muted-foreground">
+                                                                {warehouse.code} • {warehouse.city}
+                                                            </span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </MobileFormField>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="origin_address">Origin Address *</Label>
-                                    <Textarea
-                                        id="origin_address"
-                                        value={data.origin_address}
-                                        onChange={(e) => setData('origin_address', e.target.value)}
-                                        placeholder="Enter pickup address..."
-                                        rows={3}
+                                    <MobileFormField
+                                        label="Pickup Address"
                                         required
-                                    />
-                                    {errors.origin_address && (
-                                        <p className="text-sm text-red-600">{errors.origin_address}</p>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center">
-                                    <MapPin className="h-5 w-5 mr-2" />
-                                    Destination
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="destination_warehouse_id">Destination Warehouse (Optional)</Label>
-                                    <Select 
-                                        value={data.destination_warehouse_id} 
-                                        onValueChange={(value) => setData('destination_warehouse_id', value)}
+                                        error={errors.origin_address}
+                                        description="Complete address where package will be picked up"
                                     >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select destination warehouse" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="0">No warehouse</SelectItem>
-                                            {warehouses.map((warehouse) => (
-                                                <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
-                                                    {warehouse.name} ({warehouse.code})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                        <Textarea
+                                            id="origin_address"
+                                            value={data.origin_address}
+                                            onChange={(e) => setData('origin_address', e.target.value)}
+                                            placeholder="Street address, building, city, postal code..."
+                                            rows={2}
+                                            required
+                                        />
+                                    </MobileFormField>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="destination_address">Destination Address *</Label>
-                                    <Textarea
-                                        id="destination_address"
-                                        value={data.destination_address}
-                                        onChange={(e) => setData('destination_address', e.target.value)}
-                                        placeholder="Enter delivery address..."
-                                        rows={3}
+                                {/* Destination Section */}
+                                <div className="space-y-4">
+                                    <h4 className="text-sm font-medium text-foreground flex items-center">
+                                        <MapPin className="h-4 w-4 mr-2" />
+                                        Delivery Location
+                                    </h4>
+
+                                    <MobileFormField
+                                        label="Destination Warehouse"
+                                        error={errors.destination_warehouse_id}
+                                        description="Select warehouse for delivery (optional)"
+                                    >
+                                        <Select
+                                            value={data.destination_warehouse_id}
+                                            onValueChange={(value) => setData('destination_warehouse_id', value)}
+                                        >
+                                            <SelectTrigger className="h-11 text-base">
+                                                <SelectValue placeholder="Select warehouse..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="no-warehouse">No warehouse</SelectItem>
+                                                {warehouses.map((warehouse) => (
+                                                    <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium">{warehouse.name}</span>
+                                                            <span className="text-sm text-muted-foreground">
+                                                                {warehouse.code} • {warehouse.city}
+                                                            </span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </MobileFormField>
+
+                                    <MobileFormField
+                                        label="Delivery Address"
                                         required
-                                    />
-                                    {errors.destination_address && (
-                                        <p className="text-sm text-red-600">{errors.destination_address}</p>
-                                    )}
+                                        error={errors.destination_address}
+                                        description="Complete address where package will be delivered"
+                                    >
+                                        <Textarea
+                                            id="destination_address"
+                                            value={data.destination_address}
+                                            onChange={(e) => setData('destination_address', e.target.value)}
+                                            placeholder="Street address, building, city, postal code..."
+                                            rows={2}
+                                            required
+                                        />
+                                    </MobileFormField>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+                            </div>
+                        </MobileFormSection>
 
-                    {/* Shipment Items */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center justify-between">
-                                <span className="flex items-center">
-                                    <Package className="h-5 w-5 mr-2" />
-                                    Shipment Items
-                                </span>
+                        {/* Shipment Items */}
+                        <MobileFormSection
+                            title="Shipment Items"
+                            icon={Package}
+                            description="Add items included in this shipment"
+                            variant="card"
+                            action={
                                 <Button type="button" variant="outline" size="sm" onClick={addItem}>
                                     <Plus className="h-4 w-4 mr-2" />
                                     Add Item
                                 </Button>
-                            </CardTitle>
-                            <CardDescription>
-                                Add items included in this shipment
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
+                            }
+                        >
+                            <div className="space-y-6">
                                 {items.map((item, index) => (
-                                    <div key={index} className="p-4 border rounded-lg space-y-4">
+                                    <div key={index} className="p-4 border rounded-lg bg-muted/30 space-y-4">
                                         <div className="flex items-center justify-between">
-                                            <h4 className="font-medium">Item {index + 1}</h4>
+                                            <h4 className="font-medium text-foreground flex items-center">
+                                                <Package className="h-4 w-4 mr-2" />
+                                                Item {index + 1}
+                                            </h4>
                                             {items.length > 1 && (
                                                 <Button
                                                     type="button"
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => removeItem(index)}
+                                                    className="text-destructive hover:text-destructive"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
                                             )}
                                         </div>
-                                        
-                                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                                            <div className="space-y-2">
-                                                <Label>Description *</Label>
+
+                                        <div className="space-y-4">
+                                            <MobileFormField
+                                                label="Item Description"
+                                                required
+                                                description="What is being shipped?"
+                                            >
                                                 <Input
                                                     value={item.description}
                                                     onChange={(e) => updateItem(index, 'description', e.target.value)}
-                                                    placeholder="Item description"
+                                                    placeholder="e.g., Electronics, Documents, Clothing..."
+                                                    className="h-11 text-base"
                                                     required
                                                 />
+                                            </MobileFormField>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <MobileFormField
+                                                    label="Quantity"
+                                                    required
+                                                >
+                                                    <Input
+                                                        type="number"
+                                                        min="1"
+                                                        value={item.quantity}
+                                                        onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                                                        className="h-11 text-base"
+                                                        placeholder="1"
+                                                    />
+                                                </MobileFormField>
+
+                                                <MobileFormField
+                                                    label="Weight (kg)"
+                                                    required
+                                                >
+                                                    <Input
+                                                        type="number"
+                                                        step="0.1"
+                                                        min="0"
+                                                        value={item.weight}
+                                                        onChange={(e) => updateItem(index, 'weight', parseFloat(e.target.value) || 0)}
+                                                        className="h-11 text-base"
+                                                        placeholder="0.0"
+                                                    />
+                                                </MobileFormField>
+
+                                                <MobileFormField
+                                                    label="Value (TSh)"
+                                                    required
+                                                >
+                                                    <Input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        value={item.value}
+                                                        onChange={(e) => updateItem(index, 'value', parseFloat(e.target.value) || 0)}
+                                                        className="h-11 text-base"
+                                                        placeholder="0.00"
+                                                    />
+                                                </MobileFormField>
                                             </div>
-                                            
-                                            <div className="space-y-2">
-                                                <Label>Quantity</Label>
+
+                                            <MobileFormField
+                                                label="Dimensions (L x W x H cm)"
+                                                description="Optional - item dimensions"
+                                            >
                                                 <Input
-                                                    type="number"
-                                                    min="1"
-                                                    value={item.quantity}
-                                                    onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                                                    value={item.dimensions}
+                                                    onChange={(e) => updateItem(index, 'dimensions', e.target.value)}
+                                                    placeholder="e.g., 30 x 20 x 15"
+                                                    className="h-11 text-base"
                                                 />
-                                            </div>
-                                            
-                                            <div className="space-y-2">
-                                                <Label>Weight (kg)</Label>
-                                                <Input
-                                                    type="number"
-                                                    step="0.1"
-                                                    min="0"
-                                                    value={item.weight}
-                                                    onChange={(e) => updateItem(index, 'weight', parseFloat(e.target.value) || 0)}
-                                                />
-                                            </div>
-                                            
-                                            <div className="space-y-2">
-                                                <Label>Value ($)</Label>
-                                                <Input
-                                                    type="number"
-                                                    step="0.01"
-                                                    min="0"
-                                                    value={item.value}
-                                                    onChange={(e) => updateItem(index, 'value', parseFloat(e.target.value) || 0)}
-                                                />
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="space-y-2">
-                                            <Label>Dimensions (L x W x H cm)</Label>
-                                            <Input
-                                                value={item.dimensions}
-                                                onChange={(e) => updateItem(index, 'dimensions', e.target.value)}
-                                                placeholder="e.g., 30 x 20 x 15"
-                                            />
+                                            </MobileFormField>
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                        </CardContent>
-                    </Card>
+                        </MobileFormSection>
 
-                    {/* Submit Buttons */}
-                    <div className="flex justify-end space-x-4">
-                        <Button type="button" variant="outline" asChild>
-                            <Link href="/admin/shipments">Cancel</Link>
-                        </Button>
-                        <Button type="submit" disabled={processing}>
-                            <Package className="h-4 w-4 mr-2" />
-                            {processing ? 'Creating...' : 'Create Shipment'}
-                        </Button>
+                        {/* Submit Actions */}
+                        <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
+                            <Button type="button" variant="outline" className="flex-1 h-11" asChild>
+                                <Link href="/admin/shipments">
+                                    <X className="h-4 w-4 mr-2" />
+                                    Cancel
+                                </Link>
+                            </Button>
+                            <Button type="submit" disabled={processing} className="flex-1 h-11">
+                                {processing ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        Creating Shipment...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Package className="h-4 w-4 mr-2" />
+                                        Create Shipment
+                                    </>
+                                )}
+                            </Button>
+                        </div>
                     </div>
                 </MobileForm>
             </div>

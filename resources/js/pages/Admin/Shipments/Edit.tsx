@@ -6,14 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
 } from '@/components/ui/select';
-import { 
+import { getCurrencySymbol } from '@/lib/utils';
+import {
     ArrowLeft,
     Save,
     Package,
@@ -31,16 +32,21 @@ interface Shipment {
     customer_id: number;
     origin_warehouse_id: number;
     destination_warehouse_id?: number;
+    sender_name?: string;
+    sender_phone?: string;
+    sender_address?: string;
     recipient_name: string;
     recipient_phone: string;
     recipient_address: string;
     service_type: string;
+    package_type?: string;
     status: string;
     declared_value: number;
+    insurance_value?: number;
     weight_kg: number;
-    dimensions_length?: number;
-    dimensions_width?: number;
-    dimensions_height?: number;
+    dimensions_length_cm?: number;
+    dimensions_width_cm?: number;
+    dimensions_height_cm?: number;
     special_instructions?: string;
     estimated_delivery_date?: string;
     assigned_to?: number;
@@ -77,18 +83,24 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
         customer_id: shipment.customer_id,
         origin_warehouse_id: shipment.origin_warehouse_id,
         destination_warehouse_id: shipment.destination_warehouse_id || 0,
+        sender_name: shipment.sender_name || '',
+        sender_phone: shipment.sender_phone || '',
+        sender_address: shipment.sender_address || '',
         recipient_name: shipment.recipient_name,
         recipient_phone: shipment.recipient_phone,
         recipient_address: shipment.recipient_address,
         service_type: shipment.service_type,
+        package_type: shipment.package_type || 'package',
         status: shipment.status,
         declared_value: shipment.declared_value,
+        insurance_value: shipment.insurance_value || 0,
         weight_kg: shipment.weight_kg,
-        dimensions_length: shipment.dimensions_length || '',
-        dimensions_width: shipment.dimensions_width || '',
-        dimensions_height: shipment.dimensions_height || '',
+        dimensions_length_cm: shipment.dimensions_length_cm || '',
+        dimensions_width_cm: shipment.dimensions_width_cm || '',
+        dimensions_height_cm: shipment.dimensions_height_cm || '',
         special_instructions: shipment.special_instructions || '',
-        estimated_delivery_date: shipment.estimated_delivery_date || '',
+        estimated_delivery_date: shipment.estimated_delivery_date ?
+            new Date(shipment.estimated_delivery_date).toISOString().split('T')[0] : '',
         assigned_to: shipment.assigned_to || 0,
     });
 
@@ -211,24 +223,44 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                     </div>
                                 </div>
 
-                                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                                <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
                                     <div className="space-y-2">
-                                        <Label htmlFor="declared_value">Declared Value *</Label>
+                                        <Label htmlFor="declared_value">Declared Value ({getCurrencySymbol()}) *</Label>
                                         <div className="relative">
                                             <DollarSign className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                                             <Input
                                                 id="declared_value"
                                                 type="number"
-                                                step="0.01"
+                                                step="1"
                                                 min="0"
                                                 value={data.declared_value}
                                                 onChange={(e) => setData('declared_value', parseFloat(e.target.value) || 0)}
-                                                placeholder="0.00"
+                                                placeholder="0"
                                                 className={`pl-8 ${errors.declared_value ? 'border-red-500' : ''}`}
                                             />
                                         </div>
                                         {errors.declared_value && (
                                             <p className="text-sm text-red-600">{errors.declared_value}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="insurance_value">Insurance Value ({getCurrencySymbol()})</Label>
+                                        <div className="relative">
+                                            <DollarSign className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                            <Input
+                                                id="insurance_value"
+                                                type="number"
+                                                step="1"
+                                                min="0"
+                                                value={data.insurance_value}
+                                                onChange={(e) => setData('insurance_value', parseFloat(e.target.value) || 0)}
+                                                placeholder="0"
+                                                className={`pl-8 ${errors.insurance_value ? 'border-red-500' : ''}`}
+                                            />
+                                        </div>
+                                        {errors.insurance_value && (
+                                            <p className="text-sm text-red-600">{errors.insurance_value}</p>
                                         )}
                                     </div>
 
@@ -267,6 +299,83 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                     </div>
                                     {errors.estimated_delivery_date && (
                                         <p className="text-sm text-red-600">{errors.estimated_delivery_date}</p>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Sender Information */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center space-x-2">
+                                    <User className="h-5 w-5" />
+                                    <span>Sender Information</span>
+                                </CardTitle>
+                                <CardDescription>
+                                    Sender details and package information
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="sender_name">Sender Name *</Label>
+                                    <Input
+                                        id="sender_name"
+                                        type="text"
+                                        value={data.sender_name}
+                                        onChange={(e) => setData('sender_name', e.target.value)}
+                                        placeholder="Full name of sender"
+                                        className={errors.sender_name ? 'border-red-500' : ''}
+                                    />
+                                    {errors.sender_name && (
+                                        <p className="text-sm text-red-600">{errors.sender_name}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="sender_phone">Sender Phone *</Label>
+                                    <Input
+                                        id="sender_phone"
+                                        type="tel"
+                                        value={data.sender_phone}
+                                        onChange={(e) => setData('sender_phone', e.target.value)}
+                                        placeholder="Phone number"
+                                        className={errors.sender_phone ? 'border-red-500' : ''}
+                                    />
+                                    {errors.sender_phone && (
+                                        <p className="text-sm text-red-600">{errors.sender_phone}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="sender_address">Sender Address *</Label>
+                                    <Textarea
+                                        id="sender_address"
+                                        value={data.sender_address}
+                                        onChange={(e) => setData('sender_address', e.target.value)}
+                                        placeholder="Complete sender address"
+                                        className={errors.sender_address ? 'border-red-500' : ''}
+                                        rows={3}
+                                    />
+                                    {errors.sender_address && (
+                                        <p className="text-sm text-red-600">{errors.sender_address}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="package_type">Package Type *</Label>
+                                    <Select value={data.package_type} onValueChange={(value) => setData('package_type', value)}>
+                                        <SelectTrigger className={errors.package_type ? 'border-red-500' : ''}>
+                                            <SelectValue placeholder="Select package type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="document">Document</SelectItem>
+                                            <SelectItem value="package">Package</SelectItem>
+                                            <SelectItem value="pallet">Pallet</SelectItem>
+                                            <SelectItem value="container">Container</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    {errors.package_type && (
+                                        <p className="text-sm text-red-600">{errors.package_type}</p>
                                     )}
                                 </div>
                             </CardContent>
@@ -413,53 +522,53 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                         <CardContent className="space-y-4">
                             <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
                                 <div className="space-y-2">
-                                    <Label htmlFor="dimensions_length">Length (cm)</Label>
+                                    <Label htmlFor="dimensions_length_cm">Length (cm)</Label>
                                     <Input
-                                        id="dimensions_length"
+                                        id="dimensions_length_cm"
                                         type="number"
                                         step="0.1"
                                         min="0"
-                                        value={data.dimensions_length}
-                                        onChange={(e) => setData('dimensions_length', parseFloat(e.target.value) || '')}
+                                        value={data.dimensions_length_cm}
+                                        onChange={(e) => setData('dimensions_length_cm', parseFloat(e.target.value) || '')}
                                         placeholder="0.0"
-                                        className={errors.dimensions_length ? 'border-red-500' : ''}
+                                        className={errors.dimensions_length_cm ? 'border-red-500' : ''}
                                     />
-                                    {errors.dimensions_length && (
-                                        <p className="text-sm text-red-600">{errors.dimensions_length}</p>
+                                    {errors.dimensions_length_cm && (
+                                        <p className="text-sm text-red-600">{errors.dimensions_length_cm}</p>
                                     )}
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="dimensions_width">Width (cm)</Label>
+                                    <Label htmlFor="dimensions_width_cm">Width (cm)</Label>
                                     <Input
-                                        id="dimensions_width"
+                                        id="dimensions_width_cm"
                                         type="number"
                                         step="0.1"
                                         min="0"
-                                        value={data.dimensions_width}
-                                        onChange={(e) => setData('dimensions_width', parseFloat(e.target.value) || '')}
+                                        value={data.dimensions_width_cm}
+                                        onChange={(e) => setData('dimensions_width_cm', parseFloat(e.target.value) || '')}
                                         placeholder="0.0"
-                                        className={errors.dimensions_width ? 'border-red-500' : ''}
+                                        className={errors.dimensions_width_cm ? 'border-red-500' : ''}
                                     />
-                                    {errors.dimensions_width && (
-                                        <p className="text-sm text-red-600">{errors.dimensions_width}</p>
+                                    {errors.dimensions_width_cm && (
+                                        <p className="text-sm text-red-600">{errors.dimensions_width_cm}</p>
                                     )}
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="dimensions_height">Height (cm)</Label>
+                                    <Label htmlFor="dimensions_height_cm">Height (cm)</Label>
                                     <Input
-                                        id="dimensions_height"
+                                        id="dimensions_height_cm"
                                         type="number"
                                         step="0.1"
                                         min="0"
-                                        value={data.dimensions_height}
-                                        onChange={(e) => setData('dimensions_height', parseFloat(e.target.value) || '')}
+                                        value={data.dimensions_height_cm}
+                                        onChange={(e) => setData('dimensions_height_cm', parseFloat(e.target.value) || '')}
                                         placeholder="0.0"
-                                        className={errors.dimensions_height ? 'border-red-500' : ''}
+                                        className={errors.dimensions_height_cm ? 'border-red-500' : ''}
                                     />
-                                    {errors.dimensions_height && (
-                                        <p className="text-sm text-red-600">{errors.dimensions_height}</p>
+                                    {errors.dimensions_height_cm && (
+                                        <p className="text-sm text-red-600">{errors.dimensions_height_cm}</p>
                                     )}
                                 </div>
                             </div>

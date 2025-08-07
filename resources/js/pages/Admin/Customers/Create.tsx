@@ -30,6 +30,7 @@ import {
     CreditCard,
     Users
 } from 'lucide-react';
+import { countries } from '@/lib/countries';
 
 export default function CustomerCreate() {
     const { data, setData, post, processing, errors } = useForm({
@@ -344,17 +345,12 @@ export default function CustomerCreate() {
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select country" />
                                         </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="US">United States</SelectItem>
-                                            <SelectItem value="CA">Canada</SelectItem>
-                                            <SelectItem value="GB">United Kingdom</SelectItem>
-                                            <SelectItem value="AU">Australia</SelectItem>
-                                            <SelectItem value="DE">Germany</SelectItem>
-                                            <SelectItem value="FR">France</SelectItem>
-                                            <SelectItem value="JP">Japan</SelectItem>
-                                            <SelectItem value="CN">China</SelectItem>
-                                            <SelectItem value="IN">India</SelectItem>
-                                            <SelectItem value="BR">Brazil</SelectItem>
+                                        <SelectContent className="max-h-60">
+                                            {countries.map((country) => (
+                                                <SelectItem key={country.code} value={country.name}>
+                                                    {country.name}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                     {errors.country && (

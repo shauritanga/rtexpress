@@ -1,5 +1,5 @@
-import { Head, Link, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -44,6 +44,9 @@ interface Props {
 export default function NotificationCreate({ templates }: Props) {
     const [selectedTemplate, setSelectedTemplate] = useState<NotificationTemplate | null>(null);
     const [templateVariables, setTemplateVariables] = useState<Record<string, string>>({});
+    const [recipients, setRecipients] = useState<any[]>([]);
+    const [loadingRecipients, setLoadingRecipients] = useState(false);
+    const [recipientSearch, setRecipientSearch] = useState('');
 
     const { data, setData, post, processing, errors } = useForm({
         type: '',
@@ -59,6 +62,80 @@ export default function NotificationCreate({ templates }: Props) {
         template: '',
         data: {},
     });
+
+    // Load recipients when recipient type changes (with debounce for search)
+    useEffect(() => {
+        if (data.recipient_type) {
+            const timeoutId = setTimeout(() => {
+                loadRecipients();
+            }, 300); // 300ms debounce
+
+            return () => clearTimeout(timeoutId);
+        } else {
+            setRecipients([]);
+        }
+    }, [data.recipient_type, recipientSearch]);
+
+    const loadRecipients = async () => {
+        if (!data.recipient_type) return;
+
+        setLoadingRecipients(true);
+
+        try {
+            const params = new URLSearchParams({
+                type: data.recipient_type,
+                search: recipientSearch
+            });
+
+            const url = `/admin/notifications/recipients?${params.toString()}`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const recipientData = await response.json();
+            setRecipients(Array.isArray(recipientData) ? recipientData : []);
+        } catch (error) {
+            console.error('Failed to load recipients:', error);
+            setRecipients([]);
+        } finally {
+            setLoadingRecipients(false);
+        }
+    };
+
+    // Handle recipient selection
+    const handleRecipientSelect = (recipientId: string) => {
+        const selectedRecipient = recipients.find(r => r.id.toString() === recipientId);
+        if (selectedRecipient) {
+            setData({
+                ...data,
+                recipient_id: recipientId,
+                recipient_email: selectedRecipient.email || '',
+                recipient_phone: selectedRecipient.phone || '',
+            });
+        }
+    };
+
+    // Handle recipient type change
+    const handleRecipientTypeChange = (type: string) => {
+        setData({
+            ...data,
+            recipient_type: type,
+            recipient_id: '',
+            recipient_email: '',
+            recipient_phone: '',
+        });
+        setRecipientSearch('');
+    };
 
     const getChannelIcon = (channel: string) => {
         const icons = {
@@ -319,9 +396,9 @@ export default function NotificationCreate({ templates }: Props) {
                                 {/* Recipient Type */}
                                 <div className="space-y-2">
                                     <Label htmlFor="recipient_type">Recipient Type</Label>
-                                    <Select 
-                                        value={data.recipient_type} 
-                                        onValueChange={(value) => setData('recipient_type', value)}
+                                    <Select
+                                        value={data.recipient_type}
+                                        onValueChange={handleRecipientTypeChange}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select recipient type" />
@@ -336,49 +413,93 @@ export default function NotificationCreate({ templates }: Props) {
                                     )}
                                 </div>
 
-                                {/* Recipient ID */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="recipient_id">Recipient ID</Label>
-                                    <Input
-                                        id="recipient_id"
-                                        type="number"
-                                        value={data.recipient_id}
-                                        onChange={(e) => setData('recipient_id', e.target.value)}
-                                        placeholder="Enter recipient ID"
-                                    />
-                                    {errors.recipient_id && (
-                                        <p className="text-sm text-red-600">{errors.recipient_id}</p>
-                                    )}
-                                </div>
-
-                                {/* Email (for email channel) */}
-                                {(data.channel === 'email' || !data.channel) && (
+                                {/* Recipient Search */}
+                                {data.recipient_type && (
                                     <div className="space-y-2">
-                                        <Label htmlFor="recipient_email">Email Address</Label>
+                                        <Label htmlFor="recipient_search">Search {data.recipient_type === 'user' ? 'Users' : 'Customers'}</Label>
+                                        <Input
+                                            id="recipient_search"
+                                            type="text"
+                                            value={recipientSearch}
+                                            onChange={(e) => setRecipientSearch(e.target.value)}
+                                            placeholder={`Search ${data.recipient_type === 'user' ? 'by name or email' : 'by company name or contact person'}`}
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Recipient Selection */}
+                                {data.recipient_type && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="recipient_id">Select Recipient</Label>
+                                        <Select
+                                            value={data.recipient_id}
+                                            onValueChange={handleRecipientSelect}
+                                            disabled={loadingRecipients}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={
+                                                    loadingRecipients
+                                                        ? "Loading..."
+                                                        : recipients.length === 0
+                                                            ? `No ${data.recipient_type}s found`
+                                                            : "Select recipient"
+                                                } />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {recipients.map((recipient) => (
+                                                    <SelectItem key={recipient.id} value={recipient.id.toString()}>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium">{recipient.display}</span>
+                                                            <span className="text-xs text-muted-foreground">
+                                                                ID: {recipient.id} | Email: {recipient.email}
+                                                            </span>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {errors.recipient_id && (
+                                            <p className="text-sm text-red-600">{errors.recipient_id}</p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Email (auto-populated from selected recipient) */}
+                                {(data.channel === 'email' || !data.channel) && data.recipient_id && (
+                                    <div className="space-y-2">
+                                        <Label htmlFor="recipient_email">Email Address (Auto-populated)</Label>
                                         <Input
                                             id="recipient_email"
                                             type="email"
                                             value={data.recipient_email}
-                                            onChange={(e) => setData('recipient_email', e.target.value)}
-                                            placeholder="Enter email address"
+                                            readOnly
+                                            className="bg-gray-50"
+                                            placeholder="Email will be auto-populated when recipient is selected"
                                         />
+                                        {!data.recipient_email && (
+                                            <p className="text-sm text-amber-600">Selected recipient has no email address</p>
+                                        )}
                                         {errors.recipient_email && (
                                             <p className="text-sm text-red-600">{errors.recipient_email}</p>
                                         )}
                                     </div>
                                 )}
 
-                                {/* Phone (for SMS channel) */}
-                                {data.channel === 'sms' && (
+                                {/* Phone (auto-populated from selected recipient) */}
+                                {data.channel === 'sms' && data.recipient_id && (
                                     <div className="space-y-2">
-                                        <Label htmlFor="recipient_phone">Phone Number</Label>
+                                        <Label htmlFor="recipient_phone">Phone Number (Auto-populated)</Label>
                                         <Input
                                             id="recipient_phone"
                                             type="tel"
                                             value={data.recipient_phone}
-                                            onChange={(e) => setData('recipient_phone', e.target.value)}
-                                            placeholder="Enter phone number"
+                                            readOnly
+                                            className="bg-gray-50"
+                                            placeholder="Phone will be auto-populated when recipient is selected"
                                         />
+                                        {!data.recipient_phone && (
+                                            <p className="text-sm text-amber-600">Selected recipient has no phone number</p>
+                                        )}
                                         {errors.recipient_phone && (
                                             <p className="text-sm text-red-600">{errors.recipient_phone}</p>
                                         )}

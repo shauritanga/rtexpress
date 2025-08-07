@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use App\Traits\EncryptableAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, EncryptableAttributes;
 
     /**
      * The attributes that are mass assignable.
@@ -36,6 +38,17 @@ class Customer extends Model
         'notes',
         'delivery_preferences',
         'created_by',
+    ];
+
+    /**
+     * The attributes that should be encrypted.
+     *
+     * @var array<int, string>
+     */
+    protected $encryptable = [
+        'phone',
+        'tax_number',
+        'notes',
     ];
 
     /**
@@ -92,6 +105,22 @@ class Customer extends Model
     }
 
     /**
+     * Get the user account associated with this customer.
+     */
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class);
+    }
+
+    /**
+     * Check if customer has a user account for portal access.
+     */
+    public function hasUserAccount(): bool
+    {
+        return $this->user()->exists();
+    }
+
+    /**
      * Get the shipments for this customer.
      */
     public function shipments(): HasMany
@@ -99,8 +128,21 @@ class Customer extends Model
         return $this->hasMany(Shipment::class);
     }
 
-    // Note: Invoices and SupportTickets relationships will be added in later phases
-    // when those models and tables are created
+    /**
+     * Get the customer's invoices.
+     */
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    /**
+     * Get the customer's support tickets.
+     */
+    public function supportTickets(): HasMany
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
 
     /**
      * Get the customer's display name.
@@ -156,7 +198,8 @@ class Customer extends Model
         $year = date('Y');
         $prefix = "CUS-{$year}-";
 
-        $lastCustomer = static::where('customer_code', 'like', $prefix . '%')
+        $lastCustomer = static::withTrashed()
+            ->where('customer_code', 'like', $prefix . '%')
             ->orderBy('customer_code', 'desc')
             ->first();
 
@@ -176,6 +219,31 @@ class Customer extends Model
     public function isActive(): bool
     {
         return $this->status === 'active';
+    }
+
+    /**
+     * Check if customer is pending approval.
+     * Note: We use 'inactive' status for customers awaiting approval.
+     */
+    public function isPendingApproval(): bool
+    {
+        return $this->status === 'inactive' && $this->created_at->diffInDays(now()) <= 30;
+    }
+
+    /**
+     * Approve the customer.
+     */
+    public function approve(): bool
+    {
+        return $this->update(['status' => 'active']);
+    }
+
+    /**
+     * Reject/suspend the customer.
+     */
+    public function reject(): bool
+    {
+        return $this->update(['status' => 'suspended']);
     }
 
     /**
@@ -227,6 +295,16 @@ class Customer extends Model
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
+    }
+
+    /**
+     * Scope query to get pending approval customers.
+     * Note: We use 'inactive' status for customers awaiting approval.
+     */
+    public function scopePendingApproval($query)
+    {
+        return $query->where('status', 'inactive')
+                    ->where('created_at', '>=', now()->subDays(30));
     }
 
     /**

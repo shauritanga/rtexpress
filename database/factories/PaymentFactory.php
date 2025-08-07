@@ -31,7 +31,7 @@ class PaymentFactory extends Factory
             'status' => $this->faker->randomElement(['pending', 'completed', 'failed', 'refunded']),
             'type' => $this->faker->randomElement(['full', 'partial']),
             'method' => $this->faker->randomElement(['card', 'paypal', 'mpesa', 'tigopesa', 'airtelmoney', 'bank_transfer']),
-            'currency' => 'USD',
+            'currency' => 'TZS',
             'exchange_rate' => 1.0,
             'amount' => $amount,
             'fee_amount' => $feeAmount,

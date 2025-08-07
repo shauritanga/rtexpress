@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -44,7 +45,7 @@ class AuthenticatedSessionController extends Controller
         $user = Auth::user();
 
         // Check if OTP is enabled for this user
-        if ($user->otp_enabled && $user->phone) {
+        if ($user->otp_enabled) {
             // Don't regenerate session yet - user needs to verify OTP first
             Auth::logout(); // Logout temporarily until OTP is verified
 
@@ -64,12 +65,16 @@ class AuthenticatedSessionController extends Controller
 
         // Route based on user role
         if ($user->hasRole('customer')) {
+            // Check if customer account needs approval
+            if ($user->customer && $user->customer->status !== 'active') {
+                return redirect()->route('customer.pending-approval');
+            }
             return redirect()->intended('/customer/dashboard');
         }
 
         // Check if user has any admin role
         if ($user->hasAnyRole(['admin', 'warehouse_staff', 'billing_admin', 'customer_support'])) {
-            return redirect()->intended(route('dashboard', absolute: false));
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         // If user has no roles, logout and redirect to login with error
@@ -99,10 +104,11 @@ class AuthenticatedSessionController extends Controller
         return Inertia::render('auth/verify-otp', [
             'user' => [
                 'name' => $user->name,
-                'phone' => $user->phone,
+                'email' => $user->email,
             ],
             'canResend' => $this->otpService->canRequestOtp($user, 'login'),
             'cooldownSeconds' => $this->otpService->getOtpCooldownSeconds($user, 'login'),
+            'status' => $request->session()->get('status'),
         ]);
     }
 
@@ -142,14 +148,31 @@ class AuthenticatedSessionController extends Controller
         // Update last activity
         $user->updateLastActivity();
 
+        // Log successful OTP verification for debugging
+        Log::info('OTP verification successful, routing user', [
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+            'has_customer_role' => $user->hasRole('customer'),
+            'customer_status' => $user->customer ? $user->customer->status : 'no_customer',
+            'is_authenticated' => Auth::check(),
+        ]);
+
         // Route based on user role
         if ($user->hasRole('customer')) {
+            // Check if customer account needs approval
+            if ($user->customer && $user->customer->status !== 'active') {
+                Log::info('Redirecting customer to pending approval', [
+                    'user_id' => $user->id,
+                    'customer_status' => $user->customer->status,
+                ]);
+                return redirect()->route('customer.pending-approval');
+            }
             return redirect()->intended('/customer/dashboard');
         }
 
         // Check if user has any admin role
         if ($user->hasAnyRole(['admin', 'warehouse_staff', 'billing_admin', 'customer_support'])) {
-            return redirect()->intended(route('dashboard', absolute: false));
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         // If user has no roles, logout and redirect to login with error
@@ -182,7 +205,7 @@ class AuthenticatedSessionController extends Controller
 
         $this->otpService->sendOtp($user, 'login');
 
-        return back()->with('status', 'A new verification code has been sent to your phone.');
+        return back()->with('status', 'otp-sent');
     }
 
     /**

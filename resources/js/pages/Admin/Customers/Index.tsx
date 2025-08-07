@@ -1,4 +1,4 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +21,14 @@ import {
     TableRow
 } from '@/components/ui/table';
 import { ResponsiveTable } from '@/components/ui/responsive-table';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
 import { 
     Search,
     Plus,
@@ -34,26 +42,36 @@ import {
     Phone,
     Building,
     CreditCard,
-    TrendingUp
+    TrendingUp,
+    UserPlus,
+    Send,
+    Trash2,
+    MoreHorizontal
 } from 'lucide-react';
 
 interface Customer {
     id: number;
     customer_code: string;
-    name: string;
+    company_name: string;
+    contact_person: string;
     email: string;
-    phone?: string;
-    company?: string;
-    address: string;
+    phone: string;
+    address_line_1: string;
+    address_line_2?: string;
     city: string;
-    state: string;
+    state_province: string;
+    postal_code: string;
     country: string;
+    tax_number?: string;
     status: string;
     credit_limit: number;
     payment_terms: string;
     created_at: string;
     shipments_count: number;
-    total_spent: number;
+    has_user_account: boolean;
+    creator?: {
+        name: string;
+    };
 }
 
 interface Stats {
@@ -72,6 +90,7 @@ interface Props {
         links: any[];
     };
     stats: Stats;
+    countries: string[];
     filters: {
         search?: string;
         status?: string;
@@ -80,16 +99,73 @@ interface Props {
     };
 }
 
-export default function CustomersIndex({ customers, stats, filters }: Props) {
+export default function CustomersIndex({ customers, stats, countries, filters }: Props) {
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const [selectedStatus, setSelectedStatus] = useState(filters.status || 'all');
     const [selectedPaymentTerms, setSelectedPaymentTerms] = useState(filters.payment_terms || 'all');
     const [selectedCountry, setSelectedCountry] = useState(filters.country || '');
 
+    // Simple delete function using form submission
+    const handleDelete = (customerId: number) => {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (!csrfToken) {
+            console.error('CSRF token not found');
+            alert('Security token not found. Please refresh the page and try again.');
+            return;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = route('admin.customers.destroy', customerId);
+
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        // Add method override for DELETE
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    };
+
+    // Simple portal access function
+    const handlePortalAccess = (customerId: number, action: string) => {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (!csrfToken) {
+            console.error('CSRF token not found');
+            alert('Security token not found. Please refresh the page and try again.');
+            return;
+        }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = route(`admin.customers.${action}`, customerId);
+
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    };
+
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
-            currency: 'USD',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 
@@ -341,24 +417,22 @@ export default function CustomersIndex({ customers, stats, filters }: Props) {
                             data={customers.data}
                             columns={[
                                 {
-                                    key: 'name',
+                                    key: 'contact_person',
                                     label: 'Customer',
                                     mobileVisible: true,
                                     mobilePriority: 1,
                                     render: (value, customer) => (
                                         <div>
-                                            <p className="font-medium text-base">{customer.name}</p>
+                                            <p className="font-medium text-base">{customer.contact_person}</p>
                                             <p className="text-sm text-muted-foreground">
                                                 {customer.customer_code}
                                             </p>
-                                            {customer.company && (
-                                                <div className="flex items-center space-x-1 mt-1">
-                                                    <Building className="h-3 w-3 text-muted-foreground" />
-                                                    <span className="text-xs text-muted-foreground">
-                                                        {customer.company}
-                                                    </span>
-                                                </div>
-                                            )}
+                                            <div className="flex items-center space-x-1 mt-1">
+                                                <Building className="h-3 w-3 text-muted-foreground" />
+                                                <span className="text-xs text-muted-foreground">
+                                                    {customer.company_name}
+                                                </span>
+                                            </div>
                                         </div>
                                     )
                                 },
@@ -397,6 +471,27 @@ export default function CustomersIndex({ customers, stats, filters }: Props) {
                                     render: (value, customer) => getPaymentTermsBadge(customer.payment_terms)
                                 },
                                 {
+                                    key: 'has_user_account',
+                                    label: 'Portal Access',
+                                    mobileVisible: false,
+                                    desktopVisible: true,
+                                    render: (value, customer) => (
+                                        <div className="flex items-center space-x-2">
+                                            {customer.has_user_account ? (
+                                                <div className="flex items-center space-x-1">
+                                                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                                    <span className="text-sm text-green-700 font-medium">Active</span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center space-x-1">
+                                                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                                    <span className="text-sm text-gray-500">No Access</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )
+                                },
+                                {
                                     key: 'location',
                                     label: 'Location',
                                     mobileVisible: false,
@@ -404,7 +499,7 @@ export default function CustomersIndex({ customers, stats, filters }: Props) {
                                     render: (value, customer) => (
                                         <div>
                                             <p className="text-sm font-medium">
-                                                {customer.city}, {customer.state}
+                                                {customer.city}, {customer.state_province}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
                                                 {customer.country}
@@ -425,34 +520,105 @@ export default function CustomersIndex({ customers, stats, filters }: Props) {
                                     )
                                 },
                                 {
-                                    key: 'total_spent',
-                                    label: 'Total Spent',
+                                    key: 'credit_limit',
+                                    label: 'Credit Limit',
                                     mobileVisible: false,
                                     desktopVisible: true,
                                     render: (value, customer) => (
                                         <div className="text-right">
                                             <p className="font-medium">
-                                                {formatCurrency(customer.total_spent)}
+                                                {formatCurrency(customer.credit_limit)}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
-                                                Limit: {formatCurrency(customer.credit_limit)}
+                                                {customer.shipments_count} shipments
                                             </p>
                                         </div>
                                     )
-                                }
-                            ]}
-                            actions={[
-                                {
-                                    label: 'View',
-                                    icon: Eye,
-                                    onClick: (customer) => router.visit(route('admin.customers.show', customer.id)),
-                                    variant: 'ghost'
                                 },
                                 {
-                                    label: 'Edit',
-                                    icon: Edit,
-                                    onClick: (customer) => router.visit(route('admin.customers.edit', customer.id)),
-                                    variant: 'ghost'
+                                    key: 'actions',
+                                    label: 'Actions',
+                                    mobileVisible: true,
+                                    desktopVisible: true,
+                                    render: (value, customer) => (
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                    <span className="sr-only">Open menu</span>
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-48">
+                                                <DropdownMenuItem
+                                                    onClick={() => router.visit(route('admin.customers.show', customer.id))}
+                                                    className="cursor-pointer"
+                                                >
+                                                    <Eye className="mr-2 h-4 w-4" />
+                                                    View Details
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => router.visit(route('admin.customers.edit', customer.id))}
+                                                    className="cursor-pointer"
+                                                >
+                                                    <Edit className="mr-2 h-4 w-4" />
+                                                    Edit Customer
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <ConfirmationDialog
+                                                    title={customer.has_user_account ? "Resend Login Credentials" : "Create Portal Access"}
+                                                    description={customer.has_user_account
+                                                        ? `Generate new login credentials for ${customer.contact_person} (${customer.company_name})?\n\nThis will:\n• Generate a new temporary password\n• Send new credentials to ${customer.email}\n• Invalidate the current password\n\nThe customer will need to use the new credentials to log in.`
+                                                        : `Create portal access for ${customer.contact_person} (${customer.company_name})?\n\nThis will:\n• Create a user account for customer portal\n• Generate temporary login credentials\n• Send welcome email to ${customer.email}\n• Enable customer to access the portal\n\nProceed with account creation?`
+                                                    }
+                                                    confirmText={customer.has_user_account ? "Resend Credentials" : "Create Account"}
+                                                    cancelText="Cancel"
+                                                    variant="default"
+                                                    icon={customer.has_user_account ? "send" : "create"}
+                                                    onConfirm={() => {
+                                                        const action = customer.has_user_account ? 'resend-credentials' : 'create-user-account';
+                                                        handlePortalAccess(customer.id, action);
+                                                    }}
+                                                >
+                                                    <DropdownMenuItem
+                                                        onSelect={(e) => e.preventDefault()}
+                                                        className={`cursor-pointer ${customer.has_user_account ? 'text-blue-600' : 'text-green-600'}`}
+                                                    >
+                                                        {customer.has_user_account ? (
+                                                            <>
+                                                                <Send className="mr-2 h-4 w-4" />
+                                                                Resend Credentials
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <UserPlus className="mr-2 h-4 w-4" />
+                                                                Create Portal Access
+                                                            </>
+                                                        )}
+                                                    </DropdownMenuItem>
+                                                </ConfirmationDialog>
+                                                <DropdownMenuSeparator />
+                                                <ConfirmationDialog
+                                                    title="Delete Customer"
+                                                    description={`Are you sure you want to delete customer ${customer.customer_code} (${customer.company_name})?\n\nThis action will:\n• Delete the customer record\n• Remove their user account and portal access\n• Cannot be undone if they have no active shipments\n\nPlease confirm this action.`}
+                                                    confirmText="Delete Customer"
+                                                    cancelText="Cancel"
+                                                    variant="destructive"
+                                                    icon="delete"
+                                                    onConfirm={() => {
+                                                        handleDelete(customer.id);
+                                                    }}
+                                                >
+                                                    <DropdownMenuItem
+                                                        onSelect={(e) => e.preventDefault()}
+                                                        className="cursor-pointer text-red-600 focus:text-red-600"
+                                                    >
+                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                        Delete Customer
+                                                    </DropdownMenuItem>
+                                                </ConfirmationDialog>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    )
                                 }
                             ]}
                             emptyState={{

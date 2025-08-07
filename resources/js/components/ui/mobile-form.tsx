@@ -233,9 +233,9 @@ export function MobileSelectField({
                     <SelectValue placeholder={placeholder} />
                 </SelectTrigger>
                 <SelectContent>
-                    {options.map((option) => (
-                        <SelectItem 
-                            key={option.value} 
+                    {options.filter(option => option.value !== '').map((option) => (
+                        <SelectItem
+                            key={option.value}
                             value={option.value}
                             className="text-base py-3 touch-manipulation"
                         >

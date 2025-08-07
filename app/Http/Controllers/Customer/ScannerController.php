@@ -9,10 +9,25 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
+use Inertia\Response;
 use Carbon\Carbon;
 
 class ScannerController extends Controller
 {
+    /**
+     * Display the scanner page.
+     */
+    public function index(): Response
+    {
+        $user = Auth::user();
+        $customer = $user->customer ?? null;
+
+        return Inertia::render('Customer/Scanner/Index', [
+            'customer' => $customer,
+        ]);
+    }
+
     /**
      * Track package by scanning barcode/QR code
      */

@@ -30,6 +30,14 @@ class CustomerAuth
             ]);
         }
 
+        // Check if customer account is approved
+        if ($user->customer && $user->customer->status !== 'active') {
+            Auth::logout();
+            return redirect('/login')->withErrors([
+                'access' => 'Your account is pending approval. Please contact support for assistance.'
+            ]);
+        }
+
         return $next($request);
     }
 }

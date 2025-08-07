@@ -53,7 +53,7 @@ export interface ResponsiveAction {
 interface ResponsiveTableProps {
     data: any[];
     columns: ResponsiveColumn[];
-    actions?: ResponsiveAction[];
+    actions?: ResponsiveAction[] | ((row: any) => ResponsiveAction[]);
     emptyState?: React.ReactNode;
     className?: string;
     // Mobile-first options
@@ -74,6 +74,14 @@ export function ResponsiveTable({
 }: ResponsiveTableProps) {
     const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
     const [mobileSearchTerm, setMobileSearchTerm] = useState('');
+
+    // Helper function to get actions for a specific row
+    const getActionsForRow = (row: any): ResponsiveAction[] => {
+        if (typeof actions === 'function') {
+            return actions(row);
+        }
+        return actions;
+    };
 
     // Sort columns by mobile priority
     const sortedColumns = [...columns].sort((a, b) => {
@@ -130,7 +138,7 @@ export function ResponsiveTable({
                                 {column.label}
                             </TableHead>
                         ))}
-                        {actions.length > 0 && (
+                        {(typeof actions === 'function' || actions.length > 0) && (
                             <TableHead className="w-[100px]">Actions</TableHead>
                         )}
                     </TableRow>
@@ -153,10 +161,10 @@ export function ResponsiveTable({
                                     }
                                 </TableCell>
                             ))}
-                            {actions.length > 0 && (
+                            {getActionsForRow(row).length > 0 && (
                                 <TableCell>
                                     <div className="flex items-center space-x-1">
-                                        {actions.slice(0, 3).map((action, actionIndex) => (
+                                        {getActionsForRow(row).slice(0, 3).map((action, actionIndex) => (
                                             <Button 
                                                 key={actionIndex}
                                                 variant={action.variant || 'ghost'} 
@@ -229,7 +237,7 @@ export function ResponsiveTable({
                                         </div>
                                     )}
                                 </div>
-                                {actions.filter(a => a.mobileVisible !== false).slice(0, 2).map((action, actionIndex) => (
+                                {getActionsForRow(row).filter(a => a.mobileVisible !== false).slice(0, 2).map((action, actionIndex) => (
                                     <Button 
                                         key={actionIndex}
                                         variant="ghost" 
@@ -291,7 +299,7 @@ export function ResponsiveTable({
                                                 )}
                                             </Button>
                                         )}
-                                        {actions.filter(a => a.mobileVisible !== false).slice(0, 1).map((action, actionIndex) => (
+                                        {getActionsForRow(row).filter(a => a.mobileVisible !== false).slice(0, 1).map((action, actionIndex) => (
                                             <Button 
                                                 key={actionIndex}
                                                 variant="ghost" 
@@ -332,9 +340,9 @@ export function ResponsiveTable({
                                         ))}
                                         
                                         {/* Additional Actions */}
-                                        {actions.length > 1 && (
+                                        {getActionsForRow(row).length > 1 && (
                                             <div className="pt-2 flex flex-wrap gap-2">
-                                                {actions.filter(a => a.mobileVisible !== false).slice(1).map((action, actionIndex) => (
+                                                {getActionsForRow(row).filter(a => a.mobileVisible !== false).slice(1).map((action, actionIndex) => (
                                                     <Button 
                                                         key={actionIndex}
                                                         variant={action.variant || "outline"}
@@ -404,10 +412,10 @@ export function ResponsiveTable({
                                 )}
 
                                 {/* Actions */}
-                                {actions.length > 0 && (
+                                {getActionsForRow(row).length > 0 && (
                                     <div className="pt-3 border-t border-border/50">
                                         <div className="flex flex-wrap gap-2">
-                                            {actions.filter(a => a.mobileVisible !== false).map((action, actionIndex) => (
+                                            {getActionsForRow(row).filter(a => a.mobileVisible !== false).map((action, actionIndex) => (
                                                 <Button 
                                                     key={actionIndex}
                                                     variant={action.variant || "outline"}

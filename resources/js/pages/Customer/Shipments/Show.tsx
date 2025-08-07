@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
+import { formatCurrency } from '@/lib/utils';
+import {
     Package,
     ArrowLeft,
     MapPin,
@@ -14,7 +15,7 @@ import {
     Truck,
     FileText,
     Clock,
-    DollarSign,
+    Banknote,
     Eye
 } from 'lucide-react';
 
@@ -171,10 +172,12 @@ export default function ShowShipment({ shipment, customer }: Props) {
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
-                                <DollarSign className="h-5 w-5 text-orange-600" />
+                                <Banknote className="h-5 w-5 text-orange-600" />
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Total Cost</p>
-                                    <p className="text-lg font-bold text-gray-900">${shipment.total_cost.toFixed(2)}</p>
+                                    <p className="text-lg font-bold text-gray-900">
+                                        {formatCurrency(shipment.total_cost)}
+                                    </p>
                                 </div>
                             </div>
                         </CardContent>
@@ -258,19 +261,21 @@ export default function ShowShipment({ shipment, customer }: Props) {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <div>
                                         <p className="text-sm font-medium text-gray-700">Weight</p>
-                                        <p className="text-lg">{shipment.weight} lbs</p>
+                                        <p className="text-lg">{shipment.weight_kg ? Number(shipment.weight_kg).toFixed(1) : '0.0'} kg</p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-700">Dimensions</p>
-                                        <p className="text-lg">{shipment.length}" × {shipment.width}" × {shipment.height}"</p>
+                                        <p className="text-lg">
+                                            {shipment.dimensions_length_cm || 0} × {shipment.dimensions_width_cm || 0} × {shipment.dimensions_height_cm || 0} cm
+                                        </p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-700">Declared Value</p>
-                                        <p className="text-lg">${shipment.declared_value}</p>
+                                        <p className="text-lg">{formatCurrency(shipment.declared_value)}</p>
                                     </div>
                                     <div>
                                         <p className="text-sm font-medium text-gray-700">Total Cost</p>
-                                        <p className="text-lg">${shipment.total_cost.toFixed(2)}</p>
+                                        <p className="text-lg">{formatCurrency(shipment.total_cost)}</p>
                                     </div>
                                 </div>
                                 

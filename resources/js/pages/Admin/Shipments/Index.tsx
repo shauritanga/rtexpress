@@ -25,7 +25,8 @@ import {
     Truck,
     Clock,
     CheckCircle,
-    AlertTriangle
+    AlertTriangle,
+    RefreshCw
 } from 'lucide-react';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
@@ -158,7 +159,12 @@ export default function ShipmentsIndex({
             key: 'declared_value',
             label: 'Value',
             desktopOnly: true,
-            render: (value: number) => `$${value.toLocaleString()}`,
+            render: (value: number) => new Intl.NumberFormat('sw-TZ', {
+                style: 'currency',
+                currency: 'TZS',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+            }).format(value),
         },
         {
             key: 'created_at',
@@ -173,6 +179,12 @@ export default function ShipmentsIndex({
             label: 'View',
             href: '/admin/shipments/:id',
             icon: Eye,
+        },
+        {
+            label: 'Update Status',
+            href: '/admin/shipments/:id#status-update',
+            icon: RefreshCw,
+            variant: 'default' as const,
         },
         {
             label: 'Edit',

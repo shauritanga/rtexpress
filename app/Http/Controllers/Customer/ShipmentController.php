@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Shipment;
+use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -151,15 +152,29 @@ class ShipmentController extends Controller
             ],
         ];
 
+        // Get all warehouses for selection - USER MUST SELECT
+        $warehouses = Warehouse::select('id', 'name', 'address_line_1', 'address_line_2', 'city', 'state_province', 'country')->get()->map(function ($warehouse) {
+            return [
+                'id' => $warehouse->id,
+                'name' => $warehouse->name,
+                'address' => trim($warehouse->address_line_1 . ($warehouse->address_line_2 ? ', ' . $warehouse->address_line_2 : '')),
+                'city' => $warehouse->city,
+                'country' => $warehouse->country,
+            ];
+        });
+
         return Inertia::render('Customer/Shipments/Create', [
             'customer' => $customer,
             'serviceTypes' => $serviceTypes,
             'savedAddresses' => $savedAddresses,
+            'warehouses' => $warehouses,
         ]);
     }
 
+
+
     /**
-     * Store a new shipment.
+     * Store a new shipment (original method for backward compatibility).
      */
     public function store(Request $request)
     {
@@ -171,72 +186,113 @@ class ShipmentController extends Controller
         }
 
         $validated = $request->validate([
-            'recipient' => 'required|array',
-            'recipient.contact_person' => 'required|string|max:255',
-            'recipient.email' => 'required|email|max:255',
-            'recipient.phone' => 'required|string|max:50',
-            'recipient.address_line_1' => 'required|string|max:255',
-            'recipient.city' => 'required|string|max:100',
-            'recipient.state_province' => 'required|string|max:100',
-            'recipient.postal_code' => 'required|string|max:20',
-            'recipient.country' => 'required|string|max:2',
-            'packageDetails' => 'required|array',
-            'packageDetails.weight' => 'required|numeric|min:0.1',
-            'packageDetails.length' => 'required|numeric|min:0.1',
-            'packageDetails.width' => 'required|numeric|min:0.1',
-            'packageDetails.height' => 'required|numeric|min:0.1',
-            'packageDetails.declared_value' => 'required|numeric|min:0.01',
-            'packageDetails.contents_description' => 'required|string|max:500',
-            'serviceType' => 'required|array',
-            'serviceType.id' => 'required|string',
-            'totalCost' => 'required|numeric|min:0',
+            // Required warehouse selection - NO AUTO-SELECTION
+            'origin_warehouse_id' => 'required|exists:warehouses,id',
+            'destination_warehouse_id' => 'nullable|string',
+
+            // Sender information (editable)
+            'sender_name' => 'required|string|max:255',
+            'sender_phone' => 'required|string|max:50',
+            'sender_address' => 'required|string|max:500',
+
+            // Recipient information (required)
+            'recipient_name' => 'required|string|max:255',
+            'recipient_phone' => 'required|string|max:50',
+            'recipient_address' => 'required|string|max:500',
+            'recipient_country' => 'required|string|size:2',
+
+            // Service and package type (required)
+            'service_type' => 'required|in:standard,express,overnight,same_day,economy',
+            'package_type' => 'required|in:document,package,pallet,container,fragile,hazardous',
+
+            // Package specifications (required)
+            'weight_kg' => 'required|numeric|min:0.1',
+            'dimensions_length_cm' => 'required|numeric|min:1',
+            'dimensions_width_cm' => 'required|numeric|min:1',
+            'dimensions_height_cm' => 'required|numeric|min:1',
+            'declared_value' => 'required|numeric|min:0.01',
+
+            // Optional fields
+            'insurance_value' => 'nullable|numeric|min:0',
+            'special_instructions' => 'nullable|string|max:1000',
+            'estimated_delivery_date' => 'nullable|date|after:today',
+
+            // Delivery options (optional)
+            'delivery_options' => 'nullable|array',
+            'delivery_options.signature_required' => 'boolean',
+            'delivery_options.weekend_delivery' => 'boolean',
+            'delivery_options.evening_delivery' => 'boolean',
+            'delivery_options.leave_at_door' => 'boolean',
+
+            // Customs data (optional)
+            'customs_data' => 'nullable|array',
+            'customs_data.contents_description' => 'nullable|string|max:500',
+            'customs_data.country_of_origin' => 'nullable|string|max:100',
+            'customs_data.harmonized_code' => 'nullable|string|max:20',
+            'customs_data.export_reason' => 'nullable|in:sale,gift,sample,return,repair,personal_use',
         ]);
 
         try {
             DB::beginTransaction();
 
-            // Get warehouses for origin and destination
-            $originWarehouse = Warehouse::first();
-            $destinationWarehouse = Warehouse::skip(1)->first();
+            // Check if this is an international shipment
+            $isInternational = $validated['recipient_country'] !== 'TZ';
 
-            if (!$originWarehouse || !$destinationWarehouse) {
-                throw new \Exception('Warehouses not configured');
+            // For international shipments, require customs data
+            if ($isInternational) {
+                $customsValidation = $request->validate([
+                    'customs_data.contents_description' => 'required|string|max:500',
+                    'customs_data.country_of_origin' => 'required|string|max:100',
+                    'customs_data.harmonized_code' => 'nullable|string|max:20',
+                    'customs_data.export_reason' => 'required|in:sale,gift,sample,return,repair,personal_use',
+                ]);
             }
 
-            // Create the shipment
+            // Calculate total cost based on service type and package details
+            $totalCost = $this->calculateShippingCost(
+                $validated['service_type'],
+                $validated['weight_kg'],
+                $validated['declared_value'],
+                $validated['delivery_options'] ?? [],
+                $isInternational
+            );
+
+            // Create the shipment with all provided data - NO AUTO-SELECTION
             $shipment = Shipment::create([
                 'customer_id' => $customer->id,
                 'tracking_number' => $this->generateTrackingNumber(),
-                'origin_warehouse_id' => $originWarehouse->id,
-                'destination_warehouse_id' => $destinationWarehouse->id,
-                'sender_name' => $customer->contact_person,
-                'sender_phone' => $customer->phone,
-                'sender_address' => $customer->address_line_1 . ($customer->address_line_2 ? ', ' . $customer->address_line_2 : '') .
-                                 ', ' . $customer->city . ', ' . $customer->state_province . ' ' . $customer->postal_code,
-                'recipient_name' => $validated['recipient']['contact_person'],
-                'recipient_phone' => $validated['recipient']['phone'],
-                'recipient_address' => $validated['recipient']['address_line_1'] .
-                                    ($validated['recipient']['address_line_2'] ?? '' ? ', ' . $validated['recipient']['address_line_2'] : '') .
-                                    ', ' . $validated['recipient']['city'] . ', ' . $validated['recipient']['state_province'] . ' ' . $validated['recipient']['postal_code'],
-                'weight_kg' => $validated['packageDetails']['weight'] * 0.453592, // Convert lbs to kg
-                'dimensions_length_cm' => $validated['packageDetails']['length'] * 2.54, // Convert inches to cm
-                'dimensions_width_cm' => $validated['packageDetails']['width'] * 2.54,
-                'dimensions_height_cm' => $validated['packageDetails']['height'] * 2.54,
-                'declared_value' => $validated['packageDetails']['declared_value'],
-                'special_instructions' => $validated['packageDetails']['contents_description'],
-                'service_type' => $validated['serviceType']['id'],
-                'status' => 'pending',
-                'estimated_delivery_date' => $this->calculateEstimatedDeliveryDate($validated['serviceType']['id']),
+                'origin_warehouse_id' => $validated['origin_warehouse_id'],
+                'destination_warehouse_id' => ($validated['destination_warehouse_id'] === 'none') ? null : $validated['destination_warehouse_id'],
+                'sender_name' => $validated['sender_name'],
+                'sender_phone' => $validated['sender_phone'],
+                'sender_address' => $validated['sender_address'],
+                'recipient_name' => $validated['recipient_name'],
+                'recipient_phone' => $validated['recipient_phone'],
+                'recipient_address' => $validated['recipient_address'],
+                'recipient_country' => $validated['recipient_country'],
+                'service_type' => $validated['service_type'],
+                'package_type' => $validated['package_type'],
+                'weight_kg' => $validated['weight_kg'],
+                'dimensions_length_cm' => $validated['dimensions_length_cm'],
+                'dimensions_width_cm' => $validated['dimensions_width_cm'],
+                'dimensions_height_cm' => $validated['dimensions_height_cm'],
+                'declared_value' => $validated['declared_value'],
+                'insurance_value' => $validated['insurance_value'] ?? 0,
+                'special_instructions' => $validated['special_instructions'],
+                'estimated_delivery_date' => $validated['estimated_delivery_date'] ?? $this->calculateEstimatedDeliveryDate($validated['service_type']),
+                'total_cost' => $totalCost,
+                'delivery_options' => json_encode($validated['delivery_options'] ?? []),
+                'customs_data' => json_encode($validated['customs_data'] ?? []),
                 'created_by' => $user->id,
+                'assigned_to' => null, // Staff assignment is handled internally by admins
             ]);
 
             DB::commit();
 
-            return response()->json([
+            return Inertia::render('Customer/Shipments/Create', [
                 'success' => true,
                 'shipment' => $shipment,
                 'message' => 'Shipment created successfully',
-                'redirect' => route('customer.shipments.show', $shipment->id),
             ]);
 
         } catch (\Exception $e) {
@@ -249,16 +305,59 @@ class ShipmentController extends Controller
         }
     }
 
+
+
     /**
      * Generate a unique tracking number.
      */
     private function generateTrackingNumber(): string
     {
         do {
-            $trackingNumber = 'RT' . strtoupper(substr(uniqid(), -8));
+            $trackingNumber = 'RT-' . date('Y') . '-' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
         } while (Shipment::where('tracking_number', $trackingNumber)->exists());
 
         return $trackingNumber;
+    }
+
+    /**
+     * Calculate shipping cost based on service type, weight, value, and options.
+     */
+    private function calculateShippingCost(string $serviceType, float $weight, float $declaredValue, array $deliveryOptions = [], bool $isInternational = false): float
+    {
+        // Base rates per kg for different service types (in TZS)
+        $baseRates = [
+            'economy' => 2000,
+            'standard' => 3000,
+            'express' => 5000,
+            'overnight' => 8000,
+            'same_day' => 12000,
+        ];
+
+        $baseRate = $baseRates[$serviceType] ?? $baseRates['standard'];
+        $baseCost = $baseRate * $weight;
+
+        // Add insurance cost (0.5% of declared value)
+        $insuranceCost = $declaredValue * 0.005;
+
+        // Add delivery option costs
+        $optionCosts = 0;
+        if (!empty($deliveryOptions['signature_required'])) {
+            $optionCosts += 1000;
+        }
+        if (!empty($deliveryOptions['weekend_delivery'])) {
+            $optionCosts += 2000;
+        }
+        if (!empty($deliveryOptions['evening_delivery'])) {
+            $optionCosts += 1500;
+        }
+
+        // International shipping surcharge
+        $internationalSurcharge = 0;
+        if ($isInternational) {
+            $internationalSurcharge = $baseCost * 0.5; // 50% surcharge for international
+        }
+
+        return round($baseCost + $insuranceCost + $optionCosts + $internationalSurcharge, 2);
     }
 
     /**
@@ -267,6 +366,7 @@ class ShipmentController extends Controller
     private function calculateEstimatedDeliveryDate(string $serviceType): string
     {
         $businessDays = match ($serviceType) {
+            'same_day' => 0,
             'overnight' => 1,
             'express' => 2,
             'standard' => 4,

@@ -92,7 +92,7 @@ class CustomsSeeder extends Seeder
                 'shipment_type' => 'commercial',
                 'origin_country' => 'USA',
                 'destination_country' => 'CAN',
-                'currency' => 'USD',
+                'currency' => 'TZS',
                 'total_value' => 2500.00,
                 'description_of_goods' => 'Electronic components and computer accessories',
                 'reason_for_export' => 'Commercial sale',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import ShipmentCreationWizard from '@/components/customer/ShipmentCreationWizard';
+import ComprehensiveShipmentForm from '@/components/customer/shipment/ComprehensiveShipmentForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -34,13 +34,22 @@ interface ServiceType {
     features: string[];
 }
 
+interface Warehouse {
+    id: number;
+    name: string;
+    address: string;
+    city: string;
+    country: string;
+}
+
 interface Props {
     customer: Customer;
     serviceTypes: ServiceType[];
     savedAddresses: any[];
+    warehouses: Warehouse[];
 }
 
-export default function CreateShipment({ customer, serviceTypes, savedAddresses }: Props) {
+export default function CreateShipment({ customer, serviceTypes, savedAddresses, warehouses }: Props) {
     return (
         <AppLayout>
             <Head title="Create Shipment" />
@@ -60,7 +69,7 @@ export default function CreateShipment({ customer, serviceTypes, savedAddresses 
                                     Create New Shipment
                                 </h1>
                                 <p className="text-sm sm:text-base text-gray-600 mt-1">
-                                    {customer.company_name} • Follow the steps below to create your shipment
+                                    {customer?.company_name || 'Customer'} • Follow the steps below to create your shipment
                                 </p>
                             </div>
                         </div>
@@ -73,34 +82,12 @@ export default function CreateShipment({ customer, serviceTypes, savedAddresses 
                     </div>
                 </div>
 
-                {/* Quick Tips */}
-                <Card className="bg-blue-50 border-blue-200">
-                    <CardHeader>
-                        <CardTitle className="text-blue-900 text-lg">Quick Tips</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-blue-800">
-                            <div className="flex items-start space-x-2">
-                                <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
-                                <p>Have your recipient's complete address ready including postal code</p>
-                            </div>
-                            <div className="flex items-start space-x-2">
-                                <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
-                                <p>Measure and weigh your package accurately for precise pricing</p>
-                            </div>
-                            <div className="flex items-start space-x-2">
-                                <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
-                                <p>Choose the right service type based on your delivery timeline</p>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
 
-                {/* Shipment Creation Wizard */}
-                <ShipmentCreationWizard 
+
+                {/* Comprehensive Shipment Form */}
+                <ComprehensiveShipmentForm
                     customer={customer}
-                    serviceTypes={serviceTypes}
-                    savedAddresses={savedAddresses}
+                    warehouses={warehouses}
                 />
             </div>
         </AppLayout>

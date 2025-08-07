@@ -336,42 +336,51 @@ class NotificationController extends Controller
      */
     private function getNotificationSummary(Customer $customer)
     {
-        // Mock data for now - in real app would query actual notifications
+        $stats = Notification::getActiveStatsForCustomer($customer->id);
+
+        // Get channel statistics
+        $channels = [];
+        $channelTypes = ['email', 'sms', 'push', 'in_app'];
+
+        foreach ($channelTypes as $channel) {
+            $channelNotifications = Notification::forCustomer($customer->id)->byChannel($channel);
+            $total = $channelNotifications->count();
+            $delivered = $channelNotifications->delivered()->count();
+            $failed = $channelNotifications->failed()->count();
+
+            $successRate = $total > 0 ? (($delivered / $total) * 100) : 0;
+
+            // Check if channel is enabled in preferences
+            $preference = NotificationPreference::where('user_type', 'customer')
+                ->where('user_id', $customer->id)
+                ->first();
+
+            $enabled = false;
+            if ($preference) {
+                $enabled = $preference->{$channel . '_enabled'} ?? false;
+            }
+
+            $channels[$channel] = [
+                'enabled' => $enabled,
+                'verified' => true, // Assume verified for now
+                'success_rate' => round($successRate, 1),
+            ];
+        }
+
         return [
-            'total_notifications' => 247,
-            'unread_count' => 12,
-            'today_count' => 8,
-            'failed_count' => 3,
-            'channels' => [
-                'email' => [
-                    'enabled' => true,
-                    'verified' => true,
-                    'success_rate' => 98.5,
-                ],
-                'sms' => [
-                    'enabled' => true,
-                    'verified' => true,
-                    'success_rate' => 97.2,
-                ],
-                'push' => [
-                    'enabled' => false,
-                    'verified' => false,
-                    'success_rate' => 0,
-                ],
-                'in_app' => [
-                    'enabled' => true,
-                    'verified' => true,
-                    'success_rate' => 100,
-                ],
-            ],
+            'total_notifications' => $stats['total'],
+            'unread_count' => $stats['unread'],
+            'today_count' => $stats['today'],
+            'failed_count' => $stats['failed'],
+            'channels' => $channels,
             'smart_rules' => [
-                'total' => 5,
-                'active' => 4,
-                'triggered_today' => 2,
+                'total' => 0, // Not implemented yet
+                'active' => 0,
+                'triggered_today' => 0,
             ],
             'proactive_alerts' => [
-                'active' => 3,
-                'dismissed_today' => 1,
+                'active' => 0, // Not implemented yet
+                'dismissed_today' => 0,
             ],
         ];
     }
@@ -381,17 +390,24 @@ class NotificationController extends Controller
      */
     private function getNotificationStats(Customer $customer)
     {
-        // Mock data for now - in real app would query actual notifications
+        $stats = Notification::getActiveStatsForCustomer($customer->id);
+
+        // Calculate engagement metrics from notification logs if available
+        $emailNotifications = Notification::forCustomer($customer->id)->byChannel('email');
+        $smsNotifications = Notification::forCustomer($customer->id)->byChannel('sms');
+        $pushNotifications = Notification::forCustomer($customer->id)->byChannel('push');
+
         return [
-            'total' => 127,
-            'unread' => 8,
-            'delivered' => 119,
-            'failed' => 3,
+            'total' => $stats['total'],
+            'unread' => $stats['unread'],
+            'delivered' => $stats['delivered'],
+            'failed' => $stats['failed'],
             'engagement' => [
-                'email_open_rate' => 68.5,
-                'email_click_rate' => 12.3,
-                'sms_delivery_rate' => 98.2,
-                'push_click_rate' => 24.7,
+                'email_open_rate' => 0, // Would need to implement email tracking
+                'email_click_rate' => 0, // Would need to implement email tracking
+                'sms_delivery_rate' => $smsNotifications->count() > 0 ?
+                    round(($smsNotifications->delivered()->count() / $smsNotifications->count()) * 100, 1) : 0,
+                'push_click_rate' => 0, // Would need to implement push tracking
             ],
         ];
     }

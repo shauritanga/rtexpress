@@ -184,12 +184,26 @@ class InventoryController extends Controller
     }
 
     /**
+     * Show edit form for inventory item.
+     */
+    public function edit(InventoryItem $item)
+    {
+        $warehouses = Warehouse::select('id', 'name', 'code')->get();
+
+        return Inertia::render('Admin/Inventory/Edit', [
+            'item' => $item,
+            'warehouses' => $warehouses,
+        ]);
+    }
+
+    /**
      * Update inventory item.
      */
     public function update(Request $request, InventoryItem $item)
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'sku' => 'nullable|string|unique:inventory_items,sku,' . $item->id,
             'barcode' => 'nullable|string|unique:inventory_items,barcode,' . $item->id,
             'description' => 'nullable|string',
             'category' => 'required|string|max:255',
@@ -217,15 +231,49 @@ class InventoryController extends Controller
     }
 
     /**
+     * Remove the specified inventory item.
+     */
+    public function destroy(InventoryItem $item)
+    {
+        try {
+            // Check if item has any stock movements or active stock
+            $hasMovements = $item->stockMovements()->exists();
+            $hasActiveStock = $item->warehouseStock()->where('quantity_available', '>', 0)->exists();
+
+            if ($hasMovements || $hasActiveStock) {
+                return back()->withErrors([
+                    'error' => "Cannot delete inventory item {$item->sku} ({$item->name}). It has stock movements or active inventory. Please remove all stock first."
+                ]);
+            }
+
+            $itemSku = $item->sku;
+            $itemName = $item->name;
+
+            // Delete warehouse stock records (should be zero quantities)
+            $item->warehouseStock()->delete();
+
+            // Delete the inventory item
+            $item->delete();
+
+            return redirect()
+                ->route('admin.inventory.index')
+                ->with('success', "Inventory item {$itemSku} ({$itemName}) deleted successfully!");
+
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to delete inventory item. Please try again.']);
+        }
+    }
+
+    /**
      * Adjust stock levels.
      */
     public function adjustStock(Request $request, InventoryItem $item)
     {
         $request->validate([
             'warehouse_id' => 'required|exists:warehouses,id',
-            'adjustment_type' => 'required|in:add,remove,set',
-            'quantity' => 'required|integer|min:0',
-            'reason' => 'required|string|max:255',
+            'adjustment_type' => 'required|in:in,out,adjustment,damaged',
+            'quantity' => 'required|integer|min:1',
+            'notes' => 'nullable|string|max:255',
             'unit_cost' => 'nullable|numeric|min:0',
         ]);
 
@@ -248,39 +296,50 @@ class InventoryController extends Controller
             $oldQuantity = $warehouseStock->quantity_available;
             $newQuantity = $oldQuantity;
             $movementQuantity = 0;
+            $movementType = $request->adjustment_type;
 
             switch ($request->adjustment_type) {
-                case 'add':
+                case 'in':
                     $newQuantity = $oldQuantity + $request->quantity;
                     $movementQuantity = $request->quantity;
                     break;
-                case 'remove':
+                case 'out':
                     $newQuantity = max(0, $oldQuantity - $request->quantity);
-                    $movementQuantity = -($oldQuantity - $newQuantity);
+                    $movementQuantity = -$request->quantity;
                     break;
-                case 'set':
-                    $newQuantity = $request->quantity;
+                case 'adjustment':
+                    // For adjustments, quantity can be positive or negative
+                    $newQuantity = max(0, $oldQuantity + $request->quantity);
                     $movementQuantity = $newQuantity - $oldQuantity;
+                    break;
+                case 'damaged':
+                    // Move from available to damaged
+                    $quantityToMove = min($request->quantity, $oldQuantity);
+                    $newQuantity = $oldQuantity - $quantityToMove;
+                    $movementQuantity = -$quantityToMove;
+                    $warehouseStock->increment('quantity_damaged', $quantityToMove);
                     break;
             }
 
-            // Update warehouse stock
-            if ($request->adjustment_type === 'add' && $request->unit_cost) {
-                $warehouseStock->addStock($request->quantity, $request->unit_cost);
-            } else {
-                $warehouseStock->update(['quantity_available' => $newQuantity]);
+            // Update warehouse stock (skip for damaged as it's already handled)
+            if ($request->adjustment_type !== 'damaged') {
+                if ($request->adjustment_type === 'in' && $request->unit_cost) {
+                    $warehouseStock->addStock($request->quantity, $request->unit_cost);
+                } else {
+                    $warehouseStock->update(['quantity_available' => $newQuantity]);
+                }
             }
 
             // Record stock movement
             StockMovement::create([
                 'inventory_item_id' => $item->id,
                 'warehouse_id' => $request->warehouse_id,
-                'type' => 'adjustment',
+                'type' => $movementType,
                 'quantity' => $movementQuantity,
                 'quantity_before' => $oldQuantity,
                 'quantity_after' => $newQuantity,
                 'unit_cost' => $request->unit_cost,
-                'notes' => $request->reason,
+                'notes' => $request->notes ?? 'Stock adjustment via admin panel',
                 'created_by' => auth()->id(),
                 'movement_date' => now(),
             ]);
@@ -325,4 +384,6 @@ class InventoryController extends Controller
             ->where('inventory_items.is_active', true)
             ->sum(DB::raw('warehouse_stock.quantity_available * warehouse_stock.average_cost'));
     }
+
+
 }

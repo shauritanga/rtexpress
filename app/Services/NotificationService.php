@@ -16,6 +16,25 @@ class NotificationService
     public function send(array $data): Notification
     {
         // Create notification record
+        // If title and message are not provided, try to get them from template
+        if (!isset($data['title']) || !isset($data['message'])) {
+            $template = NotificationTemplate::where('type', $data['type'])
+                ->where('channel', $data['channel'])
+                ->where('is_active', true)
+                ->first();
+
+            if ($template) {
+                $variables = $data['variables'] ?? [];
+                $data['title'] = $this->replaceVariables($template->subject, $variables);
+                $data['message'] = $this->replaceVariables($template->content, $variables);
+                $data['template'] = $template->template_code;
+            } else {
+                // Fallback if no template found
+                $data['title'] = $data['title'] ?? 'Notification';
+                $data['message'] = $data['message'] ?? 'You have a new notification.';
+            }
+        }
+
         $notification = Notification::create([
             'type' => $data['type'],
             'channel' => $data['channel'],
@@ -40,6 +59,19 @@ class NotificationService
         }
 
         return $notification;
+    }
+
+    /**
+     * Replace variables in template content.
+     */
+    private function replaceVariables(string $content, array $variables): string
+    {
+        foreach ($variables as $key => $value) {
+            // Convert null values to empty string to avoid deprecation warnings
+            $replacement = $value ?? '';
+            $content = str_replace('{{' . $key . '}}', $replacement, $content);
+        }
+        return $content;
     }
 
     /**
@@ -382,5 +414,90 @@ class NotificationService
             'related_type' => 'support_ticket',
             'related_id' => $ticket->id,
         ]);
+    }
+
+    /**
+     * Send shipment status update notifications to customer (respects preferences).
+     */
+    public function sendShipmentStatusUpdate(\App\Models\Shipment $shipment, string $status): array
+    {
+        $customer = $shipment->customer;
+        if (!$customer) {
+            return [];
+        }
+
+        $notificationType = $this->getNotificationTypeForStatus($status);
+        if (!$notificationType) {
+            return [];
+        }
+
+        $title = $this->getTitleForStatus($status, $shipment->tracking_number);
+        $message = $this->getMessageForStatus($status, $shipment);
+
+        return Notification::createForCustomer($customer->id, $notificationType, [
+            'title' => $title,
+            'message' => $message,
+            'priority' => $this->getPriorityForStatus($status),
+            'status' => 'pending',
+            'related_type' => 'shipment',
+            'related_id' => $shipment->id,
+            'data' => [
+                'tracking_number' => $shipment->tracking_number,
+                'customer_name' => $customer->company_name,
+                'status' => $status,
+            ],
+        ]);
+    }
+
+    private function getNotificationTypeForStatus(string $status): ?string
+    {
+        return match($status) {
+            'created' => 'shipment_created',
+            'picked_up' => 'shipment_picked_up',
+            'in_transit' => 'shipment_in_transit',
+            'out_for_delivery' => 'shipment_in_transit',
+            'delivered' => 'shipment_delivered',
+            'exception' => 'shipment_exception',
+            default => null,
+        };
+    }
+
+    private function getTitleForStatus(string $status, string $trackingNumber): string
+    {
+        return match($status) {
+            'created' => "Shipment Created - {$trackingNumber}",
+            'picked_up' => "Shipment Picked Up - {$trackingNumber}",
+            'in_transit' => "Shipment In Transit - {$trackingNumber}",
+            'out_for_delivery' => "Out for Delivery - {$trackingNumber}",
+            'delivered' => "Package Delivered - {$trackingNumber}",
+            'exception' => "Delivery Exception - {$trackingNumber}",
+            default => "Shipment Update - {$trackingNumber}",
+        };
+    }
+
+    private function getMessageForStatus(string $status, \App\Models\Shipment $shipment): string
+    {
+        $trackingNumber = $shipment->tracking_number;
+        $recipientName = $shipment->recipient_name;
+
+        return match($status) {
+            'created' => "Your shipment {$trackingNumber} has been created and is being processed.",
+            'picked_up' => "Your shipment {$trackingNumber} has been picked up and is on its way.",
+            'in_transit' => "Your shipment {$trackingNumber} is currently in transit to {$recipientName}.",
+            'out_for_delivery' => "Your shipment {$trackingNumber} is out for delivery to {$recipientName}.",
+            'delivered' => "Your shipment {$trackingNumber} has been successfully delivered to {$recipientName}.",
+            'exception' => "There was an issue with the delivery of shipment {$trackingNumber}. Please contact support for assistance.",
+            default => "Your shipment {$trackingNumber} status has been updated to: {$status}.",
+        };
+    }
+
+    private function getPriorityForStatus(string $status): string
+    {
+        return match($status) {
+            'delivered' => 'high',
+            'exception' => 'urgent',
+            'created', 'picked_up' => 'medium',
+            default => 'low',
+        };
     }
 }

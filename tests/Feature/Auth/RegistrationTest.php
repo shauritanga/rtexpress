@@ -12,8 +12,8 @@ test('new customers can register', function () {
         'contact_person' => 'Test User',
         'email' => 'test@example.com',
         'phone' => '+1234567890',
-        'password' => 'password',
-        'password_confirmation' => 'password',
+        'password' => 'MyVerySecureP@ssw0rd2024!',
+        'password_confirmation' => 'MyVerySecureP@ssw0rd2024!',
         'address_line_1' => '123 Test Street',
         'address_line_2' => 'Suite 100',
         'city' => 'Test City',
@@ -23,6 +23,13 @@ test('new customers can register', function () {
         'terms' => true,
     ]);
 
-    $this->assertAuthenticated();
-    $response->assertRedirect('/customer/dashboard');
+    // With our security enhancements, users are not auto-logged in
+    // They need to verify their email first
+    $this->assertGuest();
+    $response->assertRedirect(route('verification.notice'));
+
+    // Verify user was created
+    $this->assertDatabaseHas('users', [
+        'email' => 'test@example.com',
+    ]);
 });

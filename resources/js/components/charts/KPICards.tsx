@@ -8,7 +8,7 @@ import {
     Clock, 
     CheckCircle,
     AlertTriangle,
-    DollarSign,
+    Banknote,
     Truck,
     Target
 } from 'lucide-react';

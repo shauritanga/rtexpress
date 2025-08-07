@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { toast } from '@/hooks/useToast';
 import { 
     MapPin,
     Package,
@@ -170,14 +171,26 @@ export default function ShipmentCreationWizard({
             const result = await response.json();
 
             if (result.success) {
-                // Redirect to shipment details page
-                window.location.href = result.redirect || '/customer/dashboard';
+                toast({
+                    title: "Shipment Created Successfully!",
+                    description: "Your shipment has been created and is being processed. You will receive updates via email and SMS.",
+                    variant: "success",
+                });
+
+                // Redirect to shipment details page after showing toast
+                setTimeout(() => {
+                    window.location.href = result.redirect || '/customer/dashboard';
+                }, 2000);
             } else {
                 throw new Error(result.message || 'Failed to create shipment');
             }
         } catch (error) {
             console.error('Error creating shipment:', error);
-            alert('Failed to create shipment. Please try again.');
+            toast({
+                title: "Failed to Create Shipment",
+                description: "Please check the form for errors and try again.",
+                variant: "destructive",
+            });
         } finally {
             setIsSubmitting(false);
         }

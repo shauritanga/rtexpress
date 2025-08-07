@@ -139,7 +139,7 @@ export function AdvancedFilters({
                             <SelectValue placeholder={config.placeholder} />
                         </SelectTrigger>
                         <SelectContent>
-                            {config.options?.map((option) => (
+                            {config.options?.filter(option => option.value !== '').map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                     <div className="flex items-center justify-between w-full">
                                         <span>{option.label}</span>

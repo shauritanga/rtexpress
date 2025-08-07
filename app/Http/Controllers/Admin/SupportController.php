@@ -354,4 +354,161 @@ class SupportController extends Controller
 
         return round($totalHours / $tickets->count(), 1);
     }
+
+    /**
+     * Delete a support ticket.
+     */
+    public function destroy(SupportTicket $ticket)
+    {
+        try {
+            // Delete all replies first
+            $ticket->replies()->delete();
+
+            // Delete the ticket
+            $ticket->delete();
+
+            return redirect()
+                ->route('admin.support.index')
+                ->with('success', 'Support ticket deleted successfully');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Failed to delete ticket: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Archive a support ticket.
+     */
+    public function archive(SupportTicket $ticket)
+    {
+        try {
+            $ticket->update([
+                'status' => 'archived',
+                'archived_at' => now(),
+            ]);
+
+            // Add system note
+            TicketReply::create([
+                'ticket_id' => $ticket->id,
+                'user_id' => auth()->id(),
+                'message' => "Ticket archived by " . auth()->user()->name,
+                'type' => 'status_change',
+                'is_internal' => true,
+            ]);
+
+            return redirect()
+                ->route('admin.support.index')
+                ->with('success', 'Support ticket archived successfully');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Failed to archive ticket: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Restore an archived ticket.
+     */
+    public function restore(SupportTicket $ticket)
+    {
+        try {
+            $ticket->update([
+                'status' => 'open',
+                'archived_at' => null,
+            ]);
+
+            // Add system note
+            TicketReply::create([
+                'ticket_id' => $ticket->id,
+                'user_id' => auth()->id(),
+                'message' => "Ticket restored from archive by " . auth()->user()->name,
+                'type' => 'status_change',
+                'is_internal' => true,
+            ]);
+
+            return redirect()
+                ->route('admin.support.index')
+                ->with('success', 'Support ticket restored successfully');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Failed to restore ticket: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Bulk operations on tickets.
+     */
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|in:delete,archive,restore,assign,status_change',
+            'ticket_ids' => 'required|array',
+            'ticket_ids.*' => 'exists:support_tickets,id',
+            'assigned_to' => 'nullable|exists:users,id',
+            'status' => 'nullable|in:open,in_progress,waiting_customer,resolved,closed,archived',
+        ]);
+
+        $ticketIds = $request->ticket_ids;
+        $action = $request->action;
+        $successCount = 0;
+
+        try {
+            foreach ($ticketIds as $ticketId) {
+                $ticket = SupportTicket::find($ticketId);
+                if (!$ticket) continue;
+
+                switch ($action) {
+                    case 'delete':
+                        $ticket->replies()->delete();
+                        $ticket->delete();
+                        $successCount++;
+                        break;
+
+                    case 'archive':
+                        $ticket->update([
+                            'status' => 'archived',
+                            'archived_at' => now(),
+                        ]);
+                        $successCount++;
+                        break;
+
+                    case 'restore':
+                        $ticket->update([
+                            'status' => 'open',
+                            'archived_at' => null,
+                        ]);
+                        $successCount++;
+                        break;
+
+                    case 'assign':
+                        if ($request->assigned_to) {
+                            $ticket->update(['assigned_to' => $request->assigned_to]);
+                            $successCount++;
+                        }
+                        break;
+
+                    case 'status_change':
+                        if ($request->status) {
+                            $ticket->update([
+                                'status' => $request->status,
+                                'resolved_at' => $request->status === 'resolved' ? now() : null,
+                                'closed_at' => $request->status === 'closed' ? now() : null,
+                            ]);
+                            $successCount++;
+                        }
+                        break;
+                }
+            }
+
+            return redirect()
+                ->route('admin.support.index')
+                ->with('success', "Successfully processed {$successCount} tickets");
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Bulk operation failed: ' . $e->getMessage());
+        }
+    }
 }

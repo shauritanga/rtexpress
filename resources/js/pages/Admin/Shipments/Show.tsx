@@ -5,11 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
     Package,
     MapPin,
     Calendar,
-    DollarSign,
+    Banknote,
     User,
     Truck,
     Clock,
@@ -22,7 +27,9 @@ import {
     Mail,
     Building,
     Weight,
-    Ruler
+    Ruler,
+    RefreshCw,
+    Send
 } from 'lucide-react';
 
 interface Customer {
@@ -87,11 +94,35 @@ interface Props {
 
 export default function ShipmentShow({ shipment }: Props) {
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+    const [statusForm, setStatusForm] = useState({
+        status: '',
+        location: '',
+        notes: ''
+    });
+
+    const handleStatusUpdate = () => {
+        if (!statusForm.status || !statusForm.location) {
+            return;
+        }
+
+        setIsUpdating(true);
+
+        router.post(route('admin.shipments.update-status', shipment.id), statusForm, {
+            onSuccess: () => {
+                setIsStatusModalOpen(false);
+                setStatusForm({ status: '', location: '', notes: '' });
+            },
+            onFinish: () => setIsUpdating(false)
+        });
+    };
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('sw-TZ', {
             style: 'currency',
-            currency: 'USD',
+            currency: 'TZS',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         }).format(amount);
     };
 
@@ -111,6 +142,19 @@ export default function ShipmentShow({ shipment }: Props) {
             hour: '2-digit',
             minute: '2-digit',
         });
+    };
+
+    const getStatusDisplayName = (status: string) => {
+        const statusNames = {
+            'pending': 'Pending Pickup',
+            'picked_up': 'Picked Up',
+            'in_transit': 'In Transit',
+            'out_for_delivery': 'Out for Delivery',
+            'delivered': 'Delivered',
+            'exception': 'Exception',
+            'cancelled': 'Cancelled',
+        };
+        return statusNames[status as keyof typeof statusNames] || status.charAt(0).toUpperCase() + status.slice(1);
     };
 
     const getStatusBadge = (status: string) => {
@@ -152,14 +196,7 @@ export default function ShipmentShow({ shipment }: Props) {
         );
     };
 
-    const handleStatusUpdate = (newStatus: string) => {
-        setIsUpdating(true);
-        router.post(route('admin.shipments.update-status', shipment?.id || 0), {
-            status: newStatus,
-        }, {
-            onFinish: () => setIsUpdating(false),
-        });
-    };
+
 
     return (
         <AppLayout>
@@ -185,6 +222,89 @@ export default function ShipmentShow({ shipment }: Props) {
                         </div>
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+                        <Dialog open={isStatusModalOpen} onOpenChange={setIsStatusModalOpen}>
+                            <DialogTrigger asChild>
+                                <Button variant="default" className="w-full sm:w-auto">
+                                    <RefreshCw className="h-4 w-4 mr-2" />
+                                    Update Status
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>Update Shipment Status</DialogTitle>
+                                    <DialogDescription>
+                                        Update the status of shipment {shipment.tracking_number}.
+                                        Customer will be notified via email.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                    <div>
+                                        <Label htmlFor="status">New Status</Label>
+                                        <Select
+                                            value={statusForm.status}
+                                            onValueChange={(value) => setStatusForm(prev => ({ ...prev, status: value }))}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select status" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="pending">Pending</SelectItem>
+                                                <SelectItem value="picked_up">Picked Up</SelectItem>
+                                                <SelectItem value="in_transit">In Transit</SelectItem>
+                                                <SelectItem value="out_for_delivery">Out for Delivery</SelectItem>
+                                                <SelectItem value="delivered">Delivered</SelectItem>
+                                                <SelectItem value="exception">Exception</SelectItem>
+                                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="location">Current Location</Label>
+                                        <Input
+                                            id="location"
+                                            value={statusForm.location}
+                                            onChange={(e) => setStatusForm(prev => ({ ...prev, location: e.target.value }))}
+                                            placeholder="e.g., Dar es Salaam Distribution Center"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="notes">Notes (Optional)</Label>
+                                        <Textarea
+                                            id="notes"
+                                            value={statusForm.notes}
+                                            onChange={(e) => setStatusForm(prev => ({ ...prev, notes: e.target.value }))}
+                                            placeholder="Additional notes about this status update..."
+                                            rows={3}
+                                        />
+                                    </div>
+                                    <div className="flex justify-end space-x-2">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setIsStatusModalOpen(false)}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            onClick={handleStatusUpdate}
+                                            disabled={!statusForm.status || !statusForm.location || isUpdating}
+                                        >
+                                            {isUpdating ? (
+                                                <>
+                                                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                                    Updating...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Send className="h-4 w-4 mr-2" />
+                                                    Update & Notify Customer
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+
                         <Button variant="outline" asChild className="w-full sm:w-auto">
                             <Link href={route('admin.shipments.edit', shipment?.id || 0)}>
                                 <Edit className="h-4 w-4 mr-2" />
@@ -227,7 +347,7 @@ export default function ShipmentShow({ shipment }: Props) {
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
-                                <DollarSign className="h-5 w-5 text-purple-600" />
+                                <Banknote className="h-5 w-5 text-purple-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Declared Value</p>
                                     <p className="text-lg font-bold">
@@ -401,27 +521,44 @@ export default function ShipmentShow({ shipment }: Props) {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {shipment?.tracking_events?.length > 0 ? (
+                        {shipment?.tracking_history?.length > 0 ? (
                             <div className="space-y-4">
-                                {shipment.tracking_events.map((event, index) => (
-                                    <div key={index} className="flex items-start space-x-3">
+                                {shipment.tracking_history.map((tracking, index) => (
+                                    <div key={tracking.id} className="flex items-start space-x-3">
                                         <div className="flex-shrink-0">
                                             <div className={`w-3 h-3 rounded-full mt-1 ${
                                                 index === 0 ? 'bg-green-500' : 'bg-gray-300'
                                             }`} />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium">
-                                                {event.status || 'Status Update'}
-                                            </p>
+                                            <div className="flex items-center space-x-2">
+                                                <p className="text-sm font-medium">
+                                                    {getStatusDisplayName(tracking.status)}
+                                                </p>
+                                                {tracking.status === 'exception' && (
+                                                    <Badge variant="destructive" className="text-xs">
+                                                        Requires Attention
+                                                    </Badge>
+                                                )}
+                                            </div>
                                             <p className="text-xs text-muted-foreground">
-                                                {event.location || 'Unknown Location'} • {formatDateTime(event.timestamp || new Date().toISOString())}
+                                                {tracking.location || 'Location not specified'}
                                             </p>
-                                            {event.description && (
+                                            {tracking.notes && (
                                                 <p className="text-xs text-muted-foreground mt-1">
-                                                    {event.description}
+                                                    {tracking.notes}
                                                 </p>
                                             )}
+                                            <div className="flex items-center justify-between mt-1">
+                                                <p className="text-xs text-muted-foreground">
+                                                    {formatDateTime(tracking.occurred_at)}
+                                                </p>
+                                                {tracking.recorded_by && (
+                                                    <p className="text-xs text-muted-foreground">
+                                                        by {tracking.recorded_by.name}
+                                                    </p>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}

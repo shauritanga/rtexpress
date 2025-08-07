@@ -1,390 +1,251 @@
-import React, { useState } from 'react';
-import { Head } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
+import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/useToast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import NotificationPreferences from '@/components/customer/notifications/NotificationPreferences';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import SimpleNotificationPreferences from '@/components/customer/notifications/SimpleNotificationPreferences';
 import NotificationHistory from '@/components/customer/notifications/NotificationHistory';
-import SmartNotifications from '@/components/customer/notifications/SmartNotifications';
 import {
     Bell,
     Settings,
     History,
-    Zap,
-    Brain,
-    TrendingUp,
     CheckCircle,
-    Clock,
     AlertTriangle,
-    Mail,
-    MessageSquare,
-    Smartphone,
-    RefreshCw
+    Info
 } from 'lucide-react';
 
-interface Customer {
-    id: number;
-    company_name: string;
-    customer_code: string;
-    contact_person: string;
-}
-
-interface NotificationSummary {
-    total_notifications: number;
-    unread_count: number;
-    today_count: number;
-    failed_count: number;
-    channels: {
-        email: {
-            enabled: boolean;
-            verified: boolean;
-            success_rate: number;
-        };
-        sms: {
-            enabled: boolean;
-            verified: boolean;
-            success_rate: number;
-        };
-        push: {
-            enabled: boolean;
-            verified: boolean;
-            success_rate: number;
-        };
-        in_app: {
-            enabled: boolean;
-            verified: boolean;
-            success_rate: number;
-        };
-    };
-    smart_rules: {
-        total: number;
-        active: number;
-        triggered_today: number;
-    };
-    proactive_alerts: {
-        active: number;
-        dismissed_today: number;
-    };
-}
-
 interface Props {
-    customer: Customer;
-    summary: NotificationSummary;
+    preferences?: any;
+    notifications?: any[];
+    stats?: {
+        total: number;
+        unread: number;
+        failed: number;
+        today: number;
+    };
+    flash?: {
+        success?: string;
+        error?: string;
+    };
 }
 
-export default function NotificationCenter({ customer, summary }: Props) {
-    const [activeTab, setActiveTab] = useState('overview');
-    const [isRefreshing, setIsRefreshing] = useState(false);
-    // Mock data - in real app, would come from props
-    const mockSummary: NotificationSummary = {
-        total_notifications: 247,
-        unread_count: 12,
-        today_count: 8,
-        failed_count: 3,
-        channels: {
-            email: { enabled: true, verified: true, success_rate: 98.5 },
-            sms: { enabled: true, verified: true, success_rate: 97.2 },
-            push: { enabled: false, verified: false, success_rate: 0 },
-            in_app: { enabled: true, verified: true, success_rate: 100 },
-        },
-        smart_rules: {
-            total: 5,
-            active: 4,
-            triggered_today: 2,
-        },
-        proactive_alerts: {
-            active: 3,
-            dismissed_today: 1,
-        },
+export default function NotificationsIndex({
+    preferences = {},
+    notifications = [],
+    stats = { total: 0, unread: 0, failed: 0, today: 0 },
+    flash = {}
+}: Props) {
+    const [activeTab, setActiveTab] = useState('preferences');
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    // Handle flash messages
+    useEffect(() => {
+        if (flash?.success) {
+            toast({
+                title: "Success",
+                description: flash.success,
+                variant: "success",
+            });
+        }
+        if (flash?.error) {
+            toast({
+                title: "Error",
+                description: flash.error,
+                variant: "destructive",
+            });
+        }
+    }, [flash]);
+
+
+
+    const handleMarkAsRead = (notificationId: number | string) => {
+        if (isProcessing) return;
+        setIsProcessing(true);
+
+        router.post(`/customer/notifications/${notificationId}/read`, {}, {
+            preserveScroll: true,
+            only: ['notifications', 'stats', 'flash'],
+            onFinish: () => setIsProcessing(false)
+        });
     };
 
-    const currentSummary = summary || mockSummary;
+    const handleArchive = (notificationId: number | string) => {
+        if (isProcessing) return;
+        setIsProcessing(true);
 
-    const handleRefresh = async () => {
-        setIsRefreshing(true);
-        try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            // In real app, would refresh data
-        } catch (error) {
-            console.error('Failed to refresh notification data:', error);
-        } finally {
-            setIsRefreshing(false);
+        router.post(`/customer/notifications/${notificationId}/archive`, {}, {
+            preserveScroll: true,
+            only: ['notifications', 'stats', 'flash'],
+            onFinish: () => setIsProcessing(false)
+        });
+    };
+
+    const handleDelete = (notificationId: number | string) => {
+        if (isProcessing) return;
+        setShowDeleteConfirm(notificationId.toString());
+    };
+
+    const confirmDelete = () => {
+        if (showDeleteConfirm && !isProcessing) {
+            setIsProcessing(true);
+            router.delete(`/customer/notifications/${showDeleteConfirm}`, {
+                preserveScroll: true,
+                only: ['notifications', 'stats', 'flash'],
+                onFinish: () => {
+                    setShowDeleteConfirm(null);
+                    setIsProcessing(false);
+                }
+            });
         }
     };
 
-    const getChannelIcon = (channel: string) => {
-        const icons = {
-            email: <Mail className="h-4 w-4" />,
-            sms: <MessageSquare className="h-4 w-4" />,
-            push: <Smartphone className="h-4 w-4" />,
-            in_app: <Bell className="h-4 w-4" />,
-        };
-        return icons[channel as keyof typeof icons];
+    const cancelDelete = () => {
+        setShowDeleteConfirm(null);
+        // Small delay to ensure state is properly reset
+        setTimeout(() => setIsProcessing(false), 100);
     };
 
-    const getChannelStatus = (channelData: any) => {
-        if (!channelData.enabled) {
-            return <Badge variant="outline" className="bg-gray-100 text-gray-600">Disabled</Badge>;
-        }
-        if (!channelData.verified) {
-            return <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">Unverified</Badge>;
-        }
-        if (channelData.success_rate >= 95) {
-            return <Badge className="bg-green-100 text-green-800 border-green-300">Excellent</Badge>;
-        }
-        if (channelData.success_rate >= 90) {
-            return <Badge className="bg-blue-100 text-blue-800 border-blue-300">Good</Badge>;
-        }
-        return <Badge className="bg-orange-100 text-orange-800 border-orange-300">Needs Attention</Badge>;
+    const handleMarkAllAsRead = () => {
+        if (isProcessing) return;
+        setIsProcessing(true);
+
+        router.post('/customer/notifications/read-all', {}, {
+            preserveScroll: true,
+            only: ['notifications', 'stats', 'flash'],
+            onFinish: () => setIsProcessing(false)
+        });
     };
 
     return (
         <AppLayout>
-            <Head title="Notification Center" />
+            <Head title="Notifications" />
 
             <div className="space-y-6 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="bg-white rounded-lg shadow-sm border p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-                                <Bell className="h-8 w-8 mr-3 text-blue-600" />
-                                Notification Center
-                            </h1>
-                            <p className="text-sm sm:text-base text-gray-600 mt-1">
-                                {customer.company_name} • Manage your notification preferences and history
-                            </p>
-                        </div>
-                        <div className="mt-4 sm:mt-0 flex space-x-2">
-                            <Button
-                                variant="outline"
-                                onClick={handleRefresh}
-                                disabled={isRefreshing}
-                            >
-                                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                                Refresh
-                            </Button>
-                        </div>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">Notifications</h1>
+                        <p className="text-gray-600">
+                            Manage your notification preferences and view your notification history
+                        </p>
                     </div>
                 </div>
 
-                {/* Overview Stats */}
-                <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
+                {/* Stats Overview */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <Card>
-                        <CardContent className="pt-4">
-                            <div className="text-center">
-                                <div className="flex items-center justify-center mb-2">
-                                    <Bell className="h-5 w-5 text-blue-600" />
+                        <CardContent className="p-4">
+                            <div className="flex items-center space-x-2">
+                                <Bell className="h-5 w-5 text-blue-600" />
+                                <div>
+                                    <p className="text-2xl font-bold">{stats.total}</p>
+                                    <p className="text-sm text-gray-600">Total Notifications</p>
                                 </div>
-                                <p className="text-xs sm:text-sm text-gray-600">Total Notifications</p>
-                                <p className="text-lg sm:text-xl font-bold text-gray-900">
-                                    {currentSummary.total_notifications.toLocaleString()}
-                                </p>
                             </div>
                         </CardContent>
                     </Card>
 
                     <Card>
-                        <CardContent className="pt-4">
-                            <div className="text-center">
-                                <div className="flex items-center justify-center mb-2">
-                                    <AlertTriangle className="h-5 w-5 text-orange-600" />
+                        <CardContent className="p-4">
+                            <div className="flex items-center space-x-2">
+                                <Info className="h-5 w-5 text-orange-600" />
+                                <div>
+                                    <p className="text-2xl font-bold">{stats.unread}</p>
+                                    <p className="text-sm text-gray-600">Unread</p>
                                 </div>
-                                <p className="text-xs sm:text-sm text-gray-600">Unread</p>
-                                <p className="text-lg sm:text-xl font-bold text-orange-600">
-                                    {currentSummary.unread_count}
-                                </p>
                             </div>
                         </CardContent>
                     </Card>
 
                     <Card>
-                        <CardContent className="pt-4">
-                            <div className="text-center">
-                                <div className="flex items-center justify-center mb-2">
-                                    <Clock className="h-5 w-5 text-green-600" />
+                        <CardContent className="p-4">
+                            <div className="flex items-center space-x-2">
+                                <AlertTriangle className="h-5 w-5 text-red-600" />
+                                <div>
+                                    <p className="text-2xl font-bold">{stats.failed}</p>
+                                    <p className="text-sm text-gray-600">Failed</p>
                                 </div>
-                                <p className="text-xs sm:text-sm text-gray-600">Today</p>
-                                <p className="text-lg sm:text-xl font-bold text-green-600">
-                                    {currentSummary.today_count}
-                                </p>
                             </div>
                         </CardContent>
                     </Card>
 
                     <Card>
-                        <CardContent className="pt-4">
-                            <div className="text-center">
-                                <div className="flex items-center justify-center mb-2">
-                                    <Zap className="h-5 w-5 text-purple-600" />
+                        <CardContent className="p-4">
+                            <div className="flex items-center space-x-2">
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                                <div>
+                                    <p className="text-2xl font-bold">{stats.today}</p>
+                                    <p className="text-sm text-gray-600">Today</p>
                                 </div>
-                                <p className="text-xs sm:text-sm text-gray-600">Smart Rules</p>
-                                <p className="text-lg sm:text-xl font-bold text-purple-600">
-                                    {currentSummary.smart_rules.active}/{currentSummary.smart_rules.total}
-                                </p>
                             </div>
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Channel Status Overview */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base flex items-center">
-                            <Settings className="h-4 w-4 mr-2" />
-                            Channel Status Overview
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {Object.entries(currentSummary.channels).map(([channel, data]) => (
-                                <div key={channel} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                    <div className="flex items-center gap-2">
-                                        {getChannelIcon(channel)}
-                                        <div>
-                                            <p className="font-medium text-gray-900 capitalize">
-                                                {channel.replace('_', ' ')}
-                                            </p>
-                                            {data.enabled && data.verified && (
-                                                <p className="text-xs text-gray-600">
-                                                    {data.success_rate}% success rate
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                    {getChannelStatus(data)}
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Main Tabs */}
+                {/* Main Content */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                    <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="overview" className="flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4" />
-                            <span className="hidden sm:inline">Overview</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="preferences" className="flex items-center gap-2">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="preferences" className="flex items-center space-x-2">
                             <Settings className="h-4 w-4" />
-                            <span className="hidden sm:inline">Preferences</span>
+                            <span>Preferences</span>
                         </TabsTrigger>
-                        <TabsTrigger value="history" className="flex items-center gap-2">
+                        <TabsTrigger value="history" className="flex items-center space-x-2">
                             <History className="h-4 w-4" />
-                            <span className="hidden sm:inline">History</span>
-                        </TabsTrigger>
-                        <TabsTrigger value="smart" className="flex items-center gap-2">
-                            <Brain className="h-4 w-4" />
-                            <span className="hidden sm:inline">Smart</span>
+                            <span>History</span>
+                            {stats.unread > 0 && (
+                                <Badge variant="destructive" className="ml-2 text-xs">
+                                    {stats.unread}
+                                </Badge>
+                            )}
                         </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="overview" className="space-y-6">
-                        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-                            {/* Recent Activity Summary */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-base">Recent Activity</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                                            <div className="flex items-center gap-2">
-                                                <CheckCircle className="h-4 w-4 text-green-600" />
-                                                <span className="text-sm">Shipment delivered notification sent</span>
-                                            </div>
-                                            <span className="text-xs text-gray-500">2h ago</span>
-                                        </div>
-                                        <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                                            <div className="flex items-center gap-2">
-                                                <Clock className="h-4 w-4 text-yellow-600" />
-                                                <span className="text-sm">Payment reminder scheduled</span>
-                                            </div>
-                                            <span className="text-xs text-gray-500">4h ago</span>
-                                        </div>
-                                        <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                                            <div className="flex items-center gap-2">
-                                                <Brain className="h-4 w-4 text-purple-600" />
-                                                <span className="text-sm">Smart rule triggered: High value tracking</span>
-                                            </div>
-                                            <span className="text-xs text-gray-500">6h ago</span>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Smart Insights Summary */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-base">Smart Insights</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-3">
-                                        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <TrendingUp className="h-4 w-4 text-green-600" />
-                                                <span className="font-medium text-green-900">Opportunity Detected</span>
-                                            </div>
-                                            <p className="text-sm text-green-800">
-                                                Switch to Express+ service to save 15% on international shipments
-                                            </p>
-                                        </div>
-                                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                                                <span className="font-medium text-yellow-900">Weather Alert</span>
-                                            </div>
-                                            <p className="text-sm text-yellow-800">
-                                                Potential delays in Chicago area due to severe weather
-                                            </p>
-                                        </div>
-                                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <Brain className="h-4 w-4 text-blue-600" />
-                                                <span className="font-medium text-blue-900">Volume Analysis</span>
-                                            </div>
-                                            <p className="text-sm text-blue-800">
-                                                34% increase in shipping volume this month
-                                            </p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </TabsContent>
-
-                    <TabsContent value="preferences">
-                        <NotificationPreferences
-                            onPreferencesUpdate={(preferences) => {
-                                console.log('Preferences updated:', preferences);
-                            }}
+                    <TabsContent value="preferences" className="space-y-6">
+                        <SimpleNotificationPreferences
+                            preferences={preferences}
                         />
                     </TabsContent>
 
-                    <TabsContent value="history">
+                    <TabsContent value="history" className="space-y-6">
                         <NotificationHistory
-                            onNotificationAction={(action, notificationId) => {
-                                console.log('Notification action:', action, notificationId);
-                            }}
-                        />
-                    </TabsContent>
-
-                    <TabsContent value="smart">
-                        <SmartNotifications
-                            onRuleUpdate={(rule) => {
-                                console.log('Rule updated:', rule);
-                            }}
-                            onAlertAction={(alertId, action) => {
-                                console.log('Alert action:', alertId, action);
-                            }}
+                            notifications={notifications}
+                            onMarkAsRead={handleMarkAsRead}
+                            onArchive={handleArchive}
+                            onDelete={handleDelete}
+                            onMarkAllAsRead={handleMarkAllAsRead}
+                            isProcessing={isProcessing}
                         />
                     </TabsContent>
                 </Tabs>
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={!!showDeleteConfirm} onOpenChange={(open) => !open && cancelDelete()}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Notification</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete this notification? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={cancelDelete} disabled={isProcessing}>
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={confirmDelete}
+                            disabled={isProcessing}
+                            className="bg-red-600 hover:bg-red-700 disabled:opacity-50"
+                        >
+                            {isProcessing ? 'Deleting...' : 'Delete'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </AppLayout>
     );
 }

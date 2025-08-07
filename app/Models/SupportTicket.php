@@ -25,6 +25,7 @@ class SupportTicket extends Model
         'first_response_at',
         'resolved_at',
         'closed_at',
+        'archived_at',
         'satisfaction_rating',
         'satisfaction_feedback',
     ];
@@ -34,6 +35,7 @@ class SupportTicket extends Model
         'first_response_at' => 'datetime',
         'resolved_at' => 'datetime',
         'closed_at' => 'datetime',
+        'archived_at' => 'datetime',
         'satisfaction_rating' => 'integer',
     ];
 
@@ -257,5 +259,21 @@ class SupportTicket extends Model
     public function getIsOverdueAttribute(): bool
     {
         return $this->isOverdue();
+    }
+
+    /**
+     * Scope for archived tickets.
+     */
+    public function scopeArchived($query)
+    {
+        return $query->where('status', 'archived');
+    }
+
+    /**
+     * Scope for active (non-archived) tickets.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', '!=', 'archived');
     }
 }

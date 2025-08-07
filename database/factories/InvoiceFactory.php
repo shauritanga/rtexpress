@@ -28,7 +28,7 @@ class InvoiceFactory extends Factory
             'invoice_number' => 'INV-' . date('Y') . '-' . str_pad($this->faker->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
             'customer_id' => Customer::factory(),
             'status' => $this->faker->randomElement(['draft', 'sent', 'viewed', 'partial', 'paid', 'overdue', 'cancelled']),
-            'currency' => 'USD',
+            'currency' => 'TZS',
             'subtotal' => $subtotal,
             'tax_amount' => $taxAmount,
             'discount_amount' => $discountAmount,
