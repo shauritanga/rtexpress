@@ -757,7 +757,7 @@
                     </div>
                 @endif
 
-                @if($errors->any())
+                @if(isset($errors) && $errors->any())
                     <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                         <div class="flex items-center mb-2">
                             <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -766,7 +766,7 @@
                             <span class="text-red-700 font-medium">Please correct the following errors:</span>
                         </div>
                         <ul class="list-disc list-inside text-red-600 text-sm">
-                            @foreach($errors->all() as $error)
+                            @foreach((isset($errors) ? $errors->all() : []) as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
                         </ul>
