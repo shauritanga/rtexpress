@@ -1,18 +1,7 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-    Package,
-    Truck,
-    CheckCircle,
-    Clock,
-    AlertTriangle,
-    MapPin,
-    Calendar,
-    ArrowRight,
-    ExternalLink
-} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertTriangle, ArrowRight, Calendar, CheckCircle, Clock, ExternalLink, MapPin, Package, Truck } from 'lucide-react';
 
 interface TimelineEvent {
     id: number;
@@ -43,9 +32,8 @@ export default function RecentActivityTimeline({ events, className = '' }: Props
             exception: { icon: AlertTriangle, color: 'text-red-600 bg-red-50' },
         };
 
-        const config = iconConfig[eventType as keyof typeof iconConfig] || 
-                      { icon: Package, color: 'text-gray-600 bg-gray-50' };
-        
+        const config = iconConfig[eventType as keyof typeof iconConfig] || { icon: Package, color: 'text-gray-600 bg-gray-50' };
+
         return config;
     };
 
@@ -60,9 +48,8 @@ export default function RecentActivityTimeline({ events, className = '' }: Props
             cancelled: { label: 'Cancelled', variant: 'destructive' as const },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const };
+
         return (
             <Badge variant={config.variant} className="text-xs">
                 {config.label}
@@ -74,7 +61,7 @@ export default function RecentActivityTimeline({ events, className = '' }: Props
         const date = new Date(timestamp);
         const now = new Date();
         const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-        
+
         if (diffInHours < 1) {
             const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
             return `${diffInMinutes}m ago`;
@@ -85,7 +72,7 @@ export default function RecentActivityTimeline({ events, className = '' }: Props
                 month: 'short',
                 day: 'numeric',
                 hour: '2-digit',
-                minute: '2-digit'
+                minute: '2-digit',
             });
         }
     };
@@ -105,20 +92,16 @@ export default function RecentActivityTimeline({ events, className = '' }: Props
             <Card className={className}>
                 <CardHeader>
                     <CardTitle className="flex items-center">
-                        <Clock className="h-5 w-5 mr-2" />
+                        <Clock className="mr-2 h-5 w-5" />
                         Recent Activity
                     </CardTitle>
-                    <CardDescription>
-                        Track your latest shipment updates and activities
-                    </CardDescription>
+                    <CardDescription>Track your latest shipment updates and activities</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-center py-8">
-                        <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <div className="py-8 text-center">
+                        <Package className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                         <p className="text-gray-500">No recent activity to display</p>
-                        <p className="text-sm text-gray-400 mt-1">
-                            Your shipment updates will appear here
-                        </p>
+                        <p className="mt-1 text-sm text-gray-400">Your shipment updates will appear here</p>
                     </div>
                 </CardContent>
             </Card>
@@ -130,67 +113,63 @@ export default function RecentActivityTimeline({ events, className = '' }: Props
             <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center">
-                        <Clock className="h-5 w-5 mr-2" />
+                        <Clock className="mr-2 h-5 w-5" />
                         Recent Activity
                     </div>
                     <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
                         View All
-                        <ExternalLink className="h-4 w-4 ml-1" />
+                        <ExternalLink className="ml-1 h-4 w-4" />
                     </Button>
                 </CardTitle>
-                <CardDescription>
-                    Latest updates from your shipments
-                </CardDescription>
+                <CardDescription>Latest updates from your shipments</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
                 <div className="max-h-96 overflow-y-auto">
                     <div className="relative">
                         {/* Timeline line */}
-                        <div className="absolute left-8 top-0 bottom-0 w-px bg-gray-200"></div>
-                        
+                        <div className="absolute top-0 bottom-0 left-8 w-px bg-gray-200"></div>
+
                         {events.map((event, index) => {
                             const { icon: Icon, color } = getEventIcon(event.event_type);
-                            
+
                             return (
-                                <div key={event.id} className="relative flex items-start space-x-4 p-4 hover:bg-gray-50 transition-colors">
+                                <div key={event.id} className="relative flex items-start space-x-4 p-4 transition-colors hover:bg-gray-50">
                                     {/* Timeline dot */}
-                                    <div className={`relative z-10 flex items-center justify-center w-8 h-8 rounded-full ${color}`}>
+                                    <div className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full ${color}`}>
                                         <Icon className="h-4 w-4" />
                                     </div>
-                                    
+
                                     {/* Event content */}
-                                    <div className="flex-1 min-w-0 pb-4">
+                                    <div className="min-w-0 flex-1 pb-4">
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
-                                                <div className="flex items-center space-x-2 mb-1">
-                                                    <p className="text-sm font-medium text-gray-900 truncate">
-                                                        {event.tracking_number}
-                                                    </p>
+                                                <div className="mb-1 flex items-center space-x-2">
+                                                    <p className="truncate text-sm font-medium text-gray-900">{event.tracking_number}</p>
                                                     {getStatusBadge(event.status)}
-                                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getServiceTypeColor(event.service_type)}`}>
+                                                    <span
+                                                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getServiceTypeColor(event.service_type)}`}
+                                                    >
                                                         {event.service_type}
                                                     </span>
                                                 </div>
-                                                
-                                                <p className="text-sm text-gray-600 mb-1">
-                                                    {event.description}
-                                                </p>
-                                                
+
+                                                <p className="mb-1 text-sm text-gray-600">{event.description}</p>
+
                                                 <div className="flex items-center space-x-4 text-xs text-gray-500">
                                                     <div className="flex items-center">
-                                                        <Calendar className="h-3 w-3 mr-1" />
+                                                        <Calendar className="mr-1 h-3 w-3" />
                                                         {formatTimestamp(event.timestamp)}
                                                     </div>
-                                                    
+
                                                     {event.location && (
                                                         <div className="flex items-center">
-                                                            <MapPin className="h-3 w-3 mr-1" />
+                                                            <MapPin className="mr-1 h-3 w-3" />
                                                             {event.location}
                                                         </div>
                                                     )}
-                                                    
+
                                                     <div className="flex items-center">
-                                                        <ArrowRight className="h-3 w-3 mr-1" />
+                                                        <ArrowRight className="mr-1 h-3 w-3" />
                                                         {event.recipient_name}
                                                     </div>
                                                 </div>
@@ -202,7 +181,7 @@ export default function RecentActivityTimeline({ events, className = '' }: Props
                         })}
                     </div>
                 </div>
-                
+
                 {events.length > 5 && (
                     <div className="border-t p-4">
                         <Button variant="outline" className="w-full" size="sm">

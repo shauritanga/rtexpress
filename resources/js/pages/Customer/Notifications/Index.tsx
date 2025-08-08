@@ -1,21 +1,23 @@
-import { useState, useEffect } from 'react';
-import { Head, router } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { toast } from '@/hooks/useToast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import SimpleNotificationPreferences from '@/components/customer/notifications/SimpleNotificationPreferences';
 import NotificationHistory from '@/components/customer/notifications/NotificationHistory';
+import SimpleNotificationPreferences from '@/components/customer/notifications/SimpleNotificationPreferences';
 import {
-    Bell,
-    Settings,
-    History,
-    CheckCircle,
-    AlertTriangle,
-    Info
-} from 'lucide-react';
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from '@/hooks/useToast';
+import AppLayout from '@/layouts/app-layout';
+import { Head, router } from '@inertiajs/react';
+import { AlertTriangle, Bell, CheckCircle, History, Info, Settings } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface Props {
     preferences?: any;
@@ -36,7 +38,7 @@ export default function NotificationsIndex({
     preferences = {},
     notifications = [],
     stats = { total: 0, unread: 0, failed: 0, today: 0 },
-    flash = {}
+    flash = {},
 }: Props) {
     const [activeTab, setActiveTab] = useState('preferences');
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
@@ -46,42 +48,48 @@ export default function NotificationsIndex({
     useEffect(() => {
         if (flash?.success) {
             toast({
-                title: "Success",
+                title: 'Success',
                 description: flash.success,
-                variant: "success",
+                variant: 'success',
             });
         }
         if (flash?.error) {
             toast({
-                title: "Error",
+                title: 'Error',
                 description: flash.error,
-                variant: "destructive",
+                variant: 'destructive',
             });
         }
     }, [flash]);
-
-
 
     const handleMarkAsRead = (notificationId: number | string) => {
         if (isProcessing) return;
         setIsProcessing(true);
 
-        router.post(`/customer/notifications/${notificationId}/read`, {}, {
-            preserveScroll: true,
-            only: ['notifications', 'stats', 'flash'],
-            onFinish: () => setIsProcessing(false)
-        });
+        router.post(
+            `/customer/notifications/${notificationId}/read`,
+            {},
+            {
+                preserveScroll: true,
+                only: ['notifications', 'stats', 'flash'],
+                onFinish: () => setIsProcessing(false),
+            },
+        );
     };
 
     const handleArchive = (notificationId: number | string) => {
         if (isProcessing) return;
         setIsProcessing(true);
 
-        router.post(`/customer/notifications/${notificationId}/archive`, {}, {
-            preserveScroll: true,
-            only: ['notifications', 'stats', 'flash'],
-            onFinish: () => setIsProcessing(false)
-        });
+        router.post(
+            `/customer/notifications/${notificationId}/archive`,
+            {},
+            {
+                preserveScroll: true,
+                only: ['notifications', 'stats', 'flash'],
+                onFinish: () => setIsProcessing(false),
+            },
+        );
     };
 
     const handleDelete = (notificationId: number | string) => {
@@ -98,7 +106,7 @@ export default function NotificationsIndex({
                 onFinish: () => {
                     setShowDeleteConfirm(null);
                     setIsProcessing(false);
-                }
+                },
             });
         }
     };
@@ -113,11 +121,15 @@ export default function NotificationsIndex({
         if (isProcessing) return;
         setIsProcessing(true);
 
-        router.post('/customer/notifications/read-all', {}, {
-            preserveScroll: true,
-            only: ['notifications', 'stats', 'flash'],
-            onFinish: () => setIsProcessing(false)
-        });
+        router.post(
+            '/customer/notifications/read-all',
+            {},
+            {
+                preserveScroll: true,
+                only: ['notifications', 'stats', 'flash'],
+                onFinish: () => setIsProcessing(false),
+            },
+        );
     };
 
     return (
@@ -129,14 +141,12 @@ export default function NotificationsIndex({
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">Notifications</h1>
-                        <p className="text-gray-600">
-                            Manage your notification preferences and view your notification history
-                        </p>
+                        <p className="text-gray-600">Manage your notification preferences and view your notification history</p>
                     </div>
                 </div>
 
                 {/* Stats Overview */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center space-x-2">
@@ -205,9 +215,7 @@ export default function NotificationsIndex({
                     </TabsList>
 
                     <TabsContent value="preferences" className="space-y-6">
-                        <SimpleNotificationPreferences
-                            preferences={preferences}
-                        />
+                        <SimpleNotificationPreferences preferences={preferences} />
                     </TabsContent>
 
                     <TabsContent value="history" className="space-y-6">

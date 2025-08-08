@@ -1,53 +1,35 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
-} from '@/components/ui/select';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from '@/components/ui/table';
-import {
-    Search,
-    Plus,
-    HeadphonesIcon,
-    Clock,
     AlertTriangle,
+    Archive,
     CheckCircle,
-    XCircle,
+    CheckSquare,
+    Clock,
     Eye,
     Filter,
-    TrendingUp,
-    Users,
-    Timer,
+    HeadphonesIcon,
     MoreHorizontal,
-    UserCheck,
     PlayCircle,
-    Archive,
-    Trash2,
+    Plus,
     RotateCcw,
-    CheckSquare
+    Search,
+    Timer,
+    Trash2,
+    TrendingUp,
+    UserCheck,
+    Users,
+    XCircle,
 } from 'lucide-react';
+import { useState } from 'react';
 
 interface Ticket {
     id: number;
@@ -114,27 +96,39 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
     // Quick action handlers
     const handleQuickStatusChange = (ticketId: number, newStatus: string) => {
         setProcessingTicket(ticketId);
-        router.post(route('admin.support.status', ticketId), {
-            status: newStatus,
-        }, {
-            onFinish: () => setProcessingTicket(null),
-        });
+        router.post(
+            route('admin.support.status', ticketId),
+            {
+                status: newStatus,
+            },
+            {
+                onFinish: () => setProcessingTicket(null),
+            },
+        );
     };
 
     const handleQuickAssign = (ticketId: number, agentId: string) => {
         setProcessingTicket(ticketId);
-        router.post(route('admin.support.assign', ticketId), {
-            assigned_to: agentId || null,
-        }, {
-            onFinish: () => setProcessingTicket(null),
-        });
+        router.post(
+            route('admin.support.assign', ticketId),
+            {
+                assigned_to: agentId || null,
+            },
+            {
+                onFinish: () => setProcessingTicket(null),
+            },
+        );
     };
 
     const handleArchive = (ticketId: number) => {
         setProcessingTicket(ticketId);
-        router.post(route('admin.support.archive', ticketId), {}, {
-            onFinish: () => setProcessingTicket(null),
-        });
+        router.post(
+            route('admin.support.archive', ticketId),
+            {},
+            {
+                onFinish: () => setProcessingTicket(null),
+            },
+        );
     };
 
     const handleDelete = (ticketId: number) => {
@@ -148,9 +142,13 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
 
     const handleRestore = (ticketId: number) => {
         setProcessingTicket(ticketId);
-        router.post(route('admin.support.restore', ticketId), {}, {
-            onFinish: () => setProcessingTicket(null),
-        });
+        router.post(
+            route('admin.support.restore', ticketId),
+            {},
+            {
+                onFinish: () => setProcessingTicket(null),
+            },
+        );
     };
 
     const handleBulkAction = (action: string) => {
@@ -163,19 +161,23 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
             return;
         }
 
-        router.post(route('admin.support.bulk-action'), {
-            action,
-            ticket_ids: selectedTickets,
-        }, {
-            onSuccess: () => {
-                setSelectedTickets([]);
+        router.post(
+            route('admin.support.bulk-action'),
+            {
+                action,
+                ticket_ids: selectedTickets,
             },
-        });
+            {
+                onSuccess: () => {
+                    setSelectedTickets([]);
+                },
+            },
+        );
     };
 
     const handleSelectAll = (checked: boolean) => {
         if (checked) {
-            setSelectedTickets(tickets.data.map(ticket => ticket.id));
+            setSelectedTickets(tickets.data.map((ticket) => ticket.id));
         } else {
             setSelectedTickets([]);
         }
@@ -185,7 +187,7 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
         if (checked) {
             setSelectedTickets([...selectedTickets, ticketId]);
         } else {
-            setSelectedTickets(selectedTickets.filter(id => id !== ticketId));
+            setSelectedTickets(selectedTickets.filter((id) => id !== ticketId));
         }
     };
 
@@ -211,7 +213,7 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
         if (isOverdue) {
             return (
                 <Badge variant="destructive" className="flex items-center">
-                    <AlertTriangle className="h-3 w-3 mr-1" />
+                    <AlertTriangle className="mr-1 h-3 w-3" />
                     Overdue
                 </Badge>
             );
@@ -226,12 +228,11 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
             archived: { label: 'Archived', variant: 'outline' as const, icon: Archive },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const, icon: AlertTriangle };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const, icon: AlertTriangle };
+
         return (
             <Badge variant={config.variant} className="flex items-center">
-                <config.icon className="h-3 w-3 mr-1" />
+                <config.icon className="mr-1 h-3 w-3" />
                 {config.label}
             </Badge>
         );
@@ -245,27 +246,26 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
             urgent: { label: 'Urgent', color: 'bg-red-100 text-red-800' },
         };
 
-        const config = priorityConfig[priority as keyof typeof priorityConfig] || 
-                      { label: priority, color: 'bg-gray-100 text-gray-800' };
-        
-        return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-                {config.label}
-            </span>
-        );
+        const config = priorityConfig[priority as keyof typeof priorityConfig] || { label: priority, color: 'bg-gray-100 text-gray-800' };
+
+        return <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${config.color}`}>{config.label}</span>;
     };
 
     const handleSearch = () => {
-        router.get(route('admin.support.index'), {
-            search: searchTerm,
-            status: selectedStatus !== 'all' ? selectedStatus : undefined,
-            priority: selectedPriority !== 'all' ? selectedPriority : undefined,
-            category: selectedCategory !== 'all' ? selectedCategory : undefined,
-            assigned_to: selectedAgent !== 'all' ? selectedAgent : undefined,
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        router.get(
+            route('admin.support.index'),
+            {
+                search: searchTerm,
+                status: selectedStatus !== 'all' ? selectedStatus : undefined,
+                priority: selectedPriority !== 'all' ? selectedPriority : undefined,
+                category: selectedCategory !== 'all' ? selectedCategory : undefined,
+                assigned_to: selectedAgent !== 'all' ? selectedAgent : undefined,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     const handleClearFilters = () => {
@@ -274,30 +274,32 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
         setSelectedPriority('all');
         setSelectedCategory('all');
         setSelectedAgent('all');
-        
-        router.get(route('admin.support.index'), {}, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+
+        router.get(
+            route('admin.support.index'),
+            {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     return (
         <AppLayout>
             <Head title="Customer Support" />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Customer Support</h1>
-                        <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                            Manage support tickets and customer inquiries
-                        </p>
+                        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Customer Support</h1>
+                        <p className="mt-1 text-sm text-muted-foreground sm:text-base">Manage support tickets and customer inquiries</p>
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Button asChild className="w-full sm:w-auto">
                             <Link href="/admin/support/create">
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="mr-2 h-4 w-4" />
                                 Create Ticket
                             </Link>
                         </Button>
@@ -305,7 +307,7 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
@@ -313,9 +315,7 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Tickets</p>
                                     <p className="text-2xl font-bold">{stats.total_tickets}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        All time
-                                    </p>
+                                    <p className="text-xs text-muted-foreground">All time</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -328,9 +328,7 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Open Tickets</p>
                                     <p className="text-2xl font-bold">{stats.open_tickets}</p>
-                                    <p className="text-xs text-orange-600">
-                                        {stats.overdue_tickets} overdue
-                                    </p>
+                                    <p className="text-xs text-orange-600">{stats.overdue_tickets} overdue</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -343,9 +341,7 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Resolved Today</p>
                                     <p className="text-2xl font-bold">{stats.resolved_today}</p>
-                                    <p className="text-xs text-green-600">
-                                        Great progress!
-                                    </p>
+                                    <p className="text-xs text-green-600">Great progress!</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -358,9 +354,7 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Avg Response</p>
                                     <p className="text-2xl font-bold">{stats.avg_response_time}h</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Resolution: {stats.avg_resolution_time}h
-                                    </p>
+                                    <p className="text-xs text-muted-foreground">Resolution: {stats.avg_resolution_time}h</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -371,19 +365,17 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <Filter className="h-5 w-5 mr-2" />
+                            <Filter className="mr-2 h-5 w-5" />
                             Filter Tickets
                         </CardTitle>
-                        <CardDescription>
-                            Search and filter support tickets by various criteria
-                        </CardDescription>
+                        <CardDescription>Search and filter support tickets by various criteria</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-6">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
                             <div className="space-y-2 sm:col-span-2 lg:col-span-2">
                                 <label className="text-sm font-medium">Search</label>
                                 <div className="relative">
-                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         placeholder="Ticket number, subject, customer..."
                                         value={searchTerm}
@@ -393,7 +385,7 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                                     />
                                 </div>
                             </div>
-                            
+
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Status</label>
                                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
@@ -451,7 +443,7 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                                 <label className="text-sm font-medium">Actions</label>
                                 <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                                     <Button onClick={handleSearch} className="flex-1">
-                                        <Search className="h-4 w-4 mr-2" />
+                                        <Search className="mr-2 h-4 w-4" />
                                         Search
                                     </Button>
                                     <Button variant="outline" onClick={handleClearFilters} className="flex-1 sm:flex-none">
@@ -479,25 +471,21 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                                         variant="outline"
                                         size="sm"
                                         onClick={() => handleBulkAction('archive')}
-                                        className="text-blue-700 border-blue-300 hover:bg-blue-100"
+                                        className="border-blue-300 text-blue-700 hover:bg-blue-100"
                                     >
-                                        <Archive className="h-4 w-4 mr-2" />
+                                        <Archive className="mr-2 h-4 w-4" />
                                         Archive
                                     </Button>
                                     <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => handleBulkAction('delete')}
-                                        className="text-red-700 border-red-300 hover:bg-red-100"
+                                        className="border-red-300 text-red-700 hover:bg-red-100"
                                     >
-                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        <Trash2 className="mr-2 h-4 w-4" />
                                         Delete
                                     </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => setSelectedTickets([])}
-                                    >
+                                    <Button variant="outline" size="sm" onClick={() => setSelectedTickets([])}>
                                         Clear Selection
                                     </Button>
                                 </div>
@@ -510,12 +498,10 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                 <Card>
                     <CardHeader>
                         <CardTitle>Support Tickets</CardTitle>
-                        <CardDescription>
-                            All customer support tickets and their current status
-                        </CardDescription>
+                        <CardDescription>All customer support tickets and their current status</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="rounded-md border overflow-hidden">
+                        <div className="overflow-hidden rounded-md border">
                             <div className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
@@ -531,151 +517,141 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
                                             <TableHead className="min-w-[150px]">Customer</TableHead>
                                             <TableHead className="min-w-[100px]">Status</TableHead>
                                             <TableHead className="min-w-[100px]">Priority</TableHead>
-                                            <TableHead className="min-w-[120px] hidden sm:table-cell">Assigned To</TableHead>
-                                            <TableHead className="min-w-[100px] hidden md:table-cell">Created</TableHead>
-                                            <TableHead className="text-right min-w-[80px]">Actions</TableHead>
+                                            <TableHead className="hidden min-w-[120px] sm:table-cell">Assigned To</TableHead>
+                                            <TableHead className="hidden min-w-[100px] md:table-cell">Created</TableHead>
+                                            <TableHead className="min-w-[80px] text-right">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {tickets.data.length > 0 ? tickets.data.map((ticket) => (
-                                            <TableRow key={ticket.id}>
-                                                <TableCell>
-                                                    <Checkbox
-                                                        checked={selectedTickets.includes(ticket.id)}
-                                                        onCheckedChange={(checked) => handleSelectTicket(ticket.id, checked as boolean)}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium">{ticket.ticket_number}</p>
-                                                        <p className="text-sm text-muted-foreground capitalize">
-                                                            {ticket.category.replace('_', ' ')}
-                                                        </p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium line-clamp-2">{ticket.subject}</p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium">{ticket.customer.name}</p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {ticket.customer.email}
-                                                        </p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {getStatusBadge(ticket.status, ticket.is_overdue)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {getPriorityBadge(ticket.priority)}
-                                                </TableCell>
-                                                <TableCell className="hidden sm:table-cell">
-                                                    {ticket.assigned_to ? (
-                                                        <div className="flex items-center">
-                                                            <Users className="h-4 w-4 mr-1 text-muted-foreground" />
-                                                            <span className="text-sm">{ticket.assigned_to.name}</span>
+                                        {tickets.data.length > 0 ? (
+                                            tickets.data.map((ticket) => (
+                                                <TableRow key={ticket.id}>
+                                                    <TableCell>
+                                                        <Checkbox
+                                                            checked={selectedTickets.includes(ticket.id)}
+                                                            onCheckedChange={(checked) => handleSelectTicket(ticket.id, checked as boolean)}
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div>
+                                                            <p className="font-medium">{ticket.ticket_number}</p>
+                                                            <p className="text-sm text-muted-foreground capitalize">
+                                                                {ticket.category.replace('_', ' ')}
+                                                            </p>
                                                         </div>
-                                                    ) : (
-                                                        <span className="text-sm text-muted-foreground">Unassigned</span>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell className="hidden md:table-cell">
-                                                    <div className="text-sm">
-                                                        {formatDate(ticket.created_at)}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex items-center justify-end space-x-1">
-                                                        <Button variant="ghost" size="sm" asChild>
-                                                            <Link href={route('admin.support.show', ticket.id)}>
-                                                                <Eye className="h-4 w-4" />
-                                                            </Link>
-                                                        </Button>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div>
+                                                            <p className="line-clamp-2 font-medium">{ticket.subject}</p>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div>
+                                                            <p className="font-medium">{ticket.customer.name}</p>
+                                                            <p className="text-sm text-muted-foreground">{ticket.customer.email}</p>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>{getStatusBadge(ticket.status, ticket.is_overdue)}</TableCell>
+                                                    <TableCell>{getPriorityBadge(ticket.priority)}</TableCell>
+                                                    <TableCell className="hidden sm:table-cell">
+                                                        {ticket.assigned_to ? (
+                                                            <div className="flex items-center">
+                                                                <Users className="mr-1 h-4 w-4 text-muted-foreground" />
+                                                                <span className="text-sm">{ticket.assigned_to.name}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-sm text-muted-foreground">Unassigned</span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="hidden md:table-cell">
+                                                        <div className="text-sm">{formatDate(ticket.created_at)}</div>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <div className="flex items-center justify-end space-x-1">
+                                                            <Button variant="ghost" size="sm" asChild>
+                                                                <Link href={route('admin.support.show', ticket.id)}>
+                                                                    <Eye className="h-4 w-4" />
+                                                                </Link>
+                                                            </Button>
 
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    disabled={processingTicket === ticket.id}
-                                                                >
-                                                                    <MoreHorizontal className="h-4 w-4" />
-                                                                </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end">
-                                                                {/* Quick Status Changes */}
-                                                                {ticket.status !== 'in_progress' && (
-                                                                    <DropdownMenuItem
-                                                                        onClick={() => handleQuickStatusChange(ticket.id, 'in_progress')}
-                                                                        disabled={processingTicket === ticket.id}
-                                                                    >
-                                                                        <PlayCircle className="h-4 w-4 mr-2" />
-                                                                        Mark In Progress
-                                                                    </DropdownMenuItem>
-                                                                )}
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button variant="ghost" size="sm" disabled={processingTicket === ticket.id}>
+                                                                        <MoreHorizontal className="h-4 w-4" />
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end">
+                                                                    {/* Quick Status Changes */}
+                                                                    {ticket.status !== 'in_progress' && (
+                                                                        <DropdownMenuItem
+                                                                            onClick={() => handleQuickStatusChange(ticket.id, 'in_progress')}
+                                                                            disabled={processingTicket === ticket.id}
+                                                                        >
+                                                                            <PlayCircle className="mr-2 h-4 w-4" />
+                                                                            Mark In Progress
+                                                                        </DropdownMenuItem>
+                                                                    )}
 
-                                                                {ticket.status !== 'resolved' && (
-                                                                    <DropdownMenuItem
-                                                                        onClick={() => handleQuickStatusChange(ticket.id, 'resolved')}
-                                                                        disabled={processingTicket === ticket.id}
-                                                                        className="text-green-600 focus:text-green-600"
-                                                                    >
-                                                                        <CheckCircle className="h-4 w-4 mr-2" />
-                                                                        Mark Resolved
-                                                                    </DropdownMenuItem>
-                                                                )}
+                                                                    {ticket.status !== 'resolved' && (
+                                                                        <DropdownMenuItem
+                                                                            onClick={() => handleQuickStatusChange(ticket.id, 'resolved')}
+                                                                            disabled={processingTicket === ticket.id}
+                                                                            className="text-green-600 focus:text-green-600"
+                                                                        >
+                                                                            <CheckCircle className="mr-2 h-4 w-4" />
+                                                                            Mark Resolved
+                                                                        </DropdownMenuItem>
+                                                                    )}
 
-                                                                {/* Quick Assignment */}
-                                                                {!ticket.assigned_to && (
-                                                                    <DropdownMenuItem
-                                                                        onClick={() => handleQuickAssign(ticket.id, '101')}
-                                                                        disabled={processingTicket === ticket.id}
-                                                                    >
-                                                                        <UserCheck className="h-4 w-4 mr-2" />
-                                                                        Assign to Me
-                                                                    </DropdownMenuItem>
-                                                                )}
+                                                                    {/* Quick Assignment */}
+                                                                    {!ticket.assigned_to && (
+                                                                        <DropdownMenuItem
+                                                                            onClick={() => handleQuickAssign(ticket.id, '101')}
+                                                                            disabled={processingTicket === ticket.id}
+                                                                        >
+                                                                            <UserCheck className="mr-2 h-4 w-4" />
+                                                                            Assign to Me
+                                                                        </DropdownMenuItem>
+                                                                    )}
 
-                                                                {/* Management Actions */}
-                                                                {ticket.status !== 'archived' ? (
-                                                                    <DropdownMenuItem
-                                                                        onClick={() => handleArchive(ticket.id)}
-                                                                        disabled={processingTicket === ticket.id}
-                                                                        className="text-orange-600 focus:text-orange-600"
-                                                                    >
-                                                                        <Archive className="h-4 w-4 mr-2" />
-                                                                        Archive
-                                                                    </DropdownMenuItem>
-                                                                ) : (
-                                                                    <DropdownMenuItem
-                                                                        onClick={() => handleRestore(ticket.id)}
-                                                                        disabled={processingTicket === ticket.id}
-                                                                        className="text-blue-600 focus:text-blue-600"
-                                                                    >
-                                                                        <RotateCcw className="h-4 w-4 mr-2" />
-                                                                        Restore
-                                                                    </DropdownMenuItem>
-                                                                )}
+                                                                    {/* Management Actions */}
+                                                                    {ticket.status !== 'archived' ? (
+                                                                        <DropdownMenuItem
+                                                                            onClick={() => handleArchive(ticket.id)}
+                                                                            disabled={processingTicket === ticket.id}
+                                                                            className="text-orange-600 focus:text-orange-600"
+                                                                        >
+                                                                            <Archive className="mr-2 h-4 w-4" />
+                                                                            Archive
+                                                                        </DropdownMenuItem>
+                                                                    ) : (
+                                                                        <DropdownMenuItem
+                                                                            onClick={() => handleRestore(ticket.id)}
+                                                                            disabled={processingTicket === ticket.id}
+                                                                            className="text-blue-600 focus:text-blue-600"
+                                                                        >
+                                                                            <RotateCcw className="mr-2 h-4 w-4" />
+                                                                            Restore
+                                                                        </DropdownMenuItem>
+                                                                    )}
 
-                                                                <DropdownMenuItem
-                                                                    onClick={() => handleDelete(ticket.id)}
-                                                                    disabled={processingTicket === ticket.id}
-                                                                    className="text-red-600 focus:text-red-600"
-                                                                >
-                                                                    <Trash2 className="h-4 w-4 mr-2" />
-                                                                    Delete
-                                                                </DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        )) : (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleDelete(ticket.id)}
+                                                                        disabled={processingTicket === ticket.id}
+                                                                        className="text-red-600 focus:text-red-600"
+                                                                    >
+                                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                                        Delete
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        ) : (
                                             <TableRow>
-                                                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                                                <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                                                     No support tickets found matching your criteria.
                                                 </TableCell>
                                             </TableRow>
@@ -687,15 +663,15 @@ export default function SupportIndex({ tickets, stats, agents, filters }: Props)
 
                         {/* Pagination */}
                         {tickets?.meta?.last_page > 1 && (
-                            <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 py-4">
-                                <div className="text-sm text-muted-foreground text-center sm:text-left">
+                            <div className="flex flex-col space-y-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                                <div className="text-center text-sm text-muted-foreground sm:text-left">
                                     Showing {tickets?.meta?.from || 0} to {tickets?.meta?.to || 0} of {tickets?.meta?.total || 0} tickets
                                 </div>
-                                <div className="flex flex-wrap justify-center sm:justify-end gap-2">
+                                <div className="flex flex-wrap justify-center gap-2 sm:justify-end">
                                     {tickets?.links?.map((link, index) => (
                                         <Button
                                             key={index}
-                                            variant={link.active ? "default" : "outline"}
+                                            variant={link.active ? 'default' : 'outline'}
                                             size="sm"
                                             onClick={() => link.url && router.get(link.url)}
                                             disabled={!link.url}

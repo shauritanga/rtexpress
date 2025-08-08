@@ -1,27 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { 
-    Shield,
-    AlertTriangle,
-    CheckCircle,
-    XCircle,
-    Search,
-    FileText,
-    Globe,
-    Package,
-    Info,
-    ExternalLink,
-    RefreshCw,
-    Eye,
-    BookOpen,
-    Flag
-} from 'lucide-react';
+import { AlertTriangle, BookOpen, CheckCircle, ExternalLink, FileText, Flag, Info, Search, Shield, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface RestrictedItem {
     id: string;
@@ -66,12 +50,7 @@ interface Props {
     onComplianceCheck?: (result: ComplianceResult) => void;
 }
 
-export default function ComplianceChecker({ 
-    className = '', 
-    destinationCountry = 'CA',
-    originCountry = 'US',
-    onComplianceCheck
-}: Props) {
+export default function ComplianceChecker({ className = '', destinationCountry = 'CA', originCountry = 'US', onComplianceCheck }: Props) {
     const [itemDescription, setItemDescription] = useState('');
     const [itemCategory, setItemCategory] = useState('');
     const [itemValue, setItemValue] = useState<number>(0);
@@ -103,7 +82,7 @@ export default function ComplianceChecker({
                 'UN3480/UN3481 packaging requirements',
                 'Proper labeling and documentation',
                 'Quantity limitations apply',
-                'Must be declared as dangerous goods'
+                'Must be declared as dangerous goods',
             ],
             penalties: 'Package rejection, fines up to $10,000',
         },
@@ -118,7 +97,7 @@ export default function ComplianceChecker({
                 'Import permit required',
                 'Health certificate from origin country',
                 'Ingredient list and nutritional information',
-                'Facility registration may be required'
+                'Facility registration may be required',
             ],
             penalties: 'Confiscation, quarantine fees, fines',
         },
@@ -133,7 +112,7 @@ export default function ComplianceChecker({
                 'Import license from health authority',
                 'Prescription or medical certificate',
                 'Manufacturer registration',
-                'Good Manufacturing Practice certification'
+                'Good Manufacturing Practice certification',
             ],
             penalties: 'Criminal charges, confiscation, heavy fines',
         },
@@ -144,12 +123,7 @@ export default function ComplianceChecker({
             restriction: 'regulated',
             description: 'Cigarettes, cigars, alcoholic beverages',
             countries: ['CA', 'GB', 'AU'],
-            requirements: [
-                'Excise tax payment',
-                'Age verification of recipient',
-                'Quantity limitations',
-                'Special labeling requirements'
-            ],
+            requirements: ['Excise tax payment', 'Age verification of recipient', 'Quantity limitations', 'Special labeling requirements'],
             penalties: 'Heavy taxes, confiscation, fines',
         },
     ];
@@ -181,7 +155,7 @@ export default function ComplianceChecker({
 
     useEffect(() => {
         setRestrictedItems(mockRestrictedItems);
-        setComplianceRules(mockComplianceRules.filter(rule => rule.country === destinationCountry));
+        setComplianceRules(mockComplianceRules.filter((rule) => rule.country === destinationCountry));
     }, [destinationCountry]);
 
     const checkCompliance = async () => {
@@ -190,37 +164,36 @@ export default function ComplianceChecker({
         }
 
         setIsChecking(true);
-        
+
         try {
             // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise((resolve) => setTimeout(resolve, 1500));
 
             const issues: ComplianceResult['issues'] = [];
             const requiredDocuments: string[] = ['Commercial Invoice', 'Customs Declaration'];
             const additionalRequirements: string[] = [];
 
             // Check for restricted items
-            const matchingRestrictions = restrictedItems.filter(item => 
-                itemDescription.toLowerCase().includes(item.name.toLowerCase()) ||
-                itemCategory === item.category
+            const matchingRestrictions = restrictedItems.filter(
+                (item) => itemDescription.toLowerCase().includes(item.name.toLowerCase()) || itemCategory === item.category,
             );
 
-            matchingRestrictions.forEach(restriction => {
+            matchingRestrictions.forEach((restriction) => {
                 if (restriction.restriction === 'prohibited') {
                     issues.push({
                         type: 'prohibited',
                         severity: 'high',
                         message: `${restriction.name} is prohibited for import to ${destinationCountry}`,
-                        recommendation: `Consider alternatives: ${restriction.alternatives?.join(', ') || 'Contact customs for guidance'}`
+                        recommendation: `Consider alternatives: ${restriction.alternatives?.join(', ') || 'Contact customs for guidance'}`,
                     });
                 } else if (restriction.restriction === 'restricted' || restriction.restriction === 'regulated') {
                     issues.push({
                         type: 'restricted',
                         severity: 'medium',
                         message: `${restriction.name} requires special handling and documentation`,
-                        recommendation: `Required: ${restriction.requirements?.join(', ') || 'Additional permits may be required'}`
+                        recommendation: `Required: ${restriction.requirements?.join(', ') || 'Additional permits may be required'}`,
                     });
-                    
+
                     if (restriction.requirements) {
                         additionalRequirements.push(...restriction.requirements);
                     }
@@ -229,7 +202,7 @@ export default function ComplianceChecker({
                         type: 'license',
                         severity: 'high',
                         message: `${restriction.name} requires import license`,
-                        recommendation: `Obtain proper licensing before shipping: ${restriction.requirements?.join(', ') || 'Contact relevant authorities'}`
+                        recommendation: `Obtain proper licensing before shipping: ${restriction.requirements?.join(', ') || 'Contact relevant authorities'}`,
                     });
                 }
             });
@@ -240,14 +213,14 @@ export default function ComplianceChecker({
                     type: 'documentation',
                     severity: 'medium',
                     message: 'High-value items require additional documentation',
-                    recommendation: 'Ensure accurate valuation and consider insurance'
+                    recommendation: 'Ensure accurate valuation and consider insurance',
                 });
                 requiredDocuments.push('Insurance Certificate', 'Detailed Item Description');
             }
 
             // Determine overall status
             let status: ComplianceResult['status'] = 'compliant';
-            if (issues.some(issue => issue.severity === 'high')) {
+            if (issues.some((issue) => issue.severity === 'high')) {
                 status = 'violation';
             } else if (issues.length > 0) {
                 status = 'warning';
@@ -262,7 +235,6 @@ export default function ComplianceChecker({
 
             setComplianceResult(result);
             onComplianceCheck?.(result);
-
         } catch (error) {
             console.error('Compliance check failed:', error);
         } finally {
@@ -307,10 +279,11 @@ export default function ComplianceChecker({
         return colors[restriction as keyof typeof colors];
     };
 
-    const filteredRestrictedItems = restrictedItems.filter(item =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredRestrictedItems = restrictedItems.filter(
+        (item) =>
+            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item.description.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
     const categories = [
@@ -329,21 +302,19 @@ export default function ComplianceChecker({
     return (
         <Card className={className}>
             <CardHeader className="pb-4">
-                <CardTitle className="text-lg sm:text-xl flex items-center">
-                    <Shield className="h-5 w-5 mr-2" />
+                <CardTitle className="flex items-center text-lg sm:text-xl">
+                    <Shield className="mr-2 h-5 w-5" />
                     Compliance Checker
                 </CardTitle>
-                <CardDescription>
-                    Verify compliance for shipping to {destinationCountry}
-                </CardDescription>
+                <CardDescription>Verify compliance for shipping to {destinationCountry}</CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">
                 {/* Item Information Form */}
                 <div className="space-y-4">
                     <h3 className="font-medium text-gray-900">Item Information</h3>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <Label htmlFor="item-description">Item Description *</Label>
                             <Input
@@ -360,7 +331,7 @@ export default function ComplianceChecker({
                                     <SelectValue placeholder="Select category" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {categories.map(category => (
+                                    {categories.map((category) => (
                                         <SelectItem key={category} value={category}>
                                             {category}
                                         </SelectItem>
@@ -370,7 +341,7 @@ export default function ComplianceChecker({
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <Label htmlFor="item-value">Item Value (USD)</Label>
                             <Input
@@ -384,19 +355,15 @@ export default function ComplianceChecker({
                             />
                         </div>
                         <div className="flex items-end">
-                            <Button 
-                                onClick={checkCompliance} 
-                                disabled={isChecking || !itemDescription}
-                                className="w-full"
-                            >
+                            <Button onClick={checkCompliance} disabled={isChecking || !itemDescription} className="w-full">
                                 {isChecking ? (
                                     <>
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                                         Checking...
                                     </>
                                 ) : (
                                     <>
-                                        <Shield className="h-4 w-4 mr-2" />
+                                        <Shield className="mr-2 h-4 w-4" />
                                         Check Compliance
                                     </>
                                 )}
@@ -421,7 +388,7 @@ export default function ComplianceChecker({
                             <div className="space-y-3">
                                 <h4 className="font-medium text-gray-900">Issues Found</h4>
                                 {complianceResult.issues.map((issue, index) => (
-                                    <div key={index} className="p-4 border rounded-lg">
+                                    <div key={index} className="rounded-lg border p-4">
                                         <div className="flex items-start gap-3">
                                             <div className="mt-0.5">
                                                 {issue.severity === 'high' ? (
@@ -431,15 +398,11 @@ export default function ComplianceChecker({
                                                 )}
                                             </div>
                                             <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <Badge className={getSeverityColor(issue.severity)}>
-                                                        {issue.severity} severity
-                                                    </Badge>
-                                                    <Badge variant="outline">
-                                                        {issue.type}
-                                                    </Badge>
+                                                <div className="mb-1 flex items-center gap-2">
+                                                    <Badge className={getSeverityColor(issue.severity)}>{issue.severity} severity</Badge>
+                                                    <Badge variant="outline">{issue.type}</Badge>
                                                 </div>
-                                                <p className="font-medium text-gray-900 mb-1">{issue.message}</p>
+                                                <p className="mb-1 font-medium text-gray-900">{issue.message}</p>
                                                 <p className="text-sm text-gray-600">{issue.recommendation}</p>
                                             </div>
                                         </div>
@@ -450,8 +413,8 @@ export default function ComplianceChecker({
 
                         {/* Required Documents */}
                         {complianceResult.requiredDocuments.length > 0 && (
-                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                <h4 className="font-medium text-blue-900 mb-2">Required Documents</h4>
+                            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                                <h4 className="mb-2 font-medium text-blue-900">Required Documents</h4>
                                 <ul className="space-y-1">
                                     {complianceResult.requiredDocuments.map((doc, index) => (
                                         <li key={index} className="flex items-center gap-2 text-sm text-blue-800">
@@ -465,8 +428,8 @@ export default function ComplianceChecker({
 
                         {/* Additional Requirements */}
                         {complianceResult.additionalRequirements.length > 0 && (
-                            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                <h4 className="font-medium text-yellow-900 mb-2">Additional Requirements</h4>
+                            <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+                                <h4 className="mb-2 font-medium text-yellow-900">Additional Requirements</h4>
                                 <ul className="space-y-1">
                                     {complianceResult.additionalRequirements.map((req, index) => (
                                         <li key={index} className="flex items-center gap-2 text-sm text-yellow-800">
@@ -484,14 +447,12 @@ export default function ComplianceChecker({
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h3 className="font-medium text-gray-900">Restricted Items Database</h3>
-                        <Badge variant="outline">
-                            {filteredRestrictedItems.length} items
-                        </Badge>
+                        <Badge variant="outline">{filteredRestrictedItems.length} items</Badge>
                     </div>
 
                     {/* Search */}
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                         <Input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -501,30 +462,26 @@ export default function ComplianceChecker({
                     </div>
 
                     {/* Items List */}
-                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                    <div className="max-h-96 space-y-3 overflow-y-auto">
                         {filteredRestrictedItems.map((item) => (
-                            <div key={item.id} className="p-4 border rounded-lg">
-                                <div className="flex items-start justify-between mb-2">
+                            <div key={item.id} className="rounded-lg border p-4">
+                                <div className="mb-2 flex items-start justify-between">
                                     <h4 className="font-medium text-gray-900">{item.name}</h4>
-                                    <Badge className={getRestrictionColor(item.restriction)}>
-                                        {item.restriction.replace('_', ' ')}
-                                    </Badge>
+                                    <Badge className={getRestrictionColor(item.restriction)}>{item.restriction.replace('_', ' ')}</Badge>
                                 </div>
-                                <p className="text-sm text-gray-600 mb-2">{item.description}</p>
+                                <p className="mb-2 text-sm text-gray-600">{item.description}</p>
                                 <div className="flex items-center gap-2 text-xs text-gray-500">
                                     <Flag className="h-3 w-3" />
                                     <span>Applies to: {item.countries.join(', ')}</span>
                                 </div>
                                 {item.requirements && (
                                     <div className="mt-2">
-                                        <p className="text-xs font-medium text-gray-700 mb-1">Requirements:</p>
-                                        <ul className="text-xs text-gray-600 space-y-1">
+                                        <p className="mb-1 text-xs font-medium text-gray-700">Requirements:</p>
+                                        <ul className="space-y-1 text-xs text-gray-600">
                                             {item.requirements.slice(0, 2).map((req, index) => (
                                                 <li key={index}>• {req}</li>
                                             ))}
-                                            {item.requirements.length > 2 && (
-                                                <li>• +{item.requirements.length - 2} more requirements</li>
-                                            )}
+                                            {item.requirements.length > 2 && <li>• +{item.requirements.length - 2} more requirements</li>}
                                         </ul>
                                     </div>
                                 )}
@@ -534,16 +491,12 @@ export default function ComplianceChecker({
                 </div>
 
                 {/* Country-Specific Rules */}
-                <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900 mb-3">
-                        {destinationCountry} Import Regulations
-                    </h4>
+                <div className="rounded-lg bg-gray-50 p-4">
+                    <h4 className="mb-3 font-medium text-gray-900">{destinationCountry} Import Regulations</h4>
                     <div className="space-y-3">
                         {complianceRules.map((rule) => (
                             <div key={rule.id} className="flex items-start gap-3">
-                                <Badge className={getSeverityColor(rule.severity)}>
-                                    {rule.severity}
-                                </Badge>
+                                <Badge className={getSeverityColor(rule.severity)}>{rule.severity}</Badge>
                                 <div className="flex-1">
                                     <h5 className="font-medium text-gray-900">{rule.rule}</h5>
                                     <p className="text-sm text-gray-600">{rule.description}</p>
@@ -554,21 +507,21 @@ export default function ComplianceChecker({
                 </div>
 
                 {/* Help Resources */}
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                     <div className="flex items-start gap-3">
-                        <BookOpen className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <BookOpen className="mt-0.5 h-5 w-5 text-blue-600" />
                         <div>
-                            <h4 className="font-medium text-blue-900 mb-1">Need More Information?</h4>
-                            <p className="text-sm text-blue-800 mb-3">
+                            <h4 className="mb-1 font-medium text-blue-900">Need More Information?</h4>
+                            <p className="mb-3 text-sm text-blue-800">
                                 For official regulations and detailed requirements, consult the customs authorities.
                             </p>
                             <div className="flex flex-wrap gap-2">
-                                <Button variant="outline" size="sm" className="text-blue-800 border-blue-300">
-                                    <ExternalLink className="h-3 w-3 mr-2" />
+                                <Button variant="outline" size="sm" className="border-blue-300 text-blue-800">
+                                    <ExternalLink className="mr-2 h-3 w-3" />
                                     Customs Authority
                                 </Button>
-                                <Button variant="outline" size="sm" className="text-blue-800 border-blue-300">
-                                    <FileText className="h-3 w-3 mr-2" />
+                                <Button variant="outline" size="sm" className="border-blue-300 text-blue-800">
+                                    <FileText className="mr-2 h-3 w-3" />
                                     Import Guide
                                 </Button>
                             </div>

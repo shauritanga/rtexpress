@@ -1,34 +1,13 @@
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { MobileTable } from '@/components/admin/mobile-table';
-import { StatusBadge, ServiceBadge } from '@/components/admin/status-badge';
 import { ExportModal } from '@/components/admin/ExportModal';
-import {
-    Package,
-    Search,
-    Filter,
-    Plus,
-    Download,
-    Eye,
-    Edit,
-    MoreHorizontal,
-    Truck,
-    Clock,
-    CheckCircle,
-    AlertTriangle,
-    RefreshCw
-} from 'lucide-react';
+import { MobileTable } from '@/components/admin/mobile-table';
+import { ServiceBadge, StatusBadge } from '@/components/admin/status-badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
 import { Head, Link, router } from '@inertiajs/react';
+import { Download, Edit, Eye, Filter, Package, Plus, RefreshCw, Search } from 'lucide-react';
 import { useState } from 'react';
 
 interface Shipment {
@@ -84,21 +63,25 @@ export default function ShipmentsIndex({
     customers = [],
     warehouses = [],
     filters = {},
-    stats = { total: 0, pending: 0, in_transit: 0, delivered: 0, overdue: 0, today: 0 }
+    stats = { total: 0, pending: 0, in_transit: 0, delivered: 0, overdue: 0, today: 0 },
 }: Props) {
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
     const [selectedStatus, setSelectedStatus] = useState(filters?.status || 'all');
     const [selectedServiceType, setSelectedServiceType] = useState(filters?.service_type || 'all');
 
     const handleSearch = () => {
-        router.get('/admin/shipments', {
-            search: searchTerm,
-            status: selectedStatus === 'all' ? '' : selectedStatus,
-            service_type: selectedServiceType === 'all' ? '' : selectedServiceType,
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        router.get(
+            '/admin/shipments',
+            {
+                search: searchTerm,
+                status: selectedStatus === 'all' ? '' : selectedStatus,
+                service_type: selectedServiceType === 'all' ? '' : selectedServiceType,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     // Define table columns for mobile-responsive table
@@ -107,10 +90,7 @@ export default function ShipmentsIndex({
             key: 'tracking_number',
             label: 'Tracking #',
             render: (value: string, row: Shipment) => (
-                <Link
-                    href={`/admin/shipments/${row.id}`}
-                    className="text-blue-600 hover:text-blue-800 font-medium"
-                >
+                <Link href={`/admin/shipments/${row.id}`} className="font-medium text-blue-600 hover:text-blue-800">
                     {value}
                 </Link>
             ),
@@ -143,9 +123,7 @@ export default function ShipmentsIndex({
             render: (_: any, row: Shipment) => (
                 <div className="text-sm">
                     <p>{row.origin_warehouse.city}</p>
-                    <p className="text-muted-foreground">
-                        → {row.destination_warehouse?.city || row.recipient_name}
-                    </p>
+                    <p className="text-muted-foreground">→ {row.destination_warehouse?.city || row.recipient_name}</p>
                 </div>
             ),
         },
@@ -159,12 +137,13 @@ export default function ShipmentsIndex({
             key: 'declared_value',
             label: 'Value',
             desktopOnly: true,
-            render: (value: number) => new Intl.NumberFormat('sw-TZ', {
-                style: 'currency',
-                currency: 'TZS',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-            }).format(value),
+            render: (value: number) =>
+                new Intl.NumberFormat('sw-TZ', {
+                    style: 'currency',
+                    currency: 'TZS',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                }).format(value),
         },
         {
             key: 'created_at',
@@ -210,14 +189,10 @@ export default function ShipmentsIndex({
                 {/* Header */}
                 <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                            Shipments
-                        </h1>
-                        <p className="text-muted-foreground">
-                            Manage and track all shipments
-                        </p>
+                        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Shipments</h1>
+                        <p className="text-muted-foreground">Manage and track all shipments</p>
                     </div>
-                    <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
+                    <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <ExportModal
                             type="shipments"
                             filters={{
@@ -227,14 +202,14 @@ export default function ShipmentsIndex({
                             }}
                             trigger={
                                 <Button variant="outline" size="sm">
-                                    <Download className="h-4 w-4 mr-2" />
+                                    <Download className="mr-2 h-4 w-4" />
                                     Export
                                 </Button>
                             }
                         />
                         <Button size="sm" asChild>
                             <Link href="/admin/shipments/create">
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="mr-2 h-4 w-4" />
                                 Create Shipment
                             </Link>
                         </Button>
@@ -242,17 +217,13 @@ export default function ShipmentsIndex({
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
                     {statsCards.map((stat) => (
                         <Card key={stat.title}>
                             <CardContent className="p-4">
                                 <div className="text-center">
-                                    <p className="text-sm font-medium text-muted-foreground">
-                                        {stat.title}
-                                    </p>
-                                    <p className={`text-2xl font-bold ${stat.color}`}>
-                                        {stat.value}
-                                    </p>
+                                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                                    <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -270,7 +241,7 @@ export default function ShipmentsIndex({
                     <CardContent>
                         <div className="grid gap-4 md:grid-cols-4">
                             <div className="relative">
-                                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <Search className="absolute top-3 left-3 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     placeholder="Search shipments..."
                                     value={searchTerm}
@@ -319,9 +290,7 @@ export default function ShipmentsIndex({
                 <Card>
                     <CardHeader>
                         <CardTitle>Shipments List</CardTitle>
-                        <CardDescription>
-                            {shipments?.meta?.total || 0} total shipments
-                        </CardDescription>
+                        <CardDescription>{shipments?.meta?.total || 0} total shipments</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <MobileTable

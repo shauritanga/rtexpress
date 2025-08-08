@@ -41,7 +41,7 @@ const ParticleBackground = () => {
                 vy: (Math.random() - 0.5) * 0.5,
                 size: Math.random() * 3 + 1,
                 opacity: Math.random() * 0.5 + 0.2,
-                color: colors[Math.floor(Math.random() * colors.length)]
+                color: colors[Math.floor(Math.random() * colors.length)],
             });
         }
 
@@ -77,7 +77,7 @@ const ParticleBackground = () => {
                             ctx.moveTo(particle.x, particle.y);
                             ctx.lineTo(otherParticle.x, otherParticle.y);
                             ctx.strokeStyle = particle.color;
-                            ctx.globalAlpha = (100 - distance) / 100 * 0.2;
+                            ctx.globalAlpha = ((100 - distance) / 100) * 0.2;
                             ctx.lineWidth = 0.5;
                             ctx.stroke();
                         }
@@ -98,7 +98,7 @@ const ParticleBackground = () => {
     return (
         <canvas
             ref={canvasRef}
-            className="absolute inset-0 w-full h-full"
+            className="absolute inset-0 h-full w-full"
             style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
         />
     );

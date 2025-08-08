@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 
 export interface Toast {
     id: string;
@@ -51,9 +51,7 @@ export const reducer = (state: ToastState, action: any): ToastState => {
         case 'UPDATE_TOAST':
             return {
                 ...state,
-                toasts: state.toasts.map((t) =>
-                    t.id === action.toast.id ? { ...t, ...action.toast } : t
-                ),
+                toasts: state.toasts.map((t) => (t.id === action.toast.id ? { ...t, ...action.toast } : t)),
             };
 
         case 'DISMISS_TOAST': {
@@ -75,7 +73,7 @@ export const reducer = (state: ToastState, action: any): ToastState => {
                               ...t,
                               open: false,
                           }
-                        : t
+                        : t,
                 ),
             };
         }
@@ -155,4 +153,4 @@ function useToast() {
     };
 }
 
-export { useToast, toast };
+export { toast, useToast };

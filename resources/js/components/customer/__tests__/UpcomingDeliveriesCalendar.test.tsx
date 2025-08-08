@@ -1,6 +1,5 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { fireEvent, render, screen } from '@testing-library/react';
 import UpcomingDeliveriesCalendar from '../UpcomingDeliveriesCalendar';
 
 const mockDeliveries = [
@@ -31,24 +30,24 @@ const mockDeliveries = [
 describe('UpcomingDeliveriesCalendar', () => {
     it('renders calendar with deliveries', () => {
         render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} />);
-        
+
         expect(screen.getByText('Upcoming Deliveries')).toBeInTheDocument();
         expect(screen.getByText('Track your scheduled deliveries and time windows')).toBeInTheDocument();
     });
 
     it('has view mode toggle buttons', () => {
         render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} />);
-        
+
         expect(screen.getByText('Calendar')).toBeInTheDocument();
         expect(screen.getByText('List')).toBeInTheDocument();
     });
 
     it('switches between calendar and list view', () => {
         render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} />);
-        
+
         const listButton = screen.getByText('List');
         fireEvent.click(listButton);
-        
+
         // In list view, should show delivery details
         expect(screen.getByText('RT123456789')).toBeInTheDocument();
         expect(screen.getByText('John Doe')).toBeInTheDocument();
@@ -56,21 +55,19 @@ describe('UpcomingDeliveriesCalendar', () => {
 
     it('displays calendar navigation', () => {
         render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} />);
-        
+
         expect(screen.getByText('Today')).toBeInTheDocument();
         // Navigation arrows should be present
-        expect(screen.getAllByRole('button')).toContain(
-            expect.objectContaining({ textContent: expect.stringMatching(/Today/) })
-        );
+        expect(screen.getAllByRole('button')).toContain(expect.objectContaining({ textContent: expect.stringMatching(/Today/) }));
     });
 
     it('shows delivery priority colors', () => {
         render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} />);
-        
+
         // Switch to list view to see priority indicators
         const listButton = screen.getByText('List');
         fireEvent.click(listButton);
-        
+
         // Check that deliveries are displayed
         expect(screen.getByText('RT123456789')).toBeInTheDocument();
         expect(screen.getByText('RT987654321')).toBeInTheDocument();
@@ -78,51 +75,47 @@ describe('UpcomingDeliveriesCalendar', () => {
 
     it('displays service type badges', () => {
         render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} />);
-        
+
         const listButton = screen.getByText('List');
         fireEvent.click(listButton);
-        
+
         expect(screen.getByText('express')).toBeInTheDocument();
         expect(screen.getByText('standard')).toBeInTheDocument();
     });
 
     it('shows delivery time windows', () => {
         render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} />);
-        
+
         const listButton = screen.getByText('List');
         fireEvent.click(listButton);
-        
+
         expect(screen.getByText('9:00 AM - 12:00 PM')).toBeInTheDocument();
         expect(screen.getByText('9:00 AM - 6:00 PM')).toBeInTheDocument();
     });
 
     it('handles empty deliveries state', () => {
         render(<UpcomingDeliveriesCalendar deliveries={[]} />);
-        
+
         const listButton = screen.getByText('List');
         fireEvent.click(listButton);
-        
+
         expect(screen.getByText('No upcoming deliveries')).toBeInTheDocument();
         expect(screen.getByText('Your scheduled deliveries will appear here')).toBeInTheDocument();
     });
 
     it('applies custom className', () => {
-        const { container } = render(
-            <UpcomingDeliveriesCalendar deliveries={mockDeliveries} className="custom-class" />
-        );
-        
+        const { container } = render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} className="custom-class" />);
+
         expect(container.firstChild).toHaveClass('custom-class');
     });
 
     it('navigates between months', () => {
         render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} />);
-        
+
         // Find navigation buttons (they contain ChevronLeft/ChevronRight icons)
         const navButtons = screen.getAllByRole('button');
-        const prevButton = navButtons.find(button => 
-            button.querySelector('svg') && button.textContent === ''
-        );
-        
+        const prevButton = navButtons.find((button) => button.querySelector('svg') && button.textContent === '');
+
         if (prevButton) {
             fireEvent.click(prevButton);
             // Calendar should still be functional after navigation
@@ -132,7 +125,7 @@ describe('UpcomingDeliveriesCalendar', () => {
 
     it('shows priority legend in calendar view', () => {
         render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} />);
-        
+
         expect(screen.getByText('High Priority')).toBeInTheDocument();
         expect(screen.getByText('Medium Priority')).toBeInTheDocument();
         expect(screen.getByText('Low Priority')).toBeInTheDocument();
@@ -140,10 +133,10 @@ describe('UpcomingDeliveriesCalendar', () => {
 
     it('formats dates correctly in list view', () => {
         render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} />);
-        
+
         const listButton = screen.getByText('List');
         fireEvent.click(listButton);
-        
+
         // Should show formatted dates
         expect(screen.getByText(/1\/20\/2024/)).toBeInTheDocument();
         expect(screen.getByText(/1\/22\/2024/)).toBeInTheDocument();
@@ -159,10 +152,10 @@ describe('UpcomingDeliveriesCalendar Priority Handling', () => {
 
     it('applies correct priority colors', () => {
         render(<UpcomingDeliveriesCalendar deliveries={priorityDeliveries} />);
-        
+
         const listButton = screen.getByText('List');
         fireEvent.click(listButton);
-        
+
         // All priority levels should be represented
         expect(screen.getAllByText('RT123456789')).toHaveLength(2); // high and low priority
         expect(screen.getByText('RT987654321')).toBeInTheDocument(); // medium priority
@@ -172,7 +165,7 @@ describe('UpcomingDeliveriesCalendar Priority Handling', () => {
 describe('UpcomingDeliveriesCalendar Accessibility', () => {
     it('has proper button roles', () => {
         render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} />);
-        
+
         expect(screen.getByRole('button', { name: 'Calendar' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'List' })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Today' })).toBeInTheDocument();
@@ -180,11 +173,11 @@ describe('UpcomingDeliveriesCalendar Accessibility', () => {
 
     it('supports keyboard navigation', () => {
         render(<UpcomingDeliveriesCalendar deliveries={mockDeliveries} />);
-        
+
         const calendarButton = screen.getByRole('button', { name: 'Calendar' });
         calendarButton.focus();
         expect(calendarButton).toHaveFocus();
-        
+
         const listButton = screen.getByRole('button', { name: 'List' });
         listButton.focus();
         expect(listButton).toHaveFocus();
@@ -193,19 +186,19 @@ describe('UpcomingDeliveriesCalendar Accessibility', () => {
 
 describe('UpcomingDeliveriesCalendar Service Types', () => {
     const serviceTypes = ['express', 'standard', 'overnight', 'international'];
-    
-    serviceTypes.forEach(serviceType => {
+
+    serviceTypes.forEach((serviceType) => {
         it(`handles ${serviceType} service type`, () => {
             const delivery = {
                 ...mockDeliveries[0],
                 service_type: serviceType,
             };
-            
+
             render(<UpcomingDeliveriesCalendar deliveries={[delivery]} />);
-            
+
             const listButton = screen.getByText('List');
             fireEvent.click(listButton);
-            
+
             expect(screen.getByText(serviceType)).toBeInTheDocument();
         });
     });

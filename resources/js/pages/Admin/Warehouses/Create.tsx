@@ -1,28 +1,12 @@
-import { Head, Link, useForm } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
-} from '@/components/ui/select';
-import { 
-    ArrowLeft,
-    Warehouse,
-    MapPin,
-    User,
-    Phone,
-    Mail,
-    Building,
-    Clock
-} from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
 import { countries } from '@/lib/countries';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, Building, Clock, Mail, MapPin, Phone, User, Warehouse } from 'lucide-react';
 
 export default function WarehouseCreate() {
     const { data, setData, post, processing, errors } = useForm({
@@ -64,7 +48,7 @@ export default function WarehouseCreate() {
             },
             onFinish: () => {
                 console.log('Form submission finished');
-            }
+            },
         });
     };
 
@@ -81,24 +65,20 @@ export default function WarehouseCreate() {
     return (
         <AppLayout>
             <Head title="Create Warehouse" />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div className="flex items-center space-x-4">
                         <Button variant="outline" size="sm" asChild>
                             <Link href="/admin/warehouses">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Warehouses
                             </Link>
                         </Button>
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                Create New Warehouse
-                            </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                                Add a new warehouse facility to the system
-                            </p>
+                            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Create New Warehouse</h1>
+                            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Add a new warehouse facility to the system</p>
                         </div>
                     </div>
                 </div>
@@ -106,17 +86,19 @@ export default function WarehouseCreate() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* General Error Display */}
                     {errors.error && (
-                        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                        <div className="rounded-md border border-red-200 bg-red-50 p-4">
                             <div className="flex">
                                 <div className="flex-shrink-0">
                                     <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                            clipRule="evenodd"
+                                        />
                                     </svg>
                                 </div>
                                 <div className="ml-3">
-                                    <h3 className="text-sm font-medium text-red-800">
-                                        Error creating warehouse
-                                    </h3>
+                                    <h3 className="text-sm font-medium text-red-800">Error creating warehouse</h3>
                                     <div className="mt-2 text-sm text-red-700">
                                         <p>{errors.error}</p>
                                     </div>
@@ -125,17 +107,15 @@ export default function WarehouseCreate() {
                         </div>
                     )}
 
-                    <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                         {/* Basic Information */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center">
-                                    <Warehouse className="h-5 w-5 mr-2" />
+                                    <Warehouse className="mr-2 h-5 w-5" />
                                     Basic Information
                                 </CardTitle>
-                                <CardDescription>
-                                    Warehouse identification and type
-                                </CardDescription>
+                                <CardDescription>Warehouse identification and type</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
@@ -147,9 +127,7 @@ export default function WarehouseCreate() {
                                         placeholder="Enter warehouse name"
                                         required
                                     />
-                                    {errors.name && (
-                                        <p className="text-sm text-red-600">{errors.name}</p>
-                                    )}
+                                    {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -161,9 +139,7 @@ export default function WarehouseCreate() {
                                         placeholder="Enter warehouse code (e.g., WH001)"
                                         required
                                     />
-                                    {errors.code && (
-                                        <p className="text-sm text-red-600">{errors.code}</p>
-                                    )}
+                                    {errors.code && <p className="text-sm text-red-600">{errors.code}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -177,17 +153,12 @@ export default function WarehouseCreate() {
                                         onChange={(e) => setData('capacity_cubic_meters', parseFloat(e.target.value) || 0)}
                                         placeholder="Enter storage capacity"
                                     />
-                                    {errors.capacity_cubic_meters && (
-                                        <p className="text-sm text-red-600">{errors.capacity_cubic_meters}</p>
-                                    )}
+                                    {errors.capacity_cubic_meters && <p className="text-sm text-red-600">{errors.capacity_cubic_meters}</p>}
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="status">Status</Label>
-                                    <Select 
-                                        value={data.status} 
-                                        onValueChange={(value) => setData('status', value)}
-                                    >
+                                    <Select value={data.status} onValueChange={(value) => setData('status', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select status" />
                                         </SelectTrigger>
@@ -197,9 +168,7 @@ export default function WarehouseCreate() {
                                             <SelectItem value="maintenance">Under Maintenance</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.status && (
-                                        <p className="text-sm text-red-600">{errors.status}</p>
-                                    )}
+                                    {errors.status && <p className="text-sm text-red-600">{errors.status}</p>}
                                 </div>
                             </CardContent>
                         </Card>
@@ -208,18 +177,16 @@ export default function WarehouseCreate() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center">
-                                    <User className="h-5 w-5 mr-2" />
+                                    <User className="mr-2 h-5 w-5" />
                                     Contact Information
                                 </CardTitle>
-                                <CardDescription>
-                                    Warehouse manager and contact details
-                                </CardDescription>
+                                <CardDescription>Warehouse manager and contact details</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="contact_person">Manager/Contact Person</Label>
                                     <div className="relative">
-                                        <User className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <User className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                         <Input
                                             id="contact_person"
                                             value={data.contact_person}
@@ -228,15 +195,13 @@ export default function WarehouseCreate() {
                                             className="pl-8"
                                         />
                                     </div>
-                                    {errors.contact_person && (
-                                        <p className="text-sm text-red-600">{errors.contact_person}</p>
-                                    )}
+                                    {errors.contact_person && <p className="text-sm text-red-600">{errors.contact_person}</p>}
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="email">Email Address</Label>
                                     <div className="relative">
-                                        <Mail className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Mail className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                         <Input
                                             id="email"
                                             type="email"
@@ -246,15 +211,13 @@ export default function WarehouseCreate() {
                                             className="pl-8"
                                         />
                                     </div>
-                                    {errors.email && (
-                                        <p className="text-sm text-red-600">{errors.email}</p>
-                                    )}
+                                    {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="phone">Phone Number</Label>
                                     <div className="relative">
-                                        <Phone className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Phone className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                         <Input
                                             id="phone"
                                             type="tel"
@@ -264,12 +227,8 @@ export default function WarehouseCreate() {
                                             className="pl-8"
                                         />
                                     </div>
-                                    {errors.phone && (
-                                        <p className="text-sm text-red-600">{errors.phone}</p>
-                                    )}
+                                    {errors.phone && <p className="text-sm text-red-600">{errors.phone}</p>}
                                 </div>
-
-
                             </CardContent>
                         </Card>
                     </div>
@@ -278,15 +237,13 @@ export default function WarehouseCreate() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <MapPin className="h-5 w-5 mr-2" />
+                                <MapPin className="mr-2 h-5 w-5" />
                                 Address & Location
                             </CardTitle>
-                            <CardDescription>
-                                Physical address and GPS coordinates
-                            </CardDescription>
+                            <CardDescription>Physical address and GPS coordinates</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                                 <div className="space-y-2 sm:col-span-2 lg:col-span-2">
                                     <Label htmlFor="address_line_1">Address Line 1 *</Label>
                                     <Input
@@ -296,9 +253,7 @@ export default function WarehouseCreate() {
                                         placeholder="Enter street address"
                                         required
                                     />
-                                    {errors.address_line_1 && (
-                                        <p className="text-sm text-red-600">{errors.address_line_1}</p>
-                                    )}
+                                    {errors.address_line_1 && <p className="text-sm text-red-600">{errors.address_line_1}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -309,9 +264,7 @@ export default function WarehouseCreate() {
                                         onChange={(e) => setData('address_line_2', e.target.value)}
                                         placeholder="Suite, building, etc."
                                     />
-                                    {errors.address_line_2 && (
-                                        <p className="text-sm text-red-600">{errors.address_line_2}</p>
-                                    )}
+                                    {errors.address_line_2 && <p className="text-sm text-red-600">{errors.address_line_2}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -323,9 +276,7 @@ export default function WarehouseCreate() {
                                         placeholder="Enter city"
                                         required
                                     />
-                                    {errors.city && (
-                                        <p className="text-sm text-red-600">{errors.city}</p>
-                                    )}
+                                    {errors.city && <p className="text-sm text-red-600">{errors.city}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -337,9 +288,7 @@ export default function WarehouseCreate() {
                                         placeholder="Enter state or province"
                                         required
                                     />
-                                    {errors.state_province && (
-                                        <p className="text-sm text-red-600">{errors.state_province}</p>
-                                    )}
+                                    {errors.state_province && <p className="text-sm text-red-600">{errors.state_province}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -351,17 +300,12 @@ export default function WarehouseCreate() {
                                         placeholder="Enter postal code"
                                         required
                                     />
-                                    {errors.postal_code && (
-                                        <p className="text-sm text-red-600">{errors.postal_code}</p>
-                                    )}
+                                    {errors.postal_code && <p className="text-sm text-red-600">{errors.postal_code}</p>}
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="country">Country *</Label>
-                                    <Select 
-                                        value={data.country} 
-                                        onValueChange={(value) => setData('country', value)}
-                                    >
+                                    <Select value={data.country} onValueChange={(value) => setData('country', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select country" />
                                         </SelectTrigger>
@@ -373,9 +317,7 @@ export default function WarehouseCreate() {
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.country && (
-                                        <p className="text-sm text-red-600">{errors.country}</p>
-                                    )}
+                                    {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -388,9 +330,7 @@ export default function WarehouseCreate() {
                                         onChange={(e) => setData('latitude', e.target.value)}
                                         placeholder="e.g., 40.7128"
                                     />
-                                    {errors.latitude && (
-                                        <p className="text-sm text-red-600">{errors.latitude}</p>
-                                    )}
+                                    {errors.latitude && <p className="text-sm text-red-600">{errors.latitude}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -403,9 +343,7 @@ export default function WarehouseCreate() {
                                         onChange={(e) => setData('longitude', e.target.value)}
                                         placeholder="e.g., -74.0060"
                                     />
-                                    {errors.longitude && (
-                                        <p className="text-sm text-red-600">{errors.longitude}</p>
-                                    )}
+                                    {errors.longitude && <p className="text-sm text-red-600">{errors.longitude}</p>}
                                 </div>
                             </div>
                         </CardContent>
@@ -415,17 +353,15 @@ export default function WarehouseCreate() {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <Clock className="h-5 w-5 mr-2" />
+                                <Clock className="mr-2 h-5 w-5" />
                                 Operating Hours
                             </CardTitle>
-                            <CardDescription>
-                                Set the operating hours for each day of the week
-                            </CardDescription>
+                            <CardDescription>Set the operating hours for each day of the week</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
                                 {Object.entries(data.operating_hours).map(([day, hours]) => (
-                                    <div key={day} className="grid gap-4 grid-cols-1 sm:grid-cols-4 items-center">
+                                    <div key={day} className="grid grid-cols-1 items-center gap-4 sm:grid-cols-4">
                                         <div className="font-medium capitalize">{day}</div>
                                         <div className="flex items-center space-x-2">
                                             <input
@@ -450,11 +386,7 @@ export default function WarehouseCreate() {
                                                 />
                                             </>
                                         )}
-                                        {hours.closed && (
-                                            <div className="sm:col-span-2 text-sm text-muted-foreground">
-                                                Closed
-                                            </div>
-                                        )}
+                                        {hours.closed && <div className="text-sm text-muted-foreground sm:col-span-2">Closed</div>}
                                     </div>
                                 ))}
                             </div>
@@ -467,7 +399,7 @@ export default function WarehouseCreate() {
                             <Link href="/admin/warehouses">Cancel</Link>
                         </Button>
                         <Button type="submit" disabled={processing}>
-                            <Building className="h-4 w-4 mr-2" />
+                            <Building className="mr-2 h-4 w-4" />
                             {processing ? 'Creating...' : 'Create Warehouse'}
                         </Button>
                     </div>

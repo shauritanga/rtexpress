@@ -7,7 +7,6 @@
 
 /* Custom Animations for RT Express */
 @keyframes float {
-
     0%,
     100% {
         transform: translateY(0px) rotate(0deg);
@@ -71,14 +70,15 @@
 }
 
 @keyframes pulse-glow {
-
     0%,
     100% {
         box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
     }
 
     50% {
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6);
+        box-shadow:
+            0 0 20px rgba(59, 130, 246, 0.8),
+            0 0 30px rgba(59, 130, 246, 0.6);
     }
 }
 
@@ -93,7 +93,6 @@
 }
 
 @keyframes package-bounce {
-
     0%,
     20%,
     50%,
@@ -149,7 +148,7 @@
 }
 
 .gradient-ocean {
-    background: linear-gradient(135deg, #2196F3 0%, #21CBF3 100%);
+    background: linear-gradient(135deg, #2196f3 0%, #21cbf3 100%);
 }
 
 .gradient-sunset {
@@ -162,7 +161,9 @@
 
 /* Hover effects */
 .hover-lift {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
 }
 
 .hover-lift:hover {
@@ -258,7 +259,6 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
-
     *,
     ::after,
     ::before,
@@ -275,7 +275,7 @@
     --rt-red-200: oklch(0.88 0.08 15);
     --rt-red-300: oklch(0.82 0.12 15);
     --rt-red-400: oklch(0.76 0.16 15);
-    --rt-red-500: oklch(0.70 0.20 15);
+    --rt-red-500: oklch(0.7 0.2 15);
     --rt-red-600: oklch(0.64 0.24 15);
     --rt-red-700: oklch(0.58 0.28 15);
     --rt-red-800: oklch(0.52 0.32 15);
@@ -285,7 +285,7 @@
 
     --rt-gray-50: oklch(0.98 0 0);
     --rt-gray-100: oklch(0.96 0 0);
-    --rt-gray-200: oklch(0.90 0 0);
+    --rt-gray-200: oklch(0.9 0 0);
     --rt-gray-300: oklch(0.82 0 0);
     --rt-gray-400: oklch(0.64 0 0);
     --rt-gray-500: oklch(0.46 0 0);
@@ -381,7 +381,6 @@
 
 /* RT Express Brand Utility Classes */
 @layer utilities {
-
     /* RT Express Red Variants */
     .bg-rt-red {
         background-color: var(--rt-red);
@@ -587,13 +586,14 @@
     }
 
     .shadow-rt-red-lg {
-        box-shadow: 0 10px 25px -3px rgba(196, 30, 58, 0.1), 0 4px 6px -2px rgba(196, 30, 58, 0.05);
+        box-shadow:
+            0 10px 25px -3px rgba(196, 30, 58, 0.1),
+            0 4px 6px -2px rgba(196, 30, 58, 0.05);
     }
 }
 
 /* PWA & Mobile Optimizations */
 @layer utilities {
-
     /* Touch-friendly interactions */
     .touch-manipulation {
         touch-action: manipulation;
@@ -675,7 +675,6 @@
 
     /* Reduced motion support */
     @media (prefers-reduced-motion: reduce) {
-
         .animate-float,
         .animate-spin,
         .animate-pulse {
@@ -699,7 +698,6 @@
 
 /* Mobile-first responsive breakpoints */
 @media (max-width: 640px) {
-
     /* Mobile-specific styles */
     .mobile-full-width {
         width: 100vw;

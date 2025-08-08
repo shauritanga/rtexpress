@@ -1,34 +1,26 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from '@/components/ui/table';
-import { 
-    ArrowLeft,
-    DollarSign,
-    Calendar,
-    User,
-    CreditCard,
-    FileText,
-    CheckCircle,
-    AlertTriangle,
-    RefreshCw,
-    XCircle,
-    Clock,
-    Download,
-    RotateCcw
-} from 'lucide-react';
 import { useConfirmationModal } from '@/components/admin/ConfirmationModal';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
+import {
+    AlertTriangle,
+    ArrowLeft,
+    Calendar,
+    CheckCircle,
+    Clock,
+    CreditCard,
+    DollarSign,
+    Download,
+    FileText,
+    RefreshCw,
+    RotateCcw,
+    User,
+    XCircle,
+} from 'lucide-react';
 
 interface Refund {
     id: number;
@@ -120,12 +112,11 @@ export default function ShowPayment({ payment }: Props) {
             refunded: { label: 'Refunded', variant: 'secondary' as const, icon: RotateCcw },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const, icon: AlertTriangle };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const, icon: AlertTriangle };
+
         return (
             <Badge variant={config.variant} className="flex items-center">
-                <config.icon className="h-3 w-3 mr-1" />
+                <config.icon className="mr-1 h-3 w-3" />
                 {config.label}
             </Badge>
         );
@@ -138,19 +129,13 @@ export default function ShowPayment({ payment }: Props) {
             clickpesa: { label: 'ClickPesa', color: 'bg-green-100 text-green-800' },
         };
 
-        const config = gatewayConfig[gateway as keyof typeof gatewayConfig] || 
-                      { label: gateway, color: 'bg-gray-100 text-gray-800' };
-        
-        return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-                {config.label}
-            </span>
-        );
+        const config = gatewayConfig[gateway as keyof typeof gatewayConfig] || { label: gateway, color: 'bg-gray-100 text-gray-800' };
+
+        return <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${config.color}`}>{config.label}</span>;
     };
 
     const handleRefund = () => {
-        const maxRefund = payment.amount - payment.refunds.reduce((sum, refund) => 
-            refund.status === 'completed' ? sum + refund.amount : sum, 0);
+        const maxRefund = payment.amount - payment.refunds.reduce((sum, refund) => (refund.status === 'completed' ? sum + refund.amount : sum), 0);
 
         if (maxRefund <= 0) {
             return;
@@ -162,30 +147,33 @@ export default function ShowPayment({ payment }: Props) {
             confirmText: 'Process Refund',
             variant: 'warning',
             onConfirm: () => {
-                router.post(`/admin/payments/${payment.id}/refund`, {
-                    amount: maxRefund,
-                    reason: 'Admin initiated refund'
-                }, {
-                    preserveScroll: true,
-                });
+                router.post(
+                    `/admin/payments/${payment.id}/refund`,
+                    {
+                        amount: maxRefund,
+                        reason: 'Admin initiated refund',
+                    },
+                    {
+                        preserveScroll: true,
+                    },
+                );
             },
         });
     };
 
-    const totalRefunded = payment.refunds.reduce((sum, refund) => 
-        refund.status === 'completed' ? sum + refund.amount : sum, 0);
+    const totalRefunded = payment.refunds.reduce((sum, refund) => (refund.status === 'completed' ? sum + refund.amount : sum), 0);
 
     return (
         <AppLayout>
             <Head title={`Payment ${payment.payment_number}`} />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4">
                     <div className="flex items-center space-x-2">
                         <Button variant="outline" size="sm" asChild>
                             <Link href="/admin/payments">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 <span className="hidden sm:inline">Back to Payments</span>
                                 <span className="sm:hidden">Back</span>
                             </Link>
@@ -193,22 +181,20 @@ export default function ShowPayment({ payment }: Props) {
                     </div>
                     <div className="flex flex-col space-y-4 lg:flex-row lg:items-start lg:justify-between lg:space-y-0">
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                Payment {payment.payment_number}
-                            </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
+                            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Payment {payment.payment_number}</h1>
+                            <p className="mt-1 text-sm text-muted-foreground sm:text-base">
                                 Created on {formatDate(payment.created_at)} by {payment.creator.name}
                             </p>
                         </div>
                         <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                             {payment.status === 'completed' && totalRefunded < payment.amount && (
                                 <Button onClick={handleRefund} variant="outline" className="w-full sm:w-auto">
-                                    <RotateCcw className="h-4 w-4 mr-2" />
+                                    <RotateCcw className="mr-2 h-4 w-4" />
                                     Process Refund
                                 </Button>
                             )}
                             <Button variant="outline" className="w-full sm:w-auto">
-                                <Download className="h-4 w-4 mr-2" />
+                                <Download className="mr-2 h-4 w-4" />
                                 <span className="hidden sm:inline">Download Receipt</span>
                                 <span className="sm:hidden">Receipt</span>
                             </Button>
@@ -217,16 +203,14 @@ export default function ShowPayment({ payment }: Props) {
                 </div>
 
                 {/* Status and Overview */}
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
                                 <FileText className="h-5 w-5 text-blue-600" />
                                 <div>
                                     <p className="text-sm font-medium">Status</p>
-                                    <div className="mt-1">
-                                        {getStatusBadge(payment.status)}
-                                    </div>
+                                    <div className="mt-1">{getStatusBadge(payment.status)}</div>
                                 </div>
                             </div>
                         </CardContent>
@@ -238,13 +222,9 @@ export default function ShowPayment({ payment }: Props) {
                                 <DollarSign className="h-5 w-5 text-green-600" />
                                 <div>
                                     <p className="text-sm font-medium">Amount</p>
-                                    <p className="text-2xl font-bold">
-                                        {formatCurrency(payment.amount, payment.currency)}
-                                    </p>
+                                    <p className="text-2xl font-bold">{formatCurrency(payment.amount, payment.currency)}</p>
                                     {payment.fee_amount > 0 && (
-                                        <p className="text-sm text-muted-foreground">
-                                            Fee: {formatCurrency(payment.fee_amount, payment.currency)}
-                                        </p>
+                                        <p className="text-sm text-muted-foreground">Fee: {formatCurrency(payment.fee_amount, payment.currency)}</p>
                                     )}
                                 </div>
                             </div>
@@ -257,12 +237,8 @@ export default function ShowPayment({ payment }: Props) {
                                 <Calendar className="h-5 w-5 text-orange-600" />
                                 <div>
                                     <p className="text-sm font-medium">Payment Date</p>
-                                    <p className="text-lg font-semibold">
-                                        {formatDate(payment.payment_date)}
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">
-                                        {formatDateTime(payment.payment_date)}
-                                    </p>
+                                    <p className="text-lg font-semibold">{formatDate(payment.payment_date)}</p>
+                                    <p className="text-sm text-muted-foreground">{formatDateTime(payment.payment_date)}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -274,12 +250,8 @@ export default function ShowPayment({ payment }: Props) {
                                 <CreditCard className="h-5 w-5 text-purple-600" />
                                 <div>
                                     <p className="text-sm font-medium">Gateway</p>
-                                    <div className="mt-1">
-                                        {getGatewayBadge(payment.gateway)}
-                                    </div>
-                                    <p className="text-sm text-muted-foreground capitalize">
-                                        {payment.method.replace('_', ' ')}
-                                    </p>
+                                    <div className="mt-1">{getGatewayBadge(payment.gateway)}</div>
+                                    <p className="text-sm text-muted-foreground capitalize">{payment.method.replace('_', ' ')}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -287,12 +259,12 @@ export default function ShowPayment({ payment }: Props) {
                 </div>
 
                 {/* Payment Details */}
-                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* Customer Information */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <User className="h-5 w-5 mr-2" />
+                                <User className="mr-2 h-5 w-5" />
                                 Customer Information
                             </CardTitle>
                         </CardHeader>
@@ -301,21 +273,16 @@ export default function ShowPayment({ payment }: Props) {
                                 <p className="text-sm font-medium text-muted-foreground">Customer</p>
                                 <p className="font-semibold">{payment.customer.name}</p>
                                 <p className="text-sm text-muted-foreground">{payment.customer.email}</p>
-                                {payment.customer.phone && (
-                                    <p className="text-sm text-muted-foreground">{payment.customer.phone}</p>
-                                )}
+                                {payment.customer.phone && <p className="text-sm text-muted-foreground">{payment.customer.phone}</p>}
                             </div>
 
                             <Separator />
 
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Related Invoice</p>
-                                <div className="flex items-center mt-1">
-                                    <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
-                                    <Link
-                                        href={route('admin.invoices.show', payment.invoice.id)}
-                                        className="text-blue-600 hover:underline"
-                                    >
+                                <div className="mt-1 flex items-center">
+                                    <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
+                                    <Link href={route('admin.invoices.show', payment.invoice.id)} className="text-blue-600 hover:underline">
                                         {payment.invoice.invoice_number}
                                     </Link>
                                 </div>
@@ -410,9 +377,7 @@ export default function ShowPayment({ payment }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle>Refund History</CardTitle>
-                            <CardDescription>
-                                All refunds processed for this payment
-                            </CardDescription>
+                            <CardDescription>All refunds processed for this payment</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="rounded-md border">
@@ -428,18 +393,10 @@ export default function ShowPayment({ payment }: Props) {
                                     <TableBody>
                                         {payment.refunds.map((refund) => (
                                             <TableRow key={refund.id}>
-                                                <TableCell>
-                                                    {formatDate(refund.created_at)}
-                                                </TableCell>
-                                                <TableCell className="font-medium">
-                                                    {formatCurrency(refund.amount, payment.currency)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {refund.reason || 'No reason provided'}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {getStatusBadge(refund.status)}
-                                                </TableCell>
+                                                <TableCell>{formatDate(refund.created_at)}</TableCell>
+                                                <TableCell className="font-medium">{formatCurrency(refund.amount, payment.currency)}</TableCell>
+                                                <TableCell>{refund.reason || 'No reason provided'}</TableCell>
+                                                <TableCell>{getStatusBadge(refund.status)}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -454,14 +411,10 @@ export default function ShowPayment({ payment }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle>Gateway Response</CardTitle>
-                            <CardDescription>
-                                Raw response data from the payment gateway
-                            </CardDescription>
+                            <CardDescription>Raw response data from the payment gateway</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <pre className="bg-muted p-4 rounded-md text-sm overflow-x-auto">
-                                {JSON.stringify(payment.gateway_response, null, 2)}
-                            </pre>
+                            <pre className="overflow-x-auto rounded-md bg-muted p-4 text-sm">{JSON.stringify(payment.gateway_response, null, 2)}</pre>
                         </CardContent>
                     </Card>
                 )}
@@ -470,14 +423,12 @@ export default function ShowPayment({ payment }: Props) {
                 <Card>
                     <CardHeader>
                         <CardTitle>Payment Timeline</CardTitle>
-                        <CardDescription>
-                            Timeline of payment events and status changes
-                        </CardDescription>
+                        <CardDescription>Timeline of payment events and status changes</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
                             <div className="flex items-start space-x-3">
-                                <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                                <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-600"></div>
                                 <div>
                                     <p className="text-sm font-medium">Payment Created</p>
                                     <p className="text-sm text-muted-foreground">
@@ -488,46 +439,34 @@ export default function ShowPayment({ payment }: Props) {
 
                             {payment.completed_at && (
                                 <div className="flex items-start space-x-3">
-                                    <div className="flex-shrink-0 w-2 h-2 bg-green-600 rounded-full mt-2"></div>
+                                    <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-green-600"></div>
                                     <div>
                                         <p className="text-sm font-medium">Payment Completed</p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {formatDateTime(payment.completed_at)}
-                                        </p>
+                                        <p className="text-sm text-muted-foreground">{formatDateTime(payment.completed_at)}</p>
                                     </div>
                                 </div>
                             )}
 
                             {payment.failed_at && (
                                 <div className="flex items-start space-x-3">
-                                    <div className="flex-shrink-0 w-2 h-2 bg-red-600 rounded-full mt-2"></div>
+                                    <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-red-600"></div>
                                     <div>
                                         <p className="text-sm font-medium">Payment Failed</p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {formatDateTime(payment.failed_at)}
-                                        </p>
-                                        {payment.failure_reason && (
-                                            <p className="text-sm text-red-600">
-                                                {payment.failure_reason}
-                                            </p>
-                                        )}
+                                        <p className="text-sm text-muted-foreground">{formatDateTime(payment.failed_at)}</p>
+                                        {payment.failure_reason && <p className="text-sm text-red-600">{payment.failure_reason}</p>}
                                     </div>
                                 </div>
                             )}
 
                             {payment.refunds.map((refund) => (
                                 <div key={refund.id} className="flex items-start space-x-3">
-                                    <div className="flex-shrink-0 w-2 h-2 bg-orange-600 rounded-full mt-2"></div>
+                                    <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-orange-600"></div>
                                     <div>
                                         <p className="text-sm font-medium">Refund Processed</p>
                                         <p className="text-sm text-muted-foreground">
                                             {formatDateTime(refund.created_at)} - {formatCurrency(refund.amount, payment.currency)}
                                         </p>
-                                        {refund.reason && (
-                                            <p className="text-sm text-muted-foreground">
-                                                Reason: {refund.reason}
-                                            </p>
-                                        )}
+                                        {refund.reason && <p className="text-sm text-muted-foreground">Reason: {refund.reason}</p>}
                                     </div>
                                 </div>
                             ))}

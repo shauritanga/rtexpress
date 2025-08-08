@@ -1,34 +1,11 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import { 
-    Download, 
-    FileText, 
-    FileSpreadsheet,
-    Calendar,
-    Filter,
-    BarChart3,
-    Package,
-    TrendingUp
-} from 'lucide-react';
-import { router } from '@inertiajs/react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { BarChart3, Calendar, Download, FileSpreadsheet, FileText, Filter, Package, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
 
 interface ExportModalProps {
     trigger?: React.ReactNode;
@@ -38,13 +15,7 @@ interface ExportModalProps {
     filters?: any;
 }
 
-export function ExportModal({ 
-    trigger, 
-    type, 
-    title, 
-    description,
-    filters = {} 
-}: ExportModalProps) {
+export function ExportModal({ trigger, type, title, description, filters = {} }: ExportModalProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [format, setFormat] = useState<'excel' | 'pdf'>('excel');
     const [period, setPeriod] = useState('30');
@@ -76,7 +47,7 @@ export function ExportModal({
             color: 'text-purple-600',
             showPeriod: false,
             showDateRange: true,
-        }
+        },
     };
 
     const config = exportConfigs[type];
@@ -84,11 +55,11 @@ export function ExportModal({
 
     const handleExport = async () => {
         setIsExporting(true);
-        
+
         try {
             const exportData = {
                 format,
-                ...filters
+                ...filters,
             };
 
             if (config.showPeriod) {
@@ -136,7 +107,6 @@ export function ExportModal({
                 setIsOpen(false);
                 setIsExporting(false);
             }, 1000);
-
         } catch (error) {
             console.error('Export failed:', error);
             setIsExporting(false);
@@ -145,25 +115,21 @@ export function ExportModal({
 
     const defaultTrigger = (
         <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="mr-2 h-4 w-4" />
             Export
         </Button>
     );
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-                {trigger || defaultTrigger}
-            </DialogTrigger>
+            <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center space-x-2">
                         <Icon className={`h-5 w-5 ${config.color}`} />
                         <span>{title || config.title}</span>
                     </DialogTitle>
-                    <DialogDescription>
-                        {description || config.description}
-                    </DialogDescription>
+                    <DialogDescription>{description || config.description}</DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4">
@@ -171,9 +137,9 @@ export function ExportModal({
                     <div className="space-y-2">
                         <Label>Export Format</Label>
                         <div className="grid grid-cols-2 gap-2">
-                            <Card 
+                            <Card
                                 className={`cursor-pointer transition-colors ${
-                                    format === 'excel' ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                                    format === 'excel' ? 'bg-blue-50 ring-2 ring-blue-500' : 'hover:bg-gray-50'
                                 }`}
                                 onClick={() => setFormat('excel')}
                             >
@@ -181,16 +147,16 @@ export function ExportModal({
                                     <div className="flex items-center space-x-2">
                                         <FileSpreadsheet className="h-4 w-4 text-green-600" />
                                         <div>
-                                            <div className="font-medium text-sm">Excel</div>
+                                            <div className="text-sm font-medium">Excel</div>
                                             <div className="text-xs text-gray-500">Spreadsheet format</div>
                                         </div>
                                     </div>
                                 </CardContent>
                             </Card>
-                            
-                            <Card 
+
+                            <Card
                                 className={`cursor-pointer transition-colors ${
-                                    format === 'pdf' ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                                    format === 'pdf' ? 'bg-blue-50 ring-2 ring-blue-500' : 'hover:bg-gray-50'
                                 }`}
                                 onClick={() => setFormat('pdf')}
                             >
@@ -198,7 +164,7 @@ export function ExportModal({
                                     <div className="flex items-center space-x-2">
                                         <FileText className="h-4 w-4 text-red-600" />
                                         <div>
-                                            <div className="font-medium text-sm">PDF</div>
+                                            <div className="text-sm font-medium">PDF</div>
                                             <div className="text-xs text-gray-500">Document format</div>
                                         </div>
                                     </div>
@@ -213,7 +179,7 @@ export function ExportModal({
                             <Label>Time Period</Label>
                             <Select value={period} onValueChange={setPeriod}>
                                 <SelectTrigger>
-                                    <Calendar className="h-4 w-4 mr-2" />
+                                    <Calendar className="mr-2 h-4 w-4" />
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -233,20 +199,11 @@ export function ExportModal({
                             <div className="grid grid-cols-2 gap-2">
                                 <div>
                                     <Label className="text-xs text-gray-500">Start Date</Label>
-                                    <Input
-                                        type="date"
-                                        value={startDate}
-                                        onChange={(e) => setStartDate(e.target.value)}
-                                    />
+                                    <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                                 </div>
                                 <div>
                                     <Label className="text-xs text-gray-500">End Date</Label>
-                                    <Input
-                                        type="date"
-                                        value={endDate}
-                                        onChange={(e) => setEndDate(e.target.value)}
-                                        min={startDate}
-                                    />
+                                    <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} min={startDate} />
                                 </div>
                             </div>
                         </div>
@@ -259,14 +216,15 @@ export function ExportModal({
                                 <Filter className="h-3 w-3" />
                                 <span>Applied Filters</span>
                             </Label>
-                            <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                                {Object.entries(filters).map(([key, value]) => (
-                                    value && (
-                                        <div key={key}>
-                                            <strong>{key.replace('_', ' ')}:</strong> {String(value)}
-                                        </div>
-                                    )
-                                ))}
+                            <div className="rounded bg-gray-50 p-2 text-xs text-gray-600">
+                                {Object.entries(filters).map(
+                                    ([key, value]) =>
+                                        value && (
+                                            <div key={key}>
+                                                <strong>{key.replace('_', ' ')}:</strong> {String(value)}
+                                            </div>
+                                        ),
+                                )}
                             </div>
                         </div>
                     )}
@@ -276,14 +234,10 @@ export function ExportModal({
                         <Button variant="outline" onClick={() => setIsOpen(false)}>
                             Cancel
                         </Button>
-                        <Button 
-                            onClick={handleExport} 
-                            disabled={isExporting}
-                            className="min-w-[100px]"
-                        >
+                        <Button onClick={handleExport} disabled={isExporting} className="min-w-[100px]">
                             {isExporting ? (
                                 <div className="flex items-center space-x-2">
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                    <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                                     <span>Exporting...</span>
                                 </div>
                             ) : (

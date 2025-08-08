@@ -1,40 +1,13 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
-} from '@/components/ui/select';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from '@/components/ui/table';
-import { 
-    Search,
-    Plus,
-    FileText,
-    Clock,
-    CheckCircle,
-    AlertTriangle,
-    XCircle,
-    Eye,
-    Filter,
-    Calendar,
-    Globe,
-    DollarSign,
-    TrendingUp
-} from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
+import { CheckCircle, Clock, DollarSign, Eye, FileText, Filter, Globe, Plus, Search, TrendingUp, XCircle } from 'lucide-react';
+import { useState } from 'react';
 
 interface Shipment {
     id: number;
@@ -135,12 +108,11 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
             cleared: { label: 'Cleared', variant: 'success' as const, icon: CheckCircle },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const, icon: FileText };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const, icon: FileText };
+
         return (
             <Badge variant={config.variant} className="flex items-center">
-                <config.icon className="h-3 w-3 mr-1" />
+                <config.icon className="mr-1 h-3 w-3" />
                 {config.label}
             </Badge>
         );
@@ -153,14 +125,9 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
             transit: { label: 'Transit', color: 'bg-purple-100 text-purple-800' },
         };
 
-        const config = typeConfig[type as keyof typeof typeConfig] || 
-                      { label: type, color: 'bg-gray-100 text-gray-800' };
-        
-        return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-                {config.label}
-            </span>
-        );
+        const config = typeConfig[type as keyof typeof typeConfig] || { label: type, color: 'bg-gray-100 text-gray-800' };
+
+        return <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${config.color}`}>{config.label}</span>;
     };
 
     const getShipmentTypeBadge = (type: string) => {
@@ -172,28 +139,27 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
             personal: { label: 'Personal', color: 'bg-teal-100 text-teal-800' },
         };
 
-        const config = typeConfig[type as keyof typeof typeConfig] || 
-                      { label: type, color: 'bg-gray-100 text-gray-800' };
-        
-        return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-                {config.label}
-            </span>
-        );
+        const config = typeConfig[type as keyof typeof typeConfig] || { label: type, color: 'bg-gray-100 text-gray-800' };
+
+        return <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${config.color}`}>{config.label}</span>;
     };
 
     const handleSearch = () => {
-        router.get(route('admin.customs.index'), {
-            search: searchTerm,
-            status: selectedStatus !== 'all' ? selectedStatus : undefined,
-            declaration_type: selectedType !== 'all' ? selectedType : undefined,
-            country: selectedCountry || undefined,
-            date_from: dateFrom || undefined,
-            date_to: dateTo || undefined,
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        router.get(
+            route('admin.customs.index'),
+            {
+                search: searchTerm,
+                status: selectedStatus !== 'all' ? selectedStatus : undefined,
+                declaration_type: selectedType !== 'all' ? selectedType : undefined,
+                country: selectedCountry || undefined,
+                date_from: dateFrom || undefined,
+                date_to: dateTo || undefined,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     const handleClearFilters = () => {
@@ -203,30 +169,32 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
         setSelectedCountry('');
         setDateFrom('');
         setDateTo('');
-        
-        router.get(route('admin.customs.index'), {}, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+
+        router.get(
+            route('admin.customs.index'),
+            {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     return (
         <AppLayout>
             <Head title="Customs & Compliance" />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Customs & Compliance</h1>
-                        <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                            Manage customs declarations and compliance documentation
-                        </p>
+                        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Customs & Compliance</h1>
+                        <p className="mt-1 text-sm text-muted-foreground sm:text-base">Manage customs declarations and compliance documentation</p>
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Button asChild className="w-full sm:w-auto">
                             <Link href="/admin/customs/create">
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="mr-2 h-4 w-4" />
                                 Create Declaration
                             </Link>
                         </Button>
@@ -234,7 +202,7 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
@@ -242,9 +210,7 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Declarations</p>
                                     <p className="text-2xl font-bold">{stats.total_declarations}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        All time
-                                    </p>
+                                    <p className="text-xs text-muted-foreground">All time</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -257,9 +223,7 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Pending</p>
                                     <p className="text-2xl font-bold">{stats.pending_declarations}</p>
-                                    <p className="text-xs text-orange-600">
-                                        Awaiting processing
-                                    </p>
+                                    <p className="text-xs text-orange-600">Awaiting processing</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -272,9 +236,7 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Cleared Today</p>
                                     <p className="text-2xl font-bold">{stats.cleared_today}</p>
-                                    <p className="text-xs text-green-600">
-                                        {stats.compliance_rate}% compliance rate
-                                    </p>
+                                    <p className="text-xs text-green-600">{stats.compliance_rate}% compliance rate</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -287,9 +249,7 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Avg Processing</p>
                                     <p className="text-2xl font-bold">{stats.avg_processing_time}h</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        {stats.high_value_declarations} high-value
-                                    </p>
+                                    <p className="text-xs text-muted-foreground">{stats.high_value_declarations} high-value</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -300,19 +260,17 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <Filter className="h-5 w-5 mr-2" />
+                            <Filter className="mr-2 h-5 w-5" />
                             Filter Declarations
                         </CardTitle>
-                        <CardDescription>
-                            Search and filter customs declarations by various criteria
-                        </CardDescription>
+                        <CardDescription>Search and filter customs declarations by various criteria</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-6">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
                             <div className="space-y-2 sm:col-span-2 lg:col-span-2">
                                 <label className="text-sm font-medium">Search</label>
                                 <div className="relative">
-                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         placeholder="Declaration number, tracking number..."
                                         value={searchTerm}
@@ -322,7 +280,7 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
                                     />
                                 </div>
                             </div>
-                            
+
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Status</label>
                                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
@@ -369,7 +327,7 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
                                 <label className="text-sm font-medium">Actions</label>
                                 <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                                     <Button onClick={handleSearch} className="flex-1">
-                                        <Search className="h-4 w-4 mr-2" />
+                                        <Search className="mr-2 h-4 w-4" />
                                         Search
                                     </Button>
                                     <Button variant="outline" onClick={handleClearFilters} className="flex-1 sm:flex-none">
@@ -385,12 +343,10 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
                 <Card>
                     <CardHeader>
                         <CardTitle>Customs Declarations</CardTitle>
-                        <CardDescription>
-                            All customs declarations and their current status
-                        </CardDescription>
+                        <CardDescription>All customs declarations and their current status</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="rounded-md border overflow-hidden">
+                        <div className="overflow-hidden rounded-md border">
                             <div className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
@@ -400,83 +356,81 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
                                             <TableHead className="min-w-[100px]">Type</TableHead>
                                             <TableHead className="min-w-[100px]">Status</TableHead>
                                             <TableHead className="min-w-[120px]">Countries</TableHead>
-                                            <TableHead className="min-w-[100px] hidden sm:table-cell">Value</TableHead>
-                                            <TableHead className="min-w-[100px] hidden md:table-cell">Created</TableHead>
-                                            <TableHead className="text-right min-w-[80px]">Actions</TableHead>
+                                            <TableHead className="hidden min-w-[100px] sm:table-cell">Value</TableHead>
+                                            <TableHead className="hidden min-w-[100px] md:table-cell">Created</TableHead>
+                                            <TableHead className="min-w-[80px] text-right">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {declarations.data.length > 0 ? declarations.data.map((declaration) => (
-                                            <TableRow key={declaration.id}>
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium">{declaration.declaration_number}</p>
-                                                        <div className="flex items-center space-x-2 mt-1">
-                                                            {getDeclarationTypeBadge(declaration.declaration_type)}
-                                                            {getShipmentTypeBadge(declaration.shipment_type)}
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium">{declaration.shipment.tracking_number}</p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            by {declaration.created_by.name}
-                                                        </p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="flex flex-col space-y-1">
-                                                        {getDeclarationTypeBadge(declaration.declaration_type)}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {getStatusBadge(declaration.status)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="flex items-center space-x-2">
-                                                        <Globe className="h-4 w-4 text-muted-foreground" />
+                                        {declarations.data.length > 0 ? (
+                                            declarations.data.map((declaration) => (
+                                                <TableRow key={declaration.id}>
+                                                    <TableCell>
                                                         <div>
-                                                            <p className="text-sm font-medium">
-                                                                {declaration.origin_country} → {declaration.destination_country}
-                                                            </p>
+                                                            <p className="font-medium">{declaration.declaration_number}</p>
+                                                            <div className="mt-1 flex items-center space-x-2">
+                                                                {getDeclarationTypeBadge(declaration.declaration_type)}
+                                                                {getShipmentTypeBadge(declaration.shipment_type)}
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="hidden sm:table-cell">
-                                                    <div className="flex items-center">
-                                                        <DollarSign className="h-4 w-4 text-muted-foreground mr-1" />
-                                                        <span className="font-medium">
-                                                            {formatCurrency(declaration.total_value, declaration.currency)}
-                                                        </span>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="hidden md:table-cell">
-                                                    <div>
-                                                        <p className="text-sm">{formatDate(declaration.created_at)}</p>
-                                                        {declaration.submitted_at && (
-                                                            <p className="text-xs text-muted-foreground">
-                                                                Submitted: {formatDate(declaration.submitted_at)}
-                                                            </p>
-                                                        )}
-                                                        {declaration.cleared_at && (
-                                                            <p className="text-xs text-green-600">
-                                                                Cleared: {formatDate(declaration.cleared_at)}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <Button variant="ghost" size="sm" asChild>
-                                                        <Link href={route('admin.customs.show', declaration.id)}>
-                                                            <Eye className="h-4 w-4" />
-                                                        </Link>
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        )) : (
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div>
+                                                            <p className="font-medium">{declaration.shipment.tracking_number}</p>
+                                                            <p className="text-sm text-muted-foreground">by {declaration.created_by.name}</p>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex flex-col space-y-1">
+                                                            {getDeclarationTypeBadge(declaration.declaration_type)}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>{getStatusBadge(declaration.status)}</TableCell>
+                                                    <TableCell>
+                                                        <div className="flex items-center space-x-2">
+                                                            <Globe className="h-4 w-4 text-muted-foreground" />
+                                                            <div>
+                                                                <p className="text-sm font-medium">
+                                                                    {declaration.origin_country} → {declaration.destination_country}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="hidden sm:table-cell">
+                                                        <div className="flex items-center">
+                                                            <DollarSign className="mr-1 h-4 w-4 text-muted-foreground" />
+                                                            <span className="font-medium">
+                                                                {formatCurrency(declaration.total_value, declaration.currency)}
+                                                            </span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="hidden md:table-cell">
+                                                        <div>
+                                                            <p className="text-sm">{formatDate(declaration.created_at)}</p>
+                                                            {declaration.submitted_at && (
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    Submitted: {formatDate(declaration.submitted_at)}
+                                                                </p>
+                                                            )}
+                                                            {declaration.cleared_at && (
+                                                                <p className="text-xs text-green-600">
+                                                                    Cleared: {formatDate(declaration.cleared_at)}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <Button variant="ghost" size="sm" asChild>
+                                                            <Link href={route('admin.customs.show', declaration.id)}>
+                                                                <Eye className="h-4 w-4" />
+                                                            </Link>
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        ) : (
                                             <TableRow>
-                                                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                                                <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                                                     No customs declarations found matching your criteria.
                                                 </TableCell>
                                             </TableRow>
@@ -488,15 +442,16 @@ export default function CustomsIndex({ declarations, stats, filters }: Props) {
 
                         {/* Pagination */}
                         {declarations?.meta?.last_page > 1 && (
-                            <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 py-4">
-                                <div className="text-sm text-muted-foreground text-center sm:text-left">
-                                    Showing {declarations?.meta?.from || 0} to {declarations?.meta?.to || 0} of {declarations?.meta?.total || 0} declarations
+                            <div className="flex flex-col space-y-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                                <div className="text-center text-sm text-muted-foreground sm:text-left">
+                                    Showing {declarations?.meta?.from || 0} to {declarations?.meta?.to || 0} of {declarations?.meta?.total || 0}{' '}
+                                    declarations
                                 </div>
-                                <div className="flex flex-wrap justify-center sm:justify-end gap-2">
+                                <div className="flex flex-wrap justify-center gap-2 sm:justify-end">
                                     {declarations?.links?.map((link, index) => (
                                         <Button
                                             key={index}
-                                            variant={link.active ? "default" : "outline"}
+                                            variant={link.active ? 'default' : 'outline'}
                                             size="sm"
                                             onClick={() => link.url && router.get(link.url)}
                                             disabled={!link.url}

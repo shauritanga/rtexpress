@@ -1,35 +1,28 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from '@/components/ui/table';
-import { 
-    ArrowLeft,
-    Send,
-    Download,
-    DollarSign,
-    Calendar,
-    User,
-    Package,
-    FileText,
-    CreditCard,
-    Eye,
-    CheckCircle,
-    AlertTriangle,
-    Trash2
-} from 'lucide-react';
 import { useConfirmationModal } from '@/components/admin/ConfirmationModal';
 import PaymentModal from '@/components/admin/PaymentModal';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
+import {
+    AlertTriangle,
+    ArrowLeft,
+    Calendar,
+    CheckCircle,
+    CreditCard,
+    DollarSign,
+    Download,
+    Eye,
+    FileText,
+    Package,
+    Send,
+    Trash2,
+    User,
+} from 'lucide-react';
+import { useState } from 'react';
 
 interface InvoiceItem {
     id: number;
@@ -157,14 +150,15 @@ export default function ShowInvoice({ invoice }: Props) {
     };
 
     const getStatusBadge = (status: string) => {
-        const isOverdue = invoice.due_date && new Date(invoice.due_date) < new Date() && 
-                         status !== 'paid' && status !== 'cancelled';
-        
+        const isOverdue = invoice.due_date && new Date(invoice.due_date) < new Date() && status !== 'paid' && status !== 'cancelled';
+
         if (isOverdue) {
-            return <Badge variant="destructive" className="flex items-center">
-                <AlertTriangle className="h-3 w-3 mr-1" />
-                Overdue
-            </Badge>;
+            return (
+                <Badge variant="destructive" className="flex items-center">
+                    <AlertTriangle className="mr-1 h-3 w-3" />
+                    Overdue
+                </Badge>
+            );
         }
 
         const statusConfig = {
@@ -175,12 +169,11 @@ export default function ShowInvoice({ invoice }: Props) {
             cancelled: { label: 'Cancelled', variant: 'secondary' as const, icon: Trash2 },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const, icon: FileText };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const, icon: FileText };
+
         return (
             <Badge variant={config.variant} className="flex items-center">
-                <config.icon className="h-3 w-3 mr-1" />
+                <config.icon className="mr-1 h-3 w-3" />
                 {config.label}
             </Badge>
         );
@@ -195,9 +188,8 @@ export default function ShowInvoice({ invoice }: Props) {
             refunded: { label: 'Refunded', variant: 'secondary' as const },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const };
+
         return <Badge variant={config.variant}>{config.label}</Badge>;
     };
 
@@ -208,9 +200,13 @@ export default function ShowInvoice({ invoice }: Props) {
             confirmText: 'Send Invoice',
             variant: 'default',
             onConfirm: () => {
-                router.post(`/admin/invoices/${invoice.id}/send`, {}, {
-                    preserveScroll: true,
-                });
+                router.post(
+                    `/admin/invoices/${invoice.id}/send`,
+                    {},
+                    {
+                        preserveScroll: true,
+                    },
+                );
             },
         });
     };
@@ -222,13 +218,17 @@ export default function ShowInvoice({ invoice }: Props) {
             confirmText: 'Mark as Paid',
             variant: 'success',
             onConfirm: () => {
-                router.post(`/admin/invoices/${invoice.id}/mark-paid`, {
-                    amount: invoice.balance_due,
-                    payment_date: new Date().toISOString().split('T')[0],
-                    notes: 'Manually marked as paid by admin'
-                }, {
-                    preserveScroll: true,
-                });
+                router.post(
+                    `/admin/invoices/${invoice.id}/mark-paid`,
+                    {
+                        amount: invoice.balance_due,
+                        payment_date: new Date().toISOString().split('T')[0],
+                        notes: 'Manually marked as paid by admin',
+                    },
+                    {
+                        preserveScroll: true,
+                    },
+                );
             },
         });
     };
@@ -240,9 +240,13 @@ export default function ShowInvoice({ invoice }: Props) {
             confirmText: 'Cancel Invoice',
             variant: 'destructive',
             onConfirm: () => {
-                router.post(`/admin/invoices/${invoice.id}/cancel`, {}, {
-                    preserveScroll: true,
-                });
+                router.post(
+                    `/admin/invoices/${invoice.id}/cancel`,
+                    {},
+                    {
+                        preserveScroll: true,
+                    },
+                );
             },
         });
     };
@@ -254,11 +258,15 @@ export default function ShowInvoice({ invoice }: Props) {
             confirmText: 'Cancel Invoice',
             variant: 'destructive',
             onConfirm: () => {
-                router.post(`/admin/invoices/${invoice.id}/cancel`, {}, {
-                    onSuccess: () => {
-                        // Navigation will be handled by the controller
+                router.post(
+                    `/admin/invoices/${invoice.id}/cancel`,
+                    {},
+                    {
+                        onSuccess: () => {
+                            // Navigation will be handled by the controller
+                        },
                     },
-                });
+                );
             },
         });
     };
@@ -283,7 +291,7 @@ export default function ShowInvoice({ invoice }: Props) {
                     <div className="flex items-center space-x-2">
                         <Button variant="outline" size="sm" asChild>
                             <Link href="/admin/invoices">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 <span className="hidden sm:inline">Back to Invoices</span>
                                 <span className="sm:hidden">Back</span>
                             </Link>
@@ -291,52 +299,47 @@ export default function ShowInvoice({ invoice }: Props) {
                     </div>
                     <div className="flex flex-col space-y-4 lg:flex-row lg:items-start lg:justify-between lg:space-y-0">
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                Invoice {invoice.invoice_number}
-                            </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
+                            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Invoice {invoice.invoice_number}</h1>
+                            <p className="mt-1 text-sm text-muted-foreground sm:text-base">
                                 Created on {formatDate(invoice.created_at)} by {invoice.creator.name}
                             </p>
                         </div>
                         <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                             {invoice.status === 'draft' && (
                                 <Button onClick={handleSendInvoice} className="w-full sm:w-auto">
-                                    <Send className="h-4 w-4 mr-2" />
+                                    <Send className="mr-2 h-4 w-4" />
                                     Send Invoice
                                 </Button>
                             )}
                             {invoice.balance_due > 0 && invoice.status !== 'cancelled' && (
                                 <>
-                                    <Button
-                                        onClick={() => setIsPaymentModalOpen(true)}
-                                        className="w-full sm:w-auto"
-                                    >
-                                        <CreditCard className="h-4 w-4 mr-2" />
+                                    <Button onClick={() => setIsPaymentModalOpen(true)} className="w-full sm:w-auto">
+                                        <CreditCard className="mr-2 h-4 w-4" />
                                         <span className="hidden sm:inline">Process Payment</span>
                                         <span className="sm:hidden">Pay</span>
                                     </Button>
                                     <Button onClick={handleMarkAsPaid} variant="outline" className="w-full sm:w-auto">
-                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                        <CheckCircle className="mr-2 h-4 w-4" />
                                         <span className="hidden sm:inline">Mark as Paid</span>
                                         <span className="sm:hidden">Mark Paid</span>
                                     </Button>
                                 </>
                             )}
                             <Button variant="outline" className="w-full sm:w-auto">
-                                <Download className="h-4 w-4 mr-2" />
+                                <Download className="mr-2 h-4 w-4" />
                                 <span className="hidden sm:inline">Download PDF</span>
                                 <span className="sm:hidden">PDF</span>
                             </Button>
                             {invoice.status === 'draft' && (
                                 <Button onClick={handleCancelDraftInvoice} variant="destructive" className="w-full sm:w-auto">
-                                    <AlertTriangle className="h-4 w-4 mr-2" />
+                                    <AlertTriangle className="mr-2 h-4 w-4" />
                                     <span className="hidden sm:inline">Cancel Invoice</span>
                                     <span className="sm:hidden">Cancel</span>
                                 </Button>
                             )}
                             {['sent', 'viewed'].includes(invoice.status) && (
                                 <Button onClick={handleCancelInvoice} variant="destructive" className="w-full sm:w-auto">
-                                    <AlertTriangle className="h-4 w-4 mr-2" />
+                                    <AlertTriangle className="mr-2 h-4 w-4" />
                                     <span className="hidden sm:inline">Cancel Invoice</span>
                                     <span className="sm:hidden">Cancel</span>
                                 </Button>
@@ -346,16 +349,14 @@ export default function ShowInvoice({ invoice }: Props) {
                 </div>
 
                 {/* Status and Overview */}
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
                                 <FileText className="h-5 w-5 text-blue-600" />
                                 <div>
                                     <p className="text-sm font-medium">Status</p>
-                                    <div className="mt-1">
-                                        {getStatusBadge(invoice.status)}
-                                    </div>
+                                    <div className="mt-1">{getStatusBadge(invoice.status)}</div>
                                 </div>
                             </div>
                         </CardContent>
@@ -367,9 +368,7 @@ export default function ShowInvoice({ invoice }: Props) {
                                 <DollarSign className="h-5 w-5 text-green-600" />
                                 <div>
                                     <p className="text-sm font-medium">Total Amount</p>
-                                    <p className="text-2xl font-bold">
-                                        {formatCurrency(invoice.total_amount, invoice.currency)}
-                                    </p>
+                                    <p className="text-2xl font-bold">{formatCurrency(invoice.total_amount, invoice.currency)}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -381,18 +380,12 @@ export default function ShowInvoice({ invoice }: Props) {
                                 <Calendar className="h-5 w-5 text-orange-600" />
                                 <div>
                                     <p className="text-sm font-medium">Due Date</p>
-                                    <p className="text-lg font-semibold">
-                                        {formatDate(invoice.due_date)}
-                                    </p>
+                                    <p className="text-lg font-semibold">{formatDate(invoice.due_date)}</p>
                                     {daysUntilDue < 0 && invoice.status !== 'paid' && (
-                                        <p className="text-sm text-red-600">
-                                            {Math.abs(daysUntilDue)} days overdue
-                                        </p>
+                                        <p className="text-sm text-red-600">{Math.abs(daysUntilDue)} days overdue</p>
                                     )}
                                     {daysUntilDue >= 0 && invoice.status !== 'paid' && (
-                                        <p className="text-sm text-muted-foreground">
-                                            {daysUntilDue} days remaining
-                                        </p>
+                                        <p className="text-sm text-muted-foreground">{daysUntilDue} days remaining</p>
                                     )}
                                 </div>
                             </div>
@@ -405,13 +398,9 @@ export default function ShowInvoice({ invoice }: Props) {
                                 <CreditCard className="h-5 w-5 text-purple-600" />
                                 <div>
                                     <p className="text-sm font-medium">Balance Due</p>
-                                    <p className="text-2xl font-bold">
-                                        {formatCurrency(invoice.balance_due, invoice.currency)}
-                                    </p>
+                                    <p className="text-2xl font-bold">{formatCurrency(invoice.balance_due, invoice.currency)}</p>
                                     {invoice.paid_amount > 0 && (
-                                        <p className="text-sm text-green-600">
-                                            {formatCurrency(invoice.paid_amount, invoice.currency)} paid
-                                        </p>
+                                        <p className="text-sm text-green-600">{formatCurrency(invoice.paid_amount, invoice.currency)} paid</p>
                                     )}
                                 </div>
                             </div>
@@ -420,12 +409,12 @@ export default function ShowInvoice({ invoice }: Props) {
                 </div>
 
                 {/* Invoice Details */}
-                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* Customer Information */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <User className="h-5 w-5 mr-2" />
+                                <User className="mr-2 h-5 w-5" />
                                 Customer Information
                             </CardTitle>
                         </CardHeader>
@@ -434,9 +423,7 @@ export default function ShowInvoice({ invoice }: Props) {
                                 <p className="text-sm font-medium text-muted-foreground">Customer</p>
                                 <p className="font-semibold">{invoice.customer.name}</p>
                                 <p className="text-sm text-muted-foreground">{invoice.customer.email}</p>
-                                {invoice.customer.phone && (
-                                    <p className="text-sm text-muted-foreground">{invoice.customer.phone}</p>
-                                )}
+                                {invoice.customer.phone && <p className="text-sm text-muted-foreground">{invoice.customer.phone}</p>}
                             </div>
 
                             <Separator />
@@ -446,7 +433,9 @@ export default function ShowInvoice({ invoice }: Props) {
                                 <div className="mt-1 text-sm">
                                     <p>{invoice.billing_address.name}</p>
                                     <p>{invoice.billing_address.address}</p>
-                                    <p>{invoice.billing_address.city}, {invoice.billing_address.country}</p>
+                                    <p>
+                                        {invoice.billing_address.city}, {invoice.billing_address.country}
+                                    </p>
                                 </div>
                             </div>
 
@@ -455,18 +444,13 @@ export default function ShowInvoice({ invoice }: Props) {
                                     <Separator />
                                     <div>
                                         <p className="text-sm font-medium text-muted-foreground">Related Shipment</p>
-                                        <div className="flex items-center mt-1">
-                                            <Package className="h-4 w-4 mr-2 text-muted-foreground" />
-                                            <Link
-                                                href={`/admin/shipments/${invoice.shipment.id}`}
-                                                className="text-blue-600 hover:underline"
-                                            >
+                                        <div className="mt-1 flex items-center">
+                                            <Package className="mr-2 h-4 w-4 text-muted-foreground" />
+                                            <Link href={`/admin/shipments/${invoice.shipment.id}`} className="text-blue-600 hover:underline">
                                                 {invoice.shipment.tracking_number}
                                             </Link>
                                         </div>
-                                        <p className="text-sm text-muted-foreground">
-                                            To: {invoice.shipment.recipient_name}
-                                        </p>
+                                        <p className="text-sm text-muted-foreground">To: {invoice.shipment.recipient_name}</p>
                                     </div>
                                 </>
                             )}
@@ -483,7 +467,9 @@ export default function ShowInvoice({ invoice }: Props) {
                                 <p className="font-semibold">{invoice.company_address.name}</p>
                                 <div className="mt-1 text-sm text-muted-foreground">
                                     <p>{invoice.company_address.address}</p>
-                                    <p>{invoice.company_address.city}, {invoice.company_address.country}</p>
+                                    <p>
+                                        {invoice.company_address.city}, {invoice.company_address.country}
+                                    </p>
                                     <p>{invoice.company_address.phone}</p>
                                     <p>{invoice.company_address.email}</p>
                                 </div>
@@ -527,9 +513,7 @@ export default function ShowInvoice({ invoice }: Props) {
                 <Card>
                     <CardHeader>
                         <CardTitle>Invoice Items</CardTitle>
-                        <CardDescription>
-                            Services and products included in this invoice
-                        </CardDescription>
+                        <CardDescription>Services and products included in this invoice</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="rounded-md border">
@@ -549,16 +533,8 @@ export default function ShowInvoice({ invoice }: Props) {
                                             <TableCell>
                                                 <div>
                                                     <p className="font-medium">{item.description}</p>
-                                                    {item.item_code && (
-                                                        <p className="text-sm text-muted-foreground">
-                                                            Code: {item.item_code}
-                                                        </p>
-                                                    )}
-                                                    {item.notes && (
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {item.notes}
-                                                        </p>
-                                                    )}
+                                                    {item.item_code && <p className="text-sm text-muted-foreground">Code: {item.item_code}</p>}
+                                                    {item.notes && <p className="text-sm text-muted-foreground">{item.notes}</p>}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-center">
@@ -567,9 +543,7 @@ export default function ShowInvoice({ invoice }: Props) {
                                             <TableCell className="text-right">
                                                 {formatCurrency(item.unit_price, invoice.currency)}
                                                 {item.discount_percentage > 0 && (
-                                                    <div className="text-sm text-orange-600">
-                                                        -{item.discount_percentage}% discount
-                                                    </div>
+                                                    <div className="text-sm text-orange-600">-{item.discount_percentage}% discount</div>
                                                 )}
                                             </TableCell>
                                             <TableCell className="text-right">
@@ -611,7 +585,7 @@ export default function ShowInvoice({ invoice }: Props) {
                                     <span>{formatCurrency(invoice.tax_amount, invoice.currency)}</span>
                                 </div>
                                 <Separator />
-                                <div className="flex justify-between font-bold text-lg">
+                                <div className="flex justify-between text-lg font-bold">
                                     <span>Total:</span>
                                     <span>{formatCurrency(invoice.total_amount, invoice.currency)}</span>
                                 </div>
@@ -621,7 +595,7 @@ export default function ShowInvoice({ invoice }: Props) {
                                             <span>Paid:</span>
                                             <span>-{formatCurrency(invoice.paid_amount, invoice.currency)}</span>
                                         </div>
-                                        <div className="flex justify-between font-bold text-lg">
+                                        <div className="flex justify-between text-lg font-bold">
                                             <span>Balance Due:</span>
                                             <span>{formatCurrency(invoice.balance_due, invoice.currency)}</span>
                                         </div>
@@ -637,9 +611,7 @@ export default function ShowInvoice({ invoice }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle>Payment History</CardTitle>
-                            <CardDescription>
-                                All payments received for this invoice
-                            </CardDescription>
+                            <CardDescription>All payments received for this invoice</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="rounded-md border">
@@ -656,18 +628,10 @@ export default function ShowInvoice({ invoice }: Props) {
                                     <TableBody>
                                         {invoice.payments.map((payment) => (
                                             <TableRow key={payment.id}>
-                                                <TableCell className="font-medium">
-                                                    {payment.payment_number}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {formatDate(payment.payment_date)}
-                                                </TableCell>
-                                                <TableCell className="capitalize">
-                                                    {payment.method.replace('_', ' ')}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {getPaymentStatusBadge(payment.status)}
-                                                </TableCell>
+                                                <TableCell className="font-medium">{payment.payment_number}</TableCell>
+                                                <TableCell>{formatDate(payment.payment_date)}</TableCell>
+                                                <TableCell className="capitalize">{payment.method.replace('_', ' ')}</TableCell>
+                                                <TableCell>{getPaymentStatusBadge(payment.status)}</TableCell>
                                                 <TableCell className="text-right font-medium">
                                                     {formatCurrency(payment.amount, payment.currency)}
                                                 </TableCell>
@@ -690,14 +654,14 @@ export default function ShowInvoice({ invoice }: Props) {
                             {invoice.notes && (
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Notes</p>
-                                    <p className="text-sm mt-1">{invoice.notes}</p>
+                                    <p className="mt-1 text-sm">{invoice.notes}</p>
                                 </div>
                             )}
 
                             {invoice.terms_conditions && (
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Terms & Conditions</p>
-                                    <p className="text-sm mt-1 whitespace-pre-line">{invoice.terms_conditions}</p>
+                                    <p className="mt-1 text-sm whitespace-pre-line">{invoice.terms_conditions}</p>
                                 </div>
                             )}
                         </CardContent>
@@ -708,14 +672,12 @@ export default function ShowInvoice({ invoice }: Props) {
                 <Card>
                     <CardHeader>
                         <CardTitle>Invoice Activity</CardTitle>
-                        <CardDescription>
-                            Timeline of invoice events and interactions
-                        </CardDescription>
+                        <CardDescription>Timeline of invoice events and interactions</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
                             <div className="flex items-start space-x-3">
-                                <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                                <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-600"></div>
                                 <div>
                                     <p className="text-sm font-medium">Invoice Created</p>
                                     <p className="text-sm text-muted-foreground">
@@ -726,7 +688,7 @@ export default function ShowInvoice({ invoice }: Props) {
 
                             {invoice.sent_at && (
                                 <div className="flex items-start space-x-3">
-                                    <div className="flex-shrink-0 w-2 h-2 bg-green-600 rounded-full mt-2"></div>
+                                    <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-green-600"></div>
                                     <div>
                                         <p className="text-sm font-medium">Invoice Sent</p>
                                         <p className="text-sm text-muted-foreground">
@@ -739,12 +701,11 @@ export default function ShowInvoice({ invoice }: Props) {
 
                             {invoice.viewed_at && (
                                 <div className="flex items-start space-x-3">
-                                    <div className="flex-shrink-0 w-2 h-2 bg-purple-600 rounded-full mt-2"></div>
+                                    <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-purple-600"></div>
                                     <div>
                                         <p className="text-sm font-medium">Invoice Viewed</p>
                                         <p className="text-sm text-muted-foreground">
-                                            {formatDateTime(invoice.viewed_at)}
-                                            ({invoice.view_count} time{invoice.view_count !== 1 ? 's' : ''})
+                                            {formatDateTime(invoice.viewed_at)}({invoice.view_count} time{invoice.view_count !== 1 ? 's' : ''})
                                         </p>
                                     </div>
                                 </div>
@@ -752,12 +713,10 @@ export default function ShowInvoice({ invoice }: Props) {
 
                             {invoice.paid_date && (
                                 <div className="flex items-start space-x-3">
-                                    <div className="flex-shrink-0 w-2 h-2 bg-green-600 rounded-full mt-2"></div>
+                                    <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-green-600"></div>
                                     <div>
                                         <p className="text-sm font-medium">Invoice Paid</p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {formatDateTime(invoice.paid_date)}
-                                        </p>
+                                        <p className="text-sm text-muted-foreground">{formatDateTime(invoice.paid_date)}</p>
                                     </div>
                                 </div>
                             )}
@@ -770,11 +729,7 @@ export default function ShowInvoice({ invoice }: Props) {
             <ConfirmationModal />
 
             {/* Payment Modal */}
-            <PaymentModal
-                isOpen={isPaymentModalOpen}
-                onClose={() => setIsPaymentModalOpen(false)}
-                invoice={invoice}
-            />
+            <PaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} invoice={invoice} />
         </AppLayout>
     );
 }

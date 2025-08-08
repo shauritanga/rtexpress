@@ -1,23 +1,12 @@
-import React from 'react';
-import { Head } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
 import ShippingLabelGenerator from '@/components/customer/ShippingLabelGenerator';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AppLayout from '@/layouts/app-layout';
 import { formatCurrency } from '@/lib/utils';
-import {
-    Package,
-    ArrowLeft,
-    MapPin,
-    Calendar,
-    Truck,
-    FileText,
-    Clock,
-    Banknote,
-    Eye
-} from 'lucide-react';
+import { Head } from '@inertiajs/react';
+import { ArrowLeft, Banknote, Calendar, Clock, Eye, FileText, MapPin, Package, Truck } from 'lucide-react';
 
 interface Shipment {
     id: number;
@@ -91,46 +80,42 @@ export default function ShowShipment({ shipment, customer }: Props) {
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
         });
     };
 
     return (
         <AppLayout>
             <Head title={`Shipment ${shipment.tracking_number}`} />
-            
+
             <div className="space-y-6 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="bg-white rounded-lg shadow-sm border p-6">
+                <div className="rounded-lg border bg-white p-6 shadow-sm">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center space-x-4">
                             <Button variant="ghost" size="sm" onClick={() => window.history.back()}>
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back
                             </Button>
                             <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center">
-                                    <Package className="h-8 w-8 mr-3 text-blue-600" />
+                                <h1 className="flex items-center text-2xl font-bold text-gray-900 sm:text-3xl">
+                                    <Package className="mr-3 h-8 w-8 text-blue-600" />
                                     {shipment.tracking_number}
                                 </h1>
-                                <p className="text-sm sm:text-base text-gray-600 mt-1">
+                                <p className="mt-1 text-sm text-gray-600 sm:text-base">
                                     {customer.company_name} • Created {formatDate(shipment.created_at)}
                                 </p>
                             </div>
                         </div>
-                        <div className="mt-4 sm:mt-0 flex items-center space-x-3">
-                            <Badge className={`${getStatusColor(shipment.status)} border`}>
-                                {shipment.status.replace('_', ' ').toUpperCase()}
-                            </Badge>
-                            <Badge className={getServiceTypeColor(shipment.service_type)}>
-                                {shipment.service_type.toUpperCase()}
-                            </Badge>
+                        <div className="mt-4 flex items-center space-x-3 sm:mt-0">
+                            <Badge className={`${getStatusColor(shipment.status)} border`}>{shipment.status.replace('_', ' ').toUpperCase()}</Badge>
+                            <Badge className={getServiceTypeColor(shipment.service_type)}>{shipment.service_type.toUpperCase()}</Badge>
                         </div>
                     </div>
                 </div>
 
                 {/* Quick Stats */}
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
@@ -175,9 +160,7 @@ export default function ShowShipment({ shipment, customer }: Props) {
                                 <Banknote className="h-5 w-5 text-orange-600" />
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Total Cost</p>
-                                    <p className="text-lg font-bold text-gray-900">
-                                        {formatCurrency(shipment.total_cost)}
-                                    </p>
+                                    <p className="text-lg font-bold text-gray-900">{formatCurrency(shipment.total_cost)}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -188,27 +171,27 @@ export default function ShowShipment({ shipment, customer }: Props) {
                 <Tabs defaultValue="details" className="space-y-6">
                     <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="details" className="flex items-center">
-                            <Eye className="h-4 w-4 mr-2" />
+                            <Eye className="mr-2 h-4 w-4" />
                             Details
                         </TabsTrigger>
                         <TabsTrigger value="label" className="flex items-center">
-                            <FileText className="h-4 w-4 mr-2" />
+                            <FileText className="mr-2 h-4 w-4" />
                             Shipping Label
                         </TabsTrigger>
                         <TabsTrigger value="tracking" className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-2" />
+                            <MapPin className="mr-2 h-4 w-4" />
                             Tracking
                         </TabsTrigger>
                     </TabsList>
 
                     {/* Shipment Details Tab */}
                     <TabsContent value="details" className="space-y-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                             {/* Sender Information */}
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center">
-                                        <MapPin className="h-4 w-4 mr-2" />
+                                        <MapPin className="mr-2 h-4 w-4" />
                                         Sender Information
                                     </CardTitle>
                                 </CardHeader>
@@ -218,7 +201,9 @@ export default function ShowShipment({ shipment, customer }: Props) {
                                         <p className="text-sm text-gray-600">{shipment.sender_name}</p>
                                         <div className="pt-2 text-sm text-gray-600">
                                             <p>{shipment.sender_address}</p>
-                                            <p>{shipment.sender_city}, {shipment.sender_state} {shipment.sender_postal_code}</p>
+                                            <p>
+                                                {shipment.sender_city}, {shipment.sender_state} {shipment.sender_postal_code}
+                                            </p>
                                             <p>{shipment.sender_country}</p>
                                         </div>
                                     </div>
@@ -229,19 +214,19 @@ export default function ShowShipment({ shipment, customer }: Props) {
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center">
-                                        <MapPin className="h-4 w-4 mr-2" />
+                                        <MapPin className="mr-2 h-4 w-4" />
                                         Recipient Information
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-2">
-                                        {shipment.recipient_company && (
-                                            <p className="font-medium">{shipment.recipient_company}</p>
-                                        )}
+                                        {shipment.recipient_company && <p className="font-medium">{shipment.recipient_company}</p>}
                                         <p className="font-medium">{shipment.recipient_name}</p>
                                         <div className="pt-2 text-sm text-gray-600">
                                             <p>{shipment.recipient_address}</p>
-                                            <p>{shipment.recipient_city}, {shipment.recipient_state} {shipment.recipient_postal_code}</p>
+                                            <p>
+                                                {shipment.recipient_city}, {shipment.recipient_state} {shipment.recipient_postal_code}
+                                            </p>
                                             <p>{shipment.recipient_country}</p>
                                         </div>
                                     </div>
@@ -253,12 +238,12 @@ export default function ShowShipment({ shipment, customer }: Props) {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center">
-                                    <Package className="h-4 w-4 mr-2" />
+                                    <Package className="mr-2 h-4 w-4" />
                                     Package Information
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                                     <div>
                                         <p className="text-sm font-medium text-gray-700">Weight</p>
                                         <p className="text-lg">{shipment.weight_kg ? Number(shipment.weight_kg).toFixed(1) : '0.0'} kg</p>
@@ -266,7 +251,8 @@ export default function ShowShipment({ shipment, customer }: Props) {
                                     <div>
                                         <p className="text-sm font-medium text-gray-700">Dimensions</p>
                                         <p className="text-lg">
-                                            {shipment.dimensions_length_cm || 0} × {shipment.dimensions_width_cm || 0} × {shipment.dimensions_height_cm || 0} cm
+                                            {shipment.dimensions_length_cm || 0} × {shipment.dimensions_width_cm || 0} ×{' '}
+                                            {shipment.dimensions_height_cm || 0} cm
                                         </p>
                                     </div>
                                     <div>
@@ -278,12 +264,10 @@ export default function ShowShipment({ shipment, customer }: Props) {
                                         <p className="text-lg">{formatCurrency(shipment.total_cost)}</p>
                                     </div>
                                 </div>
-                                
-                                <div className="mt-4 pt-4 border-t">
-                                    <p className="text-sm font-medium text-gray-700 mb-2">Contents Description</p>
-                                    <p className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md">
-                                        {shipment.contents_description}
-                                    </p>
+
+                                <div className="mt-4 border-t pt-4">
+                                    <p className="mb-2 text-sm font-medium text-gray-700">Contents Description</p>
+                                    <p className="rounded-md bg-gray-50 p-3 text-sm text-gray-600">{shipment.contents_description}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -299,20 +283,16 @@ export default function ShowShipment({ shipment, customer }: Props) {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center">
-                                    <MapPin className="h-4 w-4 mr-2" />
+                                    <MapPin className="mr-2 h-4 w-4" />
                                     Tracking Information
                                 </CardTitle>
-                                <CardDescription>
-                                    Real-time tracking updates for your shipment
-                                </CardDescription>
+                                <CardDescription>Real-time tracking updates for your shipment</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-center py-8">
-                                    <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                                <div className="py-8 text-center">
+                                    <Clock className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                     <p className="text-gray-500">Tracking information will be available once the package is picked up</p>
-                                    <p className="text-sm text-gray-400 mt-1">
-                                        Check back later for real-time updates
-                                    </p>
+                                    <p className="mt-1 text-sm text-gray-400">Check back later for real-time updates</p>
                                 </div>
                             </CardContent>
                         </Card>

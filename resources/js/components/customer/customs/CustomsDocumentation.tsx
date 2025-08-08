@@ -1,29 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { 
-    FileText,
-    Plus,
-    Trash2,
-    Download,
-    Upload,
-    CheckCircle,
-    AlertTriangle,
-    Info,
-    Globe,
-    Package,
-    DollarSign,
-    Scale,
-    Eye,
-    Edit,
-    Save,
-    X
-} from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { AlertTriangle, CheckCircle, Download, Edit, FileText, Globe, Info, Package, Plus, Save, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface CustomsItem {
     id: string;
@@ -70,13 +53,7 @@ interface Props {
     onDocumentGenerate?: (documentType: string) => void;
 }
 
-export default function CustomsDocumentation({ 
-    className = '', 
-    shipmentId,
-    destinationCountry = 'CA',
-    onDocumentSave,
-    onDocumentGenerate
-}: Props) {
+export default function CustomsDocumentation({ className = '', shipmentId, destinationCountry = 'CA', onDocumentSave, onDocumentGenerate }: Props) {
     const [customsDocument, setCustomsDocument] = useState<CustomsDocument>({
         id: '',
         type: 'commercial_invoice',
@@ -122,7 +99,7 @@ export default function CustomsDocumentation({
 
     const calculateTotalValue = () => {
         const total = customsDocument.items.reduce((sum, item) => sum + item.totalValue, 0);
-        setCustomsDocument(prev => ({ ...prev, totalValue: total }));
+        setCustomsDocument((prev) => ({ ...prev, totalValue: total }));
     };
 
     const addCustomsItem = () => {
@@ -143,7 +120,7 @@ export default function CustomsDocumentation({
             purpose: newItem.purpose || 'commercial',
         };
 
-        setCustomsDocument(prev => ({
+        setCustomsDocument((prev) => ({
             ...prev,
             items: [...prev.items, item],
         }));
@@ -161,23 +138,23 @@ export default function CustomsDocumentation({
     };
 
     const removeCustomsItem = (itemId: string) => {
-        setCustomsDocument(prev => ({
+        setCustomsDocument((prev) => ({
             ...prev,
-            items: prev.items.filter(item => item.id !== itemId),
+            items: prev.items.filter((item) => item.id !== itemId),
         }));
     };
 
     const updateCustomsItem = (itemId: string, updates: Partial<CustomsItem>) => {
-        setCustomsDocument(prev => ({
+        setCustomsDocument((prev) => ({
             ...prev,
-            items: prev.items.map(item => 
-                item.id === itemId 
-                    ? { 
-                        ...item, 
-                        ...updates, 
-                        totalValue: (updates.quantity || item.quantity) * (updates.unitValue || item.unitValue)
+            items: prev.items.map((item) =>
+                item.id === itemId
+                    ? {
+                          ...item,
+                          ...updates,
+                          totalValue: (updates.quantity || item.quantity) * (updates.unitValue || item.unitValue),
                       }
-                    : item
+                    : item,
             ),
         }));
     };
@@ -233,7 +210,7 @@ export default function CustomsDocumentation({
         setIsGenerating(true);
         try {
             // Simulate document generation
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise((resolve) => setTimeout(resolve, 2000));
             onDocumentGenerate?.(documentType);
         } finally {
             setIsGenerating(false);
@@ -279,14 +256,12 @@ export default function CustomsDocumentation({
     return (
         <Card className={className}>
             <CardHeader className="pb-4">
-                <CardTitle className="text-lg sm:text-xl flex items-center">
-                    <FileText className="h-5 w-5 mr-2" />
+                <CardTitle className="flex items-center text-lg sm:text-xl">
+                    <FileText className="mr-2 h-5 w-5" />
                     Customs Documentation
                 </CardTitle>
-                <CardDescription>
-                    Create and manage customs documents for international shipping to {destinationCountry}
-                </CardDescription>
-                
+                <CardDescription>Create and manage customs documents for international shipping to {destinationCountry}</CardDescription>
+
                 <div className="flex items-center gap-2">
                     <Badge className={getStatusColor(customsDocument.status)}>
                         {customsDocument.status.charAt(0).toUpperCase() + customsDocument.status.slice(1)}
@@ -301,12 +276,12 @@ export default function CustomsDocumentation({
             <CardContent className="space-y-6">
                 {/* Validation Errors */}
                 {validationErrors.length > 0 && (
-                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                        <div className="mb-2 flex items-center gap-2">
                             <AlertTriangle className="h-4 w-4 text-red-600" />
                             <h4 className="font-medium text-red-900">Validation Errors</h4>
                         </div>
-                        <ul className="text-sm text-red-800 space-y-1">
+                        <ul className="space-y-1 text-sm text-red-800">
                             {validationErrors.map((error, index) => (
                                 <li key={index}>• {error}</li>
                             ))}
@@ -315,12 +290,12 @@ export default function CustomsDocumentation({
                 )}
 
                 {/* Document Settings */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                         <Label htmlFor="document-type">Document Type</Label>
                         <Select
                             value={customsDocument.type}
-                            onValueChange={(value) => setCustomsDocument(prev => ({ ...prev, type: value as any }))}
+                            onValueChange={(value) => setCustomsDocument((prev) => ({ ...prev, type: value as any }))}
                         >
                             <SelectTrigger>
                                 <SelectValue />
@@ -337,13 +312,13 @@ export default function CustomsDocumentation({
                         <Label htmlFor="incoterms">Incoterms</Label>
                         <Select
                             value={customsDocument.incoterms}
-                            onValueChange={(value) => setCustomsDocument(prev => ({ ...prev, incoterms: value }))}
+                            onValueChange={(value) => setCustomsDocument((prev) => ({ ...prev, incoterms: value }))}
                         >
                             <SelectTrigger>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                {incotermOptions.map(option => (
+                                {incotermOptions.map((option) => (
                                     <SelectItem key={option.value} value={option.value}>
                                         {option.label}
                                     </SelectItem>
@@ -356,16 +331,18 @@ export default function CustomsDocumentation({
                 {/* Importer Information */}
                 <div className="space-y-4">
                     <h3 className="font-medium text-gray-900">Importer Information</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <Label htmlFor="importer-name">Company/Name *</Label>
                             <Input
                                 id="importer-name"
                                 value={customsDocument.importerInfo.name}
-                                onChange={(e) => setCustomsDocument(prev => ({
-                                    ...prev,
-                                    importerInfo: { ...prev.importerInfo, name: e.target.value }
-                                }))}
+                                onChange={(e) =>
+                                    setCustomsDocument((prev) => ({
+                                        ...prev,
+                                        importerInfo: { ...prev.importerInfo, name: e.target.value },
+                                    }))
+                                }
                                 placeholder="Importer company name"
                             />
                         </div>
@@ -374,10 +351,12 @@ export default function CustomsDocumentation({
                             <Input
                                 id="importer-tax-id"
                                 value={customsDocument.importerInfo.taxId}
-                                onChange={(e) => setCustomsDocument(prev => ({
-                                    ...prev,
-                                    importerInfo: { ...prev.importerInfo, taxId: e.target.value }
-                                }))}
+                                onChange={(e) =>
+                                    setCustomsDocument((prev) => ({
+                                        ...prev,
+                                        importerInfo: { ...prev.importerInfo, taxId: e.target.value },
+                                    }))
+                                }
                                 placeholder="Tax identification number"
                             />
                         </div>
@@ -386,10 +365,12 @@ export default function CustomsDocumentation({
                             <Textarea
                                 id="importer-address"
                                 value={customsDocument.importerInfo.address}
-                                onChange={(e) => setCustomsDocument(prev => ({
-                                    ...prev,
-                                    importerInfo: { ...prev.importerInfo, address: e.target.value }
-                                }))}
+                                onChange={(e) =>
+                                    setCustomsDocument((prev) => ({
+                                        ...prev,
+                                        importerInfo: { ...prev.importerInfo, address: e.target.value },
+                                    }))
+                                }
                                 placeholder="Complete importer address"
                                 rows={2}
                             />
@@ -399,10 +380,12 @@ export default function CustomsDocumentation({
                             <Input
                                 id="importer-phone"
                                 value={customsDocument.importerInfo.phone}
-                                onChange={(e) => setCustomsDocument(prev => ({
-                                    ...prev,
-                                    importerInfo: { ...prev.importerInfo, phone: e.target.value }
-                                }))}
+                                onChange={(e) =>
+                                    setCustomsDocument((prev) => ({
+                                        ...prev,
+                                        importerInfo: { ...prev.importerInfo, phone: e.target.value },
+                                    }))
+                                }
                                 placeholder="+1 (555) 123-4567"
                             />
                         </div>
@@ -412,10 +395,12 @@ export default function CustomsDocumentation({
                                 id="importer-email"
                                 type="email"
                                 value={customsDocument.importerInfo.email}
-                                onChange={(e) => setCustomsDocument(prev => ({
-                                    ...prev,
-                                    importerInfo: { ...prev.importerInfo, email: e.target.value }
-                                }))}
+                                onChange={(e) =>
+                                    setCustomsDocument((prev) => ({
+                                        ...prev,
+                                        importerInfo: { ...prev.importerInfo, email: e.target.value },
+                                    }))
+                                }
                                 placeholder="importer@example.com"
                             />
                         </div>
@@ -432,15 +417,15 @@ export default function CustomsDocumentation({
                     </div>
 
                     {/* Add New Item Form */}
-                    <div className="p-4 border border-dashed border-gray-300 rounded-lg">
-                        <h4 className="font-medium text-gray-900 mb-3">Add New Item</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="rounded-lg border border-dashed border-gray-300 p-4">
+                        <h4 className="mb-3 font-medium text-gray-900">Add New Item</h4>
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             <div>
                                 <Label htmlFor="item-description">Description *</Label>
                                 <Input
                                     id="item-description"
                                     value={newItem.description || ''}
-                                    onChange={(e) => setNewItem(prev => ({ ...prev, description: e.target.value }))}
+                                    onChange={(e) => setNewItem((prev) => ({ ...prev, description: e.target.value }))}
                                     placeholder="Item description"
                                 />
                             </div>
@@ -449,7 +434,7 @@ export default function CustomsDocumentation({
                                 <Input
                                     id="item-hs-code"
                                     value={newItem.hsCode || ''}
-                                    onChange={(e) => setNewItem(prev => ({ ...prev, hsCode: e.target.value }))}
+                                    onChange={(e) => setNewItem((prev) => ({ ...prev, hsCode: e.target.value }))}
                                     placeholder="123456"
                                 />
                             </div>
@@ -460,7 +445,7 @@ export default function CustomsDocumentation({
                                     type="number"
                                     min="1"
                                     value={newItem.quantity || 1}
-                                    onChange={(e) => setNewItem(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
+                                    onChange={(e) => setNewItem((prev) => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
                                 />
                             </div>
                             <div>
@@ -471,7 +456,7 @@ export default function CustomsDocumentation({
                                     min="0"
                                     step="0.01"
                                     value={newItem.unitValue || ''}
-                                    onChange={(e) => setNewItem(prev => ({ ...prev, unitValue: parseFloat(e.target.value) || 0 }))}
+                                    onChange={(e) => setNewItem((prev) => ({ ...prev, unitValue: parseFloat(e.target.value) || 0 }))}
                                     placeholder="0.00"
                                 />
                             </div>
@@ -483,7 +468,7 @@ export default function CustomsDocumentation({
                                     min="0"
                                     step="0.01"
                                     value={newItem.weight || ''}
-                                    onChange={(e) => setNewItem(prev => ({ ...prev, weight: parseFloat(e.target.value) || 0 }))}
+                                    onChange={(e) => setNewItem((prev) => ({ ...prev, weight: parseFloat(e.target.value) || 0 }))}
                                     placeholder="0.00"
                                 />
                             </div>
@@ -491,13 +476,13 @@ export default function CustomsDocumentation({
                                 <Label htmlFor="item-purpose">Purpose</Label>
                                 <Select
                                     value={newItem.purpose || 'commercial'}
-                                    onValueChange={(value) => setNewItem(prev => ({ ...prev, purpose: value as any }))}
+                                    onValueChange={(value) => setNewItem((prev) => ({ ...prev, purpose: value as any }))}
                                 >
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {purposeOptions.map(option => (
+                                        {purposeOptions.map((option) => (
                                             <SelectItem key={option.value} value={option.value}>
                                                 {option.label}
                                             </SelectItem>
@@ -507,7 +492,7 @@ export default function CustomsDocumentation({
                             </div>
                         </div>
                         <Button onClick={addCustomsItem} className="mt-3">
-                            <Plus className="h-4 w-4 mr-2" />
+                            <Plus className="mr-2 h-4 w-4" />
                             Add Item
                         </Button>
                     </div>
@@ -516,9 +501,9 @@ export default function CustomsDocumentation({
                     {customsDocument.items.length > 0 && (
                         <div className="space-y-3">
                             {customsDocument.items.map((item, index) => (
-                                <div key={item.id} className="p-4 border rounded-lg">
+                                <div key={item.id} className="rounded-lg border p-4">
                                     <div className="flex items-start justify-between">
-                                        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                        <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                                             <div>
                                                 <Label className="text-xs text-gray-500">Description</Label>
                                                 <p className="font-medium">{item.description}</p>
@@ -529,14 +514,16 @@ export default function CustomsDocumentation({
                                             </div>
                                             <div>
                                                 <Label className="text-xs text-gray-500">Quantity × Unit Value</Label>
-                                                <p>{item.quantity} × ${item.unitValue.toFixed(2)}</p>
+                                                <p>
+                                                    {item.quantity} × ${item.unitValue.toFixed(2)}
+                                                </p>
                                             </div>
                                             <div>
                                                 <Label className="text-xs text-gray-500">Total Value</Label>
                                                 <p className="font-bold text-green-600">${item.totalValue.toFixed(2)}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2 ml-4">
+                                        <div className="ml-4 flex items-center gap-2">
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
@@ -554,12 +541,12 @@ export default function CustomsDocumentation({
                                             </Button>
                                         </div>
                                     </div>
-                                    
-                                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+
+                                    <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
                                         <span>Weight: {item.weight}kg</span>
                                         <span>Origin: {item.countryOfOrigin}</span>
                                         <Badge variant="outline" className="text-xs">
-                                            {purposeOptions.find(p => p.value === item.purpose)?.label}
+                                            {purposeOptions.find((p) => p.value === item.purpose)?.label}
                                         </Badge>
                                     </div>
                                 </div>
@@ -569,7 +556,7 @@ export default function CustomsDocumentation({
 
                     {/* Total Summary */}
                     {customsDocument.items.length > 0 && (
-                        <div className="p-4 bg-gray-50 rounded-lg">
+                        <div className="rounded-lg bg-gray-50 p-4">
                             <div className="flex items-center justify-between">
                                 <span className="font-medium text-gray-900">Total Declared Value</span>
                                 <span className="text-xl font-bold text-green-600">
@@ -581,25 +568,20 @@ export default function CustomsDocumentation({
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                <div className="flex flex-col gap-3 pt-4 sm:flex-row">
                     <Button onClick={handleSaveDocument} className="flex-1">
-                        <Save className="h-4 w-4 mr-2" />
+                        <Save className="mr-2 h-4 w-4" />
                         Save Document
                     </Button>
-                    <Button 
-                        variant="outline" 
-                        onClick={() => handleGenerateDocument(customsDocument.type)}
-                        disabled={isGenerating}
-                        className="flex-1"
-                    >
+                    <Button variant="outline" onClick={() => handleGenerateDocument(customsDocument.type)} disabled={isGenerating} className="flex-1">
                         {isGenerating ? (
                             <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
+                                <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-gray-600"></div>
                                 Generating...
                             </>
                         ) : (
                             <>
-                                <Download className="h-4 w-4 mr-2" />
+                                <Download className="mr-2 h-4 w-4" />
                                 Generate PDF
                             </>
                         )}
@@ -607,12 +589,12 @@ export default function CustomsDocumentation({
                 </div>
 
                 {/* Help Information */}
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                     <div className="flex items-start gap-3">
-                        <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <Info className="mt-0.5 h-5 w-5 text-blue-600" />
                         <div>
-                            <h4 className="font-medium text-blue-900 mb-1">Customs Documentation Tips</h4>
-                            <ul className="text-sm text-blue-800 space-y-1">
+                            <h4 className="mb-1 font-medium text-blue-900">Customs Documentation Tips</h4>
+                            <ul className="space-y-1 text-sm text-blue-800">
                                 <li>• Ensure all item descriptions are detailed and accurate</li>
                                 <li>• HS codes must match the actual product classification</li>
                                 <li>• Declared values should reflect the actual commercial value</li>

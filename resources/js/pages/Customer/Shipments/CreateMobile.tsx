@@ -1,37 +1,12 @@
-import { Head, Link, useForm } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { MobileForm, MobileFormActions, MobileFormField, MobileFormSection, MobileInputGroup, MobileSubmitButton } from '@/components/ui/mobile-form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
-} from '@/components/ui/select';
-import {
-    MobileForm,
-    MobileFormSection,
-    MobileFormField,
-    MobileInputGroup,
-    MobileFormActions,
-    MobileSubmitButton
-} from '@/components/ui/mobile-form';
-import { Badge } from '@/components/ui/badge';
-import { 
-    ArrowLeft,
-    Package,
-    MapPin,
-    Truck,
-    DollarSign,
-    Weight,
-    Ruler,
-    Plus,
-    Trash2,
-    Calculator
-} from 'lucide-react';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, Calculator, Package, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 interface Package {
     id: string;
@@ -43,9 +18,7 @@ interface Package {
 }
 
 export default function CustomerShipmentCreateMobile() {
-    const [packages, setPackages] = useState<Package[]>([
-        { id: '1', weight: 0, length: 0, width: 0, height: 0, description: '' }
-    ]);
+    const [packages, setPackages] = useState<Package[]>([{ id: '1', weight: 0, length: 0, width: 0, height: 0, description: '' }]);
 
     const { data, setData, post, processing, errors } = useForm({
         service_type: 'standard',
@@ -83,21 +56,19 @@ export default function CustomerShipmentCreateMobile() {
             length: 0,
             width: 0,
             height: 0,
-            description: ''
+            description: '',
         };
         setPackages([...packages, newPackage]);
     };
 
     const removePackage = (id: string) => {
         if (packages.length > 1) {
-            setPackages(packages.filter(pkg => pkg.id !== id));
+            setPackages(packages.filter((pkg) => pkg.id !== id));
         }
     };
 
     const updatePackage = (id: string, field: keyof Package, value: any) => {
-        setPackages(packages.map(pkg => 
-            pkg.id === id ? { ...pkg, [field]: value } : pkg
-        ));
+        setPackages(packages.map((pkg) => (pkg.id === id ? { ...pkg, [field]: value } : pkg)));
     };
 
     const calculateTotalWeight = () => {
@@ -107,70 +78,50 @@ export default function CustomerShipmentCreateMobile() {
     return (
         <AppLayout>
             <Head title="Create Shipment" />
-            
-            <div className="space-y-4 sm:space-y-6 p-4 md:p-6">
+
+            <div className="space-y-4 p-4 sm:space-y-6 md:p-6">
                 {/* Mobile-First Header */}
-                <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        asChild
-                        className="p-2 h-auto"
-                    >
+                <div className="mb-4 flex items-center space-x-3 sm:mb-6">
+                    <Button variant="ghost" size="sm" asChild className="h-auto p-2">
                         <Link href="/customer/shipments">
                             <ArrowLeft className="h-5 w-5" />
                         </Link>
                     </Button>
-                    <div className="flex-1 min-w-0">
-                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
-                            Create New Shipment
-                        </h1>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            Send a package with RT Express
-                        </p>
+                    <div className="min-w-0 flex-1">
+                        <h1 className="text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">Create New Shipment</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">Send a package with RT Express</p>
                     </div>
                 </div>
 
                 <MobileForm onSubmit={handleSubmit}>
                     {/* Service Selection */}
-                    <MobileFormSection 
-                        title="Service Type"
-                        description="Choose your shipping service"
-                        variant="card"
-                    >
+                    <MobileFormSection title="Service Type" description="Choose your shipping service" variant="card">
                         <MobileInputGroup columns={1}>
-                            <MobileFormField
-                                label="Shipping Service"
-                                required
-                                error={errors.service_type}
-                            >
-                                <Select 
-                                    value={data.service_type} 
-                                    onValueChange={(value) => setData('service_type', value)}
-                                >
+                            <MobileFormField label="Shipping Service" required error={errors.service_type}>
+                                <Select value={data.service_type} onValueChange={(value) => setData('service_type', value)}>
                                     <SelectTrigger className="h-11 text-base">
                                         <SelectValue placeholder="Select service type" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="economy" className="text-base py-3">
+                                        <SelectItem value="economy" className="py-3 text-base">
                                             <div className="flex flex-col">
                                                 <span className="font-medium">Economy</span>
                                                 <span className="text-xs text-muted-foreground">5-7 business days</span>
                                             </div>
                                         </SelectItem>
-                                        <SelectItem value="standard" className="text-base py-3">
+                                        <SelectItem value="standard" className="py-3 text-base">
                                             <div className="flex flex-col">
                                                 <span className="font-medium">Standard</span>
                                                 <span className="text-xs text-muted-foreground">3-5 business days</span>
                                             </div>
                                         </SelectItem>
-                                        <SelectItem value="express" className="text-base py-3">
+                                        <SelectItem value="express" className="py-3 text-base">
                                             <div className="flex flex-col">
                                                 <span className="font-medium">Express</span>
                                                 <span className="text-xs text-muted-foreground">1-2 business days</span>
                                             </div>
                                         </SelectItem>
-                                        <SelectItem value="overnight" className="text-base py-3">
+                                        <SelectItem value="overnight" className="py-3 text-base">
                                             <div className="flex flex-col">
                                                 <span className="font-medium">Overnight</span>
                                                 <span className="text-xs text-muted-foreground">Next business day</span>
@@ -183,17 +134,9 @@ export default function CustomerShipmentCreateMobile() {
                     </MobileFormSection>
 
                     {/* Sender Information */}
-                    <MobileFormSection 
-                        title="From (Sender)"
-                        description="Your pickup address"
-                        variant="card"
-                    >
+                    <MobileFormSection title="From (Sender)" description="Your pickup address" variant="card">
                         <MobileInputGroup columns={2}>
-                            <MobileFormField
-                                label="Sender Name"
-                                required
-                                error={errors.sender_name}
-                            >
+                            <MobileFormField label="Sender Name" required error={errors.sender_name}>
                                 <Input
                                     value={data.sender_name}
                                     onChange={(e) => setData('sender_name', e.target.value)}
@@ -202,11 +145,7 @@ export default function CustomerShipmentCreateMobile() {
                                 />
                             </MobileFormField>
 
-                            <MobileFormField
-                                label="Phone Number"
-                                required
-                                error={errors.sender_phone}
-                            >
+                            <MobileFormField label="Phone Number" required error={errors.sender_phone}>
                                 <Input
                                     type="tel"
                                     value={data.sender_phone}
@@ -218,11 +157,7 @@ export default function CustomerShipmentCreateMobile() {
                         </MobileInputGroup>
 
                         <MobileInputGroup columns={1}>
-                            <MobileFormField
-                                label="Address"
-                                required
-                                error={errors.sender_address}
-                            >
+                            <MobileFormField label="Address" required error={errors.sender_address}>
                                 <Input
                                     value={data.sender_address}
                                     onChange={(e) => setData('sender_address', e.target.value)}
@@ -233,11 +168,7 @@ export default function CustomerShipmentCreateMobile() {
                         </MobileInputGroup>
 
                         <MobileInputGroup columns={2}>
-                            <MobileFormField
-                                label="City"
-                                required
-                                error={errors.sender_city}
-                            >
+                            <MobileFormField label="City" required error={errors.sender_city}>
                                 <Input
                                     value={data.sender_city}
                                     onChange={(e) => setData('sender_city', e.target.value)}
@@ -246,11 +177,7 @@ export default function CustomerShipmentCreateMobile() {
                                 />
                             </MobileFormField>
 
-                            <MobileFormField
-                                label="State"
-                                required
-                                error={errors.sender_state}
-                            >
+                            <MobileFormField label="State" required error={errors.sender_state}>
                                 <Input
                                     value={data.sender_state}
                                     onChange={(e) => setData('sender_state', e.target.value)}
@@ -261,11 +188,7 @@ export default function CustomerShipmentCreateMobile() {
                         </MobileInputGroup>
 
                         <MobileInputGroup columns={2}>
-                            <MobileFormField
-                                label="Postal Code"
-                                required
-                                error={errors.sender_postal_code}
-                            >
+                            <MobileFormField label="Postal Code" required error={errors.sender_postal_code}>
                                 <Input
                                     value={data.sender_postal_code}
                                     onChange={(e) => setData('sender_postal_code', e.target.value)}
@@ -274,22 +197,21 @@ export default function CustomerShipmentCreateMobile() {
                                 />
                             </MobileFormField>
 
-                            <MobileFormField
-                                label="Country"
-                                required
-                                error={errors.sender_country}
-                            >
-                                <Select 
-                                    value={data.sender_country} 
-                                    onValueChange={(value) => setData('sender_country', value)}
-                                >
+                            <MobileFormField label="Country" required error={errors.sender_country}>
+                                <Select value={data.sender_country} onValueChange={(value) => setData('sender_country', value)}>
                                     <SelectTrigger className="h-11 text-base">
                                         <SelectValue placeholder="Select country" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="US" className="text-base py-3">United States</SelectItem>
-                                        <SelectItem value="CA" className="text-base py-3">Canada</SelectItem>
-                                        <SelectItem value="MX" className="text-base py-3">Mexico</SelectItem>
+                                        <SelectItem value="US" className="py-3 text-base">
+                                            United States
+                                        </SelectItem>
+                                        <SelectItem value="CA" className="py-3 text-base">
+                                            Canada
+                                        </SelectItem>
+                                        <SelectItem value="MX" className="py-3 text-base">
+                                            Mexico
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </MobileFormField>
@@ -297,17 +219,9 @@ export default function CustomerShipmentCreateMobile() {
                     </MobileFormSection>
 
                     {/* Recipient Information */}
-                    <MobileFormSection 
-                        title="To (Recipient)"
-                        description="Delivery destination"
-                        variant="card"
-                    >
+                    <MobileFormSection title="To (Recipient)" description="Delivery destination" variant="card">
                         <MobileInputGroup columns={2}>
-                            <MobileFormField
-                                label="Recipient Name"
-                                required
-                                error={errors.recipient_name}
-                            >
+                            <MobileFormField label="Recipient Name" required error={errors.recipient_name}>
                                 <Input
                                     value={data.recipient_name}
                                     onChange={(e) => setData('recipient_name', e.target.value)}
@@ -316,11 +230,7 @@ export default function CustomerShipmentCreateMobile() {
                                 />
                             </MobileFormField>
 
-                            <MobileFormField
-                                label="Phone Number"
-                                required
-                                error={errors.recipient_phone}
-                            >
+                            <MobileFormField label="Phone Number" required error={errors.recipient_phone}>
                                 <Input
                                     type="tel"
                                     value={data.recipient_phone}
@@ -332,11 +242,7 @@ export default function CustomerShipmentCreateMobile() {
                         </MobileInputGroup>
 
                         <MobileInputGroup columns={1}>
-                            <MobileFormField
-                                label="Address"
-                                required
-                                error={errors.recipient_address}
-                            >
+                            <MobileFormField label="Address" required error={errors.recipient_address}>
                                 <Input
                                     value={data.recipient_address}
                                     onChange={(e) => setData('recipient_address', e.target.value)}
@@ -347,11 +253,7 @@ export default function CustomerShipmentCreateMobile() {
                         </MobileInputGroup>
 
                         <MobileInputGroup columns={2}>
-                            <MobileFormField
-                                label="City"
-                                required
-                                error={errors.recipient_city}
-                            >
+                            <MobileFormField label="City" required error={errors.recipient_city}>
                                 <Input
                                     value={data.recipient_city}
                                     onChange={(e) => setData('recipient_city', e.target.value)}
@@ -360,11 +262,7 @@ export default function CustomerShipmentCreateMobile() {
                                 />
                             </MobileFormField>
 
-                            <MobileFormField
-                                label="State"
-                                required
-                                error={errors.recipient_state}
-                            >
+                            <MobileFormField label="State" required error={errors.recipient_state}>
                                 <Input
                                     value={data.recipient_state}
                                     onChange={(e) => setData('recipient_state', e.target.value)}
@@ -375,11 +273,7 @@ export default function CustomerShipmentCreateMobile() {
                         </MobileInputGroup>
 
                         <MobileInputGroup columns={2}>
-                            <MobileFormField
-                                label="Postal Code"
-                                required
-                                error={errors.recipient_postal_code}
-                            >
+                            <MobileFormField label="Postal Code" required error={errors.recipient_postal_code}>
                                 <Input
                                     value={data.recipient_postal_code}
                                     onChange={(e) => setData('recipient_postal_code', e.target.value)}
@@ -388,22 +282,21 @@ export default function CustomerShipmentCreateMobile() {
                                 />
                             </MobileFormField>
 
-                            <MobileFormField
-                                label="Country"
-                                required
-                                error={errors.recipient_country}
-                            >
-                                <Select 
-                                    value={data.recipient_country} 
-                                    onValueChange={(value) => setData('recipient_country', value)}
-                                >
+                            <MobileFormField label="Country" required error={errors.recipient_country}>
+                                <Select value={data.recipient_country} onValueChange={(value) => setData('recipient_country', value)}>
                                     <SelectTrigger className="h-11 text-base">
                                         <SelectValue placeholder="Select country" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="US" className="text-base py-3">United States</SelectItem>
-                                        <SelectItem value="CA" className="text-base py-3">Canada</SelectItem>
-                                        <SelectItem value="MX" className="text-base py-3">Mexico</SelectItem>
+                                        <SelectItem value="US" className="py-3 text-base">
+                                            United States
+                                        </SelectItem>
+                                        <SelectItem value="CA" className="py-3 text-base">
+                                            Canada
+                                        </SelectItem>
+                                        <SelectItem value="MX" className="py-3 text-base">
+                                            Mexico
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </MobileFormField>
@@ -411,25 +304,23 @@ export default function CustomerShipmentCreateMobile() {
                     </MobileFormSection>
 
                     {/* Package Information */}
-                    <MobileFormSection 
+                    <MobileFormSection
                         title="Package Details"
                         description={`${packages.length} package(s) • Total weight: ${calculateTotalWeight()} lbs`}
                         variant="card"
                     >
                         <div className="space-y-4">
                             {packages.map((pkg, index) => (
-                                <div key={pkg.id} className="border border-border rounded-lg p-4 space-y-4">
+                                <div key={pkg.id} className="space-y-4 rounded-lg border border-border p-4">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="font-medium text-sm">
-                                            Package {index + 1}
-                                        </h4>
+                                        <h4 className="text-sm font-medium">Package {index + 1}</h4>
                                         {packages.length > 1 && (
                                             <Button
                                                 type="button"
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => removePackage(pkg.id)}
-                                                className="text-red-600 hover:text-red-700 h-8 w-8 p-0"
+                                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
@@ -437,10 +328,7 @@ export default function CustomerShipmentCreateMobile() {
                                     </div>
 
                                     <MobileInputGroup columns={1}>
-                                        <MobileFormField
-                                            label="Package Description"
-                                            required
-                                        >
+                                        <MobileFormField label="Package Description" required>
                                             <Input
                                                 value={pkg.description}
                                                 onChange={(e) => updatePackage(pkg.id, 'description', e.target.value)}
@@ -451,10 +339,7 @@ export default function CustomerShipmentCreateMobile() {
                                     </MobileInputGroup>
 
                                     <MobileInputGroup columns={2}>
-                                        <MobileFormField
-                                            label="Weight (lbs)"
-                                            required
-                                        >
+                                        <MobileFormField label="Weight (lbs)" required>
                                             <Input
                                                 type="number"
                                                 value={pkg.weight || ''}
@@ -466,10 +351,7 @@ export default function CustomerShipmentCreateMobile() {
                                             />
                                         </MobileFormField>
 
-                                        <MobileFormField
-                                            label="Length (in)"
-                                            required
-                                        >
+                                        <MobileFormField label="Length (in)" required>
                                             <Input
                                                 type="number"
                                                 value={pkg.length || ''}
@@ -483,10 +365,7 @@ export default function CustomerShipmentCreateMobile() {
                                     </MobileInputGroup>
 
                                     <MobileInputGroup columns={2}>
-                                        <MobileFormField
-                                            label="Width (in)"
-                                            required
-                                        >
+                                        <MobileFormField label="Width (in)" required>
                                             <Input
                                                 type="number"
                                                 value={pkg.width || ''}
@@ -498,10 +377,7 @@ export default function CustomerShipmentCreateMobile() {
                                             />
                                         </MobileFormField>
 
-                                        <MobileFormField
-                                            label="Height (in)"
-                                            required
-                                        >
+                                        <MobileFormField label="Height (in)" required>
                                             <Input
                                                 type="number"
                                                 value={pkg.height || ''}
@@ -516,42 +392,27 @@ export default function CustomerShipmentCreateMobile() {
                                 </div>
                             ))}
 
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={addPackage}
-                                className="w-full h-11 text-base"
-                            >
-                                <Plus className="h-4 w-4 mr-2" />
+                            <Button type="button" variant="outline" onClick={addPackage} className="h-11 w-full text-base">
+                                <Plus className="mr-2 h-4 w-4" />
                                 Add Another Package
                             </Button>
                         </div>
                     </MobileFormSection>
 
                     {/* Additional Options */}
-                    <MobileFormSection 
-                        title="Additional Options"
-                        description="Special instructions and services"
-                        variant="card"
-                    >
+                    <MobileFormSection title="Additional Options" description="Special instructions and services" variant="card">
                         <MobileInputGroup columns={1}>
-                            <MobileFormField
-                                label="Special Instructions"
-                                description="Any special handling or delivery instructions"
-                            >
+                            <MobileFormField label="Special Instructions" description="Any special handling or delivery instructions">
                                 <Textarea
                                     value={data.special_instructions}
                                     onChange={(e) => setData('special_instructions', e.target.value)}
                                     placeholder="Enter any special instructions..."
                                     rows={3}
-                                    className="text-base resize-none"
+                                    className="resize-none text-base"
                                 />
                             </MobileFormField>
 
-                            <MobileFormField
-                                label="Insurance Value (USD)"
-                                description="Declared value for insurance purposes"
-                            >
+                            <MobileFormField label="Insurance Value (USD)" description="Declared value for insurance purposes">
                                 <Input
                                     type="number"
                                     value={data.insurance_value || ''}
@@ -567,23 +428,12 @@ export default function CustomerShipmentCreateMobile() {
 
                     {/* Form Actions */}
                     <MobileFormActions layout="horizontal">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="touch"
-                            asChild
-                            className="w-full sm:w-auto"
-                        >
-                            <Link href="/customer/shipments">
-                                Cancel
-                            </Link>
+                        <Button type="button" variant="outline" size="touch" asChild className="w-full sm:w-auto">
+                            <Link href="/customer/shipments">Cancel</Link>
                         </Button>
-                        
-                        <MobileSubmitButton
-                            loading={processing}
-                            className="bg-rt-red hover:bg-rt-red-700"
-                        >
-                            <Calculator className="h-4 w-4 mr-2" />
+
+                        <MobileSubmitButton loading={processing} className="bg-rt-red hover:bg-rt-red-700">
+                            <Calculator className="mr-2 h-4 w-4" />
                             Get Quote & Create
                         </MobileSubmitButton>
                     </MobileFormActions>

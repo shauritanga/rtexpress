@@ -1,26 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-    MessageCircle,
-    Phone,
-    Send,
-    Paperclip,
-    Camera,
-    MapPin,
-    Clock,
-    CheckCircle,
-    AlertCircle,
-    User,
-    Truck,
-    Image as ImageIcon,
-    Download,
-    X
-} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { AlertCircle, Camera, CheckCircle, Download, MapPin, MessageCircle, Phone, Send, Truck, User, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface Message {
     id: string;
@@ -59,14 +43,7 @@ interface Props {
     className?: string;
 }
 
-export default function CommunicationCenter({ 
-    trackingNumber, 
-    driver, 
-    messages, 
-    onSendMessage, 
-    onCallDriver,
-    className = '' 
-}: Props) {
+export default function CommunicationCenter({ trackingNumber, driver, messages, onSendMessage, onCallDriver, className = '' }: Props) {
     const [newMessage, setNewMessage] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -101,12 +78,12 @@ export default function CommunicationCenter({
 
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
-        setSelectedImages(prev => [...prev, ...files]);
+        setSelectedImages((prev) => [...prev, ...files]);
         setShowImagePreview(true);
     };
 
     const removeSelectedImage = (index: number) => {
-        setSelectedImages(prev => prev.filter((_, i) => i !== index));
+        setSelectedImages((prev) => prev.filter((_, i) => i !== index));
         if (selectedImages.length === 1) {
             setShowImagePreview(false);
         }
@@ -115,7 +92,7 @@ export default function CommunicationCenter({
     const formatTime = (timestamp: string) => {
         return new Date(timestamp).toLocaleTimeString('en-US', {
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
         });
     };
 
@@ -131,15 +108,13 @@ export default function CommunicationCenter({
     return (
         <Card className={className}>
             <CardHeader className="pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <CardTitle className="text-lg sm:text-xl flex items-center">
-                            <MessageCircle className="h-5 w-5 mr-2" />
+                        <CardTitle className="flex items-center text-lg sm:text-xl">
+                            <MessageCircle className="mr-2 h-5 w-5" />
                             Communication Center
                         </CardTitle>
-                        <CardDescription>
-                            Chat with your delivery driver • {trackingNumber}
-                        </CardDescription>
+                        <CardDescription>Chat with your delivery driver • {trackingNumber}</CardDescription>
                     </div>
 
                     {/* Driver Info & Actions - Mobile Optimized */}
@@ -154,18 +129,11 @@ export default function CommunicationCenter({
                                 </Avatar>
                                 <div className="hidden sm:block">
                                     <p className="text-sm font-medium">{driver.name}</p>
-                                    <Badge className={`${getStatusColor(driver.status)} text-xs`}>
-                                        {driver.status}
-                                    </Badge>
+                                    <Badge className={`${getStatusColor(driver.status)} text-xs`}>{driver.status}</Badge>
                                 </div>
                             </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={onCallDriver}
-                                className="flex-shrink-0"
-                            >
-                                <Phone className="h-4 w-4 mr-2" />
+                            <Button variant="outline" size="sm" onClick={onCallDriver} className="flex-shrink-0">
+                                <Phone className="mr-2 h-4 w-4" />
                                 Call
                             </Button>
                         </div>
@@ -174,7 +142,7 @@ export default function CommunicationCenter({
 
                 {/* Driver Status Bar - Mobile */}
                 {driver && (
-                    <div className="sm:hidden flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-3 sm:hidden">
                         <div className="flex items-center gap-3">
                             <Truck className="h-4 w-4 text-blue-600" />
                             <div>
@@ -182,44 +150,35 @@ export default function CommunicationCenter({
                                 <p className="text-xs text-blue-700">{driver.vehicle}</p>
                             </div>
                         </div>
-                        <Badge className={`${getStatusColor(driver.status)} text-xs`}>
-                            {driver.status}
-                        </Badge>
+                        <Badge className={`${getStatusColor(driver.status)} text-xs`}>{driver.status}</Badge>
                     </div>
                 )}
             </CardHeader>
 
             <CardContent className="p-0">
                 {/* Messages Container - Mobile Optimized */}
-                <div className="h-64 sm:h-80 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                <div className="h-64 space-y-4 overflow-y-auto bg-gray-50 p-4 sm:h-80">
                     {messages.length === 0 ? (
-                        <div className="text-center py-8">
-                            <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <div className="py-8 text-center">
+                            <MessageCircle className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                             <p className="text-gray-500">No messages yet</p>
-                            <p className="text-sm text-gray-400 mt-1">
-                                Start a conversation with your driver
-                            </p>
+                            <p className="mt-1 text-sm text-gray-400">Start a conversation with your driver</p>
                         </div>
                     ) : (
                         messages.map((message) => (
-                            <div
-                                key={message.id}
-                                className={`flex ${
-                                    message.sender === 'customer' ? 'justify-end' : 'justify-start'
-                                }`}
-                            >
+                            <div key={message.id} className={`flex ${message.sender === 'customer' ? 'justify-end' : 'justify-start'}`}>
                                 <div
-                                    className={`max-w-xs sm:max-w-sm lg:max-w-md px-4 py-2 rounded-lg ${
+                                    className={`max-w-xs rounded-lg px-4 py-2 sm:max-w-sm lg:max-w-md ${
                                         message.sender === 'customer'
                                             ? 'bg-blue-600 text-white'
                                             : message.sender === 'system'
-                                            ? 'bg-gray-200 text-gray-800'
-                                            : 'bg-white text-gray-900 border'
+                                              ? 'bg-gray-200 text-gray-800'
+                                              : 'border bg-white text-gray-900'
                                     }`}
                                 >
                                     {/* Message Header */}
                                     {message.sender !== 'customer' && message.sender !== 'system' && (
-                                        <div className="flex items-center gap-2 mb-1">
+                                        <div className="mb-1 flex items-center gap-2">
                                             <Avatar className="h-5 w-5">
                                                 <AvatarImage src={driver?.photo} alt={driver?.name} />
                                                 <AvatarFallback>
@@ -231,26 +190,22 @@ export default function CommunicationCenter({
                                     )}
 
                                     {/* Message Content */}
-                                    {message.type === 'text' && (
-                                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                                    )}
+                                    {message.type === 'text' && <p className="text-sm whitespace-pre-wrap">{message.content}</p>}
 
                                     {message.type === 'image' && message.attachments && (
                                         <div className="space-y-2">
-                                            {message.content && (
-                                                <p className="text-sm">{message.content}</p>
-                                            )}
+                                            {message.content && <p className="text-sm">{message.content}</p>}
                                             <div className="grid grid-cols-2 gap-2">
                                                 {message.attachments.map((attachment, index) => (
-                                                    <div key={index} className="relative group">
+                                                    <div key={index} className="group relative">
                                                         <img
                                                             src={attachment.url}
                                                             alt={attachment.name}
-                                                            className="w-full h-20 object-cover rounded cursor-pointer"
+                                                            className="h-20 w-full cursor-pointer rounded object-cover"
                                                             onClick={() => window.open(attachment.url, '_blank')}
                                                         />
-                                                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded flex items-center justify-center">
-                                                            <Download className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <div className="bg-opacity-0 group-hover:bg-opacity-20 absolute inset-0 flex items-center justify-center rounded bg-black transition-all">
+                                                            <Download className="h-4 w-4 text-white opacity-0 transition-opacity group-hover:opacity-100" />
                                                         </div>
                                                     </div>
                                                 ))}
@@ -276,14 +231,10 @@ export default function CommunicationCenter({
                                     )}
 
                                     {/* Message Footer */}
-                                    <div className="flex items-center justify-between mt-1">
-                                        <span className="text-xs opacity-70">
-                                            {formatTime(message.timestamp)}
-                                        </span>
+                                    <div className="mt-1 flex items-center justify-between">
+                                        <span className="text-xs opacity-70">{formatTime(message.timestamp)}</span>
                                         {message.sender === 'customer' && (
-                                            <CheckCircle className={`h-3 w-3 ${
-                                                message.read ? 'text-blue-300' : 'text-blue-400'
-                                            }`} />
+                                            <CheckCircle className={`h-3 w-3 ${message.read ? 'text-blue-300' : 'text-blue-400'}`} />
                                         )}
                                     </div>
                                 </div>
@@ -295,11 +246,9 @@ export default function CommunicationCenter({
 
                 {/* Image Preview */}
                 {showImagePreview && selectedImages.length > 0 && (
-                    <div className="p-4 bg-blue-50 border-t border-blue-200">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-blue-900">
-                                Selected Images ({selectedImages.length})
-                            </span>
+                    <div className="border-t border-blue-200 bg-blue-50 p-4">
+                        <div className="mb-2 flex items-center justify-between">
+                            <span className="text-sm font-medium text-blue-900">Selected Images ({selectedImages.length})</span>
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -311,18 +260,14 @@ export default function CommunicationCenter({
                                 <X className="h-4 w-4" />
                             </Button>
                         </div>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                             {selectedImages.map((file, index) => (
-                                <div key={index} className="relative group">
-                                    <img
-                                        src={URL.createObjectURL(file)}
-                                        alt={file.name}
-                                        className="w-full h-16 object-cover rounded border"
-                                    />
+                                <div key={index} className="group relative">
+                                    <img src={URL.createObjectURL(file)} alt={file.name} className="h-16 w-full rounded border object-cover" />
                                     <Button
                                         variant="destructive"
                                         size="sm"
-                                        className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        className="absolute -top-2 -right-2 h-6 w-6 p-0 opacity-0 transition-opacity group-hover:opacity-100"
                                         onClick={() => removeSelectedImage(index)}
                                     >
                                         <X className="h-3 w-3" />
@@ -334,7 +279,7 @@ export default function CommunicationCenter({
                 )}
 
                 {/* Message Input - Mobile Optimized */}
-                <div className="p-4 border-t bg-white">
+                <div className="border-t bg-white p-4">
                     <div className="flex gap-2">
                         <div className="flex-1">
                             <Textarea
@@ -342,28 +287,15 @@ export default function CommunicationCenter({
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 onKeyPress={handleKeyPress}
                                 placeholder="Type your message..."
-                                className="min-h-[40px] max-h-24 resize-none text-base sm:text-sm"
+                                className="max-h-24 min-h-[40px] resize-none text-base sm:text-sm"
                                 disabled={!driver}
                             />
                         </div>
-                        
+
                         {/* Action Buttons */}
                         <div className="flex flex-col gap-2">
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*"
-                                multiple
-                                onChange={handleImageSelect}
-                                className="hidden"
-                            />
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => fileInputRef.current?.click()}
-                                disabled={!driver}
-                                className="p-2"
-                            >
+                            <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageSelect} className="hidden" />
+                            <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={!driver} className="p-2">
                                 <Camera className="h-4 w-4" />
                             </Button>
                             <Button
@@ -378,11 +310,11 @@ export default function CommunicationCenter({
 
                     {/* Typing Indicator */}
                     {isTyping && (
-                        <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
+                        <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
                             <div className="flex gap-1">
-                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400"></div>
+                                <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: '0.1s' }}></div>
+                                <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: '0.2s' }}></div>
                             </div>
                             <span>{driver?.name} is typing...</span>
                         </div>
@@ -390,8 +322,8 @@ export default function CommunicationCenter({
 
                     {/* No Driver Notice */}
                     {!driver && (
-                        <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
-                            <AlertCircle className="h-4 w-4 inline mr-2" />
+                        <div className="mt-2 rounded border border-yellow-200 bg-yellow-50 p-2 text-sm text-yellow-800">
+                            <AlertCircle className="mr-2 inline h-4 w-4" />
                             Driver will be assigned when your package is out for delivery
                         </div>
                     )}

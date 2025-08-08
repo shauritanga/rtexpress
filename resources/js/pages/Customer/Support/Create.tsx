@@ -1,24 +1,13 @@
-import React, { useState } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-    ArrowLeft,
-    AlertCircle,
-    HelpCircle,
-    Package,
-    CreditCard,
-    Settings,
-    Bug,
-    MessageSquare,
-    Lightbulb
-} from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { AlertCircle, ArrowLeft, Bug, CreditCard, HelpCircle, Lightbulb, Package } from 'lucide-react';
+import React from 'react';
 
 interface Customer {
     id: number;
@@ -70,7 +59,7 @@ export default function SupportCreate({ customer }: Props) {
     ];
 
     const getCategoryIcon = (category: string) => {
-        const categoryData = categories.find(cat => cat.value === category);
+        const categoryData = categories.find((cat) => cat.value === category);
         const Icon = categoryData?.icon || HelpCircle;
         return <Icon className="h-4 w-4" />;
     };
@@ -78,33 +67,29 @@ export default function SupportCreate({ customer }: Props) {
     return (
         <AppLayout>
             <Head title="Create Support Ticket" />
-            
+
             <div className="space-y-6 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="flex items-center gap-4">
                     <Button variant="outline" size="sm" asChild>
                         <Link href="/customer/support">
-                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Support
                         </Link>
                     </Button>
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Create Support Ticket</h1>
-                        <p className="text-sm sm:text-base text-gray-600 mt-1">
-                            Describe your issue and we'll help you resolve it
-                        </p>
+                        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Create Support Ticket</h1>
+                        <p className="mt-1 text-sm text-gray-600 sm:text-base">Describe your issue and we'll help you resolve it</p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     {/* Main Form */}
                     <div className="lg:col-span-2">
                         <Card>
                             <CardHeader>
                                 <CardTitle>Ticket Details</CardTitle>
-                                <CardDescription>
-                                    Please provide as much detail as possible to help us assist you better
-                                </CardDescription>
+                                <CardDescription>Please provide as much detail as possible to help us assist you better</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -118,9 +103,7 @@ export default function SupportCreate({ customer }: Props) {
                                             placeholder="Brief description of your issue"
                                             className={errors.subject ? 'border-red-500' : ''}
                                         />
-                                        {errors.subject && (
-                                            <p className="text-sm text-red-600 mt-1">{errors.subject}</p>
-                                        )}
+                                        {errors.subject && <p className="mt-1 text-sm text-red-600">{errors.subject}</p>}
                                     </div>
 
                                     {/* Category */}
@@ -141,9 +124,7 @@ export default function SupportCreate({ customer }: Props) {
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        {errors.category && (
-                                            <p className="text-sm text-red-600 mt-1">{errors.category}</p>
-                                        )}
+                                        {errors.category && <p className="mt-1 text-sm text-red-600">{errors.category}</p>}
                                     </div>
 
                                     {/* Priority */}
@@ -164,9 +145,7 @@ export default function SupportCreate({ customer }: Props) {
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        {errors.priority && (
-                                            <p className="text-sm text-red-600 mt-1">{errors.priority}</p>
-                                        )}
+                                        {errors.priority && <p className="mt-1 text-sm text-red-600">{errors.priority}</p>}
                                     </div>
 
                                     {/* Related Shipment */}
@@ -178,7 +157,7 @@ export default function SupportCreate({ customer }: Props) {
                                             onChange={(e) => setData('related_shipment', e.target.value)}
                                             placeholder="Enter tracking number if related to a shipment"
                                         />
-                                        <p className="text-xs text-gray-500 mt-1">
+                                        <p className="mt-1 text-xs text-gray-500">
                                             If your issue is related to a specific shipment, please provide the tracking number
                                         </p>
                                     </div>
@@ -194,10 +173,8 @@ export default function SupportCreate({ customer }: Props) {
                                             rows={6}
                                             className={errors.description ? 'border-red-500' : ''}
                                         />
-                                        {errors.description && (
-                                            <p className="text-sm text-red-600 mt-1">{errors.description}</p>
-                                        )}
-                                        <p className="text-xs text-gray-500 mt-1">
+                                        {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+                                        <p className="mt-1 text-xs text-gray-500">
                                             The more details you provide, the faster we can help resolve your issue
                                         </p>
                                     </div>
@@ -225,21 +202,21 @@ export default function SupportCreate({ customer }: Props) {
                             </CardHeader>
                             <CardContent className="space-y-3">
                                 <div className="flex items-start gap-3">
-                                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></div>
                                     <div>
                                         <p className="text-sm font-medium">Be specific</p>
                                         <p className="text-xs text-gray-600">Include exact error messages and steps to reproduce</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">
-                                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></div>
                                     <div>
                                         <p className="text-sm font-medium">Include context</p>
                                         <p className="text-xs text-gray-600">Mention what you were trying to accomplish</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">
-                                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                                    <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></div>
                                     <div>
                                         <p className="text-sm font-medium">Check Help Center first</p>
                                         <p className="text-xs text-gray-600">Many common issues have quick solutions</p>
@@ -247,8 +224,6 @@ export default function SupportCreate({ customer }: Props) {
                                 </div>
                             </CardContent>
                         </Card>
-
-
 
                         {/* Contact Info */}
                         <Card>

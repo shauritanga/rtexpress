@@ -1,25 +1,12 @@
-import React, { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { 
-    Package, 
-    Plus, 
-    Search, 
-    Filter, 
-    Download,
-    Eye,
-    Truck,
-    Clock,
-    CheckCircle,
-    AlertCircle,
-    Calendar,
-    MapPin
-} from 'lucide-react';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
+import { AlertCircle, Calendar, CheckCircle, Clock, Download, Eye, Filter, MapPin, Package, Plus, Search, Truck } from 'lucide-react';
+import { useState } from 'react';
 
 interface Shipment {
     id: number;
@@ -98,16 +85,20 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
     const [dateTo, setDateTo] = useState(filters.date_to || '');
 
     const handleSearch = () => {
-        router.get('/customer/shipments', {
-            search: searchTerm,
-            status: statusFilter === 'all' ? '' : statusFilter,
-            service_type: serviceTypeFilter === 'all' ? '' : serviceTypeFilter,
-            date_from: dateFrom,
-            date_to: dateTo,
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        router.get(
+            '/customer/shipments',
+            {
+                search: searchTerm,
+                status: statusFilter === 'all' ? '' : statusFilter,
+                service_type: serviceTypeFilter === 'all' ? '' : serviceTypeFilter,
+                date_from: dateFrom,
+                date_to: dateTo,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     const clearFilters = () => {
@@ -142,21 +133,21 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
 
             <div className="space-y-6 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">My Shipments</h1>
                         <p className="text-gray-600">Manage and track your shipments</p>
                     </div>
                     <Link href="/customer/shipments/create">
                         <Button className="w-full sm:w-auto">
-                            <Plus className="w-4 h-4 mr-2" />
+                            <Plus className="mr-2 h-4 w-4" />
                             Create Shipment
                         </Button>
                     </Link>
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center justify-between">
@@ -164,11 +155,11 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                                     <p className="text-sm font-medium text-gray-600">Total</p>
                                     <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
                                 </div>
-                                <Package className="w-8 h-8 text-gray-400" />
+                                <Package className="h-8 w-8 text-gray-400" />
                             </div>
                         </CardContent>
                     </Card>
-                    
+
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center justify-between">
@@ -176,11 +167,11 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                                     <p className="text-sm font-medium text-gray-600">Pending</p>
                                     <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
                                 </div>
-                                <Clock className="w-8 h-8 text-yellow-400" />
+                                <Clock className="h-8 w-8 text-yellow-400" />
                             </div>
                         </CardContent>
                     </Card>
-                    
+
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center justify-between">
@@ -188,11 +179,11 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                                     <p className="text-sm font-medium text-gray-600">In Transit</p>
                                     <p className="text-2xl font-bold text-purple-600">{stats.in_transit}</p>
                                 </div>
-                                <Truck className="w-8 h-8 text-purple-400" />
+                                <Truck className="h-8 w-8 text-purple-400" />
                             </div>
                         </CardContent>
                     </Card>
-                    
+
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center justify-between">
@@ -200,11 +191,11 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                                     <p className="text-sm font-medium text-gray-600">Delivered</p>
                                     <p className="text-2xl font-bold text-green-600">{stats.delivered}</p>
                                 </div>
-                                <CheckCircle className="w-8 h-8 text-green-400" />
+                                <CheckCircle className="h-8 w-8 text-green-400" />
                             </div>
                         </CardContent>
                     </Card>
-                    
+
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center justify-between">
@@ -212,7 +203,7 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                                     <p className="text-sm font-medium text-gray-600">This Month</p>
                                     <p className="text-2xl font-bold text-blue-600">{stats.this_month}</p>
                                 </div>
-                                <Calendar className="w-8 h-8 text-blue-400" />
+                                <Calendar className="h-8 w-8 text-blue-400" />
                             </div>
                         </CardContent>
                     </Card>
@@ -222,12 +213,12 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Filter className="w-5 h-5" />
+                            <Filter className="h-5 w-5" />
                             Filters
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-6">
                             <div className="lg:col-span-2">
                                 <Input
                                     placeholder="Search by tracking number..."
@@ -236,7 +227,7 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                                     className="w-full"
                                 />
                             </div>
-                            
+
                             <Select value={statusFilter} onValueChange={setStatusFilter}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="All Statuses" />
@@ -250,7 +241,7 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                                     <SelectItem value="exception">Exception</SelectItem>
                                 </SelectContent>
                             </Select>
-                            
+
                             <Select value={serviceTypeFilter} onValueChange={setServiceTypeFilter}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="All Services" />
@@ -263,25 +254,15 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                                     <SelectItem value="international">International</SelectItem>
                                 </SelectContent>
                             </Select>
-                            
-                            <Input
-                                type="date"
-                                placeholder="From Date"
-                                value={dateFrom}
-                                onChange={(e) => setDateFrom(e.target.value)}
-                            />
-                            
-                            <Input
-                                type="date"
-                                placeholder="To Date"
-                                value={dateTo}
-                                onChange={(e) => setDateTo(e.target.value)}
-                            />
+
+                            <Input type="date" placeholder="From Date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
+
+                            <Input type="date" placeholder="To Date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
                         </div>
-                        
-                        <div className="flex gap-2 mt-4">
+
+                        <div className="mt-4 flex gap-2">
                             <Button onClick={handleSearch} className="flex items-center gap-2">
-                                <Search className="w-4 h-4" />
+                                <Search className="h-4 w-4" />
                                 Search
                             </Button>
                             <Button variant="outline" onClick={clearFilters}>
@@ -294,28 +275,27 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                 {/* Shipments List */}
                 <Card>
                     <CardHeader>
-                        <div className="flex justify-between items-center">
+                        <div className="flex items-center justify-between">
                             <CardTitle>Shipments ({shipments.total})</CardTitle>
                             <Button variant="outline" size="sm">
-                                <Download className="w-4 h-4 mr-2" />
+                                <Download className="mr-2 h-4 w-4" />
                                 Export
                             </Button>
                         </div>
                     </CardHeader>
                     <CardContent>
                         {shipments.data.length === 0 ? (
-                            <div className="text-center py-12">
-                                <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                                <h3 className="text-lg font-medium text-gray-900 mb-2">No shipments found</h3>
-                                <p className="text-gray-600 mb-4">
-                                    {Object.keys(filters).some(key => filters[key as keyof typeof filters]) 
-                                        ? "Try adjusting your filters or search terms."
-                                        : "Create your first shipment to get started."
-                                    }
+                            <div className="py-12 text-center">
+                                <Package className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                <h3 className="mb-2 text-lg font-medium text-gray-900">No shipments found</h3>
+                                <p className="mb-4 text-gray-600">
+                                    {Object.keys(filters).some((key) => filters[key as keyof typeof filters])
+                                        ? 'Try adjusting your filters or search terms.'
+                                        : 'Create your first shipment to get started.'}
                                 </p>
                                 <Link href="/customer/shipments/create">
                                     <Button>
-                                        <Plus className="w-4 h-4 mr-2" />
+                                        <Plus className="mr-2 h-4 w-4" />
                                         Create Shipment
                                     </Button>
                                 </Link>
@@ -326,40 +306,48 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                                     const statusInfo = statusConfig[shipment.status as keyof typeof statusConfig];
                                     const serviceInfo = serviceTypeConfig[shipment.service_type as keyof typeof serviceTypeConfig];
                                     const StatusIcon = statusInfo?.icon || Package;
-                                    
+
                                     return (
-                                        <div key={shipment.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                                        <div key={shipment.id} className="rounded-lg border p-4 transition-colors hover:bg-gray-50">
+                                            <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                                                 <div className="flex-1">
-                                                    <div className="flex items-center gap-3 mb-2">
-                                                        <h3 className="font-semibold text-lg text-gray-900">
-                                                            {shipment.tracking_number}
-                                                        </h3>
+                                                    <div className="mb-2 flex items-center gap-3">
+                                                        <h3 className="text-lg font-semibold text-gray-900">{shipment.tracking_number}</h3>
                                                         <Badge className={statusInfo?.color}>
-                                                            <StatusIcon className="w-3 h-3 mr-1" />
+                                                            <StatusIcon className="mr-1 h-3 w-3" />
                                                             {statusInfo?.label}
                                                         </Badge>
                                                         <Badge variant="outline" className={serviceInfo?.color}>
                                                             {serviceInfo?.label}
                                                         </Badge>
                                                     </div>
-                                                    
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+
+                                                    <div className="grid grid-cols-1 gap-4 text-sm text-gray-600 md:grid-cols-2">
                                                         <div>
-                                                            <p><span className="font-medium">From:</span> {shipment.sender_name}</p>
-                                                            <p><span className="font-medium">To:</span> {shipment.recipient_name}</p>
+                                                            <p>
+                                                                <span className="font-medium">From:</span> {shipment.sender_name}
+                                                            </p>
+                                                            <p>
+                                                                <span className="font-medium">To:</span> {shipment.recipient_name}
+                                                            </p>
                                                             <p className="flex items-center gap-1">
-                                                                <MapPin className="w-3 h-3" />
+                                                                <MapPin className="h-3 w-3" />
                                                                 {shipment.recipient_address}
                                                             </p>
                                                         </div>
                                                         <div>
-                                                            <p><span className="font-medium">Weight:</span> {shipment.weight_kg} kg</p>
-                                                            <p><span className="font-medium">Cost:</span> {formatCurrency(shipment.total_cost)}</p>
-                                                            <p><span className="font-medium">Created:</span> {formatDate(shipment.created_at)}</p>
+                                                            <p>
+                                                                <span className="font-medium">Weight:</span> {shipment.weight_kg} kg
+                                                            </p>
+                                                            <p>
+                                                                <span className="font-medium">Cost:</span> {formatCurrency(shipment.total_cost)}
+                                                            </p>
+                                                            <p>
+                                                                <span className="font-medium">Created:</span> {formatDate(shipment.created_at)}
+                                                            </p>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     {shipment.estimated_delivery_date && (
                                                         <div className="mt-2 text-sm">
                                                             <span className="font-medium text-gray-700">
@@ -371,11 +359,11 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                                                         </div>
                                                     )}
                                                 </div>
-                                                
+
                                                 <div className="flex gap-2">
                                                     <Link href={`/customer/shipments/${shipment.id}`}>
                                                         <Button variant="outline" size="sm">
-                                                            <Eye className="w-4 h-4 mr-2" />
+                                                            <Eye className="mr-2 h-4 w-4" />
                                                             View Details
                                                         </Button>
                                                     </Link>
@@ -396,7 +384,7 @@ export default function ShipmentsIndex({ shipments, stats, filters, customer }: 
                             {Array.from({ length: shipments.last_page }, (_, i) => i + 1).map((page) => (
                                 <Button
                                     key={page}
-                                    variant={page === shipments.current_page ? "default" : "outline"}
+                                    variant={page === shipments.current_page ? 'default' : 'outline'}
                                     size="sm"
                                     onClick={() => router.get(`/customer/shipments?page=${page}`, filters)}
                                 >

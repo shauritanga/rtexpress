@@ -1,50 +1,30 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
-} from '@/components/ui/select';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from '@/components/ui/table';
-import { 
-    Search,
-    Plus,
-    MapPin,
-    Clock,
-    CheckCircle,
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
+import {
     AlertTriangle,
-    Truck,
+    Calendar,
+    CheckCircle,
+    Edit,
     Eye,
     Filter,
-    Calendar,
-    Route,
-    Navigation,
+    MapPin,
     MoreHorizontal,
-    Edit,
-    Trash2
+    Navigation,
+    Plus,
+    Route,
+    Search,
+    Trash2,
+    Truck,
 } from 'lucide-react';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { useState } from 'react';
 
 interface Driver {
     id: number;
@@ -171,12 +151,11 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
             cancelled: { label: 'Cancelled', variant: 'destructive' as const, icon: AlertTriangle },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const, icon: MapPin };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const, icon: MapPin };
+
         return (
             <Badge variant={config.variant} className="flex items-center">
-                <config.icon className="h-3 w-3 mr-1" />
+                <config.icon className="mr-1 h-3 w-3" />
                 {config.label}
             </Badge>
         );
@@ -188,16 +167,20 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
     };
 
     const handleSearch = () => {
-        router.get(route('admin.routes.index'), {
-            search: searchTerm,
-            status: selectedStatus !== 'all' ? selectedStatus : undefined,
-            driver_id: selectedDriver !== 'all' ? selectedDriver : undefined,
-            warehouse_id: selectedWarehouse !== 'all' ? selectedWarehouse : undefined,
-            date: selectedDate || undefined,
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        router.get(
+            route('admin.routes.index'),
+            {
+                search: searchTerm,
+                status: selectedStatus !== 'all' ? selectedStatus : undefined,
+                driver_id: selectedDriver !== 'all' ? selectedDriver : undefined,
+                warehouse_id: selectedWarehouse !== 'all' ? selectedWarehouse : undefined,
+                date: selectedDate || undefined,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     const handleClearFilters = () => {
@@ -206,30 +189,32 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
         setSelectedDriver('all');
         setSelectedWarehouse('all');
         setSelectedDate('');
-        
-        router.get(route('admin.routes.index'), {}, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+
+        router.get(
+            route('admin.routes.index'),
+            {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     return (
         <AppLayout>
             <Head title="Route Management" />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Route Management</h1>
-                        <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                            Plan, optimize, and track delivery routes
-                        </p>
+                        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Route Management</h1>
+                        <p className="mt-1 text-sm text-muted-foreground sm:text-base">Plan, optimize, and track delivery routes</p>
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Button asChild className="w-full sm:w-auto">
                             <Link href="/admin/routes/create">
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="mr-2 h-4 w-4" />
                                 Create Route
                             </Link>
                         </Button>
@@ -237,7 +222,7 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
@@ -245,9 +230,7 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Routes</p>
                                     <p className="text-2xl font-bold">{stats.total_routes}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        All time
-                                    </p>
+                                    <p className="text-xs text-muted-foreground">All time</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -260,9 +243,7 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Active Routes</p>
                                     <p className="text-2xl font-bold">{stats.active_routes}</p>
-                                    <p className="text-xs text-orange-600">
-                                        In progress
-                                    </p>
+                                    <p className="text-xs text-orange-600">In progress</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -290,9 +271,7 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Completion Rate</p>
                                     <p className="text-2xl font-bold">{stats.avg_completion_rate}%</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        {stats.overdue_stops} overdue stops
-                                    </p>
+                                    <p className="text-xs text-muted-foreground">{stats.overdue_stops} overdue stops</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -303,19 +282,17 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <Filter className="h-5 w-5 mr-2" />
+                            <Filter className="mr-2 h-5 w-5" />
                             Filter Routes
                         </CardTitle>
-                        <CardDescription>
-                            Search and filter delivery routes by various criteria
-                        </CardDescription>
+                        <CardDescription>Search and filter delivery routes by various criteria</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-6">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
                             <div className="space-y-2 sm:col-span-2 lg:col-span-2">
                                 <label className="text-sm font-medium">Search</label>
                                 <div className="relative">
-                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         placeholder="Route number, driver name..."
                                         value={searchTerm}
@@ -325,7 +302,7 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
                                     />
                                 </div>
                             </div>
-                            
+
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Status</label>
                                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
@@ -361,18 +338,14 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
 
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Date</label>
-                                <Input
-                                    type="date"
-                                    value={selectedDate}
-                                    onChange={(e) => setSelectedDate(e.target.value)}
-                                />
+                                <Input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
                             </div>
 
                             <div className="space-y-2 sm:col-span-2 lg:col-span-1">
                                 <label className="text-sm font-medium">Actions</label>
                                 <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                                     <Button onClick={handleSearch} className="flex-1">
-                                        <Search className="h-4 w-4 mr-2" />
+                                        <Search className="mr-2 h-4 w-4" />
                                         Search
                                     </Button>
                                     <Button variant="outline" onClick={handleClearFilters} className="flex-1 sm:flex-none">
@@ -388,12 +361,10 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
                 <Card>
                     <CardHeader>
                         <CardTitle>Delivery Routes</CardTitle>
-                        <CardDescription>
-                            All delivery routes and their current status
-                        </CardDescription>
+                        <CardDescription>All delivery routes and their current status</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="rounded-md border overflow-hidden">
+                        <div className="overflow-hidden rounded-md border">
                             <div className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
@@ -403,121 +374,115 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
                                             <TableHead className="min-w-[100px]">Date</TableHead>
                                             <TableHead className="min-w-[100px]">Status</TableHead>
                                             <TableHead className="min-w-[120px]">Progress</TableHead>
-                                            <TableHead className="min-w-[100px] hidden sm:table-cell">Time</TableHead>
-                                            <TableHead className="min-w-[100px] hidden md:table-cell">Distance</TableHead>
-                                            <TableHead className="text-right min-w-[80px]">Actions</TableHead>
+                                            <TableHead className="hidden min-w-[100px] sm:table-cell">Time</TableHead>
+                                            <TableHead className="hidden min-w-[100px] md:table-cell">Distance</TableHead>
+                                            <TableHead className="min-w-[80px] text-right">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {routes.data.length > 0 ? routes.data.map((deliveryRoute) => (
-                                            <TableRow key={deliveryRoute.id}>
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium">{deliveryRoute.route_number}</p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {deliveryRoute.warehouse.name}
-                                                        </p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium">{deliveryRoute.driver.name}</p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {deliveryRoute.driver.driver_id}
-                                                        </p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {formatDate(deliveryRoute.delivery_date)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {getStatusBadge(deliveryRoute.status)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                                                <div
-                                                                    className="bg-blue-600 h-2 rounded-full"
-                                                                    style={{ width: `${getProgressPercentage(deliveryRoute)}%` }}
-                                                                ></div>
-                                                            </div>
-                                                            <span className="text-sm font-medium">
-                                                                {getProgressPercentage(deliveryRoute)}%
-                                                            </span>
+                                        {routes.data.length > 0 ? (
+                                            routes.data.map((deliveryRoute) => (
+                                                <TableRow key={deliveryRoute.id}>
+                                                    <TableCell>
+                                                        <div>
+                                                            <p className="font-medium">{deliveryRoute.route_number}</p>
+                                                            <p className="text-sm text-muted-foreground">{deliveryRoute.warehouse.name}</p>
                                                         </div>
-                                                        <p className="text-sm text-muted-foreground mt-1">
-                                                            {deliveryRoute.completed_stops}/{deliveryRoute.total_stops} stops
-                                                        </p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="hidden sm:table-cell">
-                                                    <div>
-                                                        <p className="text-sm">
-                                                            {formatTime(deliveryRoute.planned_start_time)} - {formatTime(deliveryRoute.planned_end_time)}
-                                                        </p>
-                                                        {deliveryRoute.actual_start_time && (
-                                                            <p className="text-xs text-muted-foreground">
-                                                                Started: {formatTime(deliveryRoute.actual_start_time)}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div>
+                                                            <p className="font-medium">{deliveryRoute.driver.name}</p>
+                                                            <p className="text-sm text-muted-foreground">{deliveryRoute.driver.driver_id}</p>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>{formatDate(deliveryRoute.delivery_date)}</TableCell>
+                                                    <TableCell>{getStatusBadge(deliveryRoute.status)}</TableCell>
+                                                    <TableCell>
+                                                        <div>
+                                                            <div className="flex items-center space-x-2">
+                                                                <div className="h-2 flex-1 rounded-full bg-gray-200">
+                                                                    <div
+                                                                        className="h-2 rounded-full bg-blue-600"
+                                                                        style={{ width: `${getProgressPercentage(deliveryRoute)}%` }}
+                                                                    ></div>
+                                                                </div>
+                                                                <span className="text-sm font-medium">{getProgressPercentage(deliveryRoute)}%</span>
+                                                            </div>
+                                                            <p className="mt-1 text-sm text-muted-foreground">
+                                                                {deliveryRoute.completed_stops}/{deliveryRoute.total_stops} stops
                                                             </p>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="hidden md:table-cell">
-                                                    <span className="text-sm">
-                                                        {deliveryRoute.total_distance ? Number(deliveryRoute.total_distance).toFixed(1) : '0.0'} km
-                                                    </span>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                                <span className="sr-only">Open menu</span>
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end" className="w-48">
-                                                            <DropdownMenuItem
-                                                                onClick={() => router.visit(route('admin.routes.show', deliveryRoute.id))}
-                                                                className="cursor-pointer"
-                                                            >
-                                                                <Eye className="mr-2 h-4 w-4" />
-                                                                View Details
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem
-                                                                onClick={() => router.visit(route('admin.routes.edit', deliveryRoute.id))}
-                                                                className="cursor-pointer"
-                                                            >
-                                                                <Edit className="mr-2 h-4 w-4" />
-                                                                Edit Route
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuSeparator />
-                                                            <ConfirmationDialog
-                                                                title="Delete Route"
-                                                                description={`Are you sure you want to delete route ${deliveryRoute.route_number}?\n\nThis action will:\n• Delete the route record\n• Remove all route stops\n• Make the driver available again\n• Cannot be undone for planned routes\n\nPlease confirm this action.`}
-                                                                confirmText="Delete Route"
-                                                                cancelText="Cancel"
-                                                                variant="destructive"
-                                                                icon="delete"
-                                                                onConfirm={() => {
-                                                                    handleDelete(deliveryRoute.id);
-                                                                }}
-                                                            >
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="hidden sm:table-cell">
+                                                        <div>
+                                                            <p className="text-sm">
+                                                                {formatTime(deliveryRoute.planned_start_time)} -{' '}
+                                                                {formatTime(deliveryRoute.planned_end_time)}
+                                                            </p>
+                                                            {deliveryRoute.actual_start_time && (
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    Started: {formatTime(deliveryRoute.actual_start_time)}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="hidden md:table-cell">
+                                                        <span className="text-sm">
+                                                            {deliveryRoute.total_distance ? Number(deliveryRoute.total_distance).toFixed(1) : '0.0'}{' '}
+                                                            km
+                                                        </span>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                    <span className="sr-only">Open menu</span>
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end" className="w-48">
                                                                 <DropdownMenuItem
-                                                                    onSelect={(e) => e.preventDefault()}
-                                                                    className="cursor-pointer text-red-600 focus:text-red-600"
+                                                                    onClick={() => router.visit(route('admin.routes.show', deliveryRoute.id))}
+                                                                    className="cursor-pointer"
                                                                 >
-                                                                    <Trash2 className="mr-2 h-4 w-4" />
-                                                                    Delete Route
+                                                                    <Eye className="mr-2 h-4 w-4" />
+                                                                    View Details
                                                                 </DropdownMenuItem>
-                                                            </ConfirmationDialog>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </TableCell>
-                                            </TableRow>
-                                        )) : (
+                                                                <DropdownMenuItem
+                                                                    onClick={() => router.visit(route('admin.routes.edit', deliveryRoute.id))}
+                                                                    className="cursor-pointer"
+                                                                >
+                                                                    <Edit className="mr-2 h-4 w-4" />
+                                                                    Edit Route
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuSeparator />
+                                                                <ConfirmationDialog
+                                                                    title="Delete Route"
+                                                                    description={`Are you sure you want to delete route ${deliveryRoute.route_number}?\n\nThis action will:\n• Delete the route record\n• Remove all route stops\n• Make the driver available again\n• Cannot be undone for planned routes\n\nPlease confirm this action.`}
+                                                                    confirmText="Delete Route"
+                                                                    cancelText="Cancel"
+                                                                    variant="destructive"
+                                                                    icon="delete"
+                                                                    onConfirm={() => {
+                                                                        handleDelete(deliveryRoute.id);
+                                                                    }}
+                                                                >
+                                                                    <DropdownMenuItem
+                                                                        onSelect={(e) => e.preventDefault()}
+                                                                        className="cursor-pointer text-red-600 focus:text-red-600"
+                                                                    >
+                                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                                        Delete Route
+                                                                    </DropdownMenuItem>
+                                                                </ConfirmationDialog>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        ) : (
                                             <TableRow>
-                                                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                                                <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                                                     No delivery routes found matching your criteria.
                                                 </TableCell>
                                             </TableRow>
@@ -529,15 +494,15 @@ export default function RoutesIndex({ routes, stats, drivers, warehouses, filter
 
                         {/* Pagination */}
                         {routes?.meta?.last_page > 1 && (
-                            <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 py-4">
-                                <div className="text-sm text-muted-foreground text-center sm:text-left">
+                            <div className="flex flex-col space-y-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                                <div className="text-center text-sm text-muted-foreground sm:text-left">
                                     Showing {routes?.meta?.from || 0} to {routes?.meta?.to || 0} of {routes?.meta?.total || 0} routes
                                 </div>
-                                <div className="flex flex-wrap justify-center sm:justify-end gap-2">
+                                <div className="flex flex-wrap justify-center gap-2 sm:justify-end">
                                     {routes?.links?.map((link, index) => (
                                         <Button
                                             key={index}
-                                            variant={link.active ? "default" : "outline"}
+                                            variant={link.active ? 'default' : 'outline'}
                                             size="sm"
                                             onClick={() => link.url && router.get(link.url)}
                                             disabled={!link.url}

@@ -1,6 +1,5 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { render, screen } from '@testing-library/react';
 import RecentActivityTimeline from '../RecentActivityTimeline';
 
 const mockEvents = [
@@ -33,7 +32,7 @@ const mockEvents = [
 describe('RecentActivityTimeline', () => {
     it('renders timeline with events', () => {
         render(<RecentActivityTimeline events={mockEvents} />);
-        
+
         expect(screen.getByText('Recent Activity')).toBeInTheDocument();
         expect(screen.getByText('RT123456789')).toBeInTheDocument();
         expect(screen.getByText('RT987654321')).toBeInTheDocument();
@@ -43,21 +42,21 @@ describe('RecentActivityTimeline', () => {
 
     it('displays correct status badges', () => {
         render(<RecentActivityTimeline events={mockEvents} />);
-        
+
         expect(screen.getByText('Picked Up')).toBeInTheDocument();
         expect(screen.getByText('Delivered')).toBeInTheDocument();
     });
 
     it('shows service type badges', () => {
         render(<RecentActivityTimeline events={mockEvents} />);
-        
+
         expect(screen.getByText('express')).toBeInTheDocument();
         expect(screen.getByText('standard')).toBeInTheDocument();
     });
 
     it('displays location and recipient information', () => {
         render(<RecentActivityTimeline events={mockEvents} />);
-        
+
         expect(screen.getByText('New York, NY')).toBeInTheDocument();
         expect(screen.getByText('Los Angeles, CA')).toBeInTheDocument();
         expect(screen.getByText('John Doe')).toBeInTheDocument();
@@ -66,14 +65,14 @@ describe('RecentActivityTimeline', () => {
 
     it('shows empty state when no events', () => {
         render(<RecentActivityTimeline events={[]} />);
-        
+
         expect(screen.getByText('No recent activity to display')).toBeInTheDocument();
         expect(screen.getByText('Your shipment updates will appear here')).toBeInTheDocument();
     });
 
     it('has "View All" button', () => {
         render(<RecentActivityTimeline events={mockEvents} />);
-        
+
         expect(screen.getByText('View All')).toBeInTheDocument();
     });
 
@@ -83,17 +82,15 @@ describe('RecentActivityTimeline', () => {
             id: i + 1,
             tracking_number: `RT${i + 1}`,
         }));
-        
+
         render(<RecentActivityTimeline events={manyEvents} />);
-        
+
         expect(screen.getByText('Load More Activities')).toBeInTheDocument();
     });
 
     it('applies custom className', () => {
-        const { container } = render(
-            <RecentActivityTimeline events={mockEvents} className="custom-class" />
-        );
-        
+        const { container } = render(<RecentActivityTimeline events={mockEvents} className="custom-class" />);
+
         expect(container.firstChild).toHaveClass('custom-class');
     });
 
@@ -102,15 +99,15 @@ describe('RecentActivityTimeline', () => {
             ...mockEvents[0],
             timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
         };
-        
+
         render(<RecentActivityTimeline events={[recentEvent]} />);
-        
+
         expect(screen.getByText('30m ago')).toBeInTheDocument();
     });
 
     it('handles hover effects on timeline items', () => {
         render(<RecentActivityTimeline events={mockEvents} />);
-        
+
         const timelineItems = screen.getAllByText(/RT\d+/);
         expect(timelineItems[0].closest('.hover\\:bg-gray-50')).toBeInTheDocument();
     });
@@ -133,9 +130,9 @@ describe('RecentActivityTimeline Event Types', () => {
                 event_type: type,
                 status: type,
             };
-            
+
             render(<RecentActivityTimeline events={[event]} />);
-            
+
             // Check that the appropriate icon is rendered (this would need to be adjusted based on how icons are tested)
             expect(screen.getByText('RT123456789')).toBeInTheDocument();
         });
@@ -145,13 +142,13 @@ describe('RecentActivityTimeline Event Types', () => {
 describe('RecentActivityTimeline Accessibility', () => {
     it('has proper ARIA labels', () => {
         render(<RecentActivityTimeline events={mockEvents} />);
-        
+
         expect(screen.getByRole('button', { name: /View All/i })).toBeInTheDocument();
     });
 
     it('supports keyboard navigation', () => {
         render(<RecentActivityTimeline events={mockEvents} />);
-        
+
         const viewAllButton = screen.getByRole('button', { name: /View All/i });
         viewAllButton.focus();
         expect(viewAllButton).toHaveFocus();

@@ -1,6 +1,6 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Warehouse, TrendingUp } from 'lucide-react';
+import { Warehouse } from 'lucide-react';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface WarehouseData {
     id: number;
@@ -20,20 +20,20 @@ interface WarehousePerformanceChartProps {
     height?: number;
 }
 
-export function WarehousePerformanceChart({ 
-    data, 
-    title = "Warehouse Performance", 
-    description = "Shipment volume and delivery rates by location",
-    height = 300 
+export function WarehousePerformanceChart({
+    data,
+    title = 'Warehouse Performance',
+    description = 'Shipment volume and delivery rates by location',
+    height = 300,
 }: WarehousePerformanceChartProps) {
     // Prepare data for the chart
-    const chartData = data.map(warehouse => ({
+    const chartData = data.map((warehouse) => ({
         name: warehouse.code,
         city: warehouse.city,
         shipments: warehouse.total_shipments,
         delivered: warehouse.delivered_shipments,
         deliveryRate: warehouse.delivery_rate,
-        utilization: warehouse.capacity_utilization
+        utilization: warehouse.capacity_utilization,
     }));
 
     // Custom tooltip
@@ -41,11 +41,11 @@ export function WarehousePerformanceChart({
         if (active && payload && payload.length) {
             const data = payload[0].payload;
             return (
-                <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg">
                     <p className="text-sm font-medium text-gray-900">
                         {label} - {data.city}
                     </p>
-                    <div className="space-y-1 mt-2">
+                    <div className="mt-2 space-y-1">
                         <p className="text-sm text-blue-600">
                             Total Shipments: <span className="font-semibold">{data.shipments}</span>
                         </p>
@@ -81,38 +81,22 @@ export function WarehousePerformanceChart({
                     <ResponsiveContainer>
                         <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                            <XAxis 
-                                dataKey="name" 
-                                stroke="#666"
-                                fontSize={12}
-                                tickLine={false}
-                                axisLine={false}
-                            />
-                            <YAxis 
-                                stroke="#666"
-                                fontSize={12}
-                                tickLine={false}
-                                axisLine={false}
-                            />
+                            <XAxis dataKey="name" stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis stroke="#666" fontSize={12} tickLine={false} axisLine={false} />
                             <Tooltip content={<CustomTooltip />} />
-                            <Bar 
-                                dataKey="shipments" 
-                                fill="#3b82f6" 
-                                radius={[4, 4, 0, 0]}
-                                name="Total Shipments"
-                            />
+                            <Bar dataKey="shipments" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Total Shipments" />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
-                
+
                 {/* Warehouse details table */}
                 <div className="mt-6 space-y-4">
                     <h4 className="text-sm font-medium text-gray-900">Warehouse Details</h4>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                         {data.map((warehouse) => (
-                            <div key={warehouse.id} className="p-3 bg-gray-50 rounded-lg">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h5 className="font-medium text-sm">{warehouse.code}</h5>
+                            <div key={warehouse.id} className="rounded-lg bg-gray-50 p-3">
+                                <div className="mb-2 flex items-center justify-between">
+                                    <h5 className="text-sm font-medium">{warehouse.code}</h5>
                                     <span className="text-xs text-gray-500">{warehouse.city}</span>
                                 </div>
                                 <div className="space-y-1 text-xs">
@@ -122,27 +106,33 @@ export function WarehousePerformanceChart({
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Delivered:</span>
-                                        <span className="font-medium text-green-600">
-                                            {warehouse.delivered_shipments}
-                                        </span>
+                                        <span className="font-medium text-green-600">{warehouse.delivered_shipments}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Delivery Rate:</span>
-                                        <span className={`font-medium ${
-                                            warehouse.delivery_rate >= 95 ? 'text-green-600' :
-                                            warehouse.delivery_rate >= 85 ? 'text-yellow-600' :
-                                            'text-red-600'
-                                        }`}>
+                                        <span
+                                            className={`font-medium ${
+                                                warehouse.delivery_rate >= 95
+                                                    ? 'text-green-600'
+                                                    : warehouse.delivery_rate >= 85
+                                                      ? 'text-yellow-600'
+                                                      : 'text-red-600'
+                                            }`}
+                                        >
                                             {warehouse.delivery_rate}%
                                         </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Utilization:</span>
-                                        <span className={`font-medium ${
-                                            warehouse.capacity_utilization >= 80 ? 'text-red-600' :
-                                            warehouse.capacity_utilization >= 60 ? 'text-yellow-600' :
-                                            'text-green-600'
-                                        }`}>
+                                        <span
+                                            className={`font-medium ${
+                                                warehouse.capacity_utilization >= 80
+                                                    ? 'text-red-600'
+                                                    : warehouse.capacity_utilization >= 60
+                                                      ? 'text-yellow-600'
+                                                      : 'text-green-600'
+                                            }`}
+                                        >
                                             {warehouse.capacity_utilization}%
                                         </span>
                                     </div>
@@ -168,10 +158,10 @@ interface StatusDistributionChartProps {
     description?: string;
 }
 
-export function StatusDistributionChart({ 
-    data, 
-    title = "Shipment Status Distribution", 
-    description = "Current status breakdown of all shipments" 
+export function StatusDistributionChart({
+    data,
+    title = 'Shipment Status Distribution',
+    description = 'Current status breakdown of all shipments',
 }: StatusDistributionChartProps) {
     const statusColors: { [key: string]: string } = {
         pending: '#f59e0b',
@@ -180,15 +170,15 @@ export function StatusDistributionChart({
         out_for_delivery: '#f97316',
         delivered: '#10b981',
         exception: '#ef4444',
-        cancelled: '#6b7280'
+        cancelled: '#6b7280',
     };
-    
+
     const total = data.reduce((sum, item) => sum + item.count, 0);
-    
+
     const dataWithColors = data.map((item) => ({
         ...item,
         color: statusColors[item.status] || '#6b7280',
-        percentage: ((item.count / total) * 100).toFixed(1)
+        percentage: ((item.count / total) * 100).toFixed(1),
     }));
 
     return (
@@ -202,13 +192,8 @@ export function StatusDistributionChart({
                     {dataWithColors.map((item) => (
                         <div key={item.status} className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                                <div 
-                                    className="w-3 h-3 rounded-full" 
-                                    style={{ backgroundColor: item.color }}
-                                />
-                                <span className="text-sm font-medium capitalize">
-                                    {item.status.replace('_', ' ')}
-                                </span>
+                                <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
+                                <span className="text-sm font-medium capitalize">{item.status.replace('_', ' ')}</span>
                             </div>
                             <div className="text-right">
                                 <div className="text-sm font-semibold">{item.count}</div>
@@ -217,21 +202,23 @@ export function StatusDistributionChart({
                         </div>
                     ))}
                 </div>
-                
+
                 {/* Progress visualization */}
                 <div className="mt-4 space-y-2">
                     {dataWithColors.map((item) => (
                         <div key={`progress-${item.status}`} className="space-y-1">
                             <div className="flex justify-between text-xs">
                                 <span className="capitalize">{item.status.replace('_', ' ')}</span>
-                                <span>{item.count} ({item.percentage}%)</span>
+                                <span>
+                                    {item.count} ({item.percentage}%)
+                                </span>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div 
+                            <div className="h-2 w-full rounded-full bg-gray-200">
+                                <div
                                     className="h-2 rounded-full transition-all duration-300"
-                                    style={{ 
+                                    style={{
                                         width: `${item.percentage}%`,
-                                        backgroundColor: item.color 
+                                        backgroundColor: item.color,
                                     }}
                                 />
                             </div>

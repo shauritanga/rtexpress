@@ -1,13 +1,13 @@
 import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle, Building, User, Mail, Phone, MapPin, Lock } from 'lucide-react';
+import { Building, LoaderCircle, Lock, MapPin } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import AuthLayout from '@/layouts/auth-layout';
 
 type RegisterForm = {
@@ -57,12 +57,12 @@ export default function RegisterCustomer() {
                 <div className="grid gap-6">
                     {/* Company Information */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                            <Building className="h-5 w-5 mr-2" />
+                        <h3 className="flex items-center text-lg font-medium text-gray-900">
+                            <Building className="mr-2 h-5 w-5" />
                             Company Information
                         </h3>
-                        
-                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="company_name">Company Name *</Label>
                                 <Input
@@ -93,7 +93,7 @@ export default function RegisterCustomer() {
                             </div>
                         </div>
 
-                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="email">Email Address *</Label>
                                 <Input
@@ -127,11 +127,11 @@ export default function RegisterCustomer() {
 
                     {/* Address Information */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                            <MapPin className="h-5 w-5 mr-2" />
+                        <h3 className="flex items-center text-lg font-medium text-gray-900">
+                            <MapPin className="mr-2 h-5 w-5" />
                             Company Address
                         </h3>
-                        
+
                         <div className="grid gap-2">
                             <Label htmlFor="address_line_1">Address Line 1 *</Label>
                             <Input
@@ -159,7 +159,7 @@ export default function RegisterCustomer() {
                             <InputError message={errors.address_line_2} />
                         </div>
 
-                        <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div className="grid gap-2">
                                 <Label htmlFor="city">City *</Label>
                                 <Input
@@ -220,12 +220,12 @@ export default function RegisterCustomer() {
 
                     {/* Password */}
                     <div className="space-y-4">
-                        <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                            <Lock className="h-5 w-5 mr-2" />
+                        <h3 className="flex items-center text-lg font-medium text-gray-900">
+                            <Lock className="mr-2 h-5 w-5" />
                             Account Security
                         </h3>
-                        
-                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="grid gap-2">
                                 <Label htmlFor="password">Password *</Label>
                                 <Input
@@ -287,7 +287,7 @@ export default function RegisterCustomer() {
                     Create Customer Account
                 </Button>
             </form>
-            
+
             <div className="text-center text-sm">
                 Already have an account?{' '}
                 <TextLink href={route('login')} className="underline">

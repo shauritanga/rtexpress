@@ -51,7 +51,7 @@ export const countries = [
     { code: 'CD', name: 'Congo, Democratic Republic' },
     { code: 'CK', name: 'Cook Islands' },
     { code: 'CR', name: 'Costa Rica' },
-    { code: 'CI', name: 'Cote D\'Ivoire' },
+    { code: 'CI', name: "Cote D'Ivoire" },
     { code: 'HR', name: 'Croatia' },
     { code: 'CU', name: 'Cuba' },
     { code: 'CY', name: 'Cyprus' },
@@ -116,7 +116,7 @@ export const countries = [
     { code: 'KR', name: 'Korea' },
     { code: 'KW', name: 'Kuwait' },
     { code: 'KG', name: 'Kyrgyzstan' },
-    { code: 'LA', name: 'Lao People\'s Democratic Republic' },
+    { code: 'LA', name: "Lao People's Democratic Republic" },
     { code: 'LV', name: 'Latvia' },
     { code: 'LB', name: 'Lebanon' },
     { code: 'LS', name: 'Lesotho' },
@@ -242,7 +242,7 @@ export const countries = [
     { code: 'EH', name: 'Western Sahara' },
     { code: 'YE', name: 'Yemen' },
     { code: 'ZM', name: 'Zambia' },
-    { code: 'ZW', name: 'Zimbabwe' }
+    { code: 'ZW', name: 'Zimbabwe' },
 ];
 
 // Popular countries for quick access (can be customized based on business needs)
@@ -260,5 +260,5 @@ export const popularCountries = [
     { code: 'FR', name: 'France' },
     { code: 'CN', name: 'China' },
     { code: 'IN', name: 'India' },
-    { code: 'ZA', name: 'South Africa' }
+    { code: 'ZA', name: 'South Africa' },
 ];

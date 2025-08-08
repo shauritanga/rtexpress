@@ -1,53 +1,33 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
-} from '@/components/ui/select';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow
-} from '@/components/ui/table';
-import { ResponsiveTable } from '@/components/ui/responsive-table';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
-import { 
-    Search,
-    Plus,
-    Users,
-    UserCheck,
-    UserX,
-    Eye,
-    Edit,
-    Filter,
-    Mail,
-    Phone,
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
+import {
     Building,
     CreditCard,
-    TrendingUp,
-    UserPlus,
+    Edit,
+    Eye,
+    Filter,
+    Mail,
+    MoreHorizontal,
+    Phone,
+    Plus,
+    Search,
     Send,
     Trash2,
-    MoreHorizontal
+    TrendingUp,
+    UserCheck,
+    UserPlus,
+    Users,
+    UserX,
 } from 'lucide-react';
+import { useState } from 'react';
 
 interface Customer {
     id: number;
@@ -184,12 +164,11 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
             suspended: { label: 'Suspended', variant: 'destructive' as const, icon: UserX },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const, icon: Users };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const, icon: Users };
+
         return (
             <Badge variant={config.variant} className="flex items-center">
-                <config.icon className="h-3 w-3 mr-1" />
+                <config.icon className="mr-1 h-3 w-3" />
                 {config.label}
             </Badge>
         );
@@ -197,32 +176,36 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
 
     const getPaymentTermsBadge = (terms: string) => {
         const colors = {
-            'net_30': 'bg-blue-100 text-blue-800',
-            'net_15': 'bg-green-100 text-green-800',
-            'net_7': 'bg-yellow-100 text-yellow-800',
-            'cod': 'bg-red-100 text-red-800',
-            'prepaid': 'bg-purple-100 text-purple-800',
+            net_30: 'bg-blue-100 text-blue-800',
+            net_15: 'bg-green-100 text-green-800',
+            net_7: 'bg-yellow-100 text-yellow-800',
+            cod: 'bg-red-100 text-red-800',
+            prepaid: 'bg-purple-100 text-purple-800',
         };
 
         const color = colors[terms as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-        
+
         return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${color}`}>
+            <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${color}`}>
                 {terms.replace('_', ' ').toUpperCase()}
             </span>
         );
     };
 
     const handleSearch = () => {
-        router.get(route('admin.customers.index'), {
-            search: searchTerm,
-            status: selectedStatus !== 'all' ? selectedStatus : undefined,
-            payment_terms: selectedPaymentTerms !== 'all' ? selectedPaymentTerms : undefined,
-            country: selectedCountry || undefined,
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        router.get(
+            route('admin.customers.index'),
+            {
+                search: searchTerm,
+                status: selectedStatus !== 'all' ? selectedStatus : undefined,
+                payment_terms: selectedPaymentTerms !== 'all' ? selectedPaymentTerms : undefined,
+                country: selectedCountry || undefined,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     const handleClearFilters = () => {
@@ -230,36 +213,42 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
         setSelectedStatus('all');
         setSelectedPaymentTerms('all');
         setSelectedCountry('');
-        
-        router.get(route('admin.customers.index'), {}, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+
+        router.get(
+            route('admin.customers.index'),
+            {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     const handleToggleStatus = (customerId: number) => {
-        router.post(route('admin.customers.toggle-status', customerId), {}, {
-            preserveState: true,
-        });
+        router.post(
+            route('admin.customers.toggle-status', customerId),
+            {},
+            {
+                preserveState: true,
+            },
+        );
     };
 
     return (
         <AppLayout>
             <Head title="Customer Management" />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Customer Management</h1>
-                        <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                            Manage customer accounts and relationships
-                        </p>
+                        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Customer Management</h1>
+                        <p className="mt-1 text-sm text-muted-foreground sm:text-base">Manage customer accounts and relationships</p>
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Button asChild className="w-full sm:w-auto">
                             <Link href="/admin/customers/create">
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="mr-2 h-4 w-4" />
                                 Add Customer
                             </Link>
                         </Button>
@@ -267,7 +256,7 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
@@ -275,9 +264,7 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Customers</p>
                                     <p className="text-2xl font-bold">{stats.total_customers}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        {stats.new_this_month} new this month
-                                    </p>
+                                    <p className="text-xs text-muted-foreground">{stats.new_this_month} new this month</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -290,9 +277,7 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Active</p>
                                     <p className="text-2xl font-bold">{stats.active_customers}</p>
-                                    <p className="text-xs text-green-600">
-                                        {stats.inactive_customers} inactive
-                                    </p>
+                                    <p className="text-xs text-green-600">{stats.inactive_customers} inactive</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -305,9 +290,7 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
                                     <p className="text-2xl font-bold">{formatCurrency(stats.total_revenue)}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        All time
-                                    </p>
+                                    <p className="text-xs text-muted-foreground">All time</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -320,9 +303,7 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Avg Order Value</p>
                                     <p className="text-2xl font-bold">{formatCurrency(stats.avg_order_value)}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Per shipment
-                                    </p>
+                                    <p className="text-xs text-muted-foreground">Per shipment</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -333,19 +314,17 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <Filter className="h-5 w-5 mr-2" />
+                            <Filter className="mr-2 h-5 w-5" />
                             Filter Customers
                         </CardTitle>
-                        <CardDescription>
-                            Search and filter customers by various criteria
-                        </CardDescription>
+                        <CardDescription>Search and filter customers by various criteria</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                             <div className="space-y-2 sm:col-span-2">
                                 <label className="text-sm font-medium">Search</label>
                                 <div className="relative">
-                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         placeholder="Name, email, customer code..."
                                         value={searchTerm}
@@ -355,7 +334,7 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                     />
                                 </div>
                             </div>
-                            
+
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Status</label>
                                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
@@ -392,7 +371,7 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                 <label className="text-sm font-medium">Actions</label>
                                 <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                                     <Button onClick={handleSearch} className="flex-1">
-                                        <Search className="h-4 w-4 mr-2" />
+                                        <Search className="mr-2 h-4 w-4" />
                                         Search
                                     </Button>
                                     <Button variant="outline" onClick={handleClearFilters} className="flex-1 sm:flex-none">
@@ -408,9 +387,7 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                 <Card>
                     <CardHeader>
                         <CardTitle>Customers</CardTitle>
-                        <CardDescription>
-                            All customer accounts and their information
-                        </CardDescription>
+                        <CardDescription>All customer accounts and their information</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ResponsiveTable
@@ -423,25 +400,21 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                     mobilePriority: 1,
                                     render: (value, customer) => (
                                         <div>
-                                            <p className="font-medium text-base">{customer.contact_person}</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {customer.customer_code}
-                                            </p>
-                                            <div className="flex items-center space-x-1 mt-1">
+                                            <p className="text-base font-medium">{customer.contact_person}</p>
+                                            <p className="text-sm text-muted-foreground">{customer.customer_code}</p>
+                                            <div className="mt-1 flex items-center space-x-1">
                                                 <Building className="h-3 w-3 text-muted-foreground" />
-                                                <span className="text-xs text-muted-foreground">
-                                                    {customer.company_name}
-                                                </span>
+                                                <span className="text-xs text-muted-foreground">{customer.company_name}</span>
                                             </div>
                                         </div>
-                                    )
+                                    ),
                                 },
                                 {
                                     key: 'status',
                                     label: 'Status',
                                     mobileVisible: true,
                                     mobilePriority: 2,
-                                    render: (value, customer) => getStatusBadge(customer.status)
+                                    render: (value, customer) => getStatusBadge(customer.status),
                                 },
                                 {
                                     key: 'contact',
@@ -461,14 +434,14 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                                 </div>
                                             )}
                                         </div>
-                                    )
+                                    ),
                                 },
                                 {
                                     key: 'payment_terms',
                                     label: 'Payment Terms',
                                     mobileVisible: false,
                                     tabletVisible: true,
-                                    render: (value, customer) => getPaymentTermsBadge(customer.payment_terms)
+                                    render: (value, customer) => getPaymentTermsBadge(customer.payment_terms),
                                 },
                                 {
                                     key: 'has_user_account',
@@ -479,17 +452,17 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                         <div className="flex items-center space-x-2">
                                             {customer.has_user_account ? (
                                                 <div className="flex items-center space-x-1">
-                                                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                                    <span className="text-sm text-green-700 font-medium">Active</span>
+                                                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                                    <span className="text-sm font-medium text-green-700">Active</span>
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center space-x-1">
-                                                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                                    <div className="h-2 w-2 rounded-full bg-gray-400"></div>
                                                     <span className="text-sm text-gray-500">No Access</span>
                                                 </div>
                                             )}
                                         </div>
-                                    )
+                                    ),
                                 },
                                 {
                                     key: 'location',
@@ -501,11 +474,9 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                             <p className="text-sm font-medium">
                                                 {customer.city}, {customer.state_province}
                                             </p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {customer.country}
-                                            </p>
+                                            <p className="text-xs text-muted-foreground">{customer.country}</p>
                                         </div>
-                                    )
+                                    ),
                                 },
                                 {
                                     key: 'shipments_count',
@@ -517,7 +488,7 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                             <p className="text-lg font-bold">{customer.shipments_count}</p>
                                             <p className="text-xs text-muted-foreground">shipments</p>
                                         </div>
-                                    )
+                                    ),
                                 },
                                 {
                                     key: 'credit_limit',
@@ -526,14 +497,10 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                     desktopVisible: true,
                                     render: (value, customer) => (
                                         <div className="text-right">
-                                            <p className="font-medium">
-                                                {formatCurrency(customer.credit_limit)}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {customer.shipments_count} shipments
-                                            </p>
+                                            <p className="font-medium">{formatCurrency(customer.credit_limit)}</p>
+                                            <p className="text-xs text-muted-foreground">{customer.shipments_count} shipments</p>
                                         </div>
-                                    )
+                                    ),
                                 },
                                 {
                                     key: 'actions',
@@ -565,15 +532,16 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <ConfirmationDialog
-                                                    title={customer.has_user_account ? "Resend Login Credentials" : "Create Portal Access"}
-                                                    description={customer.has_user_account
-                                                        ? `Generate new login credentials for ${customer.contact_person} (${customer.company_name})?\n\nThis will:\n• Generate a new temporary password\n• Send new credentials to ${customer.email}\n• Invalidate the current password\n\nThe customer will need to use the new credentials to log in.`
-                                                        : `Create portal access for ${customer.contact_person} (${customer.company_name})?\n\nThis will:\n• Create a user account for customer portal\n• Generate temporary login credentials\n• Send welcome email to ${customer.email}\n• Enable customer to access the portal\n\nProceed with account creation?`
+                                                    title={customer.has_user_account ? 'Resend Login Credentials' : 'Create Portal Access'}
+                                                    description={
+                                                        customer.has_user_account
+                                                            ? `Generate new login credentials for ${customer.contact_person} (${customer.company_name})?\n\nThis will:\n• Generate a new temporary password\n• Send new credentials to ${customer.email}\n• Invalidate the current password\n\nThe customer will need to use the new credentials to log in.`
+                                                            : `Create portal access for ${customer.contact_person} (${customer.company_name})?\n\nThis will:\n• Create a user account for customer portal\n• Generate temporary login credentials\n• Send welcome email to ${customer.email}\n• Enable customer to access the portal\n\nProceed with account creation?`
                                                     }
-                                                    confirmText={customer.has_user_account ? "Resend Credentials" : "Create Account"}
+                                                    confirmText={customer.has_user_account ? 'Resend Credentials' : 'Create Account'}
                                                     cancelText="Cancel"
                                                     variant="default"
-                                                    icon={customer.has_user_account ? "send" : "create"}
+                                                    icon={customer.has_user_account ? 'send' : 'create'}
                                                     onConfirm={() => {
                                                         const action = customer.has_user_account ? 'resend-credentials' : 'create-user-account';
                                                         handlePortalAccess(customer.id, action);
@@ -618,13 +586,13 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
                                                 </ConfirmationDialog>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
-                                    )
-                                }
+                                    ),
+                                },
                             ]}
                             emptyState={{
                                 icon: Users,
                                 title: 'No customers found',
-                                description: 'No customers found matching your criteria.'
+                                description: 'No customers found matching your criteria.',
                             }}
                             mobileCardStyle="detailed"
                             showMobileSearch={true}
@@ -632,15 +600,15 @@ export default function CustomersIndex({ customers, stats, countries, filters }:
 
                         {/* Pagination */}
                         {customers?.meta?.last_page > 1 && (
-                            <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 py-4">
-                                <div className="text-sm text-muted-foreground text-center sm:text-left">
+                            <div className="flex flex-col space-y-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                                <div className="text-center text-sm text-muted-foreground sm:text-left">
                                     Showing {customers?.meta?.from || 0} to {customers?.meta?.to || 0} of {customers?.meta?.total || 0} customers
                                 </div>
-                                <div className="flex flex-wrap justify-center sm:justify-end gap-2">
+                                <div className="flex flex-wrap justify-center gap-2 sm:justify-end">
                                     {customers?.links?.map((link, index) => (
                                         <Button
                                             key={index}
-                                            variant={link.active ? "default" : "outline"}
+                                            variant={link.active ? 'default' : 'outline'}
                                             size="sm"
                                             onClick={() => link.url && router.get(link.url)}
                                             disabled={!link.url}

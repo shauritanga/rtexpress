@@ -1,32 +1,12 @@
-import { Head, Link, useForm } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { MobileForm, MobileFormField, MobileFormSection, MobileInputGroup } from '@/components/ui/mobile-form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
-} from '@/components/ui/select';
-import {
-    MobileForm,
-    MobileFormSection,
-    MobileFormField,
-    MobileInputGroup
-} from '@/components/ui/mobile-form';
-import {
-    ArrowLeft,
-    Package,
-    DollarSign,
-    Weight,
-    BarChart3,
-    X,
-    Save
-} from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, BarChart3, DollarSign, Package, Save, Weight, X } from 'lucide-react';
 
 interface InventoryItem {
     id: number;
@@ -79,7 +59,7 @@ export default function Edit({ item, warehouses }: Props) {
         dimensions: item.dimensions || {
             length: 0,
             width: 0,
-            height: 0
+            height: 0,
         },
         unit_of_measure: item.unit_of_measure || 'piece',
         unit_cost: item.unit_cost || 0,
@@ -101,72 +81,34 @@ export default function Edit({ item, warehouses }: Props) {
         put(route('admin.inventory.update', item.id));
     };
 
-    const categories = [
-        'Packaging',
-        'Electronics',
-        'Clothing',
-        'Books',
-        'Food',
-        'Medical',
-        'Automotive',
-        'Tools',
-        'Furniture',
-        'General'
-    ];
+    const categories = ['Packaging', 'Electronics', 'Clothing', 'Books', 'Food', 'Medical', 'Automotive', 'Tools', 'Furniture', 'General'];
 
-    const unitsOfMeasure = [
-        'piece',
-        'kg',
-        'gram',
-        'liter',
-        'meter',
-        'box',
-        'pack',
-        'roll',
-        'sheet'
-    ];
+    const unitsOfMeasure = ['piece', 'kg', 'gram', 'liter', 'meter', 'box', 'pack', 'roll', 'sheet'];
 
     return (
         <AppLayout>
             <Head title={`Edit ${item.name}`} />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
-                <div className="flex items-center space-x-3 mb-4 sm:mb-6">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        asChild
-                        className="p-2 h-auto"
-                    >
+                <div className="mb-4 flex items-center space-x-3 sm:mb-6">
+                    <Button variant="ghost" size="sm" asChild className="h-auto p-2">
                         <Link href={route('admin.inventory.show', item.id)}>
                             <ArrowLeft className="h-5 w-5" />
                         </Link>
                     </Button>
-                    <div className="flex-1 min-w-0">
-                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
-                            Edit {item.name}
-                        </h1>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            Update inventory item details
-                        </p>
+                    <div className="min-w-0 flex-1">
+                        <h1 className="text-xl font-bold tracking-tight sm:text-2xl lg:text-3xl">Edit {item.name}</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">Update inventory item details</p>
                     </div>
                 </div>
 
                 <MobileForm onSubmit={handleSubmit}>
                     <div className="space-y-6">
                         {/* Basic Information */}
-                        <MobileFormSection 
-                            title="Basic Information" 
-                            icon={Package}
-                            description="Item identification and basic details"
-                        >
+                        <MobileFormSection title="Basic Information" icon={Package} description="Item identification and basic details">
                             <MobileInputGroup>
-                                <MobileFormField
-                                    label="Item Name"
-                                    required
-                                    error={errors.name}
-                                >
+                                <MobileFormField label="Item Name" required error={errors.name}>
                                     <Input
                                         value={data.name}
                                         onChange={(e) => setData('name', e.target.value)}
@@ -176,12 +118,8 @@ export default function Edit({ item, warehouses }: Props) {
                                     />
                                 </MobileFormField>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <MobileFormField
-                                        label="SKU"
-                                        error={errors.sku}
-                                        description="Unique identifier for this item"
-                                    >
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <MobileFormField label="SKU" error={errors.sku} description="Unique identifier for this item">
                                         <Input
                                             value={data.sku}
                                             onChange={(e) => setData('sku', e.target.value)}
@@ -190,10 +128,7 @@ export default function Edit({ item, warehouses }: Props) {
                                         />
                                     </MobileFormField>
 
-                                    <MobileFormField
-                                        label="Barcode"
-                                        error={errors.barcode}
-                                    >
+                                    <MobileFormField label="Barcode" error={errors.barcode}>
                                         <Input
                                             value={data.barcode}
                                             onChange={(e) => setData('barcode', e.target.value)}
@@ -203,10 +138,7 @@ export default function Edit({ item, warehouses }: Props) {
                                     </MobileFormField>
                                 </div>
 
-                                <MobileFormField
-                                    label="Description"
-                                    error={errors.description}
-                                >
+                                <MobileFormField label="Description" error={errors.description}>
                                     <Textarea
                                         value={data.description}
                                         onChange={(e) => setData('description', e.target.value)}
@@ -215,16 +147,9 @@ export default function Edit({ item, warehouses }: Props) {
                                     />
                                 </MobileFormField>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <MobileFormField
-                                        label="Category"
-                                        required
-                                        error={errors.category}
-                                    >
-                                        <Select
-                                            value={data.category}
-                                            onValueChange={(value) => setData('category', value)}
-                                        >
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                                    <MobileFormField label="Category" required error={errors.category}>
+                                        <Select value={data.category} onValueChange={(value) => setData('category', value)}>
                                             <SelectTrigger className="h-11 text-base">
                                                 <SelectValue placeholder="Select category" />
                                             </SelectTrigger>
@@ -238,10 +163,7 @@ export default function Edit({ item, warehouses }: Props) {
                                         </Select>
                                     </MobileFormField>
 
-                                    <MobileFormField
-                                        label="Brand"
-                                        error={errors.brand}
-                                    >
+                                    <MobileFormField label="Brand" error={errors.brand}>
                                         <Input
                                             value={data.brand}
                                             onChange={(e) => setData('brand', e.target.value)}
@@ -250,10 +172,7 @@ export default function Edit({ item, warehouses }: Props) {
                                         />
                                     </MobileFormField>
 
-                                    <MobileFormField
-                                        label="Model"
-                                        error={errors.model}
-                                    >
+                                    <MobileFormField label="Model" error={errors.model}>
                                         <Input
                                             value={data.model}
                                             onChange={(e) => setData('model', e.target.value)}
@@ -266,17 +185,10 @@ export default function Edit({ item, warehouses }: Props) {
                         </MobileFormSection>
 
                         {/* Physical Properties */}
-                        <MobileFormSection 
-                            title="Physical Properties" 
-                            icon={Weight}
-                            description="Weight, dimensions, and unit of measure"
-                        >
+                        <MobileFormSection title="Physical Properties" icon={Weight} description="Weight, dimensions, and unit of measure">
                             <MobileInputGroup>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <MobileFormField
-                                        label="Weight (kg)"
-                                        error={errors.weight}
-                                    >
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <MobileFormField label="Weight (kg)" error={errors.weight}>
                                         <Input
                                             type="number"
                                             step="0.01"
@@ -288,14 +200,8 @@ export default function Edit({ item, warehouses }: Props) {
                                         />
                                     </MobileFormField>
 
-                                    <MobileFormField
-                                        label="Unit of Measure"
-                                        error={errors.unit_of_measure}
-                                    >
-                                        <Select
-                                            value={data.unit_of_measure}
-                                            onValueChange={(value) => setData('unit_of_measure', value)}
-                                        >
+                                    <MobileFormField label="Unit of Measure" error={errors.unit_of_measure}>
+                                        <Select value={data.unit_of_measure} onValueChange={(value) => setData('unit_of_measure', value)}>
                                             <SelectTrigger className="h-11 text-base">
                                                 <SelectValue />
                                             </SelectTrigger>
@@ -311,55 +217,52 @@ export default function Edit({ item, warehouses }: Props) {
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-4">
-                                    <MobileFormField
-                                        label="Length (cm)"
-                                        error={errors['dimensions.length']}
-                                    >
+                                    <MobileFormField label="Length (cm)" error={errors['dimensions.length']}>
                                         <Input
                                             type="number"
                                             step="0.1"
                                             min="0"
                                             value={data.dimensions.length}
-                                            onChange={(e) => setData('dimensions', {
-                                                ...data.dimensions,
-                                                length: parseFloat(e.target.value) || 0
-                                            })}
+                                            onChange={(e) =>
+                                                setData('dimensions', {
+                                                    ...data.dimensions,
+                                                    length: parseFloat(e.target.value) || 0,
+                                                })
+                                            }
                                             placeholder="0.0"
                                             className="h-11 text-base"
                                         />
                                     </MobileFormField>
 
-                                    <MobileFormField
-                                        label="Width (cm)"
-                                        error={errors['dimensions.width']}
-                                    >
+                                    <MobileFormField label="Width (cm)" error={errors['dimensions.width']}>
                                         <Input
                                             type="number"
                                             step="0.1"
                                             min="0"
                                             value={data.dimensions.width}
-                                            onChange={(e) => setData('dimensions', {
-                                                ...data.dimensions,
-                                                width: parseFloat(e.target.value) || 0
-                                            })}
+                                            onChange={(e) =>
+                                                setData('dimensions', {
+                                                    ...data.dimensions,
+                                                    width: parseFloat(e.target.value) || 0,
+                                                })
+                                            }
                                             placeholder="0.0"
                                             className="h-11 text-base"
                                         />
                                     </MobileFormField>
 
-                                    <MobileFormField
-                                        label="Height (cm)"
-                                        error={errors['dimensions.height']}
-                                    >
+                                    <MobileFormField label="Height (cm)" error={errors['dimensions.height']}>
                                         <Input
                                             type="number"
                                             step="0.1"
                                             min="0"
                                             value={data.dimensions.height}
-                                            onChange={(e) => setData('dimensions', {
-                                                ...data.dimensions,
-                                                height: parseFloat(e.target.value) || 0
-                                            })}
+                                            onChange={(e) =>
+                                                setData('dimensions', {
+                                                    ...data.dimensions,
+                                                    height: parseFloat(e.target.value) || 0,
+                                                })
+                                            }
                                             placeholder="0.0"
                                             className="h-11 text-base"
                                         />
@@ -369,13 +272,9 @@ export default function Edit({ item, warehouses }: Props) {
                         </MobileFormSection>
 
                         {/* Pricing & Suppliers */}
-                        <MobileFormSection
-                            title="Pricing & Suppliers"
-                            icon={DollarSign}
-                            description="Cost, pricing, and supplier information"
-                        >
+                        <MobileFormSection title="Pricing & Suppliers" icon={DollarSign} description="Cost, pricing, and supplier information">
                             <MobileInputGroup>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                     <MobileFormField
                                         label="Unit Cost (TSh)"
                                         required
@@ -411,11 +310,8 @@ export default function Edit({ item, warehouses }: Props) {
                                     </MobileFormField>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <MobileFormField
-                                        label="Supplier"
-                                        error={errors.supplier}
-                                    >
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <MobileFormField label="Supplier" error={errors.supplier}>
                                         <Input
                                             value={data.supplier}
                                             onChange={(e) => setData('supplier', e.target.value)}
@@ -424,10 +320,7 @@ export default function Edit({ item, warehouses }: Props) {
                                         />
                                     </MobileFormField>
 
-                                    <MobileFormField
-                                        label="Manufacturer"
-                                        error={errors.manufacturer}
-                                    >
+                                    <MobileFormField label="Manufacturer" error={errors.manufacturer}>
                                         <Input
                                             value={data.manufacturer}
                                             onChange={(e) => setData('manufacturer', e.target.value)}
@@ -440,17 +333,10 @@ export default function Edit({ item, warehouses }: Props) {
                         </MobileFormSection>
 
                         {/* Stock Management */}
-                        <MobileFormSection
-                            title="Stock Management"
-                            icon={BarChart3}
-                            description="Stock levels and reorder settings"
-                        >
+                        <MobileFormSection title="Stock Management" icon={BarChart3} description="Stock levels and reorder settings">
                             <MobileInputGroup>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <MobileFormField
-                                        label="Min Stock Level"
-                                        error={errors.min_stock_level}
-                                    >
+                                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                                    <MobileFormField label="Min Stock Level" error={errors.min_stock_level}>
                                         <Input
                                             type="number"
                                             min="0"
@@ -461,10 +347,7 @@ export default function Edit({ item, warehouses }: Props) {
                                         />
                                     </MobileFormField>
 
-                                    <MobileFormField
-                                        label="Max Stock Level"
-                                        error={errors.max_stock_level}
-                                    >
+                                    <MobileFormField label="Max Stock Level" error={errors.max_stock_level}>
                                         <Input
                                             type="number"
                                             min="1"
@@ -475,10 +358,7 @@ export default function Edit({ item, warehouses }: Props) {
                                         />
                                     </MobileFormField>
 
-                                    <MobileFormField
-                                        label="Reorder Point"
-                                        error={errors.reorder_point}
-                                    >
+                                    <MobileFormField label="Reorder Point" error={errors.reorder_point}>
                                         <Input
                                             type="number"
                                             min="0"
@@ -489,10 +369,7 @@ export default function Edit({ item, warehouses }: Props) {
                                         />
                                     </MobileFormField>
 
-                                    <MobileFormField
-                                        label="Reorder Quantity"
-                                        error={errors.reorder_quantity}
-                                    >
+                                    <MobileFormField label="Reorder Quantity" error={errors.reorder_quantity}>
                                         <Input
                                             type="number"
                                             min="1"
@@ -504,42 +381,24 @@ export default function Edit({ item, warehouses }: Props) {
                                     </MobileFormField>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <MobileFormField
-                                        label="Active"
-                                        description="Item is available for use"
-                                    >
+                                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                                    <MobileFormField label="Active" description="Item is available for use">
                                         <div className="flex items-center space-x-2">
-                                            <Switch
-                                                checked={data.is_active}
-                                                onCheckedChange={(checked) => setData('is_active', checked)}
-                                            />
+                                            <Switch checked={data.is_active} onCheckedChange={(checked) => setData('is_active', checked)} />
                                             <span className="text-sm">{data.is_active ? 'Active' : 'Inactive'}</span>
                                         </div>
                                     </MobileFormField>
 
-                                    <MobileFormField
-                                        label="Trackable"
-                                        description="Track stock movements"
-                                    >
+                                    <MobileFormField label="Trackable" description="Track stock movements">
                                         <div className="flex items-center space-x-2">
-                                            <Switch
-                                                checked={data.is_trackable}
-                                                onCheckedChange={(checked) => setData('is_trackable', checked)}
-                                            />
+                                            <Switch checked={data.is_trackable} onCheckedChange={(checked) => setData('is_trackable', checked)} />
                                             <span className="text-sm">{data.is_trackable ? 'Yes' : 'No'}</span>
                                         </div>
                                     </MobileFormField>
 
-                                    <MobileFormField
-                                        label="Serialized"
-                                        description="Track individual serial numbers"
-                                    >
+                                    <MobileFormField label="Serialized" description="Track individual serial numbers">
                                         <div className="flex items-center space-x-2">
-                                            <Switch
-                                                checked={data.is_serialized}
-                                                onCheckedChange={(checked) => setData('is_serialized', checked)}
-                                            />
+                                            <Switch checked={data.is_serialized} onCheckedChange={(checked) => setData('is_serialized', checked)} />
                                             <span className="text-sm">{data.is_serialized ? 'Yes' : 'No'}</span>
                                         </div>
                                     </MobileFormField>
@@ -548,22 +407,22 @@ export default function Edit({ item, warehouses }: Props) {
                         </MobileFormSection>
 
                         {/* Submit Actions */}
-                        <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
-                            <Button type="button" variant="outline" className="flex-1 h-11" asChild>
+                        <div className="flex flex-col gap-4 border-t pt-6 sm:flex-row">
+                            <Button type="button" variant="outline" className="h-11 flex-1" asChild>
                                 <Link href={route('admin.inventory.show', item.id)}>
-                                    <X className="h-4 w-4 mr-2" />
+                                    <X className="mr-2 h-4 w-4" />
                                     Cancel
                                 </Link>
                             </Button>
-                            <Button type="submit" disabled={processing} className="flex-1 h-11">
+                            <Button type="submit" disabled={processing} className="h-11 flex-1">
                                 {processing ? (
                                     <>
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                                         Updating Item...
                                     </>
                                 ) : (
                                     <>
-                                        <Save className="h-4 w-4 mr-2" />
+                                        <Save className="mr-2 h-4 w-4" />
                                         Update Item
                                     </>
                                 )}

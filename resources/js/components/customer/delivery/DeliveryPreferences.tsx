@@ -1,31 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { 
+import { Textarea } from '@/components/ui/textarea';
+import {
+    AlertTriangle,
+    Bell,
+    Building,
+    Camera,
+    CheckCircle,
+    Clock,
+    Heart,
+    Home,
+    Info,
+    Lock,
+    Mail,
+    MapPin,
+    Package,
+    Phone,
     Settings,
     Shield,
     User,
-    MapPin,
-    Bell,
-    Package,
-    Camera,
-    Lock,
-    Phone,
-    Mail,
-    Clock,
-    AlertTriangle,
-    CheckCircle,
-    Info,
-    Heart,
-    Home,
-    Building,
-    Truck
 } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface DeliveryPreference {
     id: string;
@@ -49,11 +48,7 @@ interface Props {
     onPreferencesChange?: (preferences: any) => void;
 }
 
-export default function DeliveryPreferences({ 
-    className = '', 
-    preferences = {},
-    onPreferencesChange
-}: Props) {
+export default function DeliveryPreferences({ className = '', preferences = {}, onPreferencesChange }: Props) {
     const [deliveryPreferences, setDeliveryPreferences] = useState<DeliveryPreference[]>([
         {
             id: 'contactless',
@@ -111,49 +106,29 @@ export default function DeliveryPreferences({
         { method: 'app', enabled: true },
     ]);
 
-    const [specialInstructions, setSpecialInstructions] = useState(
-        preferences.specialInstructions || ''
-    );
-    const [deliveryLocation, setDeliveryLocation] = useState(
-        preferences.deliveryLocation || 'front_door'
-    );
-    const [accessCode, setAccessCode] = useState(
-        preferences.accessCode || ''
-    );
-    const [emergencyContact, setEmergencyContact] = useState(
-        preferences.emergencyContact || { name: '', phone: '' }
-    );
+    const [specialInstructions, setSpecialInstructions] = useState(preferences.specialInstructions || '');
+    const [deliveryLocation, setDeliveryLocation] = useState(preferences.deliveryLocation || 'front_door');
+    const [accessCode, setAccessCode] = useState(preferences.accessCode || '');
+    const [emergencyContact, setEmergencyContact] = useState(preferences.emergencyContact || { name: '', phone: '' });
 
     const handlePreferenceToggle = (preferenceId: string) => {
-        setDeliveryPreferences(prev => 
-            prev.map(pref => 
-                pref.id === preferenceId 
-                    ? { ...pref, enabled: !pref.enabled }
-                    : pref
-            )
-        );
+        setDeliveryPreferences((prev) => prev.map((pref) => (pref.id === preferenceId ? { ...pref, enabled: !pref.enabled } : pref)));
     };
 
     const handleContactToggle = (method: string) => {
-        setContactPreferences(prev => 
-            prev.map(contact => 
-                contact.method === method 
-                    ? { ...contact, enabled: !contact.enabled }
-                    : contact
-            )
-        );
+        setContactPreferences((prev) => prev.map((contact) => (contact.method === method ? { ...contact, enabled: !contact.enabled } : contact)));
     };
 
     const handleSavePreferences = () => {
         const allPreferences = {
-            deliveryPreferences: deliveryPreferences.filter(p => p.enabled),
-            contactPreferences: contactPreferences.filter(c => c.enabled),
+            deliveryPreferences: deliveryPreferences.filter((p) => p.enabled),
+            contactPreferences: contactPreferences.filter((c) => c.enabled),
             specialInstructions,
             deliveryLocation,
             accessCode,
             emergencyContact,
         };
-        
+
         onPreferencesChange?.(allPreferences);
     };
 
@@ -190,20 +165,16 @@ export default function DeliveryPreferences({
         return icons[location as keyof typeof icons] || <MapPin className="h-4 w-4" />;
     };
 
-    const totalFees = deliveryPreferences
-        .filter(p => p.enabled && p.fee)
-        .reduce((sum, p) => sum + (p.fee || 0), 0);
+    const totalFees = deliveryPreferences.filter((p) => p.enabled && p.fee).reduce((sum, p) => sum + (p.fee || 0), 0);
 
     return (
         <Card className={className}>
             <CardHeader className="pb-4">
-                <CardTitle className="text-lg sm:text-xl flex items-center">
-                    <Settings className="h-5 w-5 mr-2" />
+                <CardTitle className="flex items-center text-lg sm:text-xl">
+                    <Settings className="mr-2 h-5 w-5" />
                     Delivery Preferences
                 </CardTitle>
-                <CardDescription>
-                    Customize how you want your packages delivered
-                </CardDescription>
+                <CardDescription>Customize how you want your packages delivered</CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">
@@ -212,39 +183,19 @@ export default function DeliveryPreferences({
                     <h3 className="font-medium text-gray-900">Delivery Options</h3>
                     <div className="space-y-3">
                         {deliveryPreferences.map((preference) => (
-                            <div
-                                key={preference.id}
-                                className="flex items-center justify-between p-4 border rounded-lg"
-                            >
-                                <div className="flex items-start gap-3 flex-1">
-                                    <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
-                                        {preference.icon}
-                                    </div>
+                            <div key={preference.id} className="flex items-center justify-between rounded-lg border p-4">
+                                <div className="flex flex-1 items-start gap-3">
+                                    <div className="rounded-lg bg-blue-100 p-2 text-blue-600">{preference.icon}</div>
                                     <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h4 className="font-medium text-gray-900">
-                                                {preference.name}
-                                            </h4>
-                                            {preference.premium && (
-                                                <Badge className="bg-purple-100 text-purple-800 border-purple-300">
-                                                    Premium
-                                                </Badge>
-                                            )}
-                                            {preference.fee && (
-                                                <Badge variant="outline">
-                                                    +${preference.fee.toFixed(2)}
-                                                </Badge>
-                                            )}
+                                        <div className="mb-1 flex items-center gap-2">
+                                            <h4 className="font-medium text-gray-900">{preference.name}</h4>
+                                            {preference.premium && <Badge className="border-purple-300 bg-purple-100 text-purple-800">Premium</Badge>}
+                                            {preference.fee && <Badge variant="outline">+${preference.fee.toFixed(2)}</Badge>}
                                         </div>
-                                        <p className="text-sm text-gray-600">
-                                            {preference.description}
-                                        </p>
+                                        <p className="text-sm text-gray-600">{preference.description}</p>
                                     </div>
                                 </div>
-                                <Switch
-                                    checked={preference.enabled}
-                                    onCheckedChange={() => handlePreferenceToggle(preference.id)}
-                                />
+                                <Switch checked={preference.enabled} onCheckedChange={() => handlePreferenceToggle(preference.id)} />
                             </div>
                         ))}
                     </div>
@@ -253,7 +204,7 @@ export default function DeliveryPreferences({
                 {/* Delivery Location */}
                 <div className="space-y-4">
                     <h3 className="font-medium text-gray-900">Preferred Delivery Location</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                         {[
                             { id: 'front_door', label: 'Front Door' },
                             { id: 'back_door', label: 'Back Door' },
@@ -267,7 +218,7 @@ export default function DeliveryPreferences({
                                 variant={deliveryLocation === location.id ? 'default' : 'outline'}
                                 size="sm"
                                 onClick={() => setDeliveryLocation(location.id)}
-                                className="flex items-center gap-2 h-auto p-3"
+                                className="flex h-auto items-center gap-2 p-3"
                             >
                                 {getLocationIcon(location.id)}
                                 <span className="text-sm">{location.label}</span>
@@ -289,15 +240,13 @@ export default function DeliveryPreferences({
                         rows={3}
                         maxLength={500}
                     />
-                    <p className="text-xs text-gray-500">
-                        {specialInstructions.length}/500 characters
-                    </p>
+                    <p className="text-xs text-gray-500">{specialInstructions.length}/500 characters</p>
                 </div>
 
                 {/* Access Information */}
                 <div className="space-y-4">
                     <h3 className="font-medium text-gray-900">Access Information</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <Label htmlFor="access-code">Building/Gate Access Code</Label>
                             <Input
@@ -310,10 +259,7 @@ export default function DeliveryPreferences({
                         </div>
                         <div>
                             <Label htmlFor="buzzer">Apartment/Unit Number</Label>
-                            <Input
-                                id="buzzer"
-                                placeholder="e.g., Apt 4B, Unit 123"
-                            />
+                            <Input id="buzzer" placeholder="e.g., Apt 4B, Unit 123" />
                         </div>
                     </div>
                 </div>
@@ -321,17 +267,19 @@ export default function DeliveryPreferences({
                 {/* Emergency Contact */}
                 <div className="space-y-4">
                     <h3 className="font-medium text-gray-900">Emergency Contact</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
                             <Label htmlFor="emergency-name">Contact Name</Label>
                             <Input
                                 id="emergency-name"
                                 placeholder="Full name"
                                 value={emergencyContact.name}
-                                onChange={(e) => setEmergencyContact(prev => ({
-                                    ...prev,
-                                    name: e.target.value
-                                }))}
+                                onChange={(e) =>
+                                    setEmergencyContact((prev) => ({
+                                        ...prev,
+                                        name: e.target.value,
+                                    }))
+                                }
                             />
                         </div>
                         <div>
@@ -341,10 +289,12 @@ export default function DeliveryPreferences({
                                 type="tel"
                                 placeholder="+1 (555) 123-4567"
                                 value={emergencyContact.phone}
-                                onChange={(e) => setEmergencyContact(prev => ({
-                                    ...prev,
-                                    phone: e.target.value
-                                }))}
+                                onChange={(e) =>
+                                    setEmergencyContact((prev) => ({
+                                        ...prev,
+                                        phone: e.target.value,
+                                    }))
+                                }
                             />
                         </div>
                     </div>
@@ -355,27 +305,15 @@ export default function DeliveryPreferences({
                     <h3 className="font-medium text-gray-900">Notification Preferences</h3>
                     <div className="space-y-3">
                         {contactPreferences.map((contact) => (
-                            <div
-                                key={contact.method}
-                                className="flex items-center justify-between p-3 border rounded-lg"
-                            >
+                            <div key={contact.method} className="flex items-center justify-between rounded-lg border p-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-green-100 text-green-600 rounded-lg">
-                                        {getContactIcon(contact.method)}
-                                    </div>
+                                    <div className="rounded-lg bg-green-100 p-2 text-green-600">{getContactIcon(contact.method)}</div>
                                     <div>
-                                        <h4 className="font-medium text-gray-900">
-                                            {getContactLabel(contact.method)}
-                                        </h4>
-                                        {contact.value && (
-                                            <p className="text-sm text-gray-600">{contact.value}</p>
-                                        )}
+                                        <h4 className="font-medium text-gray-900">{getContactLabel(contact.method)}</h4>
+                                        {contact.value && <p className="text-sm text-gray-600">{contact.value}</p>}
                                     </div>
                                 </div>
-                                <Switch
-                                    checked={contact.enabled}
-                                    onCheckedChange={() => handleContactToggle(contact.method)}
-                                />
+                                <Switch checked={contact.enabled} onCheckedChange={() => handleContactToggle(contact.method)} />
                             </div>
                         ))}
                     </div>
@@ -383,21 +321,21 @@ export default function DeliveryPreferences({
 
                 {/* Cost Summary */}
                 {totalFees > 0 && (
-                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <div className="flex items-center gap-2 mb-2">
+                    <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+                        <div className="mb-2 flex items-center gap-2">
                             <AlertTriangle className="h-4 w-4 text-yellow-600" />
                             <h4 className="font-medium text-yellow-900">Additional Fees</h4>
                         </div>
                         <div className="space-y-1 text-sm">
                             {deliveryPreferences
-                                .filter(p => p.enabled && p.fee)
-                                .map(p => (
+                                .filter((p) => p.enabled && p.fee)
+                                .map((p) => (
                                     <div key={p.id} className="flex justify-between text-yellow-800">
                                         <span>{p.name}</span>
                                         <span>+${p.fee?.toFixed(2)}</span>
                                     </div>
                                 ))}
-                            <div className="border-t border-yellow-300 pt-1 mt-2">
+                            <div className="mt-2 border-t border-yellow-300 pt-1">
                                 <div className="flex justify-between font-medium text-yellow-900">
                                     <span>Total Additional Fees</span>
                                     <span>+${totalFees.toFixed(2)}</span>
@@ -408,15 +346,14 @@ export default function DeliveryPreferences({
                 )}
 
                 {/* Security Notice */}
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                     <div className="flex items-start gap-3">
-                        <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <Info className="mt-0.5 h-5 w-5 text-blue-600" />
                         <div>
-                            <h4 className="font-medium text-blue-900 mb-1">Security & Privacy</h4>
+                            <h4 className="mb-1 font-medium text-blue-900">Security & Privacy</h4>
                             <p className="text-sm text-blue-800">
-                                Your delivery preferences and access information are encrypted and only 
-                                shared with authorized delivery personnel. You can update these settings 
-                                anytime from your account dashboard.
+                                Your delivery preferences and access information are encrypted and only shared with authorized delivery personnel. You
+                                can update these settings anytime from your account dashboard.
                             </p>
                         </div>
                     </div>
@@ -425,7 +362,7 @@ export default function DeliveryPreferences({
                 {/* Save Button */}
                 <div className="flex gap-3 pt-4">
                     <Button onClick={handleSavePreferences} className="flex-1">
-                        <CheckCircle className="h-4 w-4 mr-2" />
+                        <CheckCircle className="mr-2 h-4 w-4" />
                         Save Preferences
                     </Button>
                     <Button variant="outline" onClick={() => window.location.reload()}>
@@ -434,23 +371,23 @@ export default function DeliveryPreferences({
                 </div>
 
                 {/* Quick Tips */}
-                <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900 mb-3">Delivery Tips</h4>
+                <div className="rounded-lg bg-gray-50 p-4">
+                    <h4 className="mb-3 font-medium text-gray-900">Delivery Tips</h4>
                     <div className="space-y-2 text-sm text-gray-600">
                         <div className="flex items-start gap-2">
-                            <Heart className="h-4 w-4 text-red-500 mt-0.5" />
+                            <Heart className="mt-0.5 h-4 w-4 text-red-500" />
                             <span>Enable photo confirmation for peace of mind</span>
                         </div>
                         <div className="flex items-start gap-2">
-                            <Shield className="h-4 w-4 text-green-500 mt-0.5" />
+                            <Shield className="mt-0.5 h-4 w-4 text-green-500" />
                             <span>Use secure location delivery for valuable packages</span>
                         </div>
                         <div className="flex items-start gap-2">
-                            <Bell className="h-4 w-4 text-blue-500 mt-0.5" />
+                            <Bell className="mt-0.5 h-4 w-4 text-blue-500" />
                             <span>Enable multiple notification methods to stay informed</span>
                         </div>
                         <div className="flex items-start gap-2">
-                            <Clock className="h-4 w-4 text-purple-500 mt-0.5" />
+                            <Clock className="mt-0.5 h-4 w-4 text-purple-500" />
                             <span>Weekend delivery is perfect for busy weekdays</span>
                         </div>
                     </div>

@@ -7,12 +7,12 @@ export function cn(...inputs: ClassValue[]) {
 
 // Re-export currency utilities for convenience
 export {
-    formatCurrency,
-    formatCurrencyValue,
-    parseCurrency,
-    getCurrencySymbol,
-    getCurrencyDecimals,
     convertCurrency,
     DEFAULT_CURRENCY,
-    SUPPORTED_CURRENCIES
+    formatCurrency,
+    formatCurrencyValue,
+    getCurrencyDecimals,
+    getCurrencySymbol,
+    parseCurrency,
+    SUPPORTED_CURRENCIES,
 } from './currency';

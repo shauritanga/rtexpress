@@ -1,33 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 import {
+    AlertTriangle,
     Bell,
+    CheckCircle,
+    Clock,
+    CreditCard,
+    Info,
+    Languages,
     Mail,
     MessageSquare,
-    Smartphone,
-    Clock,
-    Globe,
-    Volume2,
-    VolumeX,
-    Settings,
-    Save,
-    RefreshCw,
-    CheckCircle,
-    AlertTriangle,
-    Info,
     Moon,
-    Sun,
-    Languages,
-    MapPin,
     Package,
-    CreditCard
+    RefreshCw,
+    Save,
+    Settings,
+    Smartphone,
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface NotificationChannel {
     id: string;
@@ -74,10 +69,7 @@ interface Props {
     onPreferencesUpdate?: (preferences: NotificationPreferences) => void;
 }
 
-export default function NotificationPreferences({ 
-    className = '', 
-    onPreferencesUpdate
-}: Props) {
+export default function NotificationPreferences({ className = '', onPreferencesUpdate }: Props) {
     const [preferences, setPreferences] = useState<NotificationPreferences | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -209,7 +201,7 @@ export default function NotificationPreferences({
         setIsLoading(true);
         try {
             // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             setPreferences(mockPreferences);
         } catch (error) {
             console.error('Failed to load notification preferences:', error);
@@ -223,9 +215,7 @@ export default function NotificationPreferences({
 
         const updatedPreferences = {
             ...preferences,
-            channels: preferences.channels.map(channel =>
-                channel.id === channelId ? { ...channel, enabled } : channel
-            ),
+            channels: preferences.channels.map((channel) => (channel.id === channelId ? { ...channel, enabled } : channel)),
         };
 
         setPreferences(updatedPreferences);
@@ -237,10 +227,8 @@ export default function NotificationPreferences({
 
         const updatedPreferences = {
             ...preferences,
-            events: preferences.events.map(event =>
-                event.id === eventId 
-                    ? { ...event, channels: { ...event.channels, [channelType]: enabled } }
-                    : event
+            events: preferences.events.map((event) =>
+                event.id === eventId ? { ...event, channels: { ...event.channels, [channelType]: enabled } } : event,
             ),
         };
 
@@ -253,9 +241,7 @@ export default function NotificationPreferences({
 
         const updatedPreferences = {
             ...preferences,
-            events: preferences.events.map(event =>
-                event.id === eventId ? { ...event, frequency } : event
-            ),
+            events: preferences.events.map((event) => (event.id === eventId ? { ...event, frequency } : event)),
         };
 
         setPreferences(updatedPreferences);
@@ -314,14 +300,13 @@ export default function NotificationPreferences({
 
         try {
             // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+
             setHasChanges(false);
             onPreferencesUpdate?.(preferences);
 
             // Show success message
             console.log('Notification preferences saved successfully');
-
         } catch (error) {
             setErrors({ general: 'Failed to save preferences. Please try again.' });
         } finally {
@@ -389,7 +374,7 @@ export default function NotificationPreferences({
             <Card className={className}>
                 <CardContent className="pt-6">
                     <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                         <span className="ml-3 text-gray-600">Loading notification preferences...</span>
                     </div>
                 </CardContent>
@@ -401,12 +386,12 @@ export default function NotificationPreferences({
         return (
             <Card className={className}>
                 <CardContent className="pt-6">
-                    <div className="text-center py-8">
-                        <AlertTriangle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">Failed to Load Preferences</h3>
-                        <p className="text-gray-600 mb-4">Unable to load your notification preferences</p>
+                    <div className="py-8 text-center">
+                        <AlertTriangle className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                        <h3 className="mb-2 text-lg font-medium text-gray-900">Failed to Load Preferences</h3>
+                        <p className="mb-4 text-gray-600">Unable to load your notification preferences</p>
                         <Button onClick={loadPreferences}>
-                            <RefreshCw className="h-4 w-4 mr-2" />
+                            <RefreshCw className="mr-2 h-4 w-4" />
                             Try Again
                         </Button>
                     </div>
@@ -420,13 +405,11 @@ export default function NotificationPreferences({
             <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <CardTitle className="text-lg sm:text-xl flex items-center">
-                            <Bell className="h-5 w-5 mr-2" />
+                        <CardTitle className="flex items-center text-lg sm:text-xl">
+                            <Bell className="mr-2 h-5 w-5" />
                             Notification Preferences
                         </CardTitle>
-                        <CardDescription>
-                            Customize how and when you receive notifications
-                        </CardDescription>
+                        <CardDescription>Customize how and when you receive notifications</CardDescription>
                     </div>
                     <div className="flex gap-2">
                         {hasChanges && (
@@ -434,18 +417,15 @@ export default function NotificationPreferences({
                                 Reset
                             </Button>
                         )}
-                        <Button 
-                            onClick={savePreferences} 
-                            disabled={!hasChanges || isSaving}
-                        >
+                        <Button onClick={savePreferences} disabled={!hasChanges || isSaving}>
                             {isSaving ? (
                                 <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                                     Saving...
                                 </>
                             ) : (
                                 <>
-                                    <Save className="h-4 w-4 mr-2" />
+                                    <Save className="mr-2 h-4 w-4" />
                                     Save Changes
                                 </>
                             )}
@@ -457,7 +437,7 @@ export default function NotificationPreferences({
             <CardContent className="space-y-8">
                 {/* Errors */}
                 {errors.general && (
-                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4">
                         <div className="flex items-center gap-2">
                             <AlertTriangle className="h-4 w-4 text-red-600" />
                             <p className="text-sm text-red-800">{errors.general}</p>
@@ -467,43 +447,36 @@ export default function NotificationPreferences({
 
                 {/* Notification Channels */}
                 <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900 flex items-center">
-                        <Settings className="h-4 w-4 mr-2" />
+                    <h3 className="flex items-center font-medium text-gray-900">
+                        <Settings className="mr-2 h-4 w-4" />
                         Notification Channels
                     </h3>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         {preferences.channels.map((channel) => (
                             <Card key={channel.id} className="p-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-gray-100 rounded-lg">
-                                            {channel.icon}
-                                        </div>
+                                        <div className="rounded-lg bg-gray-100 p-2">{channel.icon}</div>
                                         <div>
                                             <h4 className="font-medium text-gray-900">{channel.name}</h4>
-                                            {channel.address && (
-                                                <p className="text-sm text-gray-600">{channel.address}</p>
-                                            )}
-                                            <div className="flex items-center gap-2 mt-1">
+                                            {channel.address && <p className="text-sm text-gray-600">{channel.address}</p>}
+                                            <div className="mt-1 flex items-center gap-2">
                                                 {channel.verified ? (
-                                                    <Badge className="bg-green-100 text-green-800 border-green-300">
-                                                        <CheckCircle className="h-3 w-3 mr-1" />
+                                                    <Badge className="border-green-300 bg-green-100 text-green-800">
+                                                        <CheckCircle className="mr-1 h-3 w-3" />
                                                         Verified
                                                     </Badge>
                                                 ) : (
-                                                    <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
-                                                        <AlertTriangle className="h-3 w-3 mr-1" />
+                                                    <Badge className="border-yellow-300 bg-yellow-100 text-yellow-800">
+                                                        <AlertTriangle className="mr-1 h-3 w-3" />
                                                         Unverified
                                                     </Badge>
                                                 )}
                                             </div>
                                         </div>
                                     </div>
-                                    <Switch
-                                        checked={channel.enabled}
-                                        onCheckedChange={(enabled) => handleChannelToggle(channel.id, enabled)}
-                                    />
+                                    <Switch checked={channel.enabled} onCheckedChange={(enabled) => handleChannelToggle(channel.id, enabled)} />
                                 </div>
                             </Card>
                         ))}
@@ -512,18 +485,18 @@ export default function NotificationPreferences({
 
                 {/* Event Notifications */}
                 <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900 flex items-center">
-                        <Bell className="h-4 w-4 mr-2" />
+                    <h3 className="flex items-center font-medium text-gray-900">
+                        <Bell className="mr-2 h-4 w-4" />
                         Event Notifications
                     </h3>
-                    
+
                     <div className="space-y-4">
                         {preferences.events.map((event) => (
                             <Card key={event.id} className="p-4">
                                 <div className="space-y-4">
                                     <div className="flex items-start justify-between">
                                         <div className="flex-1">
-                                            <div className="flex items-center gap-2 mb-1">
+                                            <div className="mb-1 flex items-center gap-2">
                                                 <h4 className="font-medium text-gray-900">{event.name}</h4>
                                                 <Badge className={getCategoryColor(event.category)}>
                                                     {getCategoryIcon(event.category)}
@@ -535,7 +508,9 @@ export default function NotificationPreferences({
                                         <div className="ml-4">
                                             <Select
                                                 value={event.frequency}
-                                                onValueChange={(frequency) => handleEventFrequencyChange(event.id, frequency as NotificationEvent['frequency'])}
+                                                onValueChange={(frequency) =>
+                                                    handleEventFrequencyChange(event.id, frequency as NotificationEvent['frequency'])
+                                                }
                                             >
                                                 <SelectTrigger className="w-32">
                                                     <SelectValue />
@@ -549,21 +524,23 @@ export default function NotificationPreferences({
                                             </Select>
                                         </div>
                                     </div>
-                                    
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                        {preferences.channels.filter(ch => ch.enabled).map((channel) => (
-                                            <div key={channel.id} className="flex items-center space-x-2">
-                                                <Switch
-                                                    checked={event.channels[channel.type]}
-                                                    onCheckedChange={(enabled) => handleEventChannelToggle(event.id, channel.type, enabled)}
-                                                    disabled={event.frequency === 'disabled'}
-                                                />
-                                                <div className="flex items-center gap-1">
-                                                    {channel.icon}
-                                                    <span className="text-sm text-gray-700 capitalize">{channel.type}</span>
+
+                                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                                        {preferences.channels
+                                            .filter((ch) => ch.enabled)
+                                            .map((channel) => (
+                                                <div key={channel.id} className="flex items-center space-x-2">
+                                                    <Switch
+                                                        checked={event.channels[channel.type]}
+                                                        onCheckedChange={(enabled) => handleEventChannelToggle(event.id, channel.type, enabled)}
+                                                        disabled={event.frequency === 'disabled'}
+                                                    />
+                                                    <div className="flex items-center gap-1">
+                                                        {channel.icon}
+                                                        <span className="text-sm text-gray-700 capitalize">{channel.type}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
                                     </div>
                                 </div>
                             </Card>
@@ -573,11 +550,11 @@ export default function NotificationPreferences({
 
                 {/* Quiet Hours */}
                 <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900 flex items-center">
-                        <Moon className="h-4 w-4 mr-2" />
+                    <h3 className="flex items-center font-medium text-gray-900">
+                        <Moon className="mr-2 h-4 w-4" />
                         Quiet Hours
                     </h3>
-                    
+
                     <Card className="p-4">
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
@@ -585,14 +562,11 @@ export default function NotificationPreferences({
                                     <h4 className="font-medium text-gray-900">Enable Quiet Hours</h4>
                                     <p className="text-sm text-gray-600">Pause non-urgent notifications during specified hours</p>
                                 </div>
-                                <Switch
-                                    checked={preferences.quietHours.enabled}
-                                    onCheckedChange={handleQuietHoursToggle}
-                                />
+                                <Switch checked={preferences.quietHours.enabled} onCheckedChange={handleQuietHoursToggle} />
                             </div>
-                            
+
                             {preferences.quietHours.enabled && (
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                     <div>
                                         <Label htmlFor="quiet-start">Start Time</Label>
                                         <Input
@@ -613,13 +587,20 @@ export default function NotificationPreferences({
                                     </div>
                                     <div>
                                         <Label htmlFor="timezone">Timezone</Label>
-                                        <Select value={preferences.quietHours.timezone} onValueChange={(tz) => setPreferences({...preferences, quietHours: {...preferences.quietHours, timezone: tz}})}>
+                                        <Select
+                                            value={preferences.quietHours.timezone}
+                                            onValueChange={(tz) =>
+                                                setPreferences({ ...preferences, quietHours: { ...preferences.quietHours, timezone: tz } })
+                                            }
+                                        >
                                             <SelectTrigger>
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {timezones.map(tz => (
-                                                    <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                                                {timezones.map((tz) => (
+                                                    <SelectItem key={tz} value={tz}>
+                                                        {tz}
+                                                    </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -631,10 +612,10 @@ export default function NotificationPreferences({
                 </div>
 
                 {/* Language & Frequency Settings */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div className="space-y-4">
-                        <h3 className="font-medium text-gray-900 flex items-center">
-                            <Languages className="h-4 w-4 mr-2" />
+                        <h3 className="flex items-center font-medium text-gray-900">
+                            <Languages className="mr-2 h-4 w-4" />
                             Language
                         </h3>
                         <Select value={preferences.language} onValueChange={handleLanguageChange}>
@@ -642,7 +623,7 @@ export default function NotificationPreferences({
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                {languages.map(lang => (
+                                {languages.map((lang) => (
                                     <SelectItem key={lang.code} value={lang.code}>
                                         {lang.name}
                                     </SelectItem>
@@ -652,17 +633,14 @@ export default function NotificationPreferences({
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="font-medium text-gray-900 flex items-center">
-                            <Clock className="h-4 w-4 mr-2" />
+                        <h3 className="flex items-center font-medium text-gray-900">
+                            <Clock className="mr-2 h-4 w-4" />
                             Summary Frequency
                         </h3>
                         <div className="space-y-3">
                             <div>
                                 <Label htmlFor="digest-frequency">Daily Digest</Label>
-                                <Select 
-                                    value={preferences.frequency.digest} 
-                                    onValueChange={(freq) => handleFrequencyChange('digest', freq)}
-                                >
+                                <Select value={preferences.frequency.digest} onValueChange={(freq) => handleFrequencyChange('digest', freq)}>
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
@@ -675,10 +653,7 @@ export default function NotificationPreferences({
                             </div>
                             <div>
                                 <Label htmlFor="summary-frequency">Weekly Summary</Label>
-                                <Select 
-                                    value={preferences.frequency.summary} 
-                                    onValueChange={(freq) => handleFrequencyChange('summary', freq)}
-                                >
+                                <Select value={preferences.frequency.summary} onValueChange={(freq) => handleFrequencyChange('summary', freq)}>
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
@@ -694,12 +669,12 @@ export default function NotificationPreferences({
                 </div>
 
                 {/* Information */}
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                     <div className="flex items-start gap-3">
-                        <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <Info className="mt-0.5 h-5 w-5 text-blue-600" />
                         <div>
-                            <h4 className="font-medium text-blue-900 mb-1">About Notifications</h4>
-                            <ul className="text-sm text-blue-800 space-y-1">
+                            <h4 className="mb-1 font-medium text-blue-900">About Notifications</h4>
+                            <ul className="space-y-1 text-sm text-blue-800">
                                 <li>• Critical security alerts cannot be disabled</li>
                                 <li>• Quiet hours don't apply to urgent delivery exceptions</li>
                                 <li>• SMS charges may apply based on your mobile plan</li>

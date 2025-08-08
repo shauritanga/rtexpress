@@ -1,28 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { 
-    CreditCard,
-    Smartphone,
-    Building2,
-    Plus,
-    Trash2,
-    Edit,
-    Check,
-    X,
-    Shield,
+import {
     AlertTriangle,
-    Info,
-    Star,
+    Building2,
+    Check,
     Clock,
+    CreditCard,
     DollarSign,
+    Globe,
+    Info,
+    Plus,
+    Shield,
+    Smartphone,
+    Star,
+    Trash2,
+    X,
     Zap,
-    Globe
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface PaymentMethod {
     id: string;
@@ -68,13 +66,13 @@ interface Props {
     selectedMethodId?: string;
 }
 
-export default function PaymentMethods({ 
-    className = '', 
+export default function PaymentMethods({
+    className = '',
     onPaymentMethodSelect,
     onPaymentMethodAdd,
     onPaymentMethodRemove,
     showAddButton = true,
-    selectedMethodId
+    selectedMethodId,
 }: Props) {
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
     const [paymentGateways, setPaymentGateways] = useState<PaymentGateway[]>([]);
@@ -178,7 +176,7 @@ export default function PaymentMethods({
         setIsLoading(true);
         try {
             // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             setPaymentMethods(mockPaymentMethods);
         } catch (error) {
             console.error('Failed to load payment methods:', error);
@@ -190,7 +188,7 @@ export default function PaymentMethods({
     const loadPaymentGateways = async () => {
         try {
             // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise((resolve) => setTimeout(resolve, 500));
             setPaymentGateways(mockPaymentGateways);
         } catch (error) {
             console.error('Failed to load payment gateways:', error);
@@ -213,8 +211,8 @@ export default function PaymentMethods({
         setIsLoading(true);
         try {
             // Simulate API call to add payment method
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+
             const newMethod: PaymentMethod = {
                 id: `pm_${Date.now()}`,
                 type: selectedMethodType as any,
@@ -226,7 +224,7 @@ export default function PaymentMethods({
                 created_at: new Date().toISOString(),
             };
 
-            setPaymentMethods(prev => [...prev, newMethod]);
+            setPaymentMethods((prev) => [...prev, newMethod]);
             setIsAddingMethod(false);
             onPaymentMethodAdd?.(newMethod);
         } catch (error) {
@@ -244,8 +242,8 @@ export default function PaymentMethods({
         setIsLoading(true);
         try {
             // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            setPaymentMethods(prev => prev.filter(method => method.id !== methodId));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            setPaymentMethods((prev) => prev.filter((method) => method.id !== methodId));
             onPaymentMethodRemove?.(methodId);
         } catch (error) {
             console.error('Failed to remove payment method:', error);
@@ -258,11 +256,13 @@ export default function PaymentMethods({
         setIsLoading(true);
         try {
             // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            setPaymentMethods(prev => prev.map(method => ({
-                ...method,
-                is_default: method.id === methodId,
-            })));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            setPaymentMethods((prev) =>
+                prev.map((method) => ({
+                    ...method,
+                    is_default: method.id === methodId,
+                })),
+            );
         } catch (error) {
             console.error('Failed to set default payment method:', error);
         } finally {
@@ -298,7 +298,7 @@ export default function PaymentMethods({
     };
 
     const getAvailableMethodTypes = (gatewayId: string) => {
-        const gateway = paymentGateways.find(g => g.id === gatewayId);
+        const gateway = paymentGateways.find((g) => g.id === gatewayId);
         return gateway?.methods || [];
     };
 
@@ -307,17 +307,15 @@ export default function PaymentMethods({
             <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                     <div>
-                        <CardTitle className="text-lg sm:text-xl flex items-center">
-                            <CreditCard className="h-5 w-5 mr-2" />
+                        <CardTitle className="flex items-center text-lg sm:text-xl">
+                            <CreditCard className="mr-2 h-5 w-5" />
                             Payment Methods
                         </CardTitle>
-                        <CardDescription>
-                            Manage your payment methods for quick and secure transactions
-                        </CardDescription>
+                        <CardDescription>Manage your payment methods for quick and secure transactions</CardDescription>
                     </div>
                     {showAddButton && (
                         <Button onClick={handleAddPaymentMethod} disabled={isAddingMethod}>
-                            <Plus className="h-4 w-4 mr-2" />
+                            <Plus className="mr-2 h-4 w-4" />
                             Add Method
                         </Button>
                     )}
@@ -327,12 +325,12 @@ export default function PaymentMethods({
             <CardContent className="space-y-6">
                 {/* Add Payment Method Form */}
                 {isAddingMethod && (
-                    <Card className="border-dashed border-2 border-gray-300">
+                    <Card className="border-2 border-dashed border-gray-300">
                         <CardContent className="pt-6">
-                            <h3 className="font-medium text-gray-900 mb-4">Add New Payment Method</h3>
-                            
+                            <h3 className="mb-4 font-medium text-gray-900">Add New Payment Method</h3>
+
                             {errors.general && (
-                                <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
+                                <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3">
                                     <p className="text-sm text-red-800">{errors.general}</p>
                                 </div>
                             )}
@@ -345,16 +343,18 @@ export default function PaymentMethods({
                                             <SelectValue placeholder="Select payment gateway" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {paymentGateways.filter(g => g.is_enabled).map(gateway => (
-                                                <SelectItem key={gateway.id} value={gateway.id}>
-                                                    <div className="flex items-center gap-2">
-                                                        <span>{gateway.name}</span>
-                                                        <Badge variant="outline" className="text-xs">
-                                                            {gateway.processing_time}
-                                                        </Badge>
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
+                                            {paymentGateways
+                                                .filter((g) => g.is_enabled)
+                                                .map((gateway) => (
+                                                    <SelectItem key={gateway.id} value={gateway.id}>
+                                                        <div className="flex items-center gap-2">
+                                                            <span>{gateway.name}</span>
+                                                            <Badge variant="outline" className="text-xs">
+                                                                {gateway.processing_time}
+                                                            </Badge>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -367,7 +367,7 @@ export default function PaymentMethods({
                                                 <SelectValue placeholder="Select method type" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {getAvailableMethodTypes(selectedGateway).map(method => (
+                                                {getAvailableMethodTypes(selectedGateway).map((method) => (
                                                     <SelectItem key={method} value={method}>
                                                         <div className="flex items-center gap-2">
                                                             {getMethodIcon(method)}
@@ -381,13 +381,13 @@ export default function PaymentMethods({
                                 )}
 
                                 {selectedGateway && selectedMethodType && (
-                                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
                                         <div className="flex items-start gap-2">
-                                            <Info className="h-4 w-4 text-blue-600 mt-0.5" />
+                                            <Info className="mt-0.5 h-4 w-4 text-blue-600" />
                                             <div className="text-sm text-blue-800">
-                                                <p className="font-medium mb-1">Gateway Information</p>
+                                                <p className="mb-1 font-medium">Gateway Information</p>
                                                 {(() => {
-                                                    const gateway = paymentGateways.find(g => g.id === selectedGateway);
+                                                    const gateway = paymentGateways.find((g) => g.id === selectedGateway);
                                                     const fee = gateway?.fees[selectedMethodType as keyof typeof gateway.fees];
                                                     return (
                                                         <div className="space-y-1">
@@ -403,26 +403,22 @@ export default function PaymentMethods({
                                 )}
                             </div>
 
-                            <div className="flex gap-3 mt-6">
+                            <div className="mt-6 flex gap-3">
                                 <Button onClick={handleSavePaymentMethod} disabled={isLoading}>
                                     {isLoading ? (
                                         <>
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                                             Adding...
                                         </>
                                     ) : (
                                         <>
-                                            <Check className="h-4 w-4 mr-2" />
+                                            <Check className="mr-2 h-4 w-4" />
                                             Add Method
                                         </>
                                     )}
                                 </Button>
-                                <Button 
-                                    variant="outline" 
-                                    onClick={() => setIsAddingMethod(false)}
-                                    disabled={isLoading}
-                                >
-                                    <X className="h-4 w-4 mr-2" />
+                                <Button variant="outline" onClick={() => setIsAddingMethod(false)} disabled={isLoading}>
+                                    <X className="mr-2 h-4 w-4" />
                                     Cancel
                                 </Button>
                             </div>
@@ -433,17 +429,17 @@ export default function PaymentMethods({
                 {/* Payment Methods List */}
                 {isLoading && paymentMethods.length === 0 ? (
                     <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                         <span className="ml-3 text-gray-600">Loading payment methods...</span>
                     </div>
                 ) : paymentMethods.length === 0 ? (
-                    <div className="text-center py-8">
-                        <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Payment Methods</h3>
-                        <p className="text-gray-600 mb-4">Add a payment method to get started with quick payments</p>
+                    <div className="py-8 text-center">
+                        <CreditCard className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                        <h3 className="mb-2 text-lg font-medium text-gray-900">No Payment Methods</h3>
+                        <p className="mb-4 text-gray-600">Add a payment method to get started with quick payments</p>
                         {showAddButton && (
                             <Button onClick={handleAddPaymentMethod}>
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="mr-2 h-4 w-4" />
                                 Add Your First Payment Method
                             </Button>
                         )}
@@ -451,41 +447,35 @@ export default function PaymentMethods({
                 ) : (
                     <div className="space-y-4">
                         {paymentMethods.map((method) => (
-                            <Card 
-                                key={method.id} 
+                            <Card
+                                key={method.id}
                                 className={`cursor-pointer transition-all ${
-                                    selectedMethodId === method.id 
-                                        ? 'ring-2 ring-blue-500 border-blue-500' 
-                                        : 'hover:shadow-md'
+                                    selectedMethodId === method.id ? 'border-blue-500 ring-2 ring-blue-500' : 'hover:shadow-md'
                                 }`}
                                 onClick={() => onPaymentMethodSelect?.(method)}
                             >
                                 <CardContent className="pt-4">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-gray-100 rounded-lg">
-                                                {getMethodIcon(method.type)}
-                                            </div>
+                                            <div className="rounded-lg bg-gray-100 p-2">{getMethodIcon(method.type)}</div>
                                             <div>
                                                 <div className="flex items-center gap-2">
                                                     <h4 className="font-medium text-gray-900">{method.name}</h4>
                                                     {method.is_default && (
-                                                        <Badge className="bg-green-100 text-green-800 border-green-300">
-                                                            <Star className="h-3 w-3 mr-1" />
+                                                        <Badge className="border-green-300 bg-green-100 text-green-800">
+                                                            <Star className="mr-1 h-3 w-3" />
                                                             Default
                                                         </Badge>
                                                     )}
                                                     {!method.is_verified && (
-                                                        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
-                                                            <AlertTriangle className="h-3 w-3 mr-1" />
+                                                        <Badge className="border-yellow-300 bg-yellow-100 text-yellow-800">
+                                                            <AlertTriangle className="mr-1 h-3 w-3" />
                                                             Unverified
                                                         </Badge>
                                                     )}
                                                 </div>
-                                                <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                                                    <Badge className={getGatewayColor(method.gateway)}>
-                                                        {method.gateway}
-                                                    </Badge>
+                                                <div className="mt-1 flex items-center gap-4 text-sm text-gray-600">
+                                                    <Badge className={getGatewayColor(method.gateway)}>{method.gateway}</Badge>
                                                     <span>Added {formatDate(method.created_at)}</span>
                                                     {method.last_used && (
                                                         <span className="flex items-center gap-1">
@@ -496,10 +486,10 @@ export default function PaymentMethods({
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div className="flex items-center gap-2">
                                             {method.is_verified && (
-                                                <div className="p-1 bg-green-100 text-green-600 rounded-full">
+                                                <div className="rounded-full bg-green-100 p-1 text-green-600">
                                                     <Shield className="h-3 w-3" />
                                                 </div>
                                             )}
@@ -537,29 +527,31 @@ export default function PaymentMethods({
                 )}
 
                 {/* Payment Gateways Information */}
-                <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900 mb-3">Available Payment Gateways</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        {paymentGateways.filter(g => g.is_enabled).map((gateway) => (
-                            <div key={gateway.id} className="p-3 bg-white rounded-lg border">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
-                                        <span className="text-xs font-bold">{gateway.name[0]}</span>
+                <div className="rounded-lg bg-gray-50 p-4">
+                    <h4 className="mb-3 font-medium text-gray-900">Available Payment Gateways</h4>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        {paymentGateways
+                            .filter((g) => g.is_enabled)
+                            .map((gateway) => (
+                                <div key={gateway.id} className="rounded-lg border bg-white p-3">
+                                    <div className="mb-2 flex items-center gap-2">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded bg-gray-100">
+                                            <span className="text-xs font-bold">{gateway.name[0]}</span>
+                                        </div>
+                                        <span className="text-sm font-medium">{gateway.name}</span>
                                     </div>
-                                    <span className="font-medium text-sm">{gateway.name}</span>
+                                    <div className="space-y-1 text-xs text-gray-600">
+                                        <div className="flex items-center gap-1">
+                                            <Zap className="h-3 w-3" />
+                                            <span>{gateway.processing_time}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <DollarSign className="h-3 w-3" />
+                                            <span>From {Object.values(gateway.fees)[0]}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="text-xs text-gray-600 space-y-1">
-                                    <div className="flex items-center gap-1">
-                                        <Zap className="h-3 w-3" />
-                                        <span>{gateway.processing_time}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <DollarSign className="h-3 w-3" />
-                                        <span>From {Object.values(gateway.fees)[0]}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 </div>
             </CardContent>

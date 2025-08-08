@@ -1,30 +1,14 @@
-import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
-} from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
 import { getCurrencySymbol } from '@/lib/utils';
-import {
-    ArrowLeft,
-    Save,
-    Package,
-    User,
-    MapPin,
-    Truck,
-    DollarSign,
-    Weight,
-    Calendar
-} from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, Calendar, DollarSign, Package, Save, User, Weight } from 'lucide-react';
+import { FormEventHandler } from 'react';
 
 interface Shipment {
     id: number;
@@ -99,8 +83,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
         dimensions_width_cm: shipment.dimensions_width_cm || '',
         dimensions_height_cm: shipment.dimensions_height_cm || '',
         special_instructions: shipment.special_instructions || '',
-        estimated_delivery_date: shipment.estimated_delivery_date ?
-            new Date(shipment.estimated_delivery_date).toISOString().split('T')[0] : '',
+        estimated_delivery_date: shipment.estimated_delivery_date ? new Date(shipment.estimated_delivery_date).toISOString().split('T')[0] : '',
         assigned_to: shipment.assigned_to || 0,
     });
 
@@ -112,30 +95,26 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
     return (
         <AppLayout>
             <Head title={`Edit Shipment - ${shipment.tracking_number}`} />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div className="flex items-center space-x-4">
                         <Button variant="ghost" size="sm" asChild>
                             <Link href={`/admin/shipments/${shipment.id}`}>
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Shipment
                             </Link>
                         </Button>
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                Edit Shipment
-                            </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                                Update shipment details and delivery information
-                            </p>
+                            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Edit Shipment</h1>
+                            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Update shipment details and delivery information</p>
                         </div>
                     </div>
                 </div>
 
                 <form onSubmit={submit} className="space-y-6">
-                    <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                         {/* Shipment Details */}
                         <Card>
                             <CardHeader>
@@ -143,29 +122,18 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                     <Package className="h-5 w-5" />
                                     <span>Shipment Details</span>
                                 </CardTitle>
-                                <CardDescription>
-                                    Basic shipment information and service details
-                                </CardDescription>
+                                <CardDescription>Basic shipment information and service details</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label>Tracking Number</Label>
-                                    <Input
-                                        value={shipment.tracking_number}
-                                        disabled
-                                        className="bg-muted"
-                                    />
-                                    <p className="text-xs text-muted-foreground">
-                                        Tracking number cannot be changed
-                                    </p>
+                                    <Input value={shipment.tracking_number} disabled className="bg-muted" />
+                                    <p className="text-xs text-muted-foreground">Tracking number cannot be changed</p>
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="customer_id">Customer *</Label>
-                                    <Select 
-                                        value={data.customer_id.toString()} 
-                                        onValueChange={(value) => setData('customer_id', parseInt(value))}
-                                    >
+                                    <Select value={data.customer_id.toString()} onValueChange={(value) => setData('customer_id', parseInt(value))}>
                                         <SelectTrigger className={errors.customer_id ? 'border-red-500' : ''}>
                                             <SelectValue placeholder="Select customer" />
                                         </SelectTrigger>
@@ -177,12 +145,10 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.customer_id && (
-                                        <p className="text-sm text-red-600">{errors.customer_id}</p>
-                                    )}
+                                    {errors.customer_id && <p className="text-sm text-red-600">{errors.customer_id}</p>}
                                 </div>
 
-                                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="service_type">Service Type *</Label>
                                         <Select value={data.service_type} onValueChange={(value) => setData('service_type', value)}>
@@ -196,9 +162,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                                 <SelectItem value="economy">Economy</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        {errors.service_type && (
-                                            <p className="text-sm text-red-600">{errors.service_type}</p>
-                                        )}
+                                        {errors.service_type && <p className="text-sm text-red-600">{errors.service_type}</p>}
                                     </div>
 
                                     <div className="space-y-2">
@@ -217,17 +181,15 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                                 <SelectItem value="cancelled">Cancelled</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        {errors.status && (
-                                            <p className="text-sm text-red-600">{errors.status}</p>
-                                        )}
+                                        {errors.status && <p className="text-sm text-red-600">{errors.status}</p>}
                                     </div>
                                 </div>
 
-                                <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                     <div className="space-y-2">
                                         <Label htmlFor="declared_value">Declared Value ({getCurrencySymbol()}) *</Label>
                                         <div className="relative">
-                                            <DollarSign className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                            <DollarSign className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                             <Input
                                                 id="declared_value"
                                                 type="number"
@@ -239,15 +201,13 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                                 className={`pl-8 ${errors.declared_value ? 'border-red-500' : ''}`}
                                             />
                                         </div>
-                                        {errors.declared_value && (
-                                            <p className="text-sm text-red-600">{errors.declared_value}</p>
-                                        )}
+                                        {errors.declared_value && <p className="text-sm text-red-600">{errors.declared_value}</p>}
                                     </div>
 
                                     <div className="space-y-2">
                                         <Label htmlFor="insurance_value">Insurance Value ({getCurrencySymbol()})</Label>
                                         <div className="relative">
-                                            <DollarSign className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                            <DollarSign className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                             <Input
                                                 id="insurance_value"
                                                 type="number"
@@ -259,15 +219,13 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                                 className={`pl-8 ${errors.insurance_value ? 'border-red-500' : ''}`}
                                             />
                                         </div>
-                                        {errors.insurance_value && (
-                                            <p className="text-sm text-red-600">{errors.insurance_value}</p>
-                                        )}
+                                        {errors.insurance_value && <p className="text-sm text-red-600">{errors.insurance_value}</p>}
                                     </div>
 
                                     <div className="space-y-2">
                                         <Label htmlFor="weight_kg">Weight (kg) *</Label>
                                         <div className="relative">
-                                            <Weight className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                            <Weight className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                             <Input
                                                 id="weight_kg"
                                                 type="number"
@@ -279,16 +237,14 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                                 className={`pl-8 ${errors.weight_kg ? 'border-red-500' : ''}`}
                                             />
                                         </div>
-                                        {errors.weight_kg && (
-                                            <p className="text-sm text-red-600">{errors.weight_kg}</p>
-                                        )}
+                                        {errors.weight_kg && <p className="text-sm text-red-600">{errors.weight_kg}</p>}
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="estimated_delivery_date">Estimated Delivery Date</Label>
                                     <div className="relative">
-                                        <Calendar className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Calendar className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                         <Input
                                             id="estimated_delivery_date"
                                             type="date"
@@ -297,9 +253,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                             className={`pl-8 ${errors.estimated_delivery_date ? 'border-red-500' : ''}`}
                                         />
                                     </div>
-                                    {errors.estimated_delivery_date && (
-                                        <p className="text-sm text-red-600">{errors.estimated_delivery_date}</p>
-                                    )}
+                                    {errors.estimated_delivery_date && <p className="text-sm text-red-600">{errors.estimated_delivery_date}</p>}
                                 </div>
                             </CardContent>
                         </Card>
@@ -311,9 +265,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                     <User className="h-5 w-5" />
                                     <span>Sender Information</span>
                                 </CardTitle>
-                                <CardDescription>
-                                    Sender details and package information
-                                </CardDescription>
+                                <CardDescription>Sender details and package information</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
@@ -326,9 +278,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                         placeholder="Full name of sender"
                                         className={errors.sender_name ? 'border-red-500' : ''}
                                     />
-                                    {errors.sender_name && (
-                                        <p className="text-sm text-red-600">{errors.sender_name}</p>
-                                    )}
+                                    {errors.sender_name && <p className="text-sm text-red-600">{errors.sender_name}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -341,9 +291,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                         placeholder="Phone number"
                                         className={errors.sender_phone ? 'border-red-500' : ''}
                                     />
-                                    {errors.sender_phone && (
-                                        <p className="text-sm text-red-600">{errors.sender_phone}</p>
-                                    )}
+                                    {errors.sender_phone && <p className="text-sm text-red-600">{errors.sender_phone}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -356,9 +304,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                         className={errors.sender_address ? 'border-red-500' : ''}
                                         rows={3}
                                     />
-                                    {errors.sender_address && (
-                                        <p className="text-sm text-red-600">{errors.sender_address}</p>
-                                    )}
+                                    {errors.sender_address && <p className="text-sm text-red-600">{errors.sender_address}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -374,9 +320,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                             <SelectItem value="container">Container</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.package_type && (
-                                        <p className="text-sm text-red-600">{errors.package_type}</p>
-                                    )}
+                                    {errors.package_type && <p className="text-sm text-red-600">{errors.package_type}</p>}
                                 </div>
                             </CardContent>
                         </Card>
@@ -388,9 +332,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                     <User className="h-5 w-5" />
                                     <span>Recipient & Location</span>
                                 </CardTitle>
-                                <CardDescription>
-                                    Delivery recipient and address information
-                                </CardDescription>
+                                <CardDescription>Delivery recipient and address information</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
@@ -403,9 +345,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                         placeholder="Full name of recipient"
                                         className={errors.recipient_name ? 'border-red-500' : ''}
                                     />
-                                    {errors.recipient_name && (
-                                        <p className="text-sm text-red-600">{errors.recipient_name}</p>
-                                    )}
+                                    {errors.recipient_name && <p className="text-sm text-red-600">{errors.recipient_name}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -418,9 +358,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                         placeholder="Phone number"
                                         className={errors.recipient_phone ? 'border-red-500' : ''}
                                     />
-                                    {errors.recipient_phone && (
-                                        <p className="text-sm text-red-600">{errors.recipient_phone}</p>
-                                    )}
+                                    {errors.recipient_phone && <p className="text-sm text-red-600">{errors.recipient_phone}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -433,16 +371,14 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                         className={errors.recipient_address ? 'border-red-500' : ''}
                                         rows={3}
                                     />
-                                    {errors.recipient_address && (
-                                        <p className="text-sm text-red-600">{errors.recipient_address}</p>
-                                    )}
+                                    {errors.recipient_address && <p className="text-sm text-red-600">{errors.recipient_address}</p>}
                                 </div>
 
-                                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="origin_warehouse_id">Origin Warehouse *</Label>
-                                        <Select 
-                                            value={data.origin_warehouse_id.toString()} 
+                                        <Select
+                                            value={data.origin_warehouse_id.toString()}
                                             onValueChange={(value) => setData('origin_warehouse_id', parseInt(value))}
                                         >
                                             <SelectTrigger className={errors.origin_warehouse_id ? 'border-red-500' : ''}>
@@ -456,9 +392,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        {errors.origin_warehouse_id && (
-                                            <p className="text-sm text-red-600">{errors.origin_warehouse_id}</p>
-                                        )}
+                                        {errors.origin_warehouse_id && <p className="text-sm text-red-600">{errors.origin_warehouse_id}</p>}
                                     </div>
 
                                     <div className="space-y-2">
@@ -479,9 +413,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        {errors.destination_warehouse_id && (
-                                            <p className="text-sm text-red-600">{errors.destination_warehouse_id}</p>
-                                        )}
+                                        {errors.destination_warehouse_id && <p className="text-sm text-red-600">{errors.destination_warehouse_id}</p>}
                                     </div>
                                 </div>
 
@@ -503,9 +435,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.assigned_to && (
-                                        <p className="text-sm text-red-600">{errors.assigned_to}</p>
-                                    )}
+                                    {errors.assigned_to && <p className="text-sm text-red-600">{errors.assigned_to}</p>}
                                 </div>
                             </CardContent>
                         </Card>
@@ -515,12 +445,10 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                     <Card>
                         <CardHeader>
                             <CardTitle>Additional Information</CardTitle>
-                            <CardDescription>
-                                Package dimensions and special instructions
-                            </CardDescription>
+                            <CardDescription>Package dimensions and special instructions</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                 <div className="space-y-2">
                                     <Label htmlFor="dimensions_length_cm">Length (cm)</Label>
                                     <Input
@@ -533,9 +461,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                         placeholder="0.0"
                                         className={errors.dimensions_length_cm ? 'border-red-500' : ''}
                                     />
-                                    {errors.dimensions_length_cm && (
-                                        <p className="text-sm text-red-600">{errors.dimensions_length_cm}</p>
-                                    )}
+                                    {errors.dimensions_length_cm && <p className="text-sm text-red-600">{errors.dimensions_length_cm}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -550,9 +476,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                         placeholder="0.0"
                                         className={errors.dimensions_width_cm ? 'border-red-500' : ''}
                                     />
-                                    {errors.dimensions_width_cm && (
-                                        <p className="text-sm text-red-600">{errors.dimensions_width_cm}</p>
-                                    )}
+                                    {errors.dimensions_width_cm && <p className="text-sm text-red-600">{errors.dimensions_width_cm}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -567,9 +491,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                         placeholder="0.0"
                                         className={errors.dimensions_height_cm ? 'border-red-500' : ''}
                                     />
-                                    {errors.dimensions_height_cm && (
-                                        <p className="text-sm text-red-600">{errors.dimensions_height_cm}</p>
-                                    )}
+                                    {errors.dimensions_height_cm && <p className="text-sm text-red-600">{errors.dimensions_height_cm}</p>}
                                 </div>
                             </div>
 
@@ -583,9 +505,7 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                                     className={errors.special_instructions ? 'border-red-500' : ''}
                                     rows={3}
                                 />
-                                {errors.special_instructions && (
-                                    <p className="text-sm text-red-600">{errors.special_instructions}</p>
-                                )}
+                                {errors.special_instructions && <p className="text-sm text-red-600">{errors.special_instructions}</p>}
                             </div>
                         </CardContent>
                     </Card>
@@ -593,12 +513,10 @@ export default function ShipmentEdit({ shipment, customers, warehouses, users }:
                     {/* Form Actions */}
                     <div className="flex flex-col space-y-2 sm:flex-row sm:justify-end sm:space-y-0 sm:space-x-2">
                         <Button type="button" variant="outline" asChild>
-                            <Link href={`/admin/shipments/${shipment.id}`}>
-                                Cancel
-                            </Link>
+                            <Link href={`/admin/shipments/${shipment.id}`}>Cancel</Link>
                         </Button>
                         <Button type="submit" disabled={processing}>
-                            <Save className="h-4 w-4 mr-2" />
+                            <Save className="mr-2 h-4 w-4" />
                             {processing ? 'Updating...' : 'Update Shipment'}
                         </Button>
                     </div>

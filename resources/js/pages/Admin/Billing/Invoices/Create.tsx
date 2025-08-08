@@ -1,36 +1,14 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from '@/components/ui/table';
-import { 
-    FileText, 
-    Plus, 
-    Trash2,
-    ArrowLeft,
-    Calculator,
-    Save,
-    Send
-} from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, Plus, Save, Send, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface Customer {
     id: number;
@@ -70,12 +48,7 @@ interface Props {
     };
 }
 
-export default function CreateInvoice({
-    customers = [],
-    shipments = [],
-    selectedShipment,
-    preselected = {}
-}: Props) {
+export default function CreateInvoice({ customers = [], shipments = [], selectedShipment, preselected = {} }: Props) {
     const { toast } = useToast();
     const [availableShipments, setAvailableShipments] = useState<Shipment[]>(shipments);
     const [loadingShipments, setLoadingShipments] = useState(false);
@@ -98,7 +71,7 @@ export default function CreateInvoice({
             address: '',
             city: '',
             country: 'Tanzania',
-        }
+        },
     });
 
     const [items, setItems] = useState<InvoiceItem[]>([
@@ -110,7 +83,7 @@ export default function CreateInvoice({
             type: 'service',
             discount_percentage: 0,
             tax_rate: 18,
-        }
+        },
     ]);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -119,15 +92,15 @@ export default function CreateInvoice({
     // Update billing address when customer changes
     useEffect(() => {
         if (formData.customer_id) {
-            const customer = customers.find(c => c.id.toString() === formData.customer_id);
+            const customer = customers.find((c) => c.id.toString() === formData.customer_id);
             if (customer) {
-                setFormData(prev => ({
+                setFormData((prev) => ({
                     ...prev,
                     billing_address: {
                         ...prev.billing_address,
                         name: customer.name,
                         address: customer.address || '',
-                    }
+                    },
                 }));
             }
         }
@@ -136,26 +109,28 @@ export default function CreateInvoice({
     // Load shipment data if pre-selected
     useEffect(() => {
         if (selectedShipment) {
-            setFormData(prev => ({
+            setFormData((prev) => ({
                 ...prev,
                 customer_id: selectedShipment.customer.id.toString(),
                 billing_address: {
                     ...prev.billing_address,
                     name: selectedShipment.customer.name,
                     address: selectedShipment.customer.address || '',
-                }
+                },
             }));
 
             if (selectedShipment.total_amount) {
-                setItems([{
-                    description: `Shipping Service - ${selectedShipment.tracking_number}`,
-                    quantity: 1,
-                    unit_price: selectedShipment.total_amount,
-                    unit: 'service',
-                    type: 'shipping',
-                    discount_percentage: 0,
-                    tax_rate: 18,
-                }]);
+                setItems([
+                    {
+                        description: `Shipping Service - ${selectedShipment.tracking_number}`,
+                        quantity: 1,
+                        unit_price: selectedShipment.total_amount,
+                        unit: 'service',
+                        type: 'shipping',
+                        discount_percentage: 0,
+                        tax_rate: 18,
+                    },
+                ]);
             }
         }
     }, [selectedShipment]);
@@ -179,8 +154,8 @@ export default function CreateInvoice({
             const response = await fetch(`/admin/api/invoices/customer-shipments?customer_id=${customerId}`, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                }
+                    Accept: 'application/json',
+                },
             });
 
             if (response.ok) {
@@ -200,10 +175,10 @@ export default function CreateInvoice({
 
     // Handle customer selection change
     const handleCustomerChange = (customerId: string) => {
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             customer_id: customerId,
-            shipment_id: '' // Reset shipment selection
+            shipment_id: '', // Reset shipment selection
         }));
 
         // Fetch shipments for the selected customer
@@ -211,15 +186,18 @@ export default function CreateInvoice({
     };
 
     const addItem = () => {
-        setItems([...items, {
-            description: '',
-            quantity: 1,
-            unit_price: 0,
-            unit: 'pcs',
-            type: 'service',
-            discount_percentage: 0,
-            tax_rate: formData.tax_rate,
-        }]);
+        setItems([
+            ...items,
+            {
+                description: '',
+                quantity: 1,
+                unit_price: 0,
+                unit: 'pcs',
+                type: 'service',
+                discount_percentage: 0,
+                tax_rate: formData.tax_rate,
+            },
+        ]);
     };
 
     const removeItem = (index: number) => {
@@ -260,20 +238,21 @@ export default function CreateInvoice({
 
     const calculateTotals = () => {
         const subtotal = items.reduce((sum, item) => {
-            return sum + (item.quantity * item.unit_price);
+            return sum + item.quantity * item.unit_price;
         }, 0);
 
-        const totalDiscount = items.reduce((sum, item) => {
-            const lineTotal = item.quantity * item.unit_price;
-            return sum + (lineTotal * (item.discount_percentage / 100));
-        }, 0) + formData.discount_amount;
+        const totalDiscount =
+            items.reduce((sum, item) => {
+                const lineTotal = item.quantity * item.unit_price;
+                return sum + lineTotal * (item.discount_percentage / 100);
+            }, 0) + formData.discount_amount;
 
         const afterDiscount = subtotal - totalDiscount;
         const taxAmount = items.reduce((sum, item) => {
             const lineTotal = item.quantity * item.unit_price;
             const discountAmount = lineTotal * (item.discount_percentage / 100);
             const afterItemDiscount = lineTotal - discountAmount;
-            return sum + (afterItemDiscount * (item.tax_rate / 100));
+            return sum + afterItemDiscount * (item.tax_rate / 100);
         }, 0);
 
         const total = afterDiscount + taxAmount;
@@ -282,7 +261,7 @@ export default function CreateInvoice({
             subtotal,
             totalDiscount,
             taxAmount,
-            total
+            total,
         };
     };
 
@@ -297,7 +276,7 @@ export default function CreateInvoice({
             ...formData,
             shipment_id: formData.shipment_id === 'none' ? null : formData.shipment_id,
             items: items.map((item, index) => ({ ...item, sort_order: index })),
-            action
+            action,
         };
 
         try {
@@ -308,9 +287,9 @@ export default function CreateInvoice({
 
                     // Show error toast
                     toast({
-                        title: "Error Creating Invoice",
-                        description: "Please check the form for errors and try again.",
-                        variant: "destructive",
+                        title: 'Error Creating Invoice',
+                        description: 'Please check the form for errors and try again.',
+                        variant: 'destructive',
                     });
                 },
                 onSuccess: (page) => {
@@ -319,23 +298,23 @@ export default function CreateInvoice({
                     // Show success toast
                     const actionText = action === 'send' ? 'created and sent' : 'created';
                     toast({
-                        title: "Invoice Created Successfully!",
+                        title: 'Invoice Created Successfully!',
                         description: `Invoice has been ${actionText}. ${action === 'send' ? 'Customer has been notified.' : ''}`,
-                        variant: "success",
+                        variant: 'success',
                     });
 
                     // Navigate to invoices list after a short delay
                     setTimeout(() => {
                         router.visit('/admin/invoices');
                     }, 1500);
-                }
+                },
             });
         } catch (error) {
             setIsSubmitting(false);
             toast({
-                title: "Unexpected Error",
-                description: "An unexpected error occurred. Please try again.",
-                variant: "destructive",
+                title: 'Unexpected Error',
+                description: 'An unexpected error occurred. Please try again.',
+                variant: 'destructive',
             });
         }
     };
@@ -350,17 +329,15 @@ export default function CreateInvoice({
                     <div className="flex items-center space-x-2">
                         <Button variant="outline" size="sm" asChild>
                             <Link href="/admin/invoices">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 <span className="hidden sm:inline">Back to Invoices</span>
                                 <span className="sm:hidden">Back</span>
                             </Link>
                         </Button>
                     </div>
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Create Invoice</h1>
-                        <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                            Generate a new invoice for customer billing
-                        </p>
+                        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Create Invoice</h1>
+                        <p className="mt-1 text-sm text-muted-foreground sm:text-base">Generate a new invoice for customer billing</p>
                     </div>
                 </div>
 
@@ -369,18 +346,13 @@ export default function CreateInvoice({
                     <Card>
                         <CardHeader>
                             <CardTitle>Invoice Information</CardTitle>
-                            <CardDescription>
-                                Basic invoice details and customer information
-                            </CardDescription>
+                            <CardDescription>Basic invoice details and customer information</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="customer_id">Customer *</Label>
-                                    <Select
-                                        value={formData.customer_id}
-                                        onValueChange={handleCustomerChange}
-                                    >
+                                    <Select value={formData.customer_id} onValueChange={handleCustomerChange}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select customer" />
                                         </SelectTrigger>
@@ -392,26 +364,26 @@ export default function CreateInvoice({
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.customer_id && (
-                                        <p className="text-sm text-red-600">{errors.customer_id}</p>
-                                    )}
+                                    {errors.customer_id && <p className="text-sm text-red-600">{errors.customer_id}</p>}
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="shipment_id">Related Shipment (Optional)</Label>
                                     <Select
                                         value={formData.shipment_id}
-                                        onValueChange={(value) => setFormData(prev => ({ ...prev, shipment_id: value }))}
+                                        onValueChange={(value) => setFormData((prev) => ({ ...prev, shipment_id: value }))}
                                         disabled={!formData.customer_id || loadingShipments}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder={
-                                                !formData.customer_id
-                                                    ? "Select customer first"
-                                                    : loadingShipments
-                                                        ? "Loading shipments..."
-                                                        : "Select shipment"
-                                            } />
+                                            <SelectValue
+                                                placeholder={
+                                                    !formData.customer_id
+                                                        ? 'Select customer first'
+                                                        : loadingShipments
+                                                          ? 'Loading shipments...'
+                                                          : 'Select shipment'
+                                                }
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="none">No shipment</SelectItem>
@@ -434,26 +406,22 @@ export default function CreateInvoice({
                                         </SelectContent>
                                     </Select>
                                     {formData.customer_id && availableShipments.length === 0 && !loadingShipments && (
-                                        <p className="text-sm text-gray-500">
-                                            This customer has no uninvoiced shipments
-                                        </p>
+                                        <p className="text-sm text-gray-500">This customer has no uninvoiced shipments</p>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
                                 <div className="space-y-2">
                                     <Label htmlFor="issue_date">Issue Date *</Label>
                                     <Input
                                         id="issue_date"
                                         type="date"
                                         value={formData.issue_date}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, issue_date: e.target.value }))}
+                                        onChange={(e) => setFormData((prev) => ({ ...prev, issue_date: e.target.value }))}
                                         required
                                     />
-                                    {errors.issue_date && (
-                                        <p className="text-sm text-red-600">{errors.issue_date}</p>
-                                    )}
+                                    {errors.issue_date && <p className="text-sm text-red-600">{errors.issue_date}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -462,19 +430,17 @@ export default function CreateInvoice({
                                         id="due_date"
                                         type="date"
                                         value={formData.due_date}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, due_date: e.target.value }))}
+                                        onChange={(e) => setFormData((prev) => ({ ...prev, due_date: e.target.value }))}
                                         required
                                     />
-                                    {errors.due_date && (
-                                        <p className="text-sm text-red-600">{errors.due_date}</p>
-                                    )}
+                                    {errors.due_date && <p className="text-sm text-red-600">{errors.due_date}</p>}
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="currency">Currency *</Label>
-                                    <Select 
-                                        value={formData.currency} 
-                                        onValueChange={(value) => setFormData(prev => ({ ...prev, currency: value }))}
+                                    <Select
+                                        value={formData.currency}
+                                        onValueChange={(value) => setFormData((prev) => ({ ...prev, currency: value }))}
                                     >
                                         <SelectTrigger>
                                             <SelectValue />
@@ -495,21 +461,21 @@ export default function CreateInvoice({
                     <Card>
                         <CardHeader>
                             <CardTitle>Billing Address</CardTitle>
-                            <CardDescription>
-                                Customer billing information
-                            </CardDescription>
+                            <CardDescription>Customer billing information</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="billing_name">Name *</Label>
                                     <Input
                                         id="billing_name"
                                         value={formData.billing_address.name}
-                                        onChange={(e) => setFormData(prev => ({
-                                            ...prev,
-                                            billing_address: { ...prev.billing_address, name: e.target.value }
-                                        }))}
+                                        onChange={(e) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                billing_address: { ...prev.billing_address, name: e.target.value },
+                                            }))
+                                        }
                                         required
                                     />
                                 </div>
@@ -519,10 +485,12 @@ export default function CreateInvoice({
                                     <Input
                                         id="billing_city"
                                         value={formData.billing_address.city}
-                                        onChange={(e) => setFormData(prev => ({
-                                            ...prev,
-                                            billing_address: { ...prev.billing_address, city: e.target.value }
-                                        }))}
+                                        onChange={(e) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                billing_address: { ...prev.billing_address, city: e.target.value },
+                                            }))
+                                        }
                                         required
                                     />
                                 </div>
@@ -533,10 +501,12 @@ export default function CreateInvoice({
                                 <Textarea
                                     id="billing_address"
                                     value={formData.billing_address.address}
-                                    onChange={(e) => setFormData(prev => ({
-                                        ...prev,
-                                        billing_address: { ...prev.billing_address, address: e.target.value }
-                                    }))}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            billing_address: { ...prev.billing_address, address: e.target.value },
+                                        }))
+                                    }
                                     rows={3}
                                     required
                                 />
@@ -546,10 +516,12 @@ export default function CreateInvoice({
                                 <Label htmlFor="billing_country">Country *</Label>
                                 <Select
                                     value={formData.billing_address.country}
-                                    onValueChange={(value) => setFormData(prev => ({
-                                        ...prev,
-                                        billing_address: { ...prev.billing_address, country: value }
-                                    }))}
+                                    onValueChange={(value) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            billing_address: { ...prev.billing_address, country: value },
+                                        }))
+                                    }
                                 >
                                     <SelectTrigger>
                                         <SelectValue />
@@ -572,20 +544,18 @@ export default function CreateInvoice({
                             <CardTitle className="flex items-center justify-between">
                                 <span>Invoice Items</span>
                                 <Button type="button" onClick={addItem} size="sm">
-                                    <Plus className="h-4 w-4 mr-2" />
+                                    <Plus className="mr-2 h-4 w-4" />
                                     Add Item
                                 </Button>
                             </CardTitle>
-                            <CardDescription>
-                                Add services, products, or charges to this invoice
-                            </CardDescription>
+                            <CardDescription>Add services, products, or charges to this invoice</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
                                 {items.map((item, index) => (
                                     <Card key={index} className="p-4">
-                                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-6">
-                                            <div className="sm:col-span-2 lg:col-span-2 space-y-2">
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+                                            <div className="space-y-2 sm:col-span-2 lg:col-span-2">
                                                 <Label>Description *</Label>
                                                 <Input
                                                     value={item.description}
@@ -634,7 +604,7 @@ export default function CreateInvoice({
                                             <div className="space-y-2">
                                                 <Label>Total</Label>
                                                 <div className="flex items-center justify-between">
-                                                    <span className="font-medium text-sm sm:text-base">
+                                                    <span className="text-sm font-medium sm:text-base">
                                                         {formatCurrency(calculateItemTotal(item), formData.currency)}
                                                     </span>
                                                     {items.length > 1 && (
@@ -643,7 +613,7 @@ export default function CreateInvoice({
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => removeItem(index)}
-                                                            className="text-red-600 hover:text-red-700 ml-2"
+                                                            className="ml-2 text-red-600 hover:text-red-700"
                                                         >
                                                             <Trash2 className="h-4 w-4" />
                                                         </Button>
@@ -652,7 +622,7 @@ export default function CreateInvoice({
                                             </div>
                                         </div>
 
-                                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mt-4">
+                                        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
                                             <div className="space-y-2">
                                                 <Label>Unit</Label>
                                                 <Input
@@ -673,10 +643,7 @@ export default function CreateInvoice({
 
                                             <div className="space-y-2">
                                                 <Label>Type</Label>
-                                                <Select
-                                                    value={item.type}
-                                                    onValueChange={(value) => updateItem(index, 'type', value)}
-                                                >
+                                                <Select value={item.type} onValueChange={(value) => updateItem(index, 'type', value)}>
                                                     <SelectTrigger>
                                                         <SelectValue />
                                                     </SelectTrigger>
@@ -723,7 +690,7 @@ export default function CreateInvoice({
                                             <span>{formatCurrency(totals.taxAmount, formData.currency)}</span>
                                         </div>
                                         <div className="border-t pt-2">
-                                            <div className="flex justify-between font-bold text-lg">
+                                            <div className="flex justify-between text-lg font-bold">
                                                 <span>Total:</span>
                                                 <span>{formatCurrency(totals.total, formData.currency)}</span>
                                             </div>
@@ -738,9 +705,7 @@ export default function CreateInvoice({
                     <Card>
                         <CardHeader>
                             <CardTitle>Additional Information</CardTitle>
-                            <CardDescription>
-                                Terms, conditions, and payment information
-                            </CardDescription>
+                            <CardDescription>Terms, conditions, and payment information</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
@@ -748,7 +713,7 @@ export default function CreateInvoice({
                                 <Textarea
                                     id="notes"
                                     value={formData.notes}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                                    onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
                                     placeholder="Additional notes or instructions"
                                     rows={3}
                                 />
@@ -759,17 +724,17 @@ export default function CreateInvoice({
                                 <Textarea
                                     id="terms_conditions"
                                     value={formData.terms_conditions}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, terms_conditions: e.target.value }))}
+                                    onChange={(e) => setFormData((prev) => ({ ...prev, terms_conditions: e.target.value }))}
                                     rows={4}
                                 />
                             </div>
 
-                            <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="payment_terms">Payment Terms</Label>
                                     <Select
                                         value={formData.payment_terms}
-                                        onValueChange={(value) => setFormData(prev => ({ ...prev, payment_terms: value }))}
+                                        onValueChange={(value) => setFormData((prev) => ({ ...prev, payment_terms: value }))}
                                     >
                                         <SelectTrigger>
                                             <SelectValue />
@@ -792,7 +757,7 @@ export default function CreateInvoice({
                                         min="0"
                                         step="0.01"
                                         value={formData.discount_amount}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, discount_amount: parseFloat(e.target.value) || 0 }))}
+                                        onChange={(e) => setFormData((prev) => ({ ...prev, discount_amount: parseFloat(e.target.value) || 0 }))}
                                         placeholder="0.00"
                                     />
                                 </div>
@@ -805,42 +770,30 @@ export default function CreateInvoice({
                         <CardContent className="pt-6">
                             <div className="flex flex-col space-y-3 sm:flex-row sm:justify-end sm:space-y-0 sm:space-x-4">
                                 <Button type="button" variant="outline" asChild className="w-full sm:w-auto">
-                                    <Link href="/admin/billing/invoices">
-                                        Cancel
-                                    </Link>
+                                    <Link href="/admin/billing/invoices">Cancel</Link>
                                 </Button>
-                                <Button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    onClick={(e) => handleSubmit(e, 'save')}
-                                    className="w-full sm:w-auto"
-                                >
+                                <Button type="submit" disabled={isSubmitting} onClick={(e) => handleSubmit(e, 'save')} className="w-full sm:w-auto">
                                     {isSubmitting ? (
                                         <>
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                                             Saving...
                                         </>
                                     ) : (
                                         <>
-                                            <Save className="h-4 w-4 mr-2" />
+                                            <Save className="mr-2 h-4 w-4" />
                                             Save Draft
                                         </>
                                     )}
                                 </Button>
-                                <Button
-                                    type="button"
-                                    disabled={isSubmitting}
-                                    onClick={(e) => handleSubmit(e, 'send')}
-                                    className="w-full sm:w-auto"
-                                >
+                                <Button type="button" disabled={isSubmitting} onClick={(e) => handleSubmit(e, 'send')} className="w-full sm:w-auto">
                                     {isSubmitting ? (
                                         <>
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                                             Sending...
                                         </>
                                     ) : (
                                         <>
-                                            <Send className="h-4 w-4 mr-2" />
+                                            <Send className="mr-2 h-4 w-4" />
                                             Save & Send
                                         </>
                                     )}

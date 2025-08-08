@@ -1,22 +1,13 @@
-import React, { useState } from 'react';
-import { router } from '@inertiajs/react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { 
-    Package, 
-    Truck, 
-    MapPin, 
-    CheckCircle, 
-    AlertTriangle, 
-    Clock,
-    Loader2,
-    MapIcon
-} from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { router } from '@inertiajs/react';
+import { AlertTriangle, CheckCircle, Clock, Loader2, MapPin, Package, Truck } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface Shipment {
     id: number;
@@ -71,39 +62,47 @@ export default function StatusUpdateModal({ isOpen, onClose, shipments, onSucces
         try {
             if (shipments.length === 1) {
                 // Single shipment update
-                await router.post(`/admin/tracking/${shipments[0].id}/update-status`, {
-                    status,
-                    location,
-                    notes,
-                }, {
-                    preserveState: true,
-                    onSuccess: () => {
-                        onSuccess?.();
-                        onClose();
-                        resetForm();
+                await router.post(
+                    `/admin/tracking/${shipments[0].id}/update-status`,
+                    {
+                        status,
+                        location,
+                        notes,
                     },
-                    onError: (errors) => {
-                        setErrors(errors);
+                    {
+                        preserveState: true,
+                        onSuccess: () => {
+                            onSuccess?.();
+                            onClose();
+                            resetForm();
+                        },
+                        onError: (errors) => {
+                            setErrors(errors);
+                        },
                     },
-                });
+                );
             } else {
                 // Bulk update
-                await router.post('/admin/tracking/bulk-update', {
-                    shipment_ids: shipments.map(s => s.id),
-                    status,
-                    location,
-                    notes,
-                }, {
-                    preserveState: true,
-                    onSuccess: () => {
-                        onSuccess?.();
-                        onClose();
-                        resetForm();
+                await router.post(
+                    '/admin/tracking/bulk-update',
+                    {
+                        shipment_ids: shipments.map((s) => s.id),
+                        status,
+                        location,
+                        notes,
                     },
-                    onError: (errors) => {
-                        setErrors(errors);
+                    {
+                        preserveState: true,
+                        onSuccess: () => {
+                            onSuccess?.();
+                            onClose();
+                            resetForm();
+                        },
+                        onError: (errors) => {
+                            setErrors(errors);
+                        },
                     },
-                });
+                );
             }
         } catch (error) {
             console.error('Failed to update status:', error);
@@ -124,7 +123,7 @@ export default function StatusUpdateModal({ isOpen, onClose, shipments, onSucces
         onClose();
     };
 
-    const selectedStatusOption = statusOptions.find(option => option.value === status);
+    const selectedStatusOption = statusOptions.find((option) => option.value === status);
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -139,17 +138,16 @@ export default function StatusUpdateModal({ isOpen, onClose, shipments, onSucces
                         )}
                     </DialogTitle>
                     <DialogDescription>
-                        {shipments.length === 1 
+                        {shipments.length === 1
                             ? `Update status for shipment ${shipments[0].tracking_number}`
-                            : `Update status for ${shipments.length} selected shipments`
-                        }
+                            : `Update status for ${shipments.length} selected shipments`}
                     </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Shipment List */}
                     {shipments.length > 1 && (
-                        <div className="max-h-32 overflow-y-auto border rounded-lg p-3 bg-gray-50">
+                        <div className="max-h-32 overflow-y-auto rounded-lg border bg-gray-50 p-3">
                             <div className="space-y-2">
                                 {shipments.map((shipment) => (
                                     <div key={shipment.id} className="flex items-center justify-between text-sm">
@@ -189,9 +187,7 @@ export default function StatusUpdateModal({ isOpen, onClose, shipments, onSucces
                                 })}
                             </SelectContent>
                         </Select>
-                        {errors.status && (
-                            <p className="text-sm text-red-600">{errors.status}</p>
-                        )}
+                        {errors.status && <p className="text-sm text-red-600">{errors.status}</p>}
                     </div>
 
                     {/* Location */}
@@ -207,22 +203,13 @@ export default function StatusUpdateModal({ isOpen, onClose, shipments, onSucces
                             />
                             <div className="flex flex-wrap gap-1">
                                 {commonLocations.map((loc) => (
-                                    <Button
-                                        key={loc}
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => setLocation(loc)}
-                                        className="text-xs"
-                                    >
+                                    <Button key={loc} type="button" variant="outline" size="sm" onClick={() => setLocation(loc)} className="text-xs">
                                         {loc}
                                     </Button>
                                 ))}
                             </div>
                         </div>
-                        {errors.location && (
-                            <p className="text-sm text-red-600">{errors.location}</p>
-                        )}
+                        {errors.location && <p className="text-sm text-red-600">{errors.location}</p>}
                     </div>
 
                     {/* Notes */}
@@ -235,9 +222,7 @@ export default function StatusUpdateModal({ isOpen, onClose, shipments, onSucces
                             placeholder="Add any additional notes about this status update..."
                             rows={3}
                         />
-                        {errors.notes && (
-                            <p className="text-sm text-red-600">{errors.notes}</p>
-                        )}
+                        {errors.notes && <p className="text-sm text-red-600">{errors.notes}</p>}
                     </div>
 
                     {/* Actions */}
@@ -245,11 +230,7 @@ export default function StatusUpdateModal({ isOpen, onClose, shipments, onSucces
                         <Button type="button" variant="outline" onClick={handleClose}>
                             Cancel
                         </Button>
-                        <Button 
-                            type="submit" 
-                            disabled={isSubmitting || !status || !location}
-                            className="flex items-center gap-2"
-                        >
+                        <Button type="submit" disabled={isSubmitting || !status || !location} className="flex items-center gap-2">
                             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
                             {isSubmitting ? 'Updating...' : 'Update Status'}
                         </Button>

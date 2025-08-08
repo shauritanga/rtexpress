@@ -1,22 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { 
-    Bell, 
-    Mail, 
-    MessageSquare, 
-    Phone,
-    Settings,
-    Check,
-    X,
-    AlertCircle,
-    Info
-} from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { formatDistanceToNow } from 'date-fns';
+import { AlertCircle, Bell, Check, Info, Mail, MessageSquare, Settings } from 'lucide-react';
+import { useState } from 'react';
 
 interface NotificationSettings {
     email_enabled: boolean;
@@ -46,9 +36,9 @@ interface Props {
     onSettingsUpdate?: (settings: NotificationSettings) => void;
 }
 
-export default function TrackingNotifications({ 
-    trackingNumber, 
-    notifications = [], 
+export default function TrackingNotifications({
+    trackingNumber,
+    notifications = [],
     settings = {
         email_enabled: true,
         sms_enabled: false,
@@ -58,7 +48,7 @@ export default function TrackingNotifications({
         exception_alerts: true,
         delivery_confirmation: true,
     },
-    onSettingsUpdate 
+    onSettingsUpdate,
 }: Props) {
     const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(settings);
     const [showSettings, setShowSettings] = useState(false);
@@ -147,16 +137,9 @@ export default function TrackingNotifications({
                                 <Bell className="h-5 w-5" />
                                 Tracking Notifications
                             </CardTitle>
-                            <CardDescription>
-                                Stay updated on your shipment status
-                            </CardDescription>
+                            <CardDescription>Stay updated on your shipment status</CardDescription>
                         </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowSettings(!showSettings)}
-                            className="flex items-center gap-2"
-                        >
+                        <Button variant="outline" size="sm" onClick={() => setShowSettings(!showSettings)} className="flex items-center gap-2">
                             <Settings className="h-4 w-4" />
                             Settings
                         </Button>
@@ -166,35 +149,27 @@ export default function TrackingNotifications({
                     <div className="space-y-4">
                         {displayNotifications.length > 0 ? (
                             displayNotifications.map((notification) => (
-                                <div 
-                                    key={notification.id} 
-                                    className={`flex items-start gap-3 p-4 rounded-lg border ${
-                                        notification.read ? 'bg-gray-50' : 'bg-blue-50 border-blue-200'
+                                <div
+                                    key={notification.id}
+                                    className={`flex items-start gap-3 rounded-lg border p-4 ${
+                                        notification.read ? 'bg-gray-50' : 'border-blue-200 bg-blue-50'
                                     }`}
                                 >
-                                    <div className="flex-shrink-0 mt-1">
-                                        {getNotificationIcon(notification.type)}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h4 className="font-medium text-sm">{notification.title}</h4>
-                                            <Badge className={getSeverityColor(notification.severity)}>
-                                                {notification.type.replace('_', ' ')}
-                                            </Badge>
-                                            {!notification.read && (
-                                                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                                            )}
+                                    <div className="mt-1 flex-shrink-0">{getNotificationIcon(notification.type)}</div>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="mb-1 flex items-center gap-2">
+                                            <h4 className="text-sm font-medium">{notification.title}</h4>
+                                            <Badge className={getSeverityColor(notification.severity)}>{notification.type.replace('_', ' ')}</Badge>
+                                            {!notification.read && <div className="h-2 w-2 rounded-full bg-blue-600"></div>}
                                         </div>
-                                        <p className="text-sm text-gray-600 mb-2">{notification.message}</p>
-                                        <p className="text-xs text-gray-400">
-                                            {formatDistanceToNow(new Date(notification.timestamp))} ago
-                                        </p>
+                                        <p className="mb-2 text-sm text-gray-600">{notification.message}</p>
+                                        <p className="text-xs text-gray-400">{formatDistanceToNow(new Date(notification.timestamp))} ago</p>
                                     </div>
                                 </div>
                             ))
                         ) : (
-                            <div className="text-center py-8">
-                                <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <div className="py-8 text-center">
+                                <Bell className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                 <p className="text-gray-500">No notifications yet</p>
                                 <p className="text-sm text-gray-400">You'll receive updates as your package moves</p>
                             </div>
@@ -211,15 +186,13 @@ export default function TrackingNotifications({
                             <Settings className="h-5 w-5" />
                             Notification Preferences
                         </CardTitle>
-                        <CardDescription>
-                            Choose how you want to receive tracking updates
-                        </CardDescription>
+                        <CardDescription>Choose how you want to receive tracking updates</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         {/* Delivery Methods */}
                         <div className="space-y-4">
                             <h4 className="font-medium">Delivery Methods</h4>
-                            
+
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <Mail className="h-4 w-4 text-gray-500" />
@@ -282,7 +255,7 @@ export default function TrackingNotifications({
                         {/* Notification Types */}
                         <div className="space-y-4">
                             <h4 className="font-medium">Notification Types</h4>
-                            
+
                             <div className="flex items-center justify-between">
                                 <div>
                                     <Label htmlFor="status_updates">Status Updates</Label>
@@ -333,9 +306,7 @@ export default function TrackingNotifications({
                         </div>
 
                         <div className="flex justify-end">
-                            <Button onClick={() => setShowSettings(false)}>
-                                Save Preferences
-                            </Button>
+                            <Button onClick={() => setShowSettings(false)}>Save Preferences</Button>
                         </div>
                     </CardContent>
                 </Card>

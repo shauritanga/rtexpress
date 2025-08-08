@@ -1,24 +1,13 @@
-import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { BarcodeScanner } from '@/components/ui/barcode-scanner';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { BarcodeScanResult } from '@/hooks/useBarcodeScanner';
-import { 
-    Search,
-    Scan,
-    Package,
-    MapPin,
-    Clock,
-    Truck,
-    CheckCircle,
-    AlertTriangle,
-    RefreshCw,
-    ArrowRight
-} from 'lucide-react';
+import { Head } from '@inertiajs/react';
+import { AlertTriangle, ArrowRight, CheckCircle, Clock, MapPin, Package, RefreshCw, Scan, Search, Truck } from 'lucide-react';
+import { useState } from 'react';
 
 interface TrackingResult {
     tracking_number: string;
@@ -78,7 +67,7 @@ export default function PublicTrack() {
         const code = result.decodedText.trim().toUpperCase();
         setTrackingNumber(code);
         setActiveTab('search');
-        
+
         // Auto-search after scan
         setIsLoading(true);
         setError(null);
@@ -136,13 +125,13 @@ export default function PublicTrack() {
     return (
         <div className="min-h-screen bg-gray-50">
             <Head title="Track Your Package - RT Express" />
-            
+
             {/* Header */}
-            <div className="bg-white border-b">
+            <div className="border-b bg-white">
                 <div className="container mx-auto px-4 py-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-red-100 rounded-lg">
+                            <div className="rounded-lg bg-red-100 p-2">
                                 <Package className="h-6 w-6 text-red-600" />
                             </div>
                             <div>
@@ -159,9 +148,9 @@ export default function PublicTrack() {
 
             {/* Main Content */}
             <div className="container mx-auto px-4 py-8">
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center mb-8">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">Track Your Shipment</h2>
+                <div className="mx-auto max-w-4xl">
+                    <div className="mb-8 text-center">
+                        <h2 className="mb-4 text-3xl font-bold text-gray-900">Track Your Shipment</h2>
                         <p className="text-gray-600">Enter your tracking number or scan the barcode to get real-time updates.</p>
                     </div>
 
@@ -182,13 +171,11 @@ export default function PublicTrack() {
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Enter Tracking Number</CardTitle>
-                                    <CardDescription>
-                                        Enter your RT Express tracking number to get real-time updates
-                                    </CardDescription>
+                                    <CardDescription>Enter your RT Express tracking number to get real-time updates</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <form onSubmit={handleSearch} className="space-y-4">
-                                        <div className="flex flex-col sm:flex-row gap-3">
+                                        <div className="flex flex-col gap-3 sm:flex-row">
                                             <Input
                                                 type="text"
                                                 placeholder="Enter tracking number (e.g., RT12345678)"
@@ -197,15 +184,11 @@ export default function PublicTrack() {
                                                 className="flex-1"
                                                 disabled={isLoading}
                                             />
-                                            <Button 
-                                                type="submit" 
-                                                disabled={isLoading || !trackingNumber.trim()}
-                                                className="w-full sm:w-auto"
-                                            >
+                                            <Button type="submit" disabled={isLoading || !trackingNumber.trim()} className="w-full sm:w-auto">
                                                 {isLoading ? (
-                                                    <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                                                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                                                 ) : (
-                                                    <Search className="h-4 w-4 mr-2" />
+                                                    <Search className="mr-2 h-4 w-4" />
                                                 )}
                                                 Track Package
                                             </Button>
@@ -213,7 +196,7 @@ export default function PublicTrack() {
                                     </form>
 
                                     {error && (
-                                        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                                        <div className="mt-4 rounded-md border border-red-200 bg-red-50 p-3">
                                             <p className="text-sm text-red-600">{error}</p>
                                         </div>
                                     )}
@@ -250,7 +233,7 @@ export default function PublicTrack() {
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                                         <div className="flex items-center space-x-3">
                                             <MapPin className="h-5 w-5 text-gray-400" />
                                             <div>
@@ -287,20 +270,18 @@ export default function PublicTrack() {
                                         {trackingResult.events.map((event, index) => (
                                             <div key={event.id} className="flex items-start space-x-4">
                                                 <div className="flex-shrink-0">
-                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                                        index === 0 ? 'bg-blue-100' : 'bg-gray-100'
-                                                    }`}>
+                                                    <div
+                                                        className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                                                            index === 0 ? 'bg-blue-100' : 'bg-gray-100'
+                                                        }`}
+                                                    >
                                                         {getStatusIcon(event.status)}
                                                     </div>
                                                 </div>
-                                                <div className="flex-1 min-w-0">
+                                                <div className="min-w-0 flex-1">
                                                     <div className="flex items-center justify-between">
-                                                        <p className="text-sm font-medium text-gray-900">
-                                                            {event.description}
-                                                        </p>
-                                                        <p className="text-sm text-gray-500">
-                                                            {new Date(event.timestamp).toLocaleString()}
-                                                        </p>
+                                                        <p className="text-sm font-medium text-gray-900">{event.description}</p>
+                                                        <p className="text-sm text-gray-500">{new Date(event.timestamp).toLocaleString()}</p>
                                                     </div>
                                                     <p className="text-sm text-gray-600">{event.location}</p>
                                                 </div>

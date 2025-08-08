@@ -1,15 +1,15 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { LoaderCircle, Eye, EyeOff, CheckCircle, ArrowRight, Truck, Shield } from 'lucide-react';
-import { FormEventHandler, useState, useEffect, useRef } from 'react';
+import { ArrowRight, CheckCircle, Eye, EyeOff, LoaderCircle, Truck } from 'lucide-react';
+import { FormEventHandler, useState } from 'react';
 
 import InputError from '@/components/input-error';
+import ParticleBackground from '@/components/ParticleBackground';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
-import ParticleBackground from '@/components/ParticleBackground';
 
 type LoginForm = {
     email: string;
@@ -41,47 +41,43 @@ export default function Login({ status, canResetPassword }: LoginProps) {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
             <Head title="Sign In - RT Express" />
 
-            <div className="min-h-screen flex">
+            <div className="flex min-h-screen">
                 {/* Left Side - Pure Particle Animation */}
-                <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+                <div className="relative hidden overflow-hidden lg:flex lg:w-1/2">
                     <ParticleBackground />
                 </div>
 
                 {/* Right Side - Login Form */}
-                <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-1 items-center justify-center px-4 sm:px-6 lg:px-8">
                     <div className="w-full max-w-md space-y-8">
                         {/* Header */}
                         <div className="text-center">
-                            <div className="lg:hidden mb-8">
-                                <div className="flex items-center justify-center space-x-3 mb-4">
-                                    <div className="bg-blue-600 p-3 rounded-xl">
+                            <div className="mb-8 lg:hidden">
+                                <div className="mb-4 flex items-center justify-center space-x-3">
+                                    <div className="rounded-xl bg-blue-600 p-3">
                                         <Truck className="h-8 w-8 text-white" />
                                     </div>
                                     <div className="text-left">
                                         <h1 className="text-2xl font-bold text-gray-900">RT Express</h1>
-                                        <p className="text-gray-600 text-sm">Global Shipping Solutions</p>
+                                        <p className="text-sm text-gray-600">Global Shipping Solutions</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                                Sign in to your account
-                            </h2>
-                            <p className="text-gray-600">
-                                Welcome back! Please enter your details.
-                            </p>
+                            <h2 className="mb-2 text-3xl font-bold text-gray-900">Sign in to your account</h2>
+                            <p className="text-gray-600">Welcome back! Please enter your details.</p>
                         </div>
 
                         {/* Status Message */}
                         {status && (
-                            <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm text-center">
-                                <CheckCircle className="h-4 w-4 inline mr-2" />
+                            <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-center text-sm text-green-800">
+                                <CheckCircle className="mr-2 inline h-4 w-4" />
                                 {status}
                             </div>
                         )}
 
                         {/* Login Form */}
-                        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+                        <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm">
                             <CardContent className="p-8">
                                 <form className="space-y-6" onSubmit={submit}>
                                     <div className="space-y-5">
@@ -110,7 +106,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                                 {canResetPassword && (
                                                     <TextLink
                                                         href={route('password.request')}
-                                                        className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                                                        className="text-sm font-medium text-blue-600 hover:text-blue-800"
                                                     >
                                                         Forgot password?
                                                     </TextLink>
@@ -128,7 +124,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                                 />
                                                 <button
                                                     type="button"
-                                                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                                    className="absolute inset-y-0 right-0 flex items-center pr-3"
                                                     onClick={() => setShowPassword(!showPassword)}
                                                 >
                                                     {showPassword ? (
@@ -143,11 +139,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center">
-                                                <Checkbox
-                                                    id="remember"
-                                                    checked={data.remember}
-                                                    onClick={() => setData('remember', !data.remember)}
-                                                />
+                                                <Checkbox id="remember" checked={data.remember} onClick={() => setData('remember', !data.remember)} />
                                                 <Label htmlFor="remember" className="ml-2 text-sm text-gray-700">
                                                     Remember me
                                                 </Label>
@@ -158,7 +150,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                                     <Button
                                         type="submit"
                                         disabled={processing}
-                                        className="w-full h-12 bg-rt-red hover:bg-rt-red-700 text-white font-medium shadow-rt-red hover:shadow-rt-red-lg transition-all duration-200"
+                                        className="bg-rt-red hover:bg-rt-red-700 shadow-rt-red hover:shadow-rt-red-lg h-12 w-full font-medium text-white transition-all duration-200"
                                     >
                                         {processing ? (
                                             <>
@@ -180,7 +172,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         <div className="text-center">
                             <p className="text-gray-600">
                                 Don't have an account?{' '}
-                                <Link href="/register/customer" className="text-blue-600 hover:text-blue-800 font-medium">
+                                <Link href="/register/customer" className="font-medium text-blue-600 hover:text-blue-800">
                                     Create an account
                                 </Link>
                             </p>

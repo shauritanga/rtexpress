@@ -1,29 +1,13 @@
-import { Head, Link, useForm, router } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
-} from '@/components/ui/select';
-import { 
-    ArrowLeft,
-    Send,
-    Bell,
-    Mail,
-    MessageSquare,
-    Monitor,
-    User,
-    Calendar,
-    AlertTriangle
-} from 'lucide-react';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { AlertTriangle, ArrowLeft, Bell, Calendar, Mail, MessageSquare, Monitor, Send, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface NotificationTemplate {
     id: number;
@@ -84,7 +68,7 @@ export default function NotificationCreate({ templates }: Props) {
         try {
             const params = new URLSearchParams({
                 type: data.recipient_type,
-                search: recipientSearch
+                search: recipientSearch,
             });
 
             const url = `/admin/notifications/recipients?${params.toString()}`;
@@ -92,10 +76,10 @@ export default function NotificationCreate({ templates }: Props) {
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
                 },
-                credentials: 'same-origin'
+                credentials: 'same-origin',
             });
 
             if (!response.ok) {
@@ -114,7 +98,7 @@ export default function NotificationCreate({ templates }: Props) {
 
     // Handle recipient selection
     const handleRecipientSelect = (recipientId: string) => {
-        const selectedRecipient = recipients.find(r => r.id.toString() === recipientId);
+        const selectedRecipient = recipients.find((r) => r.id.toString() === recipientId);
         if (selectedRecipient) {
             setData({
                 ...data,
@@ -150,7 +134,7 @@ export default function NotificationCreate({ templates }: Props) {
     };
 
     const handleTemplateSelect = (templateCode: string) => {
-        const template = templates.find(t => t.template_code === templateCode);
+        const template = templates.find((t) => t.template_code === templateCode);
         if (template) {
             setSelectedTemplate(template);
             setData({
@@ -164,7 +148,7 @@ export default function NotificationCreate({ templates }: Props) {
 
             // Initialize template variables
             const variables: Record<string, string> = {};
-            template.variables.forEach(variable => {
+            template.variables.forEach((variable) => {
                 variables[variable] = '';
             });
             setTemplateVariables(variables);
@@ -172,7 +156,7 @@ export default function NotificationCreate({ templates }: Props) {
     };
 
     const handleVariableChange = (variable: string, value: string) => {
-        setTemplateVariables(prev => ({
+        setTemplateVariables((prev) => ({
             ...prev,
             [variable]: value,
         }));
@@ -191,7 +175,7 @@ export default function NotificationCreate({ templates }: Props) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         const submitData = {
             ...data,
             data: selectedTemplate ? templateVariables : data.data,
@@ -205,40 +189,34 @@ export default function NotificationCreate({ templates }: Props) {
     return (
         <AppLayout>
             <Head title="Send Notification" />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div className="flex items-center space-x-4">
                         <Button variant="outline" size="sm" asChild>
                             <Link href="/admin/notifications">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Notifications
                             </Link>
                         </Button>
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                Send Notification
-                            </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                                Create and send a new notification
-                            </p>
+                            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Send Notification</h1>
+                            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Create and send a new notification</p>
                         </div>
                     </div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                         {/* Notification Details */}
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center">
-                                    <Bell className="h-5 w-5 mr-2" />
+                                    <Bell className="mr-2 h-5 w-5" />
                                     Notification Details
                                 </CardTitle>
-                                <CardDescription>
-                                    Configure the notification content and delivery settings
-                                </CardDescription>
+                                <CardDescription>Configure the notification content and delivery settings</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {/* Template Selection */}
@@ -260,19 +238,13 @@ export default function NotificationCreate({ templates }: Props) {
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.template && (
-                                        <p className="text-sm text-red-600">{errors.template}</p>
-                                    )}
+                                    {errors.template && <p className="text-sm text-red-600">{errors.template}</p>}
                                 </div>
 
                                 {/* Notification Type */}
                                 <div className="space-y-2">
                                     <Label htmlFor="type">Type</Label>
-                                    <Select 
-                                        value={data.type} 
-                                        onValueChange={(value) => setData('type', value)}
-                                        disabled={!!selectedTemplate}
-                                    >
+                                    <Select value={data.type} onValueChange={(value) => setData('type', value)} disabled={!!selectedTemplate}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select notification type" />
                                         </SelectTrigger>
@@ -286,19 +258,13 @@ export default function NotificationCreate({ templates }: Props) {
                                             <SelectItem value="custom">Custom</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.type && (
-                                        <p className="text-sm text-red-600">{errors.type}</p>
-                                    )}
+                                    {errors.type && <p className="text-sm text-red-600">{errors.type}</p>}
                                 </div>
 
                                 {/* Channel */}
                                 <div className="space-y-2">
                                     <Label htmlFor="channel">Channel</Label>
-                                    <Select 
-                                        value={data.channel} 
-                                        onValueChange={(value) => setData('channel', value)}
-                                        disabled={!!selectedTemplate}
-                                    >
+                                    <Select value={data.channel} onValueChange={(value) => setData('channel', value)} disabled={!!selectedTemplate}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select delivery channel" />
                                         </SelectTrigger>
@@ -329,18 +295,13 @@ export default function NotificationCreate({ templates }: Props) {
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.channel && (
-                                        <p className="text-sm text-red-600">{errors.channel}</p>
-                                    )}
+                                    {errors.channel && <p className="text-sm text-red-600">{errors.channel}</p>}
                                 </div>
 
                                 {/* Priority */}
                                 <div className="space-y-2">
                                     <Label htmlFor="priority">Priority</Label>
-                                    <Select 
-                                        value={data.priority} 
-                                        onValueChange={(value) => setData('priority', value)}
-                                    >
+                                    <Select value={data.priority} onValueChange={(value) => setData('priority', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select priority" />
                                         </SelectTrigger>
@@ -356,16 +317,14 @@ export default function NotificationCreate({ templates }: Props) {
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.priority && (
-                                        <p className="text-sm text-red-600">{errors.priority}</p>
-                                    )}
+                                    {errors.priority && <p className="text-sm text-red-600">{errors.priority}</p>}
                                 </div>
 
                                 {/* Scheduled At */}
                                 <div className="space-y-2">
                                     <Label htmlFor="scheduled_at">Schedule For (Optional)</Label>
                                     <div className="relative">
-                                        <Calendar className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <Calendar className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                         <Input
                                             id="scheduled_at"
                                             type="datetime-local"
@@ -374,9 +333,7 @@ export default function NotificationCreate({ templates }: Props) {
                                             className="pl-8"
                                         />
                                     </div>
-                                    {errors.scheduled_at && (
-                                        <p className="text-sm text-red-600">{errors.scheduled_at}</p>
-                                    )}
+                                    {errors.scheduled_at && <p className="text-sm text-red-600">{errors.scheduled_at}</p>}
                                 </div>
                             </CardContent>
                         </Card>
@@ -385,21 +342,16 @@ export default function NotificationCreate({ templates }: Props) {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center">
-                                    <User className="h-5 w-5 mr-2" />
+                                    <User className="mr-2 h-5 w-5" />
                                     Recipient Information
                                 </CardTitle>
-                                <CardDescription>
-                                    Specify who should receive this notification
-                                </CardDescription>
+                                <CardDescription>Specify who should receive this notification</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {/* Recipient Type */}
                                 <div className="space-y-2">
                                     <Label htmlFor="recipient_type">Recipient Type</Label>
-                                    <Select
-                                        value={data.recipient_type}
-                                        onValueChange={handleRecipientTypeChange}
-                                    >
+                                    <Select value={data.recipient_type} onValueChange={handleRecipientTypeChange}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select recipient type" />
                                         </SelectTrigger>
@@ -408,9 +360,7 @@ export default function NotificationCreate({ templates }: Props) {
                                             <SelectItem value="customer">Customer</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.recipient_type && (
-                                        <p className="text-sm text-red-600">{errors.recipient_type}</p>
-                                    )}
+                                    {errors.recipient_type && <p className="text-sm text-red-600">{errors.recipient_type}</p>}
                                 </div>
 
                                 {/* Recipient Search */}
@@ -431,19 +381,17 @@ export default function NotificationCreate({ templates }: Props) {
                                 {data.recipient_type && (
                                     <div className="space-y-2">
                                         <Label htmlFor="recipient_id">Select Recipient</Label>
-                                        <Select
-                                            value={data.recipient_id}
-                                            onValueChange={handleRecipientSelect}
-                                            disabled={loadingRecipients}
-                                        >
+                                        <Select value={data.recipient_id} onValueChange={handleRecipientSelect} disabled={loadingRecipients}>
                                             <SelectTrigger>
-                                                <SelectValue placeholder={
-                                                    loadingRecipients
-                                                        ? "Loading..."
-                                                        : recipients.length === 0
-                                                            ? `No ${data.recipient_type}s found`
-                                                            : "Select recipient"
-                                                } />
+                                                <SelectValue
+                                                    placeholder={
+                                                        loadingRecipients
+                                                            ? 'Loading...'
+                                                            : recipients.length === 0
+                                                              ? `No ${data.recipient_type}s found`
+                                                              : 'Select recipient'
+                                                    }
+                                                />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {recipients.map((recipient) => (
@@ -458,9 +406,7 @@ export default function NotificationCreate({ templates }: Props) {
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        {errors.recipient_id && (
-                                            <p className="text-sm text-red-600">{errors.recipient_id}</p>
-                                        )}
+                                        {errors.recipient_id && <p className="text-sm text-red-600">{errors.recipient_id}</p>}
                                     </div>
                                 )}
 
@@ -476,12 +422,8 @@ export default function NotificationCreate({ templates }: Props) {
                                             className="bg-gray-50"
                                             placeholder="Email will be auto-populated when recipient is selected"
                                         />
-                                        {!data.recipient_email && (
-                                            <p className="text-sm text-amber-600">Selected recipient has no email address</p>
-                                        )}
-                                        {errors.recipient_email && (
-                                            <p className="text-sm text-red-600">{errors.recipient_email}</p>
-                                        )}
+                                        {!data.recipient_email && <p className="text-sm text-amber-600">Selected recipient has no email address</p>}
+                                        {errors.recipient_email && <p className="text-sm text-red-600">{errors.recipient_email}</p>}
                                     </div>
                                 )}
 
@@ -497,12 +439,8 @@ export default function NotificationCreate({ templates }: Props) {
                                             className="bg-gray-50"
                                             placeholder="Phone will be auto-populated when recipient is selected"
                                         />
-                                        {!data.recipient_phone && (
-                                            <p className="text-sm text-amber-600">Selected recipient has no phone number</p>
-                                        )}
-                                        {errors.recipient_phone && (
-                                            <p className="text-sm text-red-600">{errors.recipient_phone}</p>
-                                        )}
+                                        {!data.recipient_phone && <p className="text-sm text-amber-600">Selected recipient has no phone number</p>}
+                                        {errors.recipient_phone && <p className="text-sm text-red-600">{errors.recipient_phone}</p>}
                                     </div>
                                 )}
                             </CardContent>
@@ -514,10 +452,7 @@ export default function NotificationCreate({ templates }: Props) {
                         <CardHeader>
                             <CardTitle>Message Content</CardTitle>
                             <CardDescription>
-                                {selectedTemplate 
-                                    ? `Using template: ${selectedTemplate.name}` 
-                                    : 'Create your custom notification message'
-                                }
+                                {selectedTemplate ? `Using template: ${selectedTemplate.name}` : 'Create your custom notification message'}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -531,21 +466,18 @@ export default function NotificationCreate({ templates }: Props) {
                                     placeholder="Enter notification title"
                                     disabled={!!selectedTemplate}
                                 />
-                                {errors.title && (
-                                    <p className="text-sm text-red-600">{errors.title}</p>
-                                )}
+                                {errors.title && <p className="text-sm text-red-600">{errors.title}</p>}
                             </div>
 
                             {/* Template Variables */}
                             {selectedTemplate && selectedTemplate.variables.length > 0 && (
                                 <div className="space-y-4">
                                     <Label>Template Variables</Label>
-                                    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                         {selectedTemplate.variables.map((variable) => (
                                             <div key={variable} className="space-y-2">
                                                 <Label htmlFor={variable} className="text-sm">
-                                                    {variable.replace('_', ' ').charAt(0).toUpperCase() + 
-                                                     variable.replace('_', ' ').slice(1)}
+                                                    {variable.replace('_', ' ').charAt(0).toUpperCase() + variable.replace('_', ' ').slice(1)}
                                                 </Label>
                                                 <Input
                                                     id={variable}
@@ -570,17 +502,15 @@ export default function NotificationCreate({ templates }: Props) {
                                     rows={6}
                                     disabled={!!selectedTemplate}
                                 />
-                                {errors.message && (
-                                    <p className="text-sm text-red-600">{errors.message}</p>
-                                )}
+                                {errors.message && <p className="text-sm text-red-600">{errors.message}</p>}
                             </div>
 
                             {/* Preview */}
                             {(data.message || selectedTemplate) && (
                                 <div className="space-y-2">
                                     <Label>Preview</Label>
-                                    <div className="p-4 bg-muted rounded-md border">
-                                        <p className="text-sm font-medium mb-2">{data.title}</p>
+                                    <div className="rounded-md border bg-muted p-4">
+                                        <p className="mb-2 text-sm font-medium">{data.title}</p>
                                         <p className="text-sm whitespace-pre-wrap">{renderMessagePreview()}</p>
                                     </div>
                                 </div>
@@ -594,7 +524,7 @@ export default function NotificationCreate({ templates }: Props) {
                             <Link href="/admin/notifications">Cancel</Link>
                         </Button>
                         <Button type="submit" disabled={processing}>
-                            <Send className="h-4 w-4 mr-2" />
+                            <Send className="mr-2 h-4 w-4" />
                             {processing ? 'Sending...' : 'Send Notification'}
                         </Button>
                     </div>

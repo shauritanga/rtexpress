@@ -1,34 +1,12 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from '@/components/ui/table';
-import {
-    ArrowLeft,
-    FileText,
-    Package,
-    MapPin,
-    Banknote,
-    Calendar,
-    CheckCircle,
-    XCircle,
-    Clock,
-    AlertTriangle,
-    Upload,
-    Download,
-    Send,
-    Eye
-} from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
+import { ArrowLeft, Banknote, CheckCircle, Clock, Download, Eye, FileText, Package, Send, Upload, XCircle } from 'lucide-react';
+import { useState } from 'react';
 
 interface Shipment {
     id: number;
@@ -120,12 +98,11 @@ export default function CustomsShow({ declaration }: Props) {
             cleared: { label: 'Cleared', variant: 'success' as const, icon: CheckCircle },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const, icon: FileText };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const, icon: FileText };
+
         return (
             <Badge variant={config.variant} className="flex items-center">
-                <config.icon className="h-3 w-3 mr-1" />
+                <config.icon className="mr-1 h-3 w-3" />
                 {config.label}
             </Badge>
         );
@@ -139,9 +116,9 @@ export default function CustomsShow({ declaration }: Props) {
         };
 
         const color = colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-        
+
         return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${color}`}>
+            <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${color}`}>
                 {type.charAt(0).toUpperCase() + type.slice(1)}
             </span>
         );
@@ -151,9 +128,13 @@ export default function CustomsShow({ declaration }: Props) {
         if (declaration.status !== 'draft') return;
 
         setIsSubmitting(true);
-        router.post(route('admin.customs.submit', declaration.id), {}, {
-            onFinish: () => setIsSubmitting(false),
-        });
+        router.post(
+            route('admin.customs.submit', declaration.id),
+            {},
+            {
+                onFinish: () => setIsSubmitting(false),
+            },
+        );
     };
 
     const handleApprove = () => {
@@ -176,62 +157,44 @@ export default function CustomsShow({ declaration }: Props) {
     return (
         <AppLayout>
             <Head title={`Customs Declaration ${declaration.declaration_number}`} />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div className="flex items-center space-x-4">
                         <Button variant="outline" size="sm" asChild>
                             <Link href="/admin/customs">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Customs
                             </Link>
                         </Button>
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                {declaration.declaration_number}
-                            </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                                Customs Declaration Details
-                            </p>
+                            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{declaration.declaration_number}</h1>
+                            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Customs Declaration Details</p>
                         </div>
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         {declaration.status === 'draft' && (
-                            <Button 
-                                onClick={handleSubmit}
-                                disabled={isSubmitting}
-                                className="w-full sm:w-auto"
-                            >
-                                <Send className="h-4 w-4 mr-2" />
+                            <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full sm:w-auto">
+                                <Send className="mr-2 h-4 w-4" />
                                 {isSubmitting ? 'Submitting...' : 'Submit Declaration'}
                             </Button>
                         )}
                         {declaration.status === 'submitted' && (
                             <>
-                                <Button 
-                                    variant="outline" 
-                                    onClick={handleReject}
-                                    className="w-full sm:w-auto"
-                                >
-                                    <XCircle className="h-4 w-4 mr-2" />
+                                <Button variant="outline" onClick={handleReject} className="w-full sm:w-auto">
+                                    <XCircle className="mr-2 h-4 w-4" />
                                     Reject
                                 </Button>
-                                <Button 
-                                    onClick={handleApprove}
-                                    className="w-full sm:w-auto"
-                                >
-                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                <Button onClick={handleApprove} className="w-full sm:w-auto">
+                                    <CheckCircle className="mr-2 h-4 w-4" />
                                     Approve
                                 </Button>
                             </>
                         )}
                         {declaration.status === 'approved' && (
-                            <Button 
-                                onClick={handleClear}
-                                className="w-full sm:w-auto"
-                            >
-                                <CheckCircle className="h-4 w-4 mr-2" />
+                            <Button onClick={handleClear} className="w-full sm:w-auto">
+                                <CheckCircle className="mr-2 h-4 w-4" />
                                 Clear Customs
                             </Button>
                         )}
@@ -239,16 +202,14 @@ export default function CustomsShow({ declaration }: Props) {
                 </div>
 
                 {/* Status and Info Cards */}
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
                                 <FileText className="h-5 w-5 text-blue-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Status</p>
-                                    <div className="mt-1">
-                                        {getStatusBadge(declaration.status)}
-                                    </div>
+                                    <div className="mt-1">{getStatusBadge(declaration.status)}</div>
                                 </div>
                             </div>
                         </CardContent>
@@ -260,9 +221,7 @@ export default function CustomsShow({ declaration }: Props) {
                                 <Package className="h-5 w-5 text-green-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Type</p>
-                                    <div className="mt-1">
-                                        {getDeclarationTypeBadge(declaration.declaration_type)}
-                                    </div>
+                                    <div className="mt-1">{getDeclarationTypeBadge(declaration.declaration_type)}</div>
                                 </div>
                             </div>
                         </CardContent>
@@ -274,9 +233,7 @@ export default function CustomsShow({ declaration }: Props) {
                                 <Banknote className="h-5 w-5 text-purple-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Customs Value</p>
-                                    <p className="text-2xl font-bold">
-                                        {formatCurrency(declaration.customs_value, declaration.currency)}
-                                    </p>
+                                    <p className="text-2xl font-bold">{formatCurrency(declaration.customs_value, declaration.currency)}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -288,9 +245,7 @@ export default function CustomsShow({ declaration }: Props) {
                                 <Banknote className="h-5 w-5 text-orange-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Charges</p>
-                                    <p className="text-2xl font-bold">
-                                        {formatCurrency(declaration.total_charges, declaration.currency)}
-                                    </p>
+                                    <p className="text-2xl font-bold">{formatCurrency(declaration.total_charges, declaration.currency)}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -298,19 +253,19 @@ export default function CustomsShow({ declaration }: Props) {
                 </div>
 
                 {/* Main Content */}
-                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* Declaration Details */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <FileText className="h-5 w-5 mr-2" />
+                                <FileText className="mr-2 h-5 w-5" />
                                 Declaration Details
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Shipment</p>
-                                <Link 
+                                <Link
                                     href={route('admin.shipments.show', declaration.shipment.id)}
                                     className="font-medium text-blue-600 hover:underline"
                                 >
@@ -352,7 +307,7 @@ export default function CustomsShow({ declaration }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <Banknote className="h-5 w-5 mr-2" />
+                                <Banknote className="mr-2 h-5 w-5" />
                                 Charges Breakdown
                             </CardTitle>
                         </CardHeader>
@@ -360,28 +315,20 @@ export default function CustomsShow({ declaration }: Props) {
                             <div className="space-y-3">
                                 <div className="flex justify-between">
                                     <span className="text-sm">Customs Duty</span>
-                                    <span className="font-medium">
-                                        {formatCurrency(declaration.customs_duty, declaration.currency)}
-                                    </span>
+                                    <span className="font-medium">{formatCurrency(declaration.customs_duty, declaration.currency)}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-sm">Taxes</span>
-                                    <span className="font-medium">
-                                        {formatCurrency(declaration.taxes, declaration.currency)}
-                                    </span>
+                                    <span className="font-medium">{formatCurrency(declaration.taxes, declaration.currency)}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-sm">Processing Fees</span>
-                                    <span className="font-medium">
-                                        {formatCurrency(declaration.fees, declaration.currency)}
-                                    </span>
+                                    <span className="font-medium">{formatCurrency(declaration.fees, declaration.currency)}</span>
                                 </div>
                                 <Separator />
                                 <div className="flex justify-between text-lg font-semibold">
                                     <span>Total Charges</span>
-                                    <span>
-                                        {formatCurrency(declaration.total_charges, declaration.currency)}
-                                    </span>
+                                    <span>{formatCurrency(declaration.total_charges, declaration.currency)}</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -392,41 +339,35 @@ export default function CustomsShow({ declaration }: Props) {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <Clock className="h-5 w-5 mr-2" />
+                            <Clock className="mr-2 h-5 w-5" />
                             Declaration Timeline
                         </CardTitle>
-                        <CardDescription>
-                            Track the customs declaration progress
-                        </CardDescription>
+                        <CardDescription>Track the customs declaration progress</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
                             <div className="flex items-start space-x-3">
                                 <div className="flex-shrink-0">
-                                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
                                         <FileText className="h-4 w-4 text-blue-600" />
                                     </div>
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-medium">Declaration Created</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        {formatDateTime(declaration.created_at)}
-                                    </p>
+                                    <p className="text-xs text-muted-foreground">{formatDateTime(declaration.created_at)}</p>
                                 </div>
                             </div>
 
                             {declaration.submitted_at && (
                                 <div className="flex items-start space-x-3">
                                     <div className="flex-shrink-0">
-                                        <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100">
                                             <Send className="h-4 w-4 text-yellow-600" />
                                         </div>
                                     </div>
                                     <div className="flex-1">
                                         <p className="text-sm font-medium">Submitted for Review</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {formatDateTime(declaration.submitted_at)}
-                                        </p>
+                                        <p className="text-xs text-muted-foreground">{formatDateTime(declaration.submitted_at)}</p>
                                     </div>
                                 </div>
                             )}
@@ -434,15 +375,13 @@ export default function CustomsShow({ declaration }: Props) {
                             {declaration.approved_at && (
                                 <div className="flex items-start space-x-3">
                                     <div className="flex-shrink-0">
-                                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
                                             <CheckCircle className="h-4 w-4 text-green-600" />
                                         </div>
                                     </div>
                                     <div className="flex-1">
                                         <p className="text-sm font-medium">Approved</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {formatDateTime(declaration.approved_at)}
-                                        </p>
+                                        <p className="text-xs text-muted-foreground">{formatDateTime(declaration.approved_at)}</p>
                                     </div>
                                 </div>
                             )}
@@ -450,17 +389,15 @@ export default function CustomsShow({ declaration }: Props) {
                             {declaration.rejected_at && (
                                 <div className="flex items-start space-x-3">
                                     <div className="flex-shrink-0">
-                                        <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100">
                                             <XCircle className="h-4 w-4 text-red-600" />
                                         </div>
                                     </div>
                                     <div className="flex-1">
                                         <p className="text-sm font-medium">Rejected</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {formatDateTime(declaration.rejected_at)}
-                                        </p>
+                                        <p className="text-xs text-muted-foreground">{formatDateTime(declaration.rejected_at)}</p>
                                         {declaration.rejection_reason && (
-                                            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
+                                            <div className="mt-2 rounded-md border border-red-200 bg-red-50 p-2">
                                                 <p className="text-sm text-red-700">{declaration.rejection_reason}</p>
                                             </div>
                                         )}
@@ -471,15 +408,13 @@ export default function CustomsShow({ declaration }: Props) {
                             {declaration.cleared_at && (
                                 <div className="flex items-start space-x-3">
                                     <div className="flex-shrink-0">
-                                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
                                             <CheckCircle className="h-4 w-4 text-green-600" />
                                         </div>
                                     </div>
                                     <div className="flex-1">
                                         <p className="text-sm font-medium">Customs Cleared</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {formatDateTime(declaration.cleared_at)}
-                                        </p>
+                                        <p className="text-xs text-muted-foreground">{formatDateTime(declaration.cleared_at)}</p>
                                     </div>
                                 </div>
                             )}
@@ -491,15 +426,13 @@ export default function CustomsShow({ declaration }: Props) {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <Package className="h-5 w-5 mr-2" />
+                            <Package className="mr-2 h-5 w-5" />
                             Declaration Items
                         </CardTitle>
-                        <CardDescription>
-                            Items included in this customs declaration
-                        </CardDescription>
+                        <CardDescription>Items included in this customs declaration</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="rounded-md border overflow-hidden">
+                        <div className="overflow-hidden rounded-md border">
                             <div className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
@@ -516,21 +449,13 @@ export default function CustomsShow({ declaration }: Props) {
                                     <TableBody>
                                         {declaration.items.map((item) => (
                                             <TableRow key={item.id}>
-                                                <TableCell className="font-medium">
-                                                    {item.description}
-                                                </TableCell>
+                                                <TableCell className="font-medium">{item.description}</TableCell>
                                                 <TableCell>{item.quantity}</TableCell>
-                                                <TableCell>
-                                                    {formatCurrency(item.unit_value, declaration.currency)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {formatCurrency(item.total_value, declaration.currency)}
-                                                </TableCell>
+                                                <TableCell>{formatCurrency(item.unit_value, declaration.currency)}</TableCell>
+                                                <TableCell>{formatCurrency(item.total_value, declaration.currency)}</TableCell>
                                                 <TableCell>{item.weight}</TableCell>
                                                 <TableCell>
-                                                    <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                                                        {item.hs_code || 'N/A'}
-                                                    </code>
+                                                    <code className="rounded bg-muted px-1 py-0.5 text-xs">{item.hs_code || 'N/A'}</code>
                                                 </TableCell>
                                                 <TableCell>{item.country_of_origin}</TableCell>
                                             </TableRow>
@@ -547,17 +472,15 @@ export default function CustomsShow({ declaration }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <Upload className="h-5 w-5 mr-2" />
+                                <Upload className="mr-2 h-5 w-5" />
                                 Supporting Documents
                             </CardTitle>
-                            <CardDescription>
-                                Documents attached to this declaration
-                            </CardDescription>
+                            <CardDescription>Documents attached to this declaration</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-3">
                                 {declaration.documents.map((document) => (
-                                    <div key={document.id} className="flex items-center justify-between p-3 border rounded-lg">
+                                    <div key={document.id} className="flex items-center justify-between rounded-lg border p-3">
                                         <div className="flex items-center space-x-3">
                                             <FileText className="h-5 w-5 text-muted-foreground" />
                                             <div>
@@ -569,7 +492,7 @@ export default function CustomsShow({ declaration }: Props) {
                                         </div>
                                         <Button variant="outline" size="sm" asChild>
                                             <a href={document.file_path} target="_blank" rel="noopener noreferrer">
-                                                <Download className="h-4 w-4 mr-2" />
+                                                <Download className="mr-2 h-4 w-4" />
                                                 Download
                                             </a>
                                         </Button>

@@ -1,31 +1,10 @@
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import { 
-    User as UserIcon, 
-    ArrowLeft,
-    Edit,
-    Shield,
-    Mail,
-    Phone,
-    Calendar,
-    Activity,
-    Package,
-    Clock,
-    CheckCircle,
-    AlertTriangle,
-    TrendingUp
-} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
+import { Activity, ArrowLeft, Calendar, CheckCircle, Clock, Edit, Mail, Package, Phone, Shield, User as UserIcon } from 'lucide-react';
 
 interface User {
     id: number;
@@ -93,12 +72,8 @@ export default function ShowUser({ user, userStats }: Props) {
             inactive: 'bg-gray-100 text-gray-800',
             suspended: 'bg-red-100 text-red-800',
         };
-        
-        return (
-            <Badge className={variants[status as keyof typeof variants]}>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-            </Badge>
-        );
+
+        return <Badge className={variants[status as keyof typeof variants]}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>;
     };
 
     const getRoleBadge = (role: User['roles'][0]) => {
@@ -108,7 +83,7 @@ export default function ShowUser({ user, userStats }: Props) {
             billing_admin: 'bg-green-100 text-green-800',
             customer_support: 'bg-purple-100 text-purple-800',
         };
-        
+
         return (
             <Badge key={role.id} className={colors[role.name as keyof typeof colors] || 'bg-gray-100 text-gray-800'}>
                 {role.display_name}
@@ -122,21 +97,21 @@ export default function ShowUser({ user, userStats }: Props) {
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
         });
     };
 
     const formatLastLogin = (lastLogin?: string) => {
         if (!lastLogin) return 'Never';
-        
+
         const date = new Date(lastLogin);
         const now = new Date();
         const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-        
+
         if (diffInMinutes < 15) return 'Online now';
         if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
         if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hours ago`;
-        
+
         return date.toLocaleDateString();
     };
 
@@ -175,7 +150,7 @@ export default function ShowUser({ user, userStats }: Props) {
     return (
         <AppLayout>
             <Head title={`User: ${user.name}`} />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
@@ -186,19 +161,15 @@ export default function ShowUser({ user, userStats }: Props) {
                                     <ArrowLeft className="h-4 w-4" />
                                 </Link>
                             </Button>
-                            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                                {user.name}
-                            </h1>
+                            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{user.name}</h1>
                             {getStatusBadge(user.status)}
                         </div>
-                        <p className="text-muted-foreground">
-                            User details and activity overview
-                        </p>
+                        <p className="text-muted-foreground">User details and activity overview</p>
                     </div>
-                    <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
+                    <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Button size="sm" asChild>
                             <Link href={`/admin/users/${user.id}/edit`}>
-                                <Edit className="h-4 w-4 mr-2" />
+                                <Edit className="mr-2 h-4 w-4" />
                                 Edit User
                             </Link>
                         </Button>
@@ -207,7 +178,7 @@ export default function ShowUser({ user, userStats }: Props) {
 
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* User Information */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className="space-y-6 lg:col-span-2">
                         {/* Basic Info */}
                         <Card>
                             <CardHeader>
@@ -225,13 +196,13 @@ export default function ShowUser({ user, userStats }: Props) {
                                         </div>
                                         <p className="font-medium">{user.email}</p>
                                         {user.email_verified_at && (
-                                            <p className="text-xs text-green-600 flex items-center">
-                                                <CheckCircle className="h-3 w-3 mr-1" />
+                                            <p className="flex items-center text-xs text-green-600">
+                                                <CheckCircle className="mr-1 h-3 w-3" />
                                                 Verified
                                             </p>
                                         )}
                                     </div>
-                                    
+
                                     {user.phone && (
                                         <div>
                                             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -241,7 +212,7 @@ export default function ShowUser({ user, userStats }: Props) {
                                             <p className="font-medium">{user.phone}</p>
                                         </div>
                                     )}
-                                    
+
                                     <div>
                                         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                                             <Calendar className="h-4 w-4" />
@@ -249,7 +220,7 @@ export default function ShowUser({ user, userStats }: Props) {
                                         </div>
                                         <p className="font-medium">{formatDate(user.created_at)}</p>
                                     </div>
-                                    
+
                                     <div>
                                         <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                                             <Clock className="h-4 w-4" />
@@ -264,18 +235,14 @@ export default function ShowUser({ user, userStats }: Props) {
                         {/* Activity Stats */}
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                             {statsCards.map((card) => (
-                                <Card key={card.title} className="hover:shadow-md transition-shadow">
+                                <Card key={card.title} className="transition-shadow hover:shadow-md">
                                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium">
-                                            {card.title}
-                                        </CardTitle>
+                                        <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
                                         <card.icon className={`h-4 w-4 ${card.color}`} />
                                     </CardHeader>
                                     <CardContent>
                                         <div className="text-2xl font-bold">{card.value}</div>
-                                        <p className="text-xs text-muted-foreground">
-                                            {card.description}
-                                        </p>
+                                        <p className="text-xs text-muted-foreground">{card.description}</p>
                                     </CardContent>
                                 </Card>
                             ))}
@@ -285,15 +252,13 @@ export default function ShowUser({ user, userStats }: Props) {
                         <Card>
                             <CardHeader>
                                 <CardTitle>Recent Activity</CardTitle>
-                                <CardDescription>
-                                    Latest shipments created and assigned to this user
-                                </CardDescription>
+                                <CardDescription>Latest shipments created and assigned to this user</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
                                     {user.created_shipments.length > 0 && (
                                         <div>
-                                            <h4 className="font-medium mb-2">Recently Created Shipments</h4>
+                                            <h4 className="mb-2 font-medium">Recently Created Shipments</h4>
                                             <div className="rounded-md border">
                                                 <Table>
                                                     <TableHeader>
@@ -308,7 +273,7 @@ export default function ShowUser({ user, userStats }: Props) {
                                                         {user.created_shipments.slice(0, 5).map((shipment) => (
                                                             <TableRow key={shipment.id}>
                                                                 <TableCell className="font-medium">
-                                                                    <Link 
+                                                                    <Link
                                                                         href={`/admin/shipments/${shipment.id}`}
                                                                         className="text-blue-600 hover:underline"
                                                                     >
@@ -317,13 +282,9 @@ export default function ShowUser({ user, userStats }: Props) {
                                                                 </TableCell>
                                                                 <TableCell>{shipment.customer.company_name}</TableCell>
                                                                 <TableCell>
-                                                                    <Badge variant="outline">
-                                                                        {shipment.status.replace('_', ' ')}
-                                                                    </Badge>
+                                                                    <Badge variant="outline">{shipment.status.replace('_', ' ')}</Badge>
                                                                 </TableCell>
-                                                                <TableCell>
-                                                                    {new Date(shipment.created_at).toLocaleDateString()}
-                                                                </TableCell>
+                                                                <TableCell>{new Date(shipment.created_at).toLocaleDateString()}</TableCell>
                                                             </TableRow>
                                                         ))}
                                                     </TableBody>
@@ -334,7 +295,7 @@ export default function ShowUser({ user, userStats }: Props) {
 
                                     {user.assigned_shipments.length > 0 && (
                                         <div>
-                                            <h4 className="font-medium mb-2">Recently Assigned Shipments</h4>
+                                            <h4 className="mb-2 font-medium">Recently Assigned Shipments</h4>
                                             <div className="rounded-md border">
                                                 <Table>
                                                     <TableHeader>
@@ -349,7 +310,7 @@ export default function ShowUser({ user, userStats }: Props) {
                                                         {user.assigned_shipments.slice(0, 5).map((shipment) => (
                                                             <TableRow key={shipment.id}>
                                                                 <TableCell className="font-medium">
-                                                                    <Link 
+                                                                    <Link
                                                                         href={`/admin/shipments/${shipment.id}`}
                                                                         className="text-blue-600 hover:underline"
                                                                     >
@@ -358,13 +319,9 @@ export default function ShowUser({ user, userStats }: Props) {
                                                                 </TableCell>
                                                                 <TableCell>{shipment.customer.company_name}</TableCell>
                                                                 <TableCell>
-                                                                    <Badge variant="outline">
-                                                                        {shipment.status.replace('_', ' ')}
-                                                                    </Badge>
+                                                                    <Badge variant="outline">{shipment.status.replace('_', ' ')}</Badge>
                                                                 </TableCell>
-                                                                <TableCell>
-                                                                    {new Date(shipment.created_at).toLocaleDateString()}
-                                                                </TableCell>
+                                                                <TableCell>{new Date(shipment.created_at).toLocaleDateString()}</TableCell>
                                                             </TableRow>
                                                         ))}
                                                     </TableBody>
@@ -374,8 +331,8 @@ export default function ShowUser({ user, userStats }: Props) {
                                     )}
 
                                     {user.created_shipments.length === 0 && user.assigned_shipments.length === 0 && (
-                                        <div className="text-center py-8 text-muted-foreground">
-                                            <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                                        <div className="py-8 text-center text-muted-foreground">
+                                            <Package className="mx-auto mb-4 h-12 w-12 opacity-50" />
                                             <p>No recent shipment activity</p>
                                         </div>
                                     )}
@@ -392,27 +349,25 @@ export default function ShowUser({ user, userStats }: Props) {
                                     <Shield className="h-5 w-5" />
                                     <span>Roles & Permissions</span>
                                 </CardTitle>
-                                <CardDescription>
-                                    User roles and associated permissions
-                                </CardDescription>
+                                <CardDescription>User roles and associated permissions</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div>
-                                    <h4 className="font-medium mb-2">Assigned Roles</h4>
-                                    <div className="space-y-2">
-                                        {user.roles.map((role) => getRoleBadge(role))}
-                                    </div>
+                                    <h4 className="mb-2 font-medium">Assigned Roles</h4>
+                                    <div className="space-y-2">{user.roles.map((role) => getRoleBadge(role))}</div>
                                 </div>
 
                                 <div>
-                                    <h4 className="font-medium mb-2">Permissions</h4>
-                                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                                        {user.roles.flatMap(role => role.permissions).map((permission) => (
-                                            <div key={permission.id} className="flex items-center space-x-2 text-sm">
-                                                <CheckCircle className="h-3 w-3 text-green-600" />
-                                                <span>{permission.display_name}</span>
-                                            </div>
-                                        ))}
+                                    <h4 className="mb-2 font-medium">Permissions</h4>
+                                    <div className="max-h-64 space-y-2 overflow-y-auto">
+                                        {user.roles
+                                            .flatMap((role) => role.permissions)
+                                            .map((permission) => (
+                                                <div key={permission.id} className="flex items-center space-x-2 text-sm">
+                                                    <CheckCircle className="h-3 w-3 text-green-600" />
+                                                    <span>{permission.display_name}</span>
+                                                </div>
+                                            ))}
                                     </div>
                                 </div>
                             </CardContent>

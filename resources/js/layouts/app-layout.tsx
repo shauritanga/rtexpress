@@ -1,13 +1,8 @@
+import { InstallPrompt, NotificationPermissionRequest, OfflineIndicator, UpdateNotification } from '@/components/pwa/TouchOptimized';
+import { Toaster } from '@/components/ui/toaster';
 import AppLayoutTemplate from '@/layouts/app/app-sidebar-layout';
 import { type BreadcrumbItem } from '@/types';
 import { type ReactNode } from 'react';
-import {
-    InstallPrompt,
-    OfflineIndicator,
-    UpdateNotification,
-    NotificationPermissionRequest
-} from '@/components/pwa/TouchOptimized';
-import { Toaster } from '@/components/ui/toaster';
 
 interface AppLayoutProps {
     children: ReactNode;

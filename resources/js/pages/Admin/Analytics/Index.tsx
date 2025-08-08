@@ -1,37 +1,17 @@
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import {
-    BarChart3,
-    TrendingUp,
-    TrendingDown,
-    Users,
-    Package,
-    Clock,
-    CheckCircle,
-    AlertTriangle,
-    Download,
-    Calendar,
-    DollarSign,
-    Truck,
-    Target
-} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
 import { Head, router } from '@inertiajs/react';
+import { Calendar, CheckCircle, Clock, DollarSign, Download, Package, Target, Users } from 'lucide-react';
 import { useState } from 'react';
 
 // Import our new chart components
-import { ShipmentTrendChart, ServiceTypeDonutChart } from '@/components/charts/ShipmentTrendChart';
-import { StatusDistributionChart } from '@/components/charts/WarehousePerformanceChart';
-import { KPICard, PerformanceMetricsGrid, QuickStats } from '@/components/charts/KPICards';
 import { ExportModal } from '@/components/admin/ExportModal';
+import { KPICard, PerformanceMetricsGrid } from '@/components/charts/KPICards';
+import { ServiceTypeDonutChart, ShipmentTrendChart } from '@/components/charts/ShipmentTrendChart';
+import { StatusDistributionChart } from '@/components/charts/WarehousePerformanceChart';
 
 interface AnalyticsData {
     overview: {
@@ -96,10 +76,14 @@ export default function AnalyticsIndex({ analytics, period }: Props) {
 
     const handlePeriodChange = (newPeriod: string) => {
         setSelectedPeriod(newPeriod);
-        router.get('/admin/analytics', { period: newPeriod }, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        router.get(
+            '/admin/analytics',
+            { period: newPeriod },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     const formatCurrency = (amount: number) => {
@@ -117,11 +101,13 @@ export default function AnalyticsIndex({ analytics, period }: Props) {
             title: 'Total Shipments',
             value: analytics.overview.total_shipments,
             description: 'All shipments in selected period',
-            trend: analytics.overview.shipments_growth ? {
-                value: analytics.overview.shipments_growth,
-                isPositive: analytics.overview.shipments_growth > 0,
-                period: 'last period'
-            } : undefined,
+            trend: analytics.overview.shipments_growth
+                ? {
+                      value: analytics.overview.shipments_growth,
+                      isPositive: analytics.overview.shipments_growth > 0,
+                      period: 'last period',
+                  }
+                : undefined,
             icon: Package,
             color: 'blue' as const,
         },
@@ -130,8 +116,12 @@ export default function AnalyticsIndex({ analytics, period }: Props) {
             value: `${analytics.overview.delivery_rate}%`,
             description: 'Successfully delivered shipments',
             icon: CheckCircle,
-            color: analytics.overview.delivery_rate >= 95 ? 'green' as const :
-                   analytics.overview.delivery_rate >= 85 ? 'yellow' as const : 'red' as const,
+            color:
+                analytics.overview.delivery_rate >= 95
+                    ? ('green' as const)
+                    : analytics.overview.delivery_rate >= 85
+                      ? ('yellow' as const)
+                      : ('red' as const),
         },
         {
             title: 'Active Customers',
@@ -145,8 +135,12 @@ export default function AnalyticsIndex({ analytics, period }: Props) {
             value: `${analytics.overview.average_delivery_time}`,
             description: 'Days from pickup to delivery',
             icon: Clock,
-            color: analytics.overview.average_delivery_time <= 3 ? 'green' as const :
-                   analytics.overview.average_delivery_time <= 5 ? 'yellow' as const : 'red' as const,
+            color:
+                analytics.overview.average_delivery_time <= 3
+                    ? ('green' as const)
+                    : analytics.overview.average_delivery_time <= 5
+                      ? ('yellow' as const)
+                      : ('red' as const),
         },
         {
             title: 'Total Revenue',
@@ -171,62 +165,78 @@ export default function AnalyticsIndex({ analytics, period }: Props) {
             value: analytics.performanceMetrics.on_time_delivery_rate,
             unit: '%',
             target: 95,
-            status: analytics.performanceMetrics.on_time_delivery_rate >= 95 ? 'excellent' :
-                   analytics.performanceMetrics.on_time_delivery_rate >= 85 ? 'good' :
-                   analytics.performanceMetrics.on_time_delivery_rate >= 75 ? 'warning' : 'critical',
-            description: 'Delivered within estimated time'
+            status:
+                analytics.performanceMetrics.on_time_delivery_rate >= 95
+                    ? 'excellent'
+                    : analytics.performanceMetrics.on_time_delivery_rate >= 85
+                      ? 'good'
+                      : analytics.performanceMetrics.on_time_delivery_rate >= 75
+                        ? 'warning'
+                        : 'critical',
+            description: 'Delivered within estimated time',
         },
         {
             title: 'Avg Transit Time',
             value: analytics.performanceMetrics.average_transit_time,
             unit: ' days',
             target: 3,
-            status: analytics.performanceMetrics.average_transit_time <= 3 ? 'excellent' :
-                   analytics.performanceMetrics.average_transit_time <= 5 ? 'good' :
-                   analytics.performanceMetrics.average_transit_time <= 7 ? 'warning' : 'critical',
-            description: 'Average time in transit'
+            status:
+                analytics.performanceMetrics.average_transit_time <= 3
+                    ? 'excellent'
+                    : analytics.performanceMetrics.average_transit_time <= 5
+                      ? 'good'
+                      : analytics.performanceMetrics.average_transit_time <= 7
+                        ? 'warning'
+                        : 'critical',
+            description: 'Average time in transit',
         },
         {
             title: 'Customer Satisfaction',
             value: analytics.performanceMetrics.customer_satisfaction,
             unit: '/5',
             target: 4.5,
-            status: analytics.performanceMetrics.customer_satisfaction >= 4.5 ? 'excellent' :
-                   analytics.performanceMetrics.customer_satisfaction >= 4.0 ? 'good' :
-                   analytics.performanceMetrics.customer_satisfaction >= 3.5 ? 'warning' : 'critical',
-            description: 'Average customer rating'
+            status:
+                analytics.performanceMetrics.customer_satisfaction >= 4.5
+                    ? 'excellent'
+                    : analytics.performanceMetrics.customer_satisfaction >= 4.0
+                      ? 'good'
+                      : analytics.performanceMetrics.customer_satisfaction >= 3.5
+                        ? 'warning'
+                        : 'critical',
+            description: 'Average customer rating',
         },
         {
             title: 'Exception Rate',
             value: analytics.performanceMetrics.exception_rate,
             unit: '%',
             target: 2,
-            status: analytics.performanceMetrics.exception_rate <= 2 ? 'excellent' :
-                   analytics.performanceMetrics.exception_rate <= 5 ? 'good' :
-                   analytics.performanceMetrics.exception_rate <= 10 ? 'warning' : 'critical',
-            description: 'Shipments with issues'
-        }
+            status:
+                analytics.performanceMetrics.exception_rate <= 2
+                    ? 'excellent'
+                    : analytics.performanceMetrics.exception_rate <= 5
+                      ? 'good'
+                      : analytics.performanceMetrics.exception_rate <= 10
+                        ? 'warning'
+                        : 'critical',
+            description: 'Shipments with issues',
+        },
     ] as const;
 
     return (
         <AppLayout>
             <Head title="Analytics Dashboard" />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                            Analytics
-                        </h1>
-                        <p className="text-muted-foreground">
-                            Performance insights and business metrics
-                        </p>
+                        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Analytics</h1>
+                        <p className="text-muted-foreground">Performance insights and business metrics</p>
                     </div>
-                    <div className="flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0">
+                    <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Select value={selectedPeriod} onValueChange={handlePeriodChange}>
                             <SelectTrigger className="w-full sm:w-[180px]">
-                                <Calendar className="h-4 w-4 mr-2" />
+                                <Calendar className="mr-2 h-4 w-4" />
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -241,7 +251,7 @@ export default function AnalyticsIndex({ analytics, period }: Props) {
                             filters={{ period: selectedPeriod }}
                             trigger={
                                 <Button variant="outline" size="sm">
-                                    <Download className="h-4 w-4 mr-2" />
+                                    <Download className="mr-2 h-4 w-4" />
                                     Export Report
                                 </Button>
                             }
@@ -297,34 +307,26 @@ export default function AnalyticsIndex({ analytics, period }: Props) {
                 <Card>
                     <CardHeader>
                         <CardTitle>Top Customers</CardTitle>
-                        <CardDescription>
-                            Customers ranked by shipment volume in the selected period
-                        </CardDescription>
+                        <CardDescription>Customers ranked by shipment volume in the selected period</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                             {analytics.topCustomers.slice(0, 6).map((customer, index) => (
-                                <div key={customer.id} className="p-4 bg-gray-50 rounded-lg">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                            <span className="text-sm font-medium text-blue-600">
-                                                {index + 1}
-                                            </span>
+                                <div key={customer.id} className="rounded-lg bg-gray-50 p-4">
+                                    <div className="mb-2 flex items-center justify-between">
+                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                                            <span className="text-sm font-medium text-blue-600">{index + 1}</span>
                                         </div>
                                         <Badge variant="outline" className="text-xs">
                                             {customer.status}
                                         </Badge>
                                     </div>
                                     <div>
-                                        <p className="font-medium text-sm">{customer.company_name}</p>
-                                        <p className="text-xs text-muted-foreground mb-2">
-                                            {customer.customer_code}
-                                        </p>
+                                        <p className="text-sm font-medium">{customer.company_name}</p>
+                                        <p className="mb-2 text-xs text-muted-foreground">{customer.customer_code}</p>
                                         <div className="flex items-center justify-between">
                                             <span className="text-xs text-gray-600">Shipments:</span>
-                                            <span className="text-sm font-semibold text-blue-600">
-                                                {customer.shipments_count}
-                                            </span>
+                                            <span className="text-sm font-semibold text-blue-600">{customer.shipments_count}</span>
                                         </div>
                                     </div>
                                 </div>

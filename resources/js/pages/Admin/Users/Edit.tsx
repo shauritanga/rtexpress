@@ -1,29 +1,13 @@
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
-    UserPlus, 
-    ArrowLeft,
-    Shield,
-    Mail,
-    Phone,
-    Lock,
-    User,
-    AlertCircle,
-    Save
-} from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { AlertCircle, ArrowLeft, Lock, Mail, Phone, Save, Shield, User } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 interface Role {
@@ -59,7 +43,7 @@ export default function EditUser({ user, roles }: Props) {
         password: '',
         password_confirmation: '',
         status: user.status,
-        roles: user.roles.map(role => role.id),
+        roles: user.roles.map((role) => role.id),
     });
 
     const [showPassword, setShowPassword] = useState(false);
@@ -78,7 +62,10 @@ export default function EditUser({ user, roles }: Props) {
         if (checked) {
             setData('roles', [...data.roles, roleId]);
         } else {
-            setData('roles', data.roles.filter(id => id !== roleId));
+            setData(
+                'roles',
+                data.roles.filter((id) => id !== roleId),
+            );
         }
     };
 
@@ -95,7 +82,7 @@ export default function EditUser({ user, roles }: Props) {
     return (
         <AppLayout>
             <Head title={`Edit User: ${user.name}`} />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
@@ -106,13 +93,9 @@ export default function EditUser({ user, roles }: Props) {
                                     <ArrowLeft className="h-4 w-4" />
                                 </Link>
                             </Button>
-                            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-                                Edit User: {user.name}
-                            </h1>
+                            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Edit User: {user.name}</h1>
                         </div>
-                        <p className="text-muted-foreground">
-                            Update user information and permissions
-                        </p>
+                        <p className="text-muted-foreground">Update user information and permissions</p>
                     </div>
                 </div>
 
@@ -126,9 +109,7 @@ export default function EditUser({ user, roles }: Props) {
                                         <User className="h-5 w-5" />
                                         <span>User Information</span>
                                     </CardTitle>
-                                    <CardDescription>
-                                        Update basic information about the user
-                                    </CardDescription>
+                                    <CardDescription>Update basic information about the user</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     {/* Name */}
@@ -143,8 +124,8 @@ export default function EditUser({ user, roles }: Props) {
                                             className={errors.name ? 'border-red-500' : ''}
                                         />
                                         {errors.name && (
-                                            <p className="text-sm text-red-600 flex items-center">
-                                                <AlertCircle className="h-4 w-4 mr-1" />
+                                            <p className="flex items-center text-sm text-red-600">
+                                                <AlertCircle className="mr-1 h-4 w-4" />
                                                 {errors.name}
                                             </p>
                                         )}
@@ -154,7 +135,7 @@ export default function EditUser({ user, roles }: Props) {
                                     <div className="space-y-2">
                                         <Label htmlFor="email">Email Address *</Label>
                                         <div className="relative">
-                                            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                            <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                             <Input
                                                 id="email"
                                                 type="email"
@@ -165,8 +146,8 @@ export default function EditUser({ user, roles }: Props) {
                                             />
                                         </div>
                                         {errors.email && (
-                                            <p className="text-sm text-red-600 flex items-center">
-                                                <AlertCircle className="h-4 w-4 mr-1" />
+                                            <p className="flex items-center text-sm text-red-600">
+                                                <AlertCircle className="mr-1 h-4 w-4" />
                                                 {errors.email}
                                             </p>
                                         )}
@@ -176,7 +157,7 @@ export default function EditUser({ user, roles }: Props) {
                                     <div className="space-y-2">
                                         <Label htmlFor="phone">Phone Number</Label>
                                         <div className="relative">
-                                            <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                            <Phone className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                             <Input
                                                 id="phone"
                                                 type="tel"
@@ -187,8 +168,8 @@ export default function EditUser({ user, roles }: Props) {
                                             />
                                         </div>
                                         {errors.phone && (
-                                            <p className="text-sm text-red-600 flex items-center">
-                                                <AlertCircle className="h-4 w-4 mr-1" />
+                                            <p className="flex items-center text-sm text-red-600">
+                                                <AlertCircle className="mr-1 h-4 w-4" />
                                                 {errors.phone}
                                             </p>
                                         )}
@@ -197,17 +178,15 @@ export default function EditUser({ user, roles }: Props) {
                                     {/* Password */}
                                     <div className="space-y-4">
                                         <div className="border-t pt-4">
-                                            <h4 className="font-medium mb-2">Change Password (Optional)</h4>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Leave blank to keep current password
-                                            </p>
+                                            <h4 className="mb-2 font-medium">Change Password (Optional)</h4>
+                                            <p className="mb-4 text-sm text-muted-foreground">Leave blank to keep current password</p>
                                         </div>
-                                        
+
                                         <div className="grid gap-4 md:grid-cols-2">
                                             <div className="space-y-2">
                                                 <Label htmlFor="password">New Password</Label>
                                                 <div className="relative">
-                                                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                                    <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                                     <Input
                                                         id="password"
                                                         type={showPassword ? 'text' : 'password'}
@@ -218,8 +197,8 @@ export default function EditUser({ user, roles }: Props) {
                                                     />
                                                 </div>
                                                 {errors.password && (
-                                                    <p className="text-sm text-red-600 flex items-center">
-                                                        <AlertCircle className="h-4 w-4 mr-1" />
+                                                    <p className="flex items-center text-sm text-red-600">
+                                                        <AlertCircle className="mr-1 h-4 w-4" />
                                                         {errors.password}
                                                     </p>
                                                 )}
@@ -228,7 +207,7 @@ export default function EditUser({ user, roles }: Props) {
                                             <div className="space-y-2">
                                                 <Label htmlFor="password_confirmation">Confirm New Password</Label>
                                                 <div className="relative">
-                                                    <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                                                    <Lock className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                                     <Input
                                                         id="password_confirmation"
                                                         type={showPassword ? 'text' : 'password'}
@@ -239,8 +218,8 @@ export default function EditUser({ user, roles }: Props) {
                                                     />
                                                 </div>
                                                 {errors.password_confirmation && (
-                                                    <p className="text-sm text-red-600 flex items-center">
-                                                        <AlertCircle className="h-4 w-4 mr-1" />
+                                                    <p className="flex items-center text-sm text-red-600">
+                                                        <AlertCircle className="mr-1 h-4 w-4" />
                                                         {errors.password_confirmation}
                                                     </p>
                                                 )}
@@ -248,11 +227,7 @@ export default function EditUser({ user, roles }: Props) {
                                         </div>
 
                                         <div className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id="show-password"
-                                                checked={showPassword}
-                                                onCheckedChange={setShowPassword}
-                                            />
+                                            <Checkbox id="show-password" checked={showPassword} onCheckedChange={setShowPassword} />
                                             <Label htmlFor="show-password" className="text-sm">
                                                 Show passwords
                                             </Label>
@@ -273,8 +248,8 @@ export default function EditUser({ user, roles }: Props) {
                                             </SelectContent>
                                         </Select>
                                         {errors.status && (
-                                            <p className="text-sm text-red-600 flex items-center">
-                                                <AlertCircle className="h-4 w-4 mr-1" />
+                                            <p className="flex items-center text-sm text-red-600">
+                                                <AlertCircle className="mr-1 h-4 w-4" />
                                                 {errors.status}
                                             </p>
                                         )}
@@ -291,9 +266,7 @@ export default function EditUser({ user, roles }: Props) {
                                         <Shield className="h-5 w-5" />
                                         <span>Role Assignment</span>
                                     </CardTitle>
-                                    <CardDescription>
-                                        Update user roles and permissions
-                                    </CardDescription>
+                                    <CardDescription>Update user roles and permissions</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     {roles.map((role) => (
@@ -307,28 +280,24 @@ export default function EditUser({ user, roles }: Props) {
                                                 <Label htmlFor={`role-${role.id}`} className="flex-1">
                                                     <div className="flex items-center justify-between">
                                                         <span className="font-medium">{role.display_name}</span>
-                                                        <Badge className={getRoleColor(role.name)}>
-                                                            {role.name}
-                                                        </Badge>
+                                                        <Badge className={getRoleColor(role.name)}>{role.name}</Badge>
                                                     </div>
                                                 </Label>
                                             </div>
-                                            <p className="text-sm text-muted-foreground ml-6">
-                                                {role.description}
-                                            </p>
+                                            <p className="ml-6 text-sm text-muted-foreground">{role.description}</p>
                                         </div>
                                     ))}
-                                    
+
                                     {errors.roles && (
-                                        <p className="text-sm text-red-600 flex items-center">
-                                            <AlertCircle className="h-4 w-4 mr-1" />
+                                        <p className="flex items-center text-sm text-red-600">
+                                            <AlertCircle className="mr-1 h-4 w-4" />
                                             {errors.roles}
                                         </p>
                                     )}
-                                    
+
                                     {data.roles.length === 0 && (
-                                        <p className="text-sm text-orange-600 flex items-center">
-                                            <AlertCircle className="h-4 w-4 mr-1" />
+                                        <p className="flex items-center text-sm text-orange-600">
+                                            <AlertCircle className="mr-1 h-4 w-4" />
                                             Please select at least one role
                                         </p>
                                     )}
@@ -345,7 +314,7 @@ export default function EditUser({ user, roles }: Props) {
                         <Button type="submit" disabled={processing || data.roles.length === 0}>
                             {processing ? (
                                 <div className="flex items-center space-x-2">
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                    <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                                     <span>Updating...</span>
                                 </div>
                             ) : (

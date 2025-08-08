@@ -1,30 +1,13 @@
-import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
-} from '@/components/ui/select';
-import { 
-    ArrowLeft,
-    Save,
-    User,
-    Building,
-    Mail,
-    Phone,
-    MapPin,
-    CreditCard,
-    FileText
-} from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppLayout from '@/layouts/app-layout';
 import { countries } from '@/lib/countries';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, Building, CreditCard, FileText, Mail, MapPin, Phone, Save, User } from 'lucide-react';
+import { FormEventHandler } from 'react';
 
 interface Customer {
     id: number;
@@ -75,30 +58,26 @@ export default function CustomerEdit({ customer }: Props) {
     return (
         <AppLayout>
             <Head title={`Edit Customer - ${customer.company_name}`} />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div className="flex items-center space-x-4">
                         <Button variant="ghost" size="sm" asChild>
                             <Link href={`/admin/customers/${customer.id}`}>
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Customer
                             </Link>
                         </Button>
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                Edit Customer
-                            </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                                Update customer information and settings
-                            </p>
+                            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Edit Customer</h1>
+                            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Update customer information and settings</p>
                         </div>
                     </div>
                 </div>
 
                 <form onSubmit={submit} className="space-y-6">
-                    <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                         {/* Company Information */}
                         <Card>
                             <CardHeader>
@@ -106,9 +85,7 @@ export default function CustomerEdit({ customer }: Props) {
                                     <Building className="h-5 w-5" />
                                     <span>Company Information</span>
                                 </CardTitle>
-                                <CardDescription>
-                                    Basic company details and contact information
-                                </CardDescription>
+                                <CardDescription>Basic company details and contact information</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
@@ -121,15 +98,13 @@ export default function CustomerEdit({ customer }: Props) {
                                         placeholder="Enter company name"
                                         className={errors.company_name ? 'border-red-500' : ''}
                                     />
-                                    {errors.company_name && (
-                                        <p className="text-sm text-red-600">{errors.company_name}</p>
-                                    )}
+                                    {errors.company_name && <p className="text-sm text-red-600">{errors.company_name}</p>}
                                 </div>
 
                                 <div className="space-y-2">
                                     <Label htmlFor="contact_person">Contact Person *</Label>
                                     <div className="relative">
-                                        <User className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                        <User className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                         <Input
                                             id="contact_person"
                                             type="text"
@@ -139,16 +114,14 @@ export default function CustomerEdit({ customer }: Props) {
                                             className={`pl-8 ${errors.contact_person ? 'border-red-500' : ''}`}
                                         />
                                     </div>
-                                    {errors.contact_person && (
-                                        <p className="text-sm text-red-600">{errors.contact_person}</p>
-                                    )}
+                                    {errors.contact_person && <p className="text-sm text-red-600">{errors.contact_person}</p>}
                                 </div>
 
-                                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="email">Email Address *</Label>
                                         <div className="relative">
-                                            <Mail className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                            <Mail className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                             <Input
                                                 id="email"
                                                 type="email"
@@ -158,15 +131,13 @@ export default function CustomerEdit({ customer }: Props) {
                                                 className={`pl-8 ${errors.email ? 'border-red-500' : ''}`}
                                             />
                                         </div>
-                                        {errors.email && (
-                                            <p className="text-sm text-red-600">{errors.email}</p>
-                                        )}
+                                        {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
                                     </div>
 
                                     <div className="space-y-2">
                                         <Label htmlFor="phone">Phone Number *</Label>
                                         <div className="relative">
-                                            <Phone className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                            <Phone className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                             <Input
                                                 id="phone"
                                                 type="tel"
@@ -176,17 +147,15 @@ export default function CustomerEdit({ customer }: Props) {
                                                 className={`pl-8 ${errors.phone ? 'border-red-500' : ''}`}
                                             />
                                         </div>
-                                        {errors.phone && (
-                                            <p className="text-sm text-red-600">{errors.phone}</p>
-                                        )}
+                                        {errors.phone && <p className="text-sm text-red-600">{errors.phone}</p>}
                                     </div>
                                 </div>
 
-                                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="tax_number">Tax Number</Label>
                                         <div className="relative">
-                                            <FileText className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                            <FileText className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                             <Input
                                                 id="tax_number"
                                                 type="text"
@@ -196,9 +165,7 @@ export default function CustomerEdit({ customer }: Props) {
                                                 className={`pl-8 ${errors.tax_number ? 'border-red-500' : ''}`}
                                             />
                                         </div>
-                                        {errors.tax_number && (
-                                            <p className="text-sm text-red-600">{errors.tax_number}</p>
-                                        )}
+                                        {errors.tax_number && <p className="text-sm text-red-600">{errors.tax_number}</p>}
                                     </div>
 
                                     <div className="space-y-2">
@@ -213,9 +180,7 @@ export default function CustomerEdit({ customer }: Props) {
                                                 <SelectItem value="suspended">Suspended</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        {errors.status && (
-                                            <p className="text-sm text-red-600">{errors.status}</p>
-                                        )}
+                                        {errors.status && <p className="text-sm text-red-600">{errors.status}</p>}
                                     </div>
                                 </div>
                             </CardContent>
@@ -228,9 +193,7 @@ export default function CustomerEdit({ customer }: Props) {
                                     <MapPin className="h-5 w-5" />
                                     <span>Address Information</span>
                                 </CardTitle>
-                                <CardDescription>
-                                    Company address and location details
-                                </CardDescription>
+                                <CardDescription>Company address and location details</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
@@ -243,9 +206,7 @@ export default function CustomerEdit({ customer }: Props) {
                                         placeholder="Street address"
                                         className={errors.address_line_1 ? 'border-red-500' : ''}
                                     />
-                                    {errors.address_line_1 && (
-                                        <p className="text-sm text-red-600">{errors.address_line_1}</p>
-                                    )}
+                                    {errors.address_line_1 && <p className="text-sm text-red-600">{errors.address_line_1}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -258,12 +219,10 @@ export default function CustomerEdit({ customer }: Props) {
                                         placeholder="Apartment, suite, etc. (optional)"
                                         className={errors.address_line_2 ? 'border-red-500' : ''}
                                     />
-                                    {errors.address_line_2 && (
-                                        <p className="text-sm text-red-600">{errors.address_line_2}</p>
-                                    )}
+                                    {errors.address_line_2 && <p className="text-sm text-red-600">{errors.address_line_2}</p>}
                                 </div>
 
-                                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="city">City *</Label>
                                         <Input
@@ -274,9 +233,7 @@ export default function CustomerEdit({ customer }: Props) {
                                             placeholder="City"
                                             className={errors.city ? 'border-red-500' : ''}
                                         />
-                                        {errors.city && (
-                                            <p className="text-sm text-red-600">{errors.city}</p>
-                                        )}
+                                        {errors.city && <p className="text-sm text-red-600">{errors.city}</p>}
                                     </div>
 
                                     <div className="space-y-2">
@@ -289,13 +246,11 @@ export default function CustomerEdit({ customer }: Props) {
                                             placeholder="State or Province"
                                             className={errors.state_province ? 'border-red-500' : ''}
                                         />
-                                        {errors.state_province && (
-                                            <p className="text-sm text-red-600">{errors.state_province}</p>
-                                        )}
+                                        {errors.state_province && <p className="text-sm text-red-600">{errors.state_province}</p>}
                                     </div>
                                 </div>
 
-                                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="postal_code">Postal Code *</Label>
                                         <Input
@@ -306,17 +261,12 @@ export default function CustomerEdit({ customer }: Props) {
                                             placeholder="Postal/ZIP code"
                                             className={errors.postal_code ? 'border-red-500' : ''}
                                         />
-                                        {errors.postal_code && (
-                                            <p className="text-sm text-red-600">{errors.postal_code}</p>
-                                        )}
+                                        {errors.postal_code && <p className="text-sm text-red-600">{errors.postal_code}</p>}
                                     </div>
 
                                     <div className="space-y-2">
                                         <Label htmlFor="country">Country *</Label>
-                                        <Select
-                                            value={data.country}
-                                            onValueChange={(value) => setData('country', value)}
-                                        >
+                                        <Select value={data.country} onValueChange={(value) => setData('country', value)}>
                                             <SelectTrigger className={errors.country ? 'border-red-500' : ''}>
                                                 <SelectValue placeholder="Select country" />
                                             </SelectTrigger>
@@ -328,9 +278,7 @@ export default function CustomerEdit({ customer }: Props) {
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        {errors.country && (
-                                            <p className="text-sm text-red-600">{errors.country}</p>
-                                        )}
+                                        {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
                                     </div>
                                 </div>
                             </CardContent>
@@ -344,16 +292,14 @@ export default function CustomerEdit({ customer }: Props) {
                                 <CreditCard className="h-5 w-5" />
                                 <span>Financial Information</span>
                             </CardTitle>
-                            <CardDescription>
-                                Credit limits and payment terms
-                            </CardDescription>
+                            <CardDescription>Credit limits and payment terms</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label htmlFor="credit_limit">Credit Limit *</Label>
                                     <div className="relative">
-                                        <span className="absolute left-2 top-2.5 text-sm text-muted-foreground">$</span>
+                                        <span className="absolute top-2.5 left-2 text-sm text-muted-foreground">$</span>
                                         <Input
                                             id="credit_limit"
                                             type="number"
@@ -365,9 +311,7 @@ export default function CustomerEdit({ customer }: Props) {
                                             className={`pl-6 ${errors.credit_limit ? 'border-red-500' : ''}`}
                                         />
                                     </div>
-                                    {errors.credit_limit && (
-                                        <p className="text-sm text-red-600">{errors.credit_limit}</p>
-                                    )}
+                                    {errors.credit_limit && <p className="text-sm text-red-600">{errors.credit_limit}</p>}
                                 </div>
 
                                 <div className="space-y-2">
@@ -384,9 +328,7 @@ export default function CustomerEdit({ customer }: Props) {
                                             <SelectItem value="cash_on_delivery">Cash on Delivery</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    {errors.payment_terms && (
-                                        <p className="text-sm text-red-600">{errors.payment_terms}</p>
-                                    )}
+                                    {errors.payment_terms && <p className="text-sm text-red-600">{errors.payment_terms}</p>}
                                 </div>
                             </div>
                         </CardContent>
@@ -395,12 +337,10 @@ export default function CustomerEdit({ customer }: Props) {
                     {/* Form Actions */}
                     <div className="flex flex-col space-y-2 sm:flex-row sm:justify-end sm:space-y-0 sm:space-x-2">
                         <Button type="button" variant="outline" asChild>
-                            <Link href={`/admin/customers/${customer.id}`}>
-                                Cancel
-                            </Link>
+                            <Link href={`/admin/customers/${customer.id}`}>Cancel</Link>
                         </Button>
                         <Button type="submit" disabled={processing}>
-                            <Save className="h-4 w-4 mr-2" />
+                            <Save className="mr-2 h-4 w-4" />
                             {processing ? 'Updating...' : 'Update Customer'}
                         </Button>
                     </div>

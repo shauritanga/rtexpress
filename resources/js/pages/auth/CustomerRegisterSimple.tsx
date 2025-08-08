@@ -1,13 +1,13 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { LoaderCircle, Eye, EyeOff, CheckCircle, ArrowRight, Truck, ArrowLeft } from 'lucide-react';
-import { FormEventHandler, useState, useEffect, useRef } from 'react';
+import { ArrowLeft, ArrowRight, CheckCircle, Eye, EyeOff, LoaderCircle, Truck } from 'lucide-react';
+import { FormEventHandler, useEffect, useRef, useState } from 'react';
 
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
@@ -74,7 +74,7 @@ const ParticleBackground = () => {
                 vy: (Math.random() - 0.5) * 0.5,
                 size: Math.random() * 3 + 1,
                 opacity: Math.random() * 0.5 + 0.2,
-                color: colors[Math.floor(Math.random() * colors.length)]
+                color: colors[Math.floor(Math.random() * colors.length)],
             });
         }
 
@@ -110,7 +110,7 @@ const ParticleBackground = () => {
                             ctx.moveTo(particle.x, particle.y);
                             ctx.lineTo(otherParticle.x, otherParticle.y);
                             ctx.strokeStyle = particle.color;
-                            ctx.globalAlpha = (100 - distance) / 100 * 0.2;
+                            ctx.globalAlpha = ((100 - distance) / 100) * 0.2;
                             ctx.lineWidth = 0.5;
                             ctx.stroke();
                         }
@@ -131,7 +131,7 @@ const ParticleBackground = () => {
     return (
         <canvas
             ref={canvasRef}
-            className="absolute inset-0 w-full h-full"
+            className="absolute inset-0 h-full w-full"
             style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}
         />
     );
@@ -161,7 +161,7 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
 
     const validateStep1 = () => {
         const step1Fields = ['first_name', 'last_name', 'email', 'phone', 'company_name', 'password', 'password_confirmation'];
-        const allFieldsFilled = step1Fields.every(field => {
+        const allFieldsFilled = step1Fields.every((field) => {
             const value = data[field as keyof CustomerRegisterForm];
             return value && value.toString().trim() !== '';
         });
@@ -248,69 +248,64 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
                     border-radius: 0 0.375rem 0.375rem 0 !important;
                 }
             `}</style>
-            
+
             <div className="flex min-h-screen">
                 {/* Left Side - Pure Particle Animation */}
-                <div className="hidden lg:flex lg:flex-1 relative overflow-hidden">
+                <div className="relative hidden overflow-hidden lg:flex lg:flex-1">
                     {/* Particle Background */}
                     <ParticleBackground />
                 </div>
 
                 {/* Right Side - Registration Form */}
-                <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-1 items-center justify-center px-4 sm:px-6 lg:px-8">
                     <div className="w-full max-w-lg space-y-8">
                         {/* Header */}
                         <div className="text-center">
-                            <div className="lg:hidden mb-8">
-                                <div className="flex items-center justify-center space-x-3 mb-4">
-                                    <div className="bg-blue-600 p-3 rounded-xl">
+                            <div className="mb-8 lg:hidden">
+                                <div className="mb-4 flex items-center justify-center space-x-3">
+                                    <div className="rounded-xl bg-blue-600 p-3">
                                         <Truck className="h-8 w-8 text-white" />
                                     </div>
                                     <div className="text-left">
                                         <h1 className="text-2xl font-bold text-gray-900">RT Express</h1>
-                                        <p className="text-gray-600 text-sm">Global Shipping Solutions</p>
+                                        <p className="text-sm text-gray-600">Global Shipping Solutions</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                                Create your account
-                            </h2>
-                            <p className="text-gray-600 mb-4">
-                                {currentStep === 1
-                                    ? "Let's start with your basic information"
-                                    : "Complete your account setup"
-                                }
+                            <h2 className="mb-2 text-3xl font-bold text-gray-900">Create your account</h2>
+                            <p className="mb-4 text-gray-600">
+                                {currentStep === 1 ? "Let's start with your basic information" : 'Complete your account setup'}
                             </p>
 
                             {/* Step Indicator */}
-                            <div className="flex items-center justify-center space-x-4 mb-6">
+                            <div className="mb-6 flex items-center justify-center space-x-4">
                                 <div className="flex items-center">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                                        currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-                                    }`}>
+                                    <div
+                                        className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
+                                            currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+                                        }`}
+                                    >
                                         1
                                     </div>
-                                    <span className={`ml-2 text-sm ${currentStep >= 1 ? 'text-blue-600' : 'text-gray-500'}`}>
-                                        Basic Info
-                                    </span>
+                                    <span className={`ml-2 text-sm ${currentStep >= 1 ? 'text-blue-600' : 'text-gray-500'}`}>Basic Info</span>
                                 </div>
-                                <div className={`w-8 h-0.5 ${currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+                                <div className={`h-0.5 w-8 ${currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
                                 <div className="flex items-center">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                                        currentStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-                                    }`}>
+                                    <div
+                                        className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
+                                            currentStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+                                        }`}
+                                    >
                                         2
                                     </div>
-                                    <span className={`ml-2 text-sm ${currentStep >= 2 ? 'text-blue-600' : 'text-gray-500'}`}>
-                                        Complete Setup
-                                    </span>
+                                    <span className={`ml-2 text-sm ${currentStep >= 2 ? 'text-blue-600' : 'text-gray-500'}`}>Complete Setup</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Registration Form */}
-                        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+                        <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm">
                             <CardContent className="p-8">
                                 <form className="space-y-6" onSubmit={submit}>
                                     {currentStep === 1 && (
@@ -376,12 +371,14 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
                                                     defaultCountry="US"
                                                     value={data.phone}
                                                     onChange={(value) => setData('phone', value || '')}
-                                                    className={`mt-1 phone-input ${errors.phone ? 'phone-input-error' : ''}`}
+                                                    className={`phone-input mt-1 ${errors.phone ? 'phone-input-error' : ''}`}
                                                     inputComponent={Input}
-                                                    style={{
-                                                        '--PhoneInputCountryFlag-height': '1em',
-                                                        '--PhoneInput-color--focus': '#3b82f6',
-                                                    } as React.CSSProperties}
+                                                    style={
+                                                        {
+                                                            '--PhoneInputCountryFlag-height': '1em',
+                                                            '--PhoneInput-color--focus': '#3b82f6',
+                                                        } as React.CSSProperties
+                                                    }
                                                 />
                                                 <InputError message={errors.phone} />
                                             </div>
@@ -420,7 +417,7 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
                                                         />
                                                         <button
                                                             type="button"
-                                                            className="absolute inset-y-0 right-0 flex items-center pr-3 mt-1"
+                                                            className="absolute inset-y-0 right-0 mt-1 flex items-center pr-3"
                                                             onClick={() => setShowPassword(!showPassword)}
                                                         >
                                                             {showPassword ? (
@@ -449,7 +446,7 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
                                                         />
                                                         <button
                                                             type="button"
-                                                            className="absolute inset-y-0 right-0 flex items-center pr-3 mt-1"
+                                                            className="absolute inset-y-0 right-0 mt-1 flex items-center pr-3"
                                                             onClick={() => setShowPasswordConfirmation(!showPasswordConfirmation)}
                                                         >
                                                             {showPasswordConfirmation ? (
@@ -471,7 +468,7 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
                                             type="button"
                                             onClick={nextStep}
                                             disabled={!validateStep1()}
-                                            className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-all duration-200"
+                                            className="h-10 w-full bg-blue-600 font-medium text-white transition-all duration-200 hover:bg-blue-700"
                                         >
                                             Continue
                                             <ArrowRight className="ml-2 h-5 w-5" />
@@ -552,7 +549,9 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
                                                     Country
                                                 </Label>
                                                 <Select value={data.country} onValueChange={(value) => setData('country', value)}>
-                                                    <SelectTrigger className={`mt-1 h-10 ${errors.country ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'}`}>
+                                                    <SelectTrigger
+                                                        className={`mt-1 h-10 ${errors.country ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'}`}
+                                                    >
                                                         <SelectValue placeholder="Select country" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -566,8 +565,6 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
                                                 <InputError message={errors.country} />
                                             </div>
 
-
-
                                             {/* Terms and Marketing */}
                                             <div className="space-y-4">
                                                 <div className="flex items-start">
@@ -579,18 +576,16 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
                                                     />
                                                     <Label htmlFor="terms_accepted" className="ml-3 text-sm text-gray-700">
                                                         I agree to the{' '}
-                                                        <Link href="#" className="text-blue-600 hover:text-blue-800 font-medium">
+                                                        <Link href="#" className="font-medium text-blue-600 hover:text-blue-800">
                                                             Terms of Service
                                                         </Link>{' '}
                                                         and{' '}
-                                                        <Link href="#" className="text-blue-600 hover:text-blue-800 font-medium">
+                                                        <Link href="#" className="font-medium text-blue-600 hover:text-blue-800">
                                                             Privacy Policy
                                                         </Link>
                                                     </Label>
                                                 </div>
                                                 <InputError message={errors.terms_accepted} />
-
-
                                             </div>
                                         </div>
                                     )}
@@ -602,7 +597,7 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
                                                 type="button"
                                                 onClick={prevStep}
                                                 variant="outline"
-                                                className="flex-1 h-10 border-gray-300 text-gray-700 hover:bg-gray-50"
+                                                className="h-10 flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
                                             >
                                                 <ArrowLeft className="mr-2 h-5 w-5" />
                                                 Back
@@ -610,7 +605,7 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
                                             <Button
                                                 type="submit"
                                                 disabled={processing}
-                                                className="flex-1 h-10 bg-rt-red hover:bg-rt-red-700 text-white font-medium shadow-rt-red hover:shadow-rt-red-lg transition-all duration-200"
+                                                className="bg-rt-red hover:bg-rt-red-700 shadow-rt-red hover:shadow-rt-red-lg h-10 flex-1 font-medium text-white transition-all duration-200"
                                             >
                                                 {processing ? (
                                                     <>
@@ -634,7 +629,7 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
                         <div className="text-center">
                             <p className="text-gray-600">
                                 Already have an account?{' '}
-                                <Link href={route('login')} className="text-blue-600 hover:text-blue-800 font-medium">
+                                <Link href={route('login')} className="font-medium text-blue-600 hover:text-blue-800">
                                     Sign in
                                 </Link>
                             </p>

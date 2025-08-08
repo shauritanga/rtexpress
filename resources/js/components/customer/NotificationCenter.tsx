@@ -1,22 +1,9 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-    Bell,
-    BellRing,
-    Package,
-    Truck,
-    AlertTriangle,
-    CheckCircle,
-    Gift,
-    Settings,
-    MoreHorizontal,
-    X,
-    Filter,
-    MarkAsRead
-} from 'lucide-react';
+import { AlertTriangle, Bell, CheckCircle, Gift, Package, Settings, Truck, X } from 'lucide-react';
+import { useState } from 'react';
 
 interface Notification {
     id: number;
@@ -43,20 +30,20 @@ interface Props {
     className?: string;
 }
 
-export default function NotificationCenter({ 
-    notifications, 
-    unreadCount, 
-    onMarkAsRead, 
-    onMarkAllAsRead, 
-    onDeleteNotification, 
-    className = '' 
+export default function NotificationCenter({
+    notifications,
+    unreadCount,
+    onMarkAsRead,
+    onMarkAllAsRead,
+    onDeleteNotification,
+    className = '',
 }: Props) {
     const [selectedFilter, setSelectedFilter] = useState<'all' | 'unread' | 'shipment' | 'promotion'>('all');
     const [isExpanded, setIsExpanded] = useState(false);
 
     const getNotificationIcon = (type: string, priority: string) => {
         const iconProps = {
-            className: `h-5 w-5 ${priority === 'high' ? 'text-red-600' : priority === 'medium' ? 'text-yellow-600' : 'text-blue-600'}`
+            className: `h-5 w-5 ${priority === 'high' ? 'text-red-600' : priority === 'medium' ? 'text-yellow-600' : 'text-blue-600'}`,
         };
 
         switch (type) {
@@ -104,7 +91,7 @@ export default function NotificationCenter({
         const date = new Date(timestamp);
         const now = new Date();
         const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-        
+
         if (diffInHours < 1) {
             const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
             return `${diffInMinutes}m ago`;
@@ -121,13 +108,13 @@ export default function NotificationCenter({
 
         switch (selectedFilter) {
             case 'unread':
-                filtered = notifications.filter(n => !n.is_read);
+                filtered = notifications.filter((n) => !n.is_read);
                 break;
             case 'shipment':
-                filtered = notifications.filter(n => ['shipment_update', 'delivery', 'exception'].includes(n.type));
+                filtered = notifications.filter((n) => ['shipment_update', 'delivery', 'exception'].includes(n.type));
                 break;
             case 'promotion':
-                filtered = notifications.filter(n => n.type === 'promotion');
+                filtered = notifications.filter((n) => n.type === 'promotion');
                 break;
             default:
                 filtered = notifications;
@@ -150,9 +137,9 @@ export default function NotificationCenter({
                 <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center">
                         <div className="relative">
-                            <Bell className="h-5 w-5 mr-2" />
+                            <Bell className="mr-2 h-5 w-5" />
                             {unreadCount > 0 && (
-                                <div className="absolute -top-2 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                <div className="absolute -top-2 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
                                     {unreadCount > 99 ? '99+' : unreadCount}
                                 </div>
                             )}
@@ -162,52 +149,30 @@ export default function NotificationCenter({
                     <div className="flex items-center space-x-2">
                         {unreadCount > 0 && (
                             <Button variant="ghost" size="sm" onClick={onMarkAllAsRead}>
-                                <CheckCircle className="h-4 w-4 mr-1" />
+                                <CheckCircle className="mr-1 h-4 w-4" />
                                 Mark All Read
                             </Button>
                         )}
-                        <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => setIsExpanded(!isExpanded)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
                             {isExpanded ? 'Collapse' : 'Expand'}
                         </Button>
                     </div>
                 </CardTitle>
-                <CardDescription>
-                    Stay updated with your shipment status and important alerts
-                </CardDescription>
+                <CardDescription>Stay updated with your shipment status and important alerts</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
                 {/* Filter Tabs */}
-                <div className="flex items-center space-x-1 p-4 border-b">
-                    <Button
-                        variant={selectedFilter === 'all' ? 'default' : 'ghost'}
-                        size="sm"
-                        onClick={() => setSelectedFilter('all')}
-                    >
+                <div className="flex items-center space-x-1 border-b p-4">
+                    <Button variant={selectedFilter === 'all' ? 'default' : 'ghost'} size="sm" onClick={() => setSelectedFilter('all')}>
                         All ({notifications.length})
                     </Button>
-                    <Button
-                        variant={selectedFilter === 'unread' ? 'default' : 'ghost'}
-                        size="sm"
-                        onClick={() => setSelectedFilter('unread')}
-                    >
+                    <Button variant={selectedFilter === 'unread' ? 'default' : 'ghost'} size="sm" onClick={() => setSelectedFilter('unread')}>
                         Unread ({unreadCount})
                     </Button>
-                    <Button
-                        variant={selectedFilter === 'shipment' ? 'default' : 'ghost'}
-                        size="sm"
-                        onClick={() => setSelectedFilter('shipment')}
-                    >
+                    <Button variant={selectedFilter === 'shipment' ? 'default' : 'ghost'} size="sm" onClick={() => setSelectedFilter('shipment')}>
                         Shipments
                     </Button>
-                    <Button
-                        variant={selectedFilter === 'promotion' ? 'default' : 'ghost'}
-                        size="sm"
-                        onClick={() => setSelectedFilter('promotion')}
-                    >
+                    <Button variant={selectedFilter === 'promotion' ? 'default' : 'ghost'} size="sm" onClick={() => setSelectedFilter('promotion')}>
                         Promotions
                     </Button>
                 </div>
@@ -219,43 +184,39 @@ export default function NotificationCenter({
                             {filteredNotifications.map((notification) => (
                                 <div
                                     key={notification.id}
-                                    className={`p-4 hover:bg-gray-50 transition-colors ${
-                                        !notification.is_read ? 'bg-blue-50/50' : ''
-                                    }`}
+                                    className={`p-4 transition-colors hover:bg-gray-50 ${!notification.is_read ? 'bg-blue-50/50' : ''}`}
                                 >
                                     <div className="flex items-start space-x-3">
                                         {/* Icon */}
-                                        <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${getTypeColor(notification.type)}`}>
+                                        <div
+                                            className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${getTypeColor(notification.type)}`}
+                                        >
                                             {getNotificationIcon(notification.type, notification.priority)}
                                         </div>
 
                                         {/* Content */}
-                                        <div className="flex-1 min-w-0">
+                                        <div className="min-w-0 flex-1">
                                             <div className="flex items-start justify-between">
                                                 <div className="flex-1">
-                                                    <div className="flex items-center space-x-2 mb-1">
-                                                        <h4 className={`text-sm font-medium ${!notification.is_read ? 'text-gray-900' : 'text-gray-700'}`}>
+                                                    <div className="mb-1 flex items-center space-x-2">
+                                                        <h4
+                                                            className={`text-sm font-medium ${!notification.is_read ? 'text-gray-900' : 'text-gray-700'}`}
+                                                        >
                                                             {notification.title}
                                                         </h4>
-                                                        {!notification.is_read && (
-                                                            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                                                        )}
+                                                        {!notification.is_read && <div className="h-2 w-2 rounded-full bg-blue-600"></div>}
                                                         {getPriorityBadge(notification.priority)}
                                                     </div>
-                                                    
-                                                    <p className="text-sm text-gray-600 mb-2">
-                                                        {notification.message}
-                                                    </p>
-                                                    
+
+                                                    <p className="mb-2 text-sm text-gray-600">{notification.message}</p>
+
                                                     <div className="flex items-center space-x-4 text-xs text-gray-500">
                                                         <span>{formatTimestamp(notification.timestamp)}</span>
-                                                        
+
                                                         {notification.metadata?.tracking_number && (
-                                                            <span className="font-mono">
-                                                                #{notification.metadata.tracking_number}
-                                                            </span>
+                                                            <span className="font-mono">#{notification.metadata.tracking_number}</span>
                                                         )}
-                                                        
+
                                                         {notification.metadata?.discount_code && (
                                                             <Badge variant="outline" className="text-xs">
                                                                 {notification.metadata.discount_code}
@@ -265,7 +226,7 @@ export default function NotificationCenter({
                                                 </div>
 
                                                 {/* Actions */}
-                                                <div className="flex items-center space-x-1 ml-2">
+                                                <div className="ml-2 flex items-center space-x-1">
                                                     {!notification.is_read && (
                                                         <Button
                                                             variant="ghost"
@@ -276,7 +237,7 @@ export default function NotificationCenter({
                                                             <CheckCircle className="h-4 w-4" />
                                                         </Button>
                                                     )}
-                                                    
+
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
@@ -302,17 +263,12 @@ export default function NotificationCenter({
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-8">
-                            <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <div className="py-8 text-center">
+                            <Bell className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                             <p className="text-gray-500">
-                                {selectedFilter === 'all' 
-                                    ? 'No notifications yet' 
-                                    : `No ${selectedFilter} notifications`
-                                }
+                                {selectedFilter === 'all' ? 'No notifications yet' : `No ${selectedFilter} notifications`}
                             </p>
-                            <p className="text-sm text-gray-400 mt-1">
-                                We'll notify you about important updates here
-                            </p>
+                            <p className="mt-1 text-sm text-gray-400">We'll notify you about important updates here</p>
                         </div>
                     )}
                 </ScrollArea>
@@ -325,7 +281,7 @@ export default function NotificationCenter({
                                 Showing {filteredNotifications.length} of {notifications.length} notifications
                             </span>
                             <Button variant="outline" size="sm">
-                                <Settings className="h-4 w-4 mr-1" />
+                                <Settings className="mr-1 h-4 w-4" />
                                 Notification Settings
                             </Button>
                         </div>

@@ -1,27 +1,13 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-    RotateCcw,
-    Package,
-    Search,
-    Plus,
-    FileText,
-    Truck,
-    Calendar,
-    DollarSign,
-    AlertTriangle,
-    CheckCircle,
-    Clock,
-    Eye,
-    Download
-} from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { AlertTriangle, Clock, DollarSign, Eye, FileText, Package, Plus, RotateCcw, Search, Truck } from 'lucide-react';
+import { useState } from 'react';
 
 interface ReturnShipment {
     id: number;
@@ -96,19 +82,20 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
         return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800';
     };
 
-    const filteredReturns = returns.filter(returnItem => {
-        const matchesSearch = returnItem.return_tracking_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                             returnItem.original_tracking_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                             returnItem.sender_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const filteredReturns = returns.filter((returnItem) => {
+        const matchesSearch =
+            returnItem.return_tracking_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            returnItem.original_tracking_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            returnItem.sender_name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'all' || returnItem.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
 
     const getReturnStats = () => {
         const total = returns.length;
-        const pending = returns.filter(r => r.status === 'pending').length;
-        const inProgress = returns.filter(r => ['approved', 'picked_up', 'in_transit'].includes(r.status)).length;
-        const completed = returns.filter(r => ['delivered', 'processed'].includes(r.status)).length;
+        const pending = returns.filter((r) => r.status === 'pending').length;
+        const inProgress = returns.filter((r) => ['approved', 'picked_up', 'in_transit'].includes(r.status)).length;
+        const completed = returns.filter((r) => ['delivered', 'processed'].includes(r.status)).length;
         const totalValue = returns.reduce((sum, r) => sum + r.return_value, 0);
 
         return { total, pending, inProgress, completed, totalValue };
@@ -153,14 +140,14 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
-            day: 'numeric'
+            day: 'numeric',
         });
     };
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'USD'
+            currency: 'USD',
         }).format(amount);
     };
 
@@ -172,15 +159,13 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                     <div className="flex items-center justify-between">
                         <div>
                             <CardTitle className="flex items-center">
-                                <RotateCcw className="h-5 w-5 mr-2" />
+                                <RotateCcw className="mr-2 h-5 w-5" />
                                 Returns Management
                             </CardTitle>
-                            <CardDescription>
-                                Manage return shipments and track their progress
-                            </CardDescription>
+                            <CardDescription>Manage return shipments and track their progress</CardDescription>
                         </div>
                         <Button onClick={() => setShowCreateForm(true)}>
-                            <Plus className="h-4 w-4 mr-2" />
+                            <Plus className="mr-2 h-4 w-4" />
                             Create Return
                         </Button>
                     </div>
@@ -188,7 +173,7 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
             </Card>
 
             {/* Stats Overview */}
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardContent className="pt-6">
                         <div className="flex items-center space-x-2">
@@ -249,10 +234,10 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                     {/* Filters */}
                     <Card>
                         <CardContent className="pt-6">
-                            <div className="flex flex-col sm:flex-row gap-4">
+                            <div className="flex flex-col gap-4 sm:flex-row">
                                 <div className="flex-1">
                                     <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                                         <Input
                                             placeholder="Search by tracking number or sender name..."
                                             value={searchTerm}
@@ -292,13 +277,11 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                             {filteredReturns.length > 0 ? (
                                 <div className="space-y-4">
                                     {filteredReturns.map((returnItem) => (
-                                        <div key={returnItem.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-3 lg:space-y-0">
+                                        <div key={returnItem.id} className="rounded-lg border p-4 transition-colors hover:bg-gray-50">
+                                            <div className="flex flex-col space-y-3 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
                                                 <div className="flex-1">
-                                                    <div className="flex items-center space-x-3 mb-2">
-                                                        <h3 className="font-semibold text-gray-900">
-                                                            {returnItem.return_tracking_number}
-                                                        </h3>
+                                                    <div className="mb-2 flex items-center space-x-3">
+                                                        <h3 className="font-semibold text-gray-900">{returnItem.return_tracking_number}</h3>
                                                         <Badge className={getStatusColor(returnItem.status)}>
                                                             {returnItem.status.replace('_', ' ').toUpperCase()}
                                                         </Badge>
@@ -306,8 +289,8 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                                                             {returnItem.return_type.toUpperCase()}
                                                         </Badge>
                                                     </div>
-                                                    
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 text-sm text-gray-600">
+
+                                                    <div className="grid grid-cols-1 gap-2 text-sm text-gray-600 md:grid-cols-2 lg:grid-cols-4">
                                                         <div>
                                                             <span className="font-medium">Original:</span> {returnItem.original_tracking_number}
                                                         </div>
@@ -321,19 +304,19 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                                                             <span className="font-medium">Value:</span> {formatCurrency(returnItem.return_value)}
                                                         </div>
                                                     </div>
-                                                    
-                                                    <p className="text-sm text-gray-600 mt-2">
+
+                                                    <p className="mt-2 text-sm text-gray-600">
                                                         <span className="font-medium">Reason:</span> {returnItem.return_reason}
                                                     </p>
                                                 </div>
-                                                
+
                                                 <div className="flex items-center space-x-2">
                                                     <Button variant="outline" size="sm">
-                                                        <Eye className="h-4 w-4 mr-1" />
+                                                        <Eye className="mr-1 h-4 w-4" />
                                                         View
                                                     </Button>
                                                     <Button variant="outline" size="sm">
-                                                        <FileText className="h-4 w-4 mr-1" />
+                                                        <FileText className="mr-1 h-4 w-4" />
                                                         Label
                                                     </Button>
                                                 </div>
@@ -342,14 +325,13 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-8">
-                                    <RotateCcw className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                                <div className="py-8 text-center">
+                                    <RotateCcw className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                     <p className="text-gray-500">No returns found</p>
-                                    <p className="text-sm text-gray-400 mt-1">
-                                        {searchTerm || statusFilter !== 'all' 
+                                    <p className="mt-1 text-sm text-gray-400">
+                                        {searchTerm || statusFilter !== 'all'
                                             ? 'Try adjusting your search or filters'
-                                            : 'Create your first return request to get started'
-                                        }
+                                            : 'Create your first return request to get started'}
                                     </p>
                                 </div>
                             )}
@@ -361,15 +343,13 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle>Returns Analytics</CardTitle>
-                            <CardDescription>
-                                Insights into your return patterns and trends
-                            </CardDescription>
+                            <CardDescription>Insights into your return patterns and trends</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-center py-8">
-                                <AlertTriangle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <div className="py-8 text-center">
+                                <AlertTriangle className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                 <p className="text-gray-500">Analytics Coming Soon</p>
-                                <p className="text-sm text-gray-400 mt-1">
+                                <p className="mt-1 text-sm text-gray-400">
                                     Detailed analytics and reporting features will be available in the next update
                                 </p>
                             </div>
@@ -380,13 +360,11 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
 
             {/* Create Return Modal */}
             {showCreateForm && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black p-4">
+                    <Card className="max-h-[90vh] w-full max-w-2xl overflow-y-auto">
                         <CardHeader>
                             <CardTitle>Create Return Request</CardTitle>
-                            <CardDescription>
-                                Fill out the details for your return shipment
-                            </CardDescription>
+                            <CardDescription>Fill out the details for your return shipment</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
@@ -394,7 +372,7 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                                 <Input
                                     id="original_tracking"
                                     value={newReturn.original_tracking_number}
-                                    onChange={(e) => setNewReturn(prev => ({ ...prev, original_tracking_number: e.target.value }))}
+                                    onChange={(e) => setNewReturn((prev) => ({ ...prev, original_tracking_number: e.target.value }))}
                                     placeholder="RT12345678"
                                 />
                             </div>
@@ -403,7 +381,7 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                                 <Label htmlFor="return_reason">Return Reason *</Label>
                                 <Select
                                     value={newReturn.return_reason}
-                                    onValueChange={(value) => setNewReturn(prev => ({ ...prev, return_reason: value }))}
+                                    onValueChange={(value) => setNewReturn((prev) => ({ ...prev, return_reason: value }))}
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select reason" />
@@ -422,7 +400,7 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                                 <Label htmlFor="return_type">Return Type *</Label>
                                 <Select
                                     value={newReturn.return_type}
-                                    onValueChange={(value) => setNewReturn(prev => ({ ...prev, return_type: value }))}
+                                    onValueChange={(value) => setNewReturn((prev) => ({ ...prev, return_type: value }))}
                                 >
                                     <SelectTrigger>
                                         <SelectValue />
@@ -448,7 +426,7 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                                     step="0.01"
                                     min="0"
                                     value={newReturn.return_value}
-                                    onChange={(e) => setNewReturn(prev => ({ ...prev, return_value: parseFloat(e.target.value) || 0 }))}
+                                    onChange={(e) => setNewReturn((prev) => ({ ...prev, return_value: parseFloat(e.target.value) || 0 }))}
                                     placeholder="0.00"
                                 />
                             </div>
@@ -458,7 +436,7 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                                 <Textarea
                                     id="special_instructions"
                                     value={newReturn.special_instructions}
-                                    onChange={(e) => setNewReturn(prev => ({ ...prev, special_instructions: e.target.value }))}
+                                    onChange={(e) => setNewReturn((prev) => ({ ...prev, special_instructions: e.target.value }))}
                                     placeholder="Any special handling instructions..."
                                     rows={3}
                                 />
@@ -468,9 +446,7 @@ export default function ReturnsManager({ returns, className = '' }: Props) {
                                 <Button variant="outline" onClick={() => setShowCreateForm(false)}>
                                     Cancel
                                 </Button>
-                                <Button onClick={handleCreateReturn}>
-                                    Create Return
-                                </Button>
+                                <Button onClick={handleCreateReturn}>Create Return</Button>
                             </div>
                         </CardContent>
                     </Card>

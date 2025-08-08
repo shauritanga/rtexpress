@@ -1,14 +1,7 @@
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertTriangle, CheckCircle, Info, XCircle } from 'lucide-react';
+import { useState } from 'react';
 
 interface ConfirmationModalProps {
     isOpen: boolean;
@@ -72,18 +65,10 @@ export function ConfirmationModal({
                         {getIcon()}
                         <span>{title}</span>
                     </DialogTitle>
-                    <DialogDescription className="text-left">
-                        {description}
-                    </DialogDescription>
+                    <DialogDescription className="text-left">{description}</DialogDescription>
                 </DialogHeader>
                 <DialogFooter className="flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={onClose}
-                        disabled={isLoading}
-                        className="w-full sm:w-auto"
-                    >
+                    <Button type="button" variant="outline" onClick={onClose} disabled={isLoading} className="w-full sm:w-auto">
                         {cancelText}
                     </Button>
                     <Button
@@ -95,7 +80,7 @@ export function ConfirmationModal({
                     >
                         {isLoading ? (
                             <div className="flex items-center space-x-2">
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                                 <span>Processing...</span>
                             </div>
                         ) : (

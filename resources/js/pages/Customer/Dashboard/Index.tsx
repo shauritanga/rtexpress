@@ -1,28 +1,9 @@
-import { Head } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-    Package,
-    Truck,
-    CheckCircle,
-    Clock,
-    AlertTriangle,
-    BarChart3,
-    TrendingUp
-} from 'lucide-react';
-import {
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    PieChart,
-    Pie,
-    Cell
-} from 'recharts';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
+import { Head } from '@inertiajs/react';
+import { AlertTriangle, BarChart3, CheckCircle, Clock, Package, TrendingUp, Truck } from 'lucide-react';
+import { Area, AreaChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface Customer {
     id: number;
@@ -52,8 +33,6 @@ interface Stats {
     pending_shipments: number;
 }
 
-
-
 interface DashboardData {
     weekly_shipments: Array<{
         day: string;
@@ -73,12 +52,7 @@ interface Props {
     dashboardData: DashboardData;
 }
 
-export default function CustomerDashboard({
-    customer,
-    stats,
-    activeShipments,
-    dashboardData
-}: Props) {
+export default function CustomerDashboard({ customer, stats, activeShipments, dashboardData }: Props) {
     const getStatusBadge = (status: string) => {
         const statusConfig = {
             pending: { label: 'Pending', variant: 'secondary' as const, icon: Clock },
@@ -90,12 +64,11 @@ export default function CustomerDashboard({
             cancelled: { label: 'Cancelled', variant: 'destructive' as const, icon: AlertTriangle },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const, icon: Package };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const, icon: Package };
+
         return (
             <Badge variant={config.variant} className="flex items-center">
-                <config.icon className="h-3 w-3 mr-1" />
+                <config.icon className="mr-1 h-3 w-3" />
                 {config.label}
             </Badge>
         );
@@ -105,7 +78,7 @@ export default function CustomerDashboard({
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
-            day: 'numeric'
+            day: 'numeric',
         });
     };
 
@@ -122,36 +95,32 @@ export default function CustomerDashboard({
         <AppLayout>
             <Head title="Dashboard" />
 
-            <div className="space-y-6 px-4 sm:px-6 lg:px-8 pb-8">
+            <div className="space-y-6 px-4 pb-8 sm:px-6 lg:px-8">
                 {/* Dashboard Header - Overview Only */}
                 <div className="text-center">
-                    <h1 className="text-3xl font-bold text-gray-900">
-                        Dashboard Overview
-                    </h1>
-                    <p className="text-gray-600 mt-2">
-                        {customer.company_name} • Your shipping statistics and insights
-                    </p>
+                    <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
+                    <p className="mt-2 text-gray-600">{customer.company_name} • Your shipping statistics and insights</p>
                 </div>
 
                 {/* Modern Stats Cards with Visual Elements */}
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {/* Total Shipments */}
                     <Card className="relative overflow-hidden">
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Total Shipments</p>
-                                    <p className="text-3xl font-bold text-gray-900 mt-2">{stats.total_shipments}</p>
-                                    <div className="flex items-center mt-2">
-                                        <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
-                                        <span className="text-sm text-green-600 font-medium">+12% this month</span>
+                                    <p className="mt-2 text-3xl font-bold text-gray-900">{stats.total_shipments}</p>
+                                    <div className="mt-2 flex items-center">
+                                        <TrendingUp className="mr-1 h-4 w-4 text-green-600" />
+                                        <span className="text-sm font-medium text-green-600">+12% this month</span>
                                     </div>
                                 </div>
-                                <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
                                     <Package className="h-6 w-6 text-blue-600" />
                                 </div>
                             </div>
-                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600"></div>
+                            <div className="absolute right-0 bottom-0 left-0 h-1 bg-blue-600"></div>
                         </CardContent>
                     </Card>
 
@@ -161,17 +130,17 @@ export default function CustomerDashboard({
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Active Shipments</p>
-                                    <p className="text-3xl font-bold text-gray-900 mt-2">{stats.active_shipments}</p>
-                                    <div className="flex items-center mt-2">
-                                        <Clock className="h-4 w-4 text-orange-600 mr-1" />
+                                    <p className="mt-2 text-3xl font-bold text-gray-900">{stats.active_shipments}</p>
+                                    <div className="mt-2 flex items-center">
+                                        <Clock className="mr-1 h-4 w-4 text-orange-600" />
                                         <span className="text-sm text-gray-600">In transit</span>
                                     </div>
                                 </div>
-                                <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
                                     <Truck className="h-6 w-6 text-orange-600" />
                                 </div>
                             </div>
-                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-orange-600"></div>
+                            <div className="absolute right-0 bottom-0 left-0 h-1 bg-orange-600"></div>
                         </CardContent>
                     </Card>
 
@@ -181,17 +150,17 @@ export default function CustomerDashboard({
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Delivered</p>
-                                    <p className="text-3xl font-bold text-gray-900 mt-2">{stats.delivered_shipments}</p>
-                                    <div className="flex items-center mt-2">
-                                        <CheckCircle className="h-4 w-4 text-green-600 mr-1" />
-                                        <span className="text-sm text-green-600 font-medium">95% on-time</span>
+                                    <p className="mt-2 text-3xl font-bold text-gray-900">{stats.delivered_shipments}</p>
+                                    <div className="mt-2 flex items-center">
+                                        <CheckCircle className="mr-1 h-4 w-4 text-green-600" />
+                                        <span className="text-sm font-medium text-green-600">95% on-time</span>
                                     </div>
                                 </div>
-                                <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
                                     <CheckCircle className="h-6 w-6 text-green-600" />
                                 </div>
                             </div>
-                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-600"></div>
+                            <div className="absolute right-0 bottom-0 left-0 h-1 bg-green-600"></div>
                         </CardContent>
                     </Card>
 
@@ -201,17 +170,17 @@ export default function CustomerDashboard({
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">Pending</p>
-                                    <p className="text-3xl font-bold text-gray-900 mt-2">{stats.pending_shipments}</p>
-                                    <div className="flex items-center mt-2">
-                                        <AlertTriangle className="h-4 w-4 text-yellow-600 mr-1" />
+                                    <p className="mt-2 text-3xl font-bold text-gray-900">{stats.pending_shipments}</p>
+                                    <div className="mt-2 flex items-center">
+                                        <AlertTriangle className="mr-1 h-4 w-4 text-yellow-600" />
                                         <span className="text-sm text-gray-600">Awaiting pickup</span>
                                     </div>
                                 </div>
-                                <div className="h-12 w-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-100">
                                     <Clock className="h-6 w-6 text-yellow-600" />
                                 </div>
                             </div>
-                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-yellow-600"></div>
+                            <div className="absolute right-0 bottom-0 left-0 h-1 bg-yellow-600"></div>
                         </CardContent>
                     </Card>
                 </div>
@@ -220,18 +189,16 @@ export default function CustomerDashboard({
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <Truck className="h-5 w-5 mr-2" />
+                            <Truck className="mr-2 h-5 w-5" />
                             Active Shipments
                         </CardTitle>
-                        <CardDescription>
-                            Track your shipments currently in transit
-                        </CardDescription>
+                        <CardDescription>Track your shipments currently in transit</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {activeShipments.length > 0 ? (
                             <div className="space-y-4">
                                 {activeShipments.map((shipment) => (
-                                    <div key={shipment.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                                    <div key={shipment.id} className="flex items-center justify-between rounded-lg border p-4 hover:bg-gray-50">
                                         <div className="flex-1">
                                             <div className="flex items-center space-x-3">
                                                 <div>
@@ -240,7 +207,7 @@ export default function CustomerDashboard({
                                                 </div>
                                                 {getStatusBadge(shipment.status)}
                                             </div>
-                                            <p className="text-xs text-gray-500 mt-1">{shipment.recipient_address}</p>
+                                            <p className="mt-1 text-xs text-gray-500">{shipment.recipient_address}</p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-sm font-medium">{formatCurrency(shipment.declared_value)}</p>
@@ -250,27 +217,25 @@ export default function CustomerDashboard({
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-8">
-                                <Truck className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                            <div className="py-8 text-center">
+                                <Truck className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                 <p className="text-gray-500">No active shipments</p>
-                                <p className="text-sm text-gray-400 mt-2">Shipment data will appear here once you start shipping</p>
+                                <p className="mt-2 text-sm text-gray-400">Shipment data will appear here once you start shipping</p>
                             </div>
                         )}
                     </CardContent>
                 </Card>
 
                 {/* Dashboard Charts & Visualizations */}
-                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* Weekly Shipments Trend */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
+                                <BarChart3 className="mr-2 h-5 w-5 text-blue-600" />
                                 Weekly Activity
                             </CardTitle>
-                            <CardDescription>
-                                Your shipment activity over the past week
-                            </CardDescription>
+                            <CardDescription>Your shipment activity over the past week</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="h-64">
@@ -283,13 +248,7 @@ export default function CustomerDashboard({
                                             formatter={(value) => [`${value} shipments`, 'Shipments']}
                                             labelFormatter={(label) => `Day: ${label}`}
                                         />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="shipments"
-                                            stroke="#3b82f6"
-                                            fill="#3b82f6"
-                                            fillOpacity={0.3}
-                                        />
+                                        <Area type="monotone" dataKey="shipments" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
@@ -300,12 +259,10 @@ export default function CustomerDashboard({
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <Package className="h-5 w-5 mr-2 text-green-600" />
+                                <Package className="mr-2 h-5 w-5 text-green-600" />
                                 Shipment Status
                             </CardTitle>
-                            <CardDescription>
-                                Current distribution of your shipments
-                            </CardDescription>
+                            <CardDescription>Current distribution of your shipments</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="h-64">
@@ -337,20 +294,18 @@ export default function CustomerDashboard({
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <Package className="h-5 w-5 mr-2 text-blue-600" />
+                            <Package className="mr-2 h-5 w-5 text-blue-600" />
                             Recent Shipments
                         </CardTitle>
-                        <CardDescription>
-                            Latest shipment activity and status overview
-                        </CardDescription>
+                        <CardDescription>Latest shipment activity and status overview</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {activeShipments.length > 0 ? (
                             <div className="space-y-3">
                                 {activeShipments.slice(0, 5).map((shipment) => (
-                                    <div key={shipment.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                    <div key={shipment.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
                                         <div className="flex items-center space-x-3">
-                                            <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
                                                 <Package className="h-5 w-5 text-blue-600" />
                                             </div>
                                             <div>
@@ -361,30 +316,28 @@ export default function CustomerDashboard({
                                         </div>
                                         <div className="text-right">
                                             {getStatusBadge(shipment.status)}
-                                            <p className="text-xs text-gray-500 mt-1">
-                                                {new Date(shipment.created_at).toLocaleDateString()}
-                                            </p>
+                                            <p className="mt-1 text-xs text-gray-500">{new Date(shipment.created_at).toLocaleDateString()}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-8">
-                                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <div className="py-8 text-center">
+                                <Package className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                 <p className="text-gray-500">No recent shipments</p>
-                                <p className="text-sm text-gray-400 mt-2">Shipment data will appear here once you start shipping</p>
+                                <p className="mt-2 text-sm text-gray-400">Shipment data will appear here once you start shipping</p>
                             </div>
                         )}
                     </CardContent>
                 </Card>
 
                 {/* Performance Insights */}
-                <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     {/* Delivery Performance */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <CheckCircle className="h-5 w-5 mr-2 text-green-600" />
+                                <CheckCircle className="mr-2 h-5 w-5 text-green-600" />
                                 Delivery Performance
                             </CardTitle>
                         </CardHeader>
@@ -416,7 +369,7 @@ export default function CustomerDashboard({
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <Clock className="h-5 w-5 mr-2 text-blue-600" />
+                                <Clock className="mr-2 h-5 w-5 text-blue-600" />
                                 Delivery Time
                             </CardTitle>
                         </CardHeader>
@@ -448,7 +401,7 @@ export default function CustomerDashboard({
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <BarChart3 className="h-5 w-5 mr-2 text-purple-600" />
+                                <BarChart3 className="mr-2 h-5 w-5 text-purple-600" />
                                 This Month
                             </CardTitle>
                         </CardHeader>

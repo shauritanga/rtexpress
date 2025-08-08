@@ -1,22 +1,10 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { 
-    User,
-    Building,
-    MapPin,
-    Phone,
-    Mail,
-    ArrowRight,
-    BookOpen,
-    Plus,
-    Check
-} from 'lucide-react';
+import { ArrowRight, BookOpen, Check, MapPin, User } from 'lucide-react';
+import { useState } from 'react';
 
 interface Address {
     id?: number;
@@ -51,17 +39,19 @@ const COUNTRIES = [
 ];
 
 export default function SenderRecipientStep({ data, savedAddresses, onUpdate, onNext }: Props) {
-    const [recipient, setRecipient] = useState<Address>(data.recipient || {
-        contact_person: '',
-        email: '',
-        phone: '',
-        address_line_1: '',
-        address_line_2: '',
-        city: '',
-        state_province: '',
-        postal_code: '',
-        country: 'US',
-    });
+    const [recipient, setRecipient] = useState<Address>(
+        data.recipient || {
+            contact_person: '',
+            email: '',
+            phone: '',
+            address_line_1: '',
+            address_line_2: '',
+            city: '',
+            state_province: '',
+            postal_code: '',
+            country: 'US',
+        },
+    );
     const [showAddressBook, setShowAddressBook] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -113,9 +103,9 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
     };
 
     const handleInputChange = (field: string, value: string) => {
-        setRecipient(prev => ({ ...prev, [field]: value }));
+        setRecipient((prev) => ({ ...prev, [field]: value }));
         if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: '' }));
+            setErrors((prev) => ({ ...prev, [field]: '' }));
         }
     };
 
@@ -125,42 +115,32 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center">
-                        <User className="h-5 w-5 mr-2" />
+                        <User className="mr-2 h-5 w-5" />
                         Sender Information
                     </CardTitle>
-                    <CardDescription>
-                        Your company information (automatically filled)
-                    </CardDescription>
+                    <CardDescription>Your company information (automatically filled)</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label>Company Name</Label>
-                            <div className="p-3 bg-gray-50 rounded-md text-sm">
-                                {data.sender.company_name}
-                            </div>
+                            <div className="rounded-md bg-gray-50 p-3 text-sm">{data.sender.company_name}</div>
                         </div>
                         <div className="space-y-2">
                             <Label>Contact Person</Label>
-                            <div className="p-3 bg-gray-50 rounded-md text-sm">
-                                {data.sender.contact_person}
-                            </div>
+                            <div className="rounded-md bg-gray-50 p-3 text-sm">{data.sender.contact_person}</div>
                         </div>
                         <div className="space-y-2">
                             <Label>Email</Label>
-                            <div className="p-3 bg-gray-50 rounded-md text-sm">
-                                {data.sender.email}
-                            </div>
+                            <div className="rounded-md bg-gray-50 p-3 text-sm">{data.sender.email}</div>
                         </div>
                         <div className="space-y-2">
                             <Label>Phone</Label>
-                            <div className="p-3 bg-gray-50 rounded-md text-sm">
-                                {data.sender.phone}
-                            </div>
+                            <div className="rounded-md bg-gray-50 p-3 text-sm">{data.sender.phone}</div>
                         </div>
                         <div className="space-y-2 md:col-span-2">
                             <Label>Address</Label>
-                            <div className="p-3 bg-gray-50 rounded-md text-sm">
+                            <div className="rounded-md bg-gray-50 p-3 text-sm">
                                 {data.sender.address_line_1}
                                 {data.sender.address_line_2 && <br />}
                                 {data.sender.address_line_2}
@@ -179,43 +159,35 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                         <div className="flex items-center">
-                            <MapPin className="h-5 w-5 mr-2" />
+                            <MapPin className="mr-2 h-5 w-5" />
                             Recipient Information
                         </div>
                         {savedAddresses.length > 0 && (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowAddressBook(!showAddressBook)}
-                            >
-                                <BookOpen className="h-4 w-4 mr-2" />
+                            <Button variant="outline" size="sm" onClick={() => setShowAddressBook(!showAddressBook)}>
+                                <BookOpen className="mr-2 h-4 w-4" />
                                 Address Book
                             </Button>
                         )}
                     </CardTitle>
-                    <CardDescription>
-                        Enter the recipient's shipping address
-                    </CardDescription>
+                    <CardDescription>Enter the recipient's shipping address</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {/* Address Book */}
                     {showAddressBook && (
-                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <h4 className="font-medium text-blue-900 mb-3">Saved Addresses</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                            <h4 className="mb-3 font-medium text-blue-900">Saved Addresses</h4>
+                            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                                 {savedAddresses.map((address, index) => (
                                     <div
                                         key={index}
-                                        className="p-3 bg-white rounded-md border cursor-pointer hover:border-blue-300 transition-colors"
+                                        className="cursor-pointer rounded-md border bg-white p-3 transition-colors hover:border-blue-300"
                                         onClick={() => handleAddressSelect(address)}
                                     >
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
-                                                <p className="font-medium text-sm">{address.contact_person}</p>
-                                                {address.company_name && (
-                                                    <p className="text-xs text-gray-600">{address.company_name}</p>
-                                                )}
-                                                <p className="text-xs text-gray-600 mt-1">
+                                                <p className="text-sm font-medium">{address.contact_person}</p>
+                                                {address.company_name && <p className="text-xs text-gray-600">{address.company_name}</p>}
+                                                <p className="mt-1 text-xs text-gray-600">
                                                     {address.address_line_1}, {address.city}
                                                 </p>
                                             </div>
@@ -228,7 +200,7 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
                     )}
 
                     {/* Recipient Form */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="contact_person">Contact Person *</Label>
                             <Input
@@ -238,9 +210,7 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
                                 placeholder="John Doe"
                                 className={errors.contact_person ? 'border-red-500' : ''}
                             />
-                            {errors.contact_person && (
-                                <p className="text-sm text-red-600">{errors.contact_person}</p>
-                            )}
+                            {errors.contact_person && <p className="text-sm text-red-600">{errors.contact_person}</p>}
                         </div>
 
                         <div className="space-y-2">
@@ -263,9 +233,7 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
                                 placeholder="john@example.com"
                                 className={errors.email ? 'border-red-500' : ''}
                             />
-                            {errors.email && (
-                                <p className="text-sm text-red-600">{errors.email}</p>
-                            )}
+                            {errors.email && <p className="text-sm text-red-600">{errors.email}</p>}
                         </div>
 
                         <div className="space-y-2">
@@ -277,9 +245,7 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
                                 placeholder="+1 (555) 123-4567"
                                 className={errors.phone ? 'border-red-500' : ''}
                             />
-                            {errors.phone && (
-                                <p className="text-sm text-red-600">{errors.phone}</p>
-                            )}
+                            {errors.phone && <p className="text-sm text-red-600">{errors.phone}</p>}
                         </div>
 
                         <div className="space-y-2 md:col-span-2">
@@ -291,9 +257,7 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
                                 placeholder="123 Main Street"
                                 className={errors.address_line_1 ? 'border-red-500' : ''}
                             />
-                            {errors.address_line_1 && (
-                                <p className="text-sm text-red-600">{errors.address_line_1}</p>
-                            )}
+                            {errors.address_line_1 && <p className="text-sm text-red-600">{errors.address_line_1}</p>}
                         </div>
 
                         <div className="space-y-2 md:col-span-2">
@@ -315,9 +279,7 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
                                 placeholder="New York"
                                 className={errors.city ? 'border-red-500' : ''}
                             />
-                            {errors.city && (
-                                <p className="text-sm text-red-600">{errors.city}</p>
-                            )}
+                            {errors.city && <p className="text-sm text-red-600">{errors.city}</p>}
                         </div>
 
                         <div className="space-y-2">
@@ -329,9 +291,7 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
                                 placeholder="NY"
                                 className={errors.state_province ? 'border-red-500' : ''}
                             />
-                            {errors.state_province && (
-                                <p className="text-sm text-red-600">{errors.state_province}</p>
-                            )}
+                            {errors.state_province && <p className="text-sm text-red-600">{errors.state_province}</p>}
                         </div>
 
                         <div className="space-y-2">
@@ -343,17 +303,12 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
                                 placeholder="10001"
                                 className={errors.postal_code ? 'border-red-500' : ''}
                             />
-                            {errors.postal_code && (
-                                <p className="text-sm text-red-600">{errors.postal_code}</p>
-                            )}
+                            {errors.postal_code && <p className="text-sm text-red-600">{errors.postal_code}</p>}
                         </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="country">Country *</Label>
-                            <Select
-                                value={recipient.country}
-                                onValueChange={(value) => handleInputChange('country', value)}
-                            >
+                            <Select value={recipient.country} onValueChange={(value) => handleInputChange('country', value)}>
                                 <SelectTrigger className={errors.country ? 'border-red-500' : ''}>
                                     <SelectValue placeholder="Select country" />
                                 </SelectTrigger>
@@ -365,9 +320,7 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
                                     ))}
                                 </SelectContent>
                             </Select>
-                            {errors.country && (
-                                <p className="text-sm text-red-600">{errors.country}</p>
-                            )}
+                            {errors.country && <p className="text-sm text-red-600">{errors.country}</p>}
                         </div>
                     </div>
                 </CardContent>
@@ -377,7 +330,7 @@ export default function SenderRecipientStep({ data, savedAddresses, onUpdate, on
             <div className="flex justify-end">
                 <Button onClick={handleNext} className="min-w-32">
                     Continue
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                    <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </div>
         </div>

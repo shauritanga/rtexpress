@@ -1,29 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import {
+    AlertTriangle,
+    Archive,
     Bell,
+    CheckCircle,
+    Clock,
+    CreditCard,
+    Eye,
     Mail,
     MessageSquare,
-    Smartphone,
-    CheckCircle,
-    AlertTriangle,
+    MoreHorizontal,
     Package,
-    CreditCard,
-    Shield,
-    Clock,
     Search,
-    Filter,
-    Eye,
-    EyeOff,
-    Archive,
+    Shield,
+    Smartphone,
     Trash2,
-    MoreHorizontal
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface NotificationItem {
     id: number | string;
@@ -64,7 +62,7 @@ export default function NotificationHistory({
     onArchive,
     onDelete,
     onMarkAllAsRead,
-    isProcessing = false
+    isProcessing = false,
 }: Props) {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -83,29 +81,46 @@ export default function NotificationHistory({
 
     const getChannelIcon = (channel: string) => {
         switch (channel) {
-            case 'email': return <Mail className="h-4 w-4" />;
-            case 'sms': return <MessageSquare className="h-4 w-4" />;
-            case 'push': return <Smartphone className="h-4 w-4" />;
-            case 'in_app': return <Bell className="h-4 w-4" />;
-            default: return <Bell className="h-4 w-4" />;
+            case 'email':
+                return <Mail className="h-4 w-4" />;
+            case 'sms':
+                return <MessageSquare className="h-4 w-4" />;
+            case 'push':
+                return <Smartphone className="h-4 w-4" />;
+            case 'in_app':
+                return <Bell className="h-4 w-4" />;
+            default:
+                return <Bell className="h-4 w-4" />;
         }
     };
 
     const getTypeIcon = (type: string) => {
         switch (type) {
-            case 'shipment_created': return <Package className="h-4 w-4" />;
-            case 'shipment_picked_up': return <Package className="h-4 w-4" />;
-            case 'shipment_in_transit': return <Package className="h-4 w-4" />;
-            case 'shipment_delivered': return <CheckCircle className="h-4 w-4" />;
-            case 'shipment_exception': return <AlertTriangle className="h-4 w-4" />;
-            case 'payment_received': return <CreditCard className="h-4 w-4" />;
-            case 'account_security': return <Shield className="h-4 w-4" />;
+            case 'shipment_created':
+                return <Package className="h-4 w-4" />;
+            case 'shipment_picked_up':
+                return <Package className="h-4 w-4" />;
+            case 'shipment_in_transit':
+                return <Package className="h-4 w-4" />;
+            case 'shipment_delivered':
+                return <CheckCircle className="h-4 w-4" />;
+            case 'shipment_exception':
+                return <AlertTriangle className="h-4 w-4" />;
+            case 'payment_received':
+                return <CreditCard className="h-4 w-4" />;
+            case 'account_security':
+                return <Shield className="h-4 w-4" />;
             // Legacy types for backward compatibility
-            case 'shipment_update': return <Package className="h-4 w-4" />;
-            case 'delivery_alert': return <CheckCircle className="h-4 w-4" />;
-            case 'billing_notification': return <CreditCard className="h-4 w-4" />;
-            case 'security_alert': return <Shield className="h-4 w-4" />;
-            default: return <Bell className="h-4 w-4" />;
+            case 'shipment_update':
+                return <Package className="h-4 w-4" />;
+            case 'delivery_alert':
+                return <CheckCircle className="h-4 w-4" />;
+            case 'billing_notification':
+                return <CreditCard className="h-4 w-4" />;
+            case 'security_alert':
+                return <Shield className="h-4 w-4" />;
+            default:
+                return <Bell className="h-4 w-4" />;
         }
     };
 
@@ -128,11 +143,16 @@ export default function NotificationHistory({
 
     const getPriorityColor = (priority: string) => {
         switch (priority) {
-            case 'urgent': return 'border-l-red-600';
-            case 'high': return 'border-l-red-500';
-            case 'medium': return 'border-l-yellow-500';
-            case 'low': return 'border-l-green-500';
-            default: return 'border-l-gray-300';
+            case 'urgent':
+                return 'border-l-red-600';
+            case 'high':
+                return 'border-l-red-500';
+            case 'medium':
+                return 'border-l-yellow-500';
+            case 'low':
+                return 'border-l-green-500';
+            default:
+                return 'border-l-gray-300';
         }
     };
 
@@ -142,7 +162,7 @@ export default function NotificationHistory({
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
         });
     };
 
@@ -170,12 +190,13 @@ export default function NotificationHistory({
         return message.length > 150 ? message.substring(0, 150) + '...' : message;
     };
 
-    const filteredNotifications = displayNotifications.filter(notification => {
-        const matchesSearch = notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            notification.message.toLowerCase().includes(searchTerm.toLowerCase());
+    const filteredNotifications = displayNotifications.filter((notification) => {
+        const matchesSearch =
+            notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            notification.message.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'all' || notification.status === statusFilter;
         const matchesType = typeFilter === 'all' || notification.type === typeFilter;
-        
+
         return matchesSearch && matchesStatus && matchesType;
     });
 
@@ -189,7 +210,7 @@ export default function NotificationHistory({
                             <Bell className="h-5 w-5" />
                             <span>Notification History</span>
                         </div>
-                        {onMarkAllAsRead && filteredNotifications.some(n => n.status !== 'read') && (
+                        {onMarkAllAsRead && filteredNotifications.some((n) => n.status !== 'read') && (
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -197,20 +218,18 @@ export default function NotificationHistory({
                                 disabled={isProcessing}
                                 className="text-blue-600 hover:text-blue-700 disabled:opacity-50"
                             >
-                                <Eye className="h-4 w-4 mr-1" />
+                                <Eye className="mr-1 h-4 w-4" />
                                 {isProcessing ? 'Processing...' : 'Mark All Read'}
                             </Button>
                         )}
                     </CardTitle>
-                    <CardDescription>
-                        View and manage your notification history
-                    </CardDescription>
+                    <CardDescription>View and manage your notification history</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex flex-col gap-4 sm:flex-row">
                         <div className="flex-1">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                                 <Input
                                     placeholder="Search notifications..."
                                     value={searchTerm}
@@ -256,13 +275,12 @@ export default function NotificationHistory({
                 {filteredNotifications.length === 0 ? (
                     <Card>
                         <CardContent className="flex flex-col items-center justify-center py-12">
-                            <Bell className="h-12 w-12 text-gray-400 mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications found</h3>
-                            <p className="text-gray-500 text-center">
+                            <Bell className="mb-4 h-12 w-12 text-gray-400" />
+                            <h3 className="mb-2 text-lg font-medium text-gray-900">No notifications found</h3>
+                            <p className="text-center text-gray-500">
                                 {searchTerm || statusFilter !== 'all' || typeFilter !== 'all'
                                     ? 'Try adjusting your filters to see more notifications.'
-                                    : 'You don\'t have any notifications yet. Notifications will appear here when you create shipments or receive important updates.'
-                                }
+                                    : "You don't have any notifications yet. Notifications will appear here when you create shipments or receive important updates."}
                             </p>
                         </CardContent>
                     </Card>
@@ -271,20 +289,14 @@ export default function NotificationHistory({
                         <Card key={notification.id} className={`border-l-4 ${getPriorityColor(notification.priority)}`}>
                             <CardContent className="p-4">
                                 <div className="flex items-start justify-between">
-                                    <div className="flex items-start space-x-3 flex-1">
-                                        <div className="flex-shrink-0 mt-1">
-                                            {getTypeIcon(notification.type)}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center space-x-2 mb-1">
-                                                <h4 className="text-sm font-medium text-gray-900 truncate">
-                                                    {notification.title}
-                                                </h4>
+                                    <div className="flex flex-1 items-start space-x-3">
+                                        <div className="mt-1 flex-shrink-0">{getTypeIcon(notification.type)}</div>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="mb-1 flex items-center space-x-2">
+                                                <h4 className="truncate text-sm font-medium text-gray-900">{notification.title}</h4>
                                                 {getStatusBadge(notification.status)}
                                             </div>
-                                            <p className="text-sm text-gray-600 mb-2">
-                                                {formatMessage(notification.message)}
-                                            </p>
+                                            <p className="mb-2 text-sm text-gray-600">{formatMessage(notification.message)}</p>
                                             <div className="flex items-center space-x-4 text-xs text-gray-500">
                                                 <div className="flex items-center space-x-1">
                                                     {getChannelIcon(notification.channel)}
@@ -294,7 +306,8 @@ export default function NotificationHistory({
                                                     <Clock className="h-3 w-3" />
                                                     <span>{formatDate(notification.created_at)}</span>
                                                 </div>
-                                                {(notification.related_shipment || (notification.related_type === 'shipment' && notification.data?.tracking_number)) && (
+                                                {(notification.related_shipment ||
+                                                    (notification.related_type === 'shipment' && notification.data?.tracking_number)) && (
                                                     <div className="flex items-center space-x-1">
                                                         <Package className="h-3 w-3" />
                                                         <span>{notification.related_shipment || notification.data?.tracking_number}</span>
@@ -314,12 +327,7 @@ export default function NotificationHistory({
                                         }}
                                     >
                                         <DropdownMenuTrigger asChild>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="flex-shrink-0"
-                                                disabled={isProcessing}
-                                            >
+                                            <Button variant="ghost" size="sm" className="flex-shrink-0" disabled={isProcessing}>
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
@@ -334,7 +342,7 @@ export default function NotificationHistory({
                                                     }}
                                                     disabled={isProcessing}
                                                 >
-                                                    <Eye className="h-4 w-4 mr-2" />
+                                                    <Eye className="mr-2 h-4 w-4" />
                                                     Mark as Read
                                                 </DropdownMenuItem>
                                             )}
@@ -348,7 +356,7 @@ export default function NotificationHistory({
                                                     }}
                                                     disabled={isProcessing}
                                                 >
-                                                    <Archive className="h-4 w-4 mr-2" />
+                                                    <Archive className="mr-2 h-4 w-4" />
                                                     Archive
                                                 </DropdownMenuItem>
                                             )}
@@ -363,7 +371,7 @@ export default function NotificationHistory({
                                                     disabled={isProcessing}
                                                     className="text-red-600 focus:text-red-600 disabled:opacity-50"
                                                 >
-                                                    <Trash2 className="h-4 w-4 mr-2" />
+                                                    <Trash2 className="mr-2 h-4 w-4" />
                                                     Delete
                                                 </DropdownMenuItem>
                                             )}
@@ -381,15 +389,17 @@ export default function NotificationHistory({
                 <Card>
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between text-sm text-gray-600">
-                            <span>Showing {filteredNotifications.length} of {displayNotifications.length} notifications</span>
+                            <span>
+                                Showing {filteredNotifications.length} of {displayNotifications.length} notifications
+                            </span>
                             <div className="flex items-center space-x-4">
                                 <span className="flex items-center space-x-1">
-                                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                    <span>Delivered: {filteredNotifications.filter(n => n.status === 'delivered').length}</span>
+                                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                    <span>Delivered: {filteredNotifications.filter((n) => n.status === 'delivered').length}</span>
                                 </span>
                                 <span className="flex items-center space-x-1">
-                                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                                    <span>Failed: {filteredNotifications.filter(n => n.status === 'failed').length}</span>
+                                    <div className="h-2 w-2 rounded-full bg-red-500"></div>
+                                    <span>Failed: {filteredNotifications.filter((n) => n.status === 'failed').length}</span>
                                 </span>
                             </div>
                         </div>

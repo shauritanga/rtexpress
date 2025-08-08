@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
 import { router } from '@inertiajs/react';
-import Pusher from 'pusher-js';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface WebSocketMessage {
     type: string;
@@ -34,7 +33,7 @@ export function useWebSocket(options: WebSocketOptions = {}) {
         onMessage,
         onConnect,
         onDisconnect,
-        onError
+        onError,
     } = options;
 
     const ws = useRef<WebSocket | null>(null);
@@ -44,7 +43,7 @@ export function useWebSocket(options: WebSocketOptions = {}) {
         isConnecting: false,
         error: null,
         lastMessage: null,
-        reconnectAttempts: 0
+        reconnectAttempts: 0,
     });
 
     const connect = useCallback(() => {
@@ -52,18 +51,18 @@ export function useWebSocket(options: WebSocketOptions = {}) {
             return;
         }
 
-        setState(prev => ({ ...prev, isConnecting: true, error: null }));
+        setState((prev) => ({ ...prev, isConnecting: true, error: null }));
 
         try {
             ws.current = new WebSocket(url);
 
             ws.current.onopen = () => {
-                setState(prev => ({
+                setState((prev) => ({
                     ...prev,
                     isConnected: true,
                     isConnecting: false,
                     error: null,
-                    reconnectAttempts: 0
+                    reconnectAttempts: 0,
                 }));
                 onConnect?.();
             };
@@ -71,9 +70,9 @@ export function useWebSocket(options: WebSocketOptions = {}) {
             ws.current.onmessage = (event) => {
                 try {
                     const message: WebSocketMessage = JSON.parse(event.data);
-                    setState(prev => ({ ...prev, lastMessage: message }));
+                    setState((prev) => ({ ...prev, lastMessage: message }));
                     onMessage?.(message);
-                    
+
                     // Handle specific message types
                     handleMessage(message);
                 } catch (error) {
@@ -82,19 +81,19 @@ export function useWebSocket(options: WebSocketOptions = {}) {
             };
 
             ws.current.onclose = () => {
-                setState(prev => ({
+                setState((prev) => ({
                     ...prev,
                     isConnected: false,
-                    isConnecting: false
+                    isConnecting: false,
                 }));
                 onDisconnect?.();
-                
+
                 // Attempt to reconnect
                 if (state.reconnectAttempts < maxReconnectAttempts) {
                     reconnectTimeoutRef.current = setTimeout(() => {
-                        setState(prev => ({
+                        setState((prev) => ({
                             ...prev,
-                            reconnectAttempts: prev.reconnectAttempts + 1
+                            reconnectAttempts: prev.reconnectAttempts + 1,
                         }));
                         connect();
                     }, reconnectInterval);
@@ -102,19 +101,18 @@ export function useWebSocket(options: WebSocketOptions = {}) {
             };
 
             ws.current.onerror = (error) => {
-                setState(prev => ({
+                setState((prev) => ({
                     ...prev,
                     error: 'WebSocket connection error',
-                    isConnecting: false
+                    isConnecting: false,
                 }));
                 onError?.(error);
             };
-
         } catch (error) {
-            setState(prev => ({
+            setState((prev) => ({
                 ...prev,
                 error: 'Failed to create WebSocket connection',
-                isConnecting: false
+                isConnecting: false,
             }));
         }
     }, [url, maxReconnectAttempts, reconnectInterval, onConnect, onMessage, onDisconnect, onError]);
@@ -130,11 +128,11 @@ export function useWebSocket(options: WebSocketOptions = {}) {
             ws.current = null;
         }
 
-        setState(prev => ({
+        setState((prev) => ({
             ...prev,
             isConnected: false,
             isConnecting: false,
-            reconnectAttempts: 0
+            reconnectAttempts: 0,
         }));
     }, []);
 
@@ -153,10 +151,9 @@ export function useWebSocket(options: WebSocketOptions = {}) {
                 if (window.location.pathname.includes('/admin/shipments')) {
                     router.reload({ only: ['shipments'] });
                 }
-                
+
                 // Show notification
-                showNotification('Shipment Update', 
-                    `Shipment ${message.data.tracking_number} status changed to ${message.data.status}`);
+                showNotification('Shipment Update', `Shipment ${message.data.tracking_number} status changed to ${message.data.status}`);
                 break;
 
             case 'route_update':
@@ -164,15 +161,13 @@ export function useWebSocket(options: WebSocketOptions = {}) {
                 if (window.location.pathname.includes('/admin/routes')) {
                     router.reload({ only: ['routes'] });
                 }
-                
-                showNotification('Route Update', 
-                    `Route ${message.data.route_number} has been updated`);
+
+                showNotification('Route Update', `Route ${message.data.route_number} has been updated`);
                 break;
 
             case 'new_support_ticket':
                 // Show notification for new support tickets
-                showNotification('New Support Ticket', 
-                    `New ticket #${message.data.ticket_number} from ${message.data.customer_name}`);
+                showNotification('New Support Ticket', `New ticket #${message.data.ticket_number} from ${message.data.customer_name}`);
                 break;
 
             case 'system_alert':
@@ -196,7 +191,7 @@ export function useWebSocket(options: WebSocketOptions = {}) {
             new Notification(title, {
                 body,
                 icon: '/favicon.ico',
-                tag: `rt-express-${Date.now()}`
+                tag: `rt-express-${Date.now()}`,
             });
         }
 
@@ -214,24 +209,30 @@ export function useWebSocket(options: WebSocketOptions = {}) {
     }, []);
 
     // Subscribe to specific channels
-    const subscribe = useCallback((channel: string) => {
-        sendMessage({
-            type: 'subscribe',
-            channel
-        });
-    }, [sendMessage]);
+    const subscribe = useCallback(
+        (channel: string) => {
+            sendMessage({
+                type: 'subscribe',
+                channel,
+            });
+        },
+        [sendMessage],
+    );
 
-    const unsubscribe = useCallback((channel: string) => {
-        sendMessage({
-            type: 'unsubscribe',
-            channel
-        });
-    }, [sendMessage]);
+    const unsubscribe = useCallback(
+        (channel: string) => {
+            sendMessage({
+                type: 'unsubscribe',
+                channel,
+            });
+        },
+        [sendMessage],
+    );
 
     // Auto-connect on mount
     useEffect(() => {
         connect();
-        
+
         return () => {
             disconnect();
         };
@@ -253,7 +254,7 @@ export function useWebSocket(options: WebSocketOptions = {}) {
         sendMessage,
         subscribe,
         unsubscribe,
-        requestNotificationPermission
+        requestNotificationPermission,
     };
 }
 
@@ -261,42 +262,44 @@ export function useWebSocket(options: WebSocketOptions = {}) {
 export function useShipmentTracking(trackingNumber?: string) {
     const { sendMessage, subscribe, unsubscribe, ...wsState } = useWebSocket({
         onMessage: (message) => {
-            if (message.type === 'shipment_status_update' && 
-                message.data.tracking_number === trackingNumber) {
+            if (message.type === 'shipment_status_update' && message.data.tracking_number === trackingNumber) {
                 // Handle specific shipment updates
                 console.log('Shipment update received:', message.data);
             }
-        }
+        },
     });
 
     useEffect(() => {
         if (trackingNumber && wsState.isConnected) {
             subscribe(`shipment.${trackingNumber}`);
-            
+
             return () => {
                 unsubscribe(`shipment.${trackingNumber}`);
             };
         }
     }, [trackingNumber, wsState.isConnected, subscribe, unsubscribe]);
 
-    const updateShipmentStatus = useCallback((status: string, location?: string, notes?: string) => {
-        if (trackingNumber) {
-            sendMessage({
-                type: 'update_shipment_status',
-                data: {
-                    tracking_number: trackingNumber,
-                    status,
-                    location,
-                    notes,
-                    timestamp: new Date().toISOString()
-                }
-            });
-        }
-    }, [trackingNumber, sendMessage]);
+    const updateShipmentStatus = useCallback(
+        (status: string, location?: string, notes?: string) => {
+            if (trackingNumber) {
+                sendMessage({
+                    type: 'update_shipment_status',
+                    data: {
+                        tracking_number: trackingNumber,
+                        status,
+                        location,
+                        notes,
+                        timestamp: new Date().toISOString(),
+                    },
+                });
+            }
+        },
+        [trackingNumber, sendMessage],
+    );
 
     return {
         ...wsState,
-        updateShipmentStatus
+        updateShipmentStatus,
     };
 }
 
@@ -304,39 +307,41 @@ export function useShipmentTracking(trackingNumber?: string) {
 export function useRouteTracking(routeId?: string) {
     const { sendMessage, subscribe, unsubscribe, ...wsState } = useWebSocket({
         onMessage: (message) => {
-            if (message.type === 'route_update' && 
-                message.data.route_id === routeId) {
+            if (message.type === 'route_update' && message.data.route_id === routeId) {
                 console.log('Route update received:', message.data);
             }
-        }
+        },
     });
 
     useEffect(() => {
         if (routeId && wsState.isConnected) {
             subscribe(`route.${routeId}`);
-            
+
             return () => {
                 unsubscribe(`route.${routeId}`);
             };
         }
     }, [routeId, wsState.isConnected, subscribe, unsubscribe]);
 
-    const updateRouteProgress = useCallback((progress: number, currentStop?: string) => {
-        if (routeId) {
-            sendMessage({
-                type: 'update_route_progress',
-                data: {
-                    route_id: routeId,
-                    progress,
-                    current_stop: currentStop,
-                    timestamp: new Date().toISOString()
-                }
-            });
-        }
-    }, [routeId, sendMessage]);
+    const updateRouteProgress = useCallback(
+        (progress: number, currentStop?: string) => {
+            if (routeId) {
+                sendMessage({
+                    type: 'update_route_progress',
+                    data: {
+                        route_id: routeId,
+                        progress,
+                        current_stop: currentStop,
+                        timestamp: new Date().toISOString(),
+                    },
+                });
+            }
+        },
+        [routeId, sendMessage],
+    );
 
     return {
         ...wsState,
-        updateRouteProgress
+        updateRouteProgress,
     };
 }

@@ -1,34 +1,22 @@
-import { Head } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import AppLayout from '@/layouts/app-layout';
+import { Head } from '@inertiajs/react';
+import { AlertTriangle, BarChart3, Calendar, CheckCircle, Clock, DollarSign, Package, PieChart, TrendingUp, Truck } from 'lucide-react';
 import {
-    Package,
-    TrendingUp,
-    Clock,
-    DollarSign,
-    CheckCircle,
-    AlertTriangle,
-    Truck,
-    Calendar,
-    BarChart3,
-    PieChart
-} from 'lucide-react';
-import {
-    BarChart,
+    Area,
+    AreaChart,
     Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Line,
+    LineChart,
+    Pie,
+    PieChart as RechartsPieChart,
+    ResponsiveContainer,
+    Tooltip,
     XAxis,
     YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    PieChart as RechartsPieChart,
-    Pie,
-    Cell,
-    LineChart,
-    Line,
-    Area,
-    AreaChart
 } from 'recharts';
 
 interface Customer {
@@ -96,49 +84,46 @@ export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
 
     const currentMonth = new Date().toLocaleDateString('en-US', {
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
     });
 
     // Simple calculations for visual indicators
-    const monthlyGrowth = stats.total_shipments > stats.this_month_shipments
-        ? ((stats.this_month_shipments / (stats.total_shipments - stats.this_month_shipments)) * 100)
-        : 0;
+    const monthlyGrowth =
+        stats.total_shipments > stats.this_month_shipments
+            ? (stats.this_month_shipments / (stats.total_shipments - stats.this_month_shipments)) * 100
+            : 0;
 
-    const avgCostPerShipment = stats.total_shipments > 0
-        ? stats.total_spent / stats.total_shipments
-        : 0;
+    const avgCostPerShipment = stats.total_shipments > 0 ? stats.total_spent / stats.total_shipments : 0;
 
     // Ensure chart data is properly formatted with fallbacks
     const safeChartData = {
         monthly_shipments: chartData?.monthly_shipments || [],
-        status_breakdown: Array.isArray(chartData?.status_breakdown) ? chartData.status_breakdown : [
-            { name: 'No Data', value: 1, color: '#e5e7eb' }
-        ],
-        service_breakdown: Array.isArray(chartData?.service_breakdown) ? chartData.service_breakdown : [
-            { name: 'Standard', value: 1, color: '#3b82f6' }
-        ]
+        status_breakdown: Array.isArray(chartData?.status_breakdown) ? chartData.status_breakdown : [{ name: 'No Data', value: 1, color: '#e5e7eb' }],
+        service_breakdown: Array.isArray(chartData?.service_breakdown)
+            ? chartData.service_breakdown
+            : [{ name: 'Standard', value: 1, color: '#3b82f6' }],
     };
 
     return (
         <AppLayout>
             <Head title="Analytics Dashboard" />
 
-            <div className="space-y-6 px-4 sm:px-6 lg:px-8 pb-8">
+            <div className="space-y-6 px-4 pb-8 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                            <BarChart3 className="h-6 w-6 mr-2 text-blue-600" />
+                        <h1 className="flex items-center text-2xl font-bold text-gray-900">
+                            <BarChart3 className="mr-2 h-6 w-6 text-blue-600" />
                             Analytics Dashboard
                         </h1>
-                        <p className="text-gray-600 mt-1">
+                        <p className="mt-1 text-gray-600">
                             {customer.company_name} • {currentMonth}
                         </p>
                     </div>
                 </div>
 
                 {/* Key Metrics - Compact */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center justify-between">
@@ -189,12 +174,12 @@ export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
                 </div>
 
                 {/* Charts Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* Monthly Shipments Trend */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
+                                <BarChart3 className="mr-2 h-5 w-5 text-blue-600" />
                                 Monthly Shipments Trend
                             </CardTitle>
                         </CardHeader>
@@ -208,17 +193,11 @@ export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
                                         <Tooltip
                                             formatter={(value, name) => [
                                                 name === 'shipments' ? `${value} shipments` : formatCurrency(value as number),
-                                                name === 'shipments' ? 'Shipments' : 'Cost'
+                                                name === 'shipments' ? 'Shipments' : 'Cost',
                                             ]}
                                             labelFormatter={(label) => `Month: ${label}`}
                                         />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="shipments"
-                                            stroke="#3b82f6"
-                                            fill="#3b82f6"
-                                            fillOpacity={0.3}
-                                        />
+                                        <Area type="monotone" dataKey="shipments" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
@@ -229,7 +208,7 @@ export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <PieChart className="h-5 w-5 mr-2 text-green-600" />
+                                <PieChart className="mr-2 h-5 w-5 text-green-600" />
                                 Shipment Status
                             </CardTitle>
                         </CardHeader>
@@ -260,12 +239,12 @@ export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
                 </div>
 
                 {/* Service Type & Cost Analysis */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* Service Type Distribution */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <Truck className="h-5 w-5 mr-2 text-purple-600" />
+                                <Truck className="mr-2 h-5 w-5 text-purple-600" />
                                 Service Types
                             </CardTitle>
                         </CardHeader>
@@ -291,7 +270,7 @@ export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <DollarSign className="h-5 w-5 mr-2 text-green-600" />
+                                <DollarSign className="mr-2 h-5 w-5 text-green-600" />
                                 Monthly Spending
                             </CardTitle>
                         </CardHeader>
@@ -301,9 +280,7 @@ export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
                                     <LineChart data={safeChartData.monthly_shipments}>
                                         <CartesianGrid strokeDasharray="3 3" />
                                         <XAxis dataKey="month" />
-                                        <YAxis
-                                            tickFormatter={(value) => formatCurrencyShort(value)}
-                                        />
+                                        <YAxis tickFormatter={(value) => formatCurrencyShort(value)} />
                                         <Tooltip
                                             formatter={(value) => [formatCurrency(value as number), 'Cost']}
                                             labelFormatter={(label) => `Month: ${label}`}
@@ -323,12 +300,12 @@ export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
                 </div>
 
                 {/* Current Status Overview */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     {/* This Month Activity */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <Calendar className="h-5 w-5 mr-2 text-blue-600" />
+                                <Calendar className="mr-2 h-5 w-5 text-blue-600" />
                                 This Month
                             </CardTitle>
                         </CardHeader>
@@ -358,7 +335,7 @@ export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <TrendingUp className="h-5 w-5 mr-2 text-green-600" />
+                                <TrendingUp className="mr-2 h-5 w-5 text-green-600" />
                                 Quick Insights
                             </CardTitle>
                         </CardHeader>
@@ -369,17 +346,17 @@ export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
                                     <span className="text-gray-600">Performance</span>
                                     {stats.on_time_rate >= 95 ? (
                                         <div className="flex items-center text-green-600">
-                                            <CheckCircle className="h-4 w-4 mr-1" />
+                                            <CheckCircle className="mr-1 h-4 w-4" />
                                             <span className="font-semibold">Excellent</span>
                                         </div>
                                     ) : stats.on_time_rate >= 85 ? (
                                         <div className="flex items-center text-yellow-600">
-                                            <Clock className="h-4 w-4 mr-1" />
+                                            <Clock className="mr-1 h-4 w-4" />
                                             <span className="font-semibold">Good</span>
                                         </div>
                                     ) : (
                                         <div className="flex items-center text-red-600">
-                                            <AlertTriangle className="h-4 w-4 mr-1" />
+                                            <AlertTriangle className="mr-1 h-4 w-4" />
                                             <span className="font-semibold">Needs Attention</span>
                                         </div>
                                     )}
@@ -390,12 +367,12 @@ export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
                                     <span className="text-gray-600">Growth</span>
                                     {monthlyGrowth > 10 ? (
                                         <div className="flex items-center text-green-600">
-                                            <TrendingUp className="h-4 w-4 mr-1" />
+                                            <TrendingUp className="mr-1 h-4 w-4" />
                                             <span className="font-semibold">Strong</span>
                                         </div>
                                     ) : monthlyGrowth > 0 ? (
                                         <div className="flex items-center text-blue-600">
-                                            <TrendingUp className="h-4 w-4 mr-1" />
+                                            <TrendingUp className="mr-1 h-4 w-4" />
                                             <span className="font-semibold">Steady</span>
                                         </div>
                                     ) : (
@@ -415,7 +392,7 @@ export default function AnalyticsIndex({ customer, stats, chartData }: Props) {
                                 <div className="flex items-center justify-between">
                                     <span className="text-gray-600">Active Shipments</span>
                                     <div className="flex items-center text-blue-600">
-                                        <Truck className="h-4 w-4 mr-1" />
+                                        <Truck className="mr-1 h-4 w-4" />
                                         <span className="font-semibold">{stats.pending_shipments}</span>
                                     </div>
                                 </div>

@@ -1,33 +1,33 @@
-import { Head } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
-import AppLayout from '@/layouts/app-layout';
 import TrackingMap from '@/components/customer/tracking/TrackingMap';
 import TrackingTimeline from '@/components/customer/tracking/TrackingTimeline';
-import { BarcodeScanner } from '@/components/ui/barcode-scanner';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { BarcodeScanner } from '@/components/ui/barcode-scanner';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConnectionStatus, LiveDataIndicator } from '@/components/ui/real-time-indicator';
-import { useShipmentTracking } from '@/hooks/usePusher';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarcodeScanResult } from '@/hooks/useBarcodeScanner';
+import { useShipmentTracking } from '@/hooks/usePusher';
+import AppLayout from '@/layouts/app-layout';
+import { Head } from '@inertiajs/react';
 import {
     Activity,
-    Search,
-    MapPin,
-    Truck,
-    Package,
-    Clock,
-    CheckCircle,
     AlertTriangle,
-    Navigation,
-    Zap,
-    RefreshCw,
-    Map,
+    CheckCircle,
+    Clock,
     History,
-    Scan
+    Map,
+    MapPin,
+    Navigation,
+    Package,
+    RefreshCw,
+    Scan,
+    Search,
+    Truck,
+    Zap,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface LiveShipment {
     id: number;
@@ -76,48 +76,44 @@ export default function LiveTracking({ activeShipments }: Props) {
             exception: { label: 'Exception', variant: 'destructive' as const, icon: AlertTriangle },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const, icon: Package };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const, icon: Package };
+
         return (
             <Badge variant={config.variant} className="flex items-center">
-                <config.icon className="h-3 w-3 mr-1" />
+                <config.icon className="mr-1 h-3 w-3" />
                 {config.label}
             </Badge>
         );
     };
 
-    const filteredShipments = liveShipments.filter(shipment =>
-        shipment.tracking_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        shipment.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        shipment.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        shipment.destination.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredShipments = liveShipments.filter(
+        (shipment) =>
+            shipment.tracking_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            shipment.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            shipment.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            shipment.destination.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     return (
         <AppLayout>
             <Head title="Live Tracking" />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
+                        <div className="rounded-lg bg-primary/10 p-2">
                             <Activity className="h-6 w-6 text-primary" />
                         </div>
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                Live Tracking
-                            </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                                Real-time shipment tracking and monitoring
-                            </p>
+                            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Live Tracking</h1>
+                            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Real-time shipment tracking and monitoring</p>
                         </div>
                     </div>
                     <div className="flex items-center space-x-4">
                         <ConnectionStatus />
                         <Button variant="outline" size="sm">
-                            <RefreshCw className="h-4 w-4 mr-2" />
+                            <RefreshCw className="mr-2 h-4 w-4" />
                             Refresh
                         </Button>
                     </div>
@@ -127,9 +123,7 @@ export default function LiveTracking({ activeShipments }: Props) {
                 <Card>
                     <CardHeader className="pb-4">
                         <CardTitle className="text-lg">Search Shipments</CardTitle>
-                        <CardDescription>
-                            Search by tracking number, location, or scan barcode
-                        </CardDescription>
+                        <CardDescription>Search by tracking number, location, or scan barcode</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Tabs value={searchMode} onValueChange={(value) => setSearchMode(value as 'text' | 'scanner')} className="space-y-4">
@@ -146,7 +140,7 @@ export default function LiveTracking({ activeShipments }: Props) {
 
                             <TabsContent value="text" className="space-y-4">
                                 <div className="relative">
-                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         placeholder="Search by tracking number, location, or destination..."
                                         value={searchTerm}
@@ -188,124 +182,110 @@ export default function LiveTracking({ activeShipments }: Props) {
 
                     <TabsContent value="grid" className="space-y-6">
                         {/* Live Shipments Grid */}
-                        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-                    {filteredShipments.map((shipment) => (
-                        <Card 
-                            key={shipment.id} 
-                            className={`cursor-pointer transition-all hover:shadow-md ${
-                                selectedShipment === shipment.tracking_number ? 'ring-2 ring-primary' : ''
-                            }`}
-                            onClick={() => setSelectedShipment(
-                                selectedShipment === shipment.tracking_number ? null : shipment.tracking_number
-                            )}
-                        >
-                            <CardHeader className="pb-3">
-                                <div className="flex items-center justify-between">
-                                    <CardTitle className="text-lg font-semibold">
-                                        {shipment.tracking_number}
-                                    </CardTitle>
-                                    <div className="flex items-center space-x-2">
-                                        <Zap className="h-4 w-4 text-green-500" />
-                                        <span className="text-xs text-green-600 font-medium">LIVE</span>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    {getStatusBadge(shipment.status)}
-                                    <LiveDataIndicator 
-                                        lastUpdated={new Date(shipment.last_update)} 
-                                        isLive={isConnected} 
-                                    />
-                                </div>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                {/* Progress Bar */}
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span>Progress</span>
-                                        <span>{Math.round(shipment.progress_percentage)}%</span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div
-                                            className="bg-primary h-2 rounded-full transition-all duration-500"
-                                            style={{ width: `${shipment.progress_percentage}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-
-                                {/* Location Info */}
-                                <div className="space-y-3">
-                                    <div className="flex items-start space-x-2">
-                                        <MapPin className="h-4 w-4 text-blue-600 mt-0.5" />
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium">Origin</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {shipment.origin}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start space-x-2">
-                                        <Navigation className="h-4 w-4 text-green-600 mt-0.5" />
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium">Destination</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {shipment.destination}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start space-x-2">
-                                        <Truck className="h-4 w-4 text-orange-600 mt-0.5" />
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium">Customer</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {shipment.customer_name}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {shipment.estimated_delivery && (
-                                        <div className="flex items-start space-x-2">
-                                            <Clock className="h-4 w-4 text-purple-600 mt-0.5" />
-                                            <div className="flex-1">
-                                                <p className="text-sm font-medium">ETA</p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {new Date(shipment.estimated_delivery).toLocaleString()}
-                                                </p>
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+                            {filteredShipments.map((shipment) => (
+                                <Card
+                                    key={shipment.id}
+                                    className={`cursor-pointer transition-all hover:shadow-md ${
+                                        selectedShipment === shipment.tracking_number ? 'ring-2 ring-primary' : ''
+                                    }`}
+                                    onClick={() =>
+                                        setSelectedShipment(selectedShipment === shipment.tracking_number ? null : shipment.tracking_number)
+                                    }
+                                >
+                                    <CardHeader className="pb-3">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="text-lg font-semibold">{shipment.tracking_number}</CardTitle>
+                                            <div className="flex items-center space-x-2">
+                                                <Zap className="h-4 w-4 text-green-500" />
+                                                <span className="text-xs font-medium text-green-600">LIVE</span>
                                             </div>
                                         </div>
-                                    )}
-                                </div>
-
-                                {/* Real-time Indicator */}
-                                <div className="pt-2 border-t">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-2">
-                                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                            <span className="text-xs text-muted-foreground">
-                                                Live tracking active
-                                            </span>
+                                        <div className="flex items-center justify-between">
+                                            {getStatusBadge(shipment.status)}
+                                            <LiveDataIndicator lastUpdated={new Date(shipment.last_update)} isLive={isConnected} />
                                         </div>
-                                        <Button variant="ghost" size="sm">
-                                            View Details
-                                        </Button>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        {/* Progress Bar */}
+                                        <div className="space-y-2">
+                                            <div className="flex justify-between text-sm">
+                                                <span>Progress</span>
+                                                <span>{Math.round(shipment.progress_percentage)}%</span>
+                                            </div>
+                                            <div className="h-2 w-full rounded-full bg-gray-200">
+                                                <div
+                                                    className="h-2 rounded-full bg-primary transition-all duration-500"
+                                                    style={{ width: `${shipment.progress_percentage}%` }}
+                                                ></div>
+                                            </div>
+                                        </div>
+
+                                        {/* Location Info */}
+                                        <div className="space-y-3">
+                                            <div className="flex items-start space-x-2">
+                                                <MapPin className="mt-0.5 h-4 w-4 text-blue-600" />
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-medium">Origin</p>
+                                                    <p className="text-sm text-muted-foreground">{shipment.origin}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-start space-x-2">
+                                                <Navigation className="mt-0.5 h-4 w-4 text-green-600" />
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-medium">Destination</p>
+                                                    <p className="text-sm text-muted-foreground">{shipment.destination}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-start space-x-2">
+                                                <Truck className="mt-0.5 h-4 w-4 text-orange-600" />
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-medium">Customer</p>
+                                                    <p className="text-sm text-muted-foreground">{shipment.customer_name}</p>
+                                                </div>
+                                            </div>
+
+                                            {shipment.estimated_delivery && (
+                                                <div className="flex items-start space-x-2">
+                                                    <Clock className="mt-0.5 h-4 w-4 text-purple-600" />
+                                                    <div className="flex-1">
+                                                        <p className="text-sm font-medium">ETA</p>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            {new Date(shipment.estimated_delivery).toLocaleString()}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Real-time Indicator */}
+                                        <div className="border-t pt-2">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center space-x-2">
+                                                    <div className="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
+                                                    <span className="text-xs text-muted-foreground">Live tracking active</span>
+                                                </div>
+                                                <Button variant="ghost" size="sm">
+                                                    View Details
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
 
                         {filteredShipments.length === 0 && (
                             <Card>
-                                <CardContent className="text-center py-12">
-                                    <Activity className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                                    <h3 className="text-lg font-medium mb-2">No Live Shipments Found</h3>
+                                <CardContent className="py-12 text-center">
+                                    <Activity className="mx-auto mb-4 h-12 w-12 text-muted-foreground/50" />
+                                    <h3 className="mb-2 text-lg font-medium">No Live Shipments Found</h3>
                                     <p className="text-muted-foreground">
                                         {searchTerm
                                             ? 'No shipments match your search criteria.'
-                                            : 'No shipments are currently being tracked in real-time.'
-                                        }
+                                            : 'No shipments are currently being tracked in real-time.'}
                                     </p>
                                 </CardContent>
                             </Card>
@@ -318,25 +298,23 @@ export default function LiveTracking({ activeShipments }: Props) {
                                 currentLocation={{
                                     lat: -6.7924,
                                     lng: 39.2083,
-                                    address: filteredShipments.find(s => s.tracking_number === selectedShipment)?.origin || 'Unknown',
-                                    type: 'current'
+                                    address: filteredShipments.find((s) => s.tracking_number === selectedShipment)?.origin || 'Unknown',
+                                    type: 'current',
                                 }}
                                 destination={{
                                     lat: -6.8924,
                                     lng: 39.3083,
-                                    address: filteredShipments.find(s => s.tracking_number === selectedShipment)?.destination || 'Unknown',
-                                    type: 'destination'
+                                    address: filteredShipments.find((s) => s.tracking_number === selectedShipment)?.destination || 'Unknown',
+                                    type: 'destination',
                                 }}
                                 height="h-[600px]"
                             />
                         ) : (
                             <Card>
-                                <CardContent className="text-center py-12">
-                                    <MapPin className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                                    <h3 className="text-lg font-medium mb-2">Select a Shipment</h3>
-                                    <p className="text-muted-foreground">
-                                        Choose a shipment from the grid view to see its location on the map.
-                                    </p>
+                                <CardContent className="py-12 text-center">
+                                    <MapPin className="mx-auto mb-4 h-12 w-12 text-muted-foreground/50" />
+                                    <h3 className="mb-2 text-lg font-medium">Select a Shipment</h3>
+                                    <p className="text-muted-foreground">Choose a shipment from the grid view to see its location on the map.</p>
                                 </CardContent>
                             </Card>
                         )}
@@ -357,20 +335,18 @@ export default function LiveTracking({ activeShipments }: Props) {
                                         id: '2',
                                         status: 'in_transit',
                                         description: 'Package in transit',
-                                        location: filteredShipments.find(s => s.tracking_number === selectedShipment)?.origin || 'Unknown',
+                                        location: filteredShipments.find((s) => s.tracking_number === selectedShipment)?.origin || 'Unknown',
                                         timestamp: new Date().toISOString(),
-                                    }
+                                    },
                                 ]}
-                                currentStatus={filteredShipments.find(s => s.tracking_number === selectedShipment)?.status || 'unknown'}
+                                currentStatus={filteredShipments.find((s) => s.tracking_number === selectedShipment)?.status || 'unknown'}
                             />
                         ) : (
                             <Card>
-                                <CardContent className="text-center py-12">
-                                    <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                                    <h3 className="text-lg font-medium mb-2">Select a Shipment</h3>
-                                    <p className="text-muted-foreground">
-                                        Choose a shipment from the grid view to see its tracking timeline.
-                                    </p>
+                                <CardContent className="py-12 text-center">
+                                    <Clock className="mx-auto mb-4 h-12 w-12 text-muted-foreground/50" />
+                                    <h3 className="mb-2 text-lg font-medium">Select a Shipment</h3>
+                                    <p className="text-muted-foreground">Choose a shipment from the grid view to see its tracking timeline.</p>
                                 </CardContent>
                             </Card>
                         )}
@@ -384,9 +360,7 @@ export default function LiveTracking({ activeShipments }: Props) {
                             <CardTitle className="text-sm">Latest Update</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <pre className="text-xs bg-muted p-2 rounded">
-                                {JSON.stringify(lastMessage, null, 2)}
-                            </pre>
+                            <pre className="rounded bg-muted p-2 text-xs">{JSON.stringify(lastMessage, null, 2)}</pre>
                         </CardContent>
                     </Card>
                 )}

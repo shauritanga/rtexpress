@@ -1,21 +1,9 @@
-import { Head, Link } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-    Banknote,
-    FileText, 
-    CreditCard, 
-    AlertTriangle,
-    TrendingUp,
-    TrendingDown,
-    Plus,
-    Eye,
-    Send,
-    Clock,
-    CheckCircle
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link } from '@inertiajs/react';
+import { AlertTriangle, Banknote, Clock, CreditCard, Eye, FileText, Plus, Send, TrendingDown, TrendingUp } from 'lucide-react';
 
 interface BillingStats {
     total_revenue: {
@@ -165,15 +153,13 @@ export default function BillingIndex({ stats, recentInvoices, recentPayments, ov
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Billing & Invoicing</h1>
-                        <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                            Manage invoices, payments, and financial operations
-                        </p>
+                        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Billing & Invoicing</h1>
+                        <p className="mt-1 text-sm text-muted-foreground sm:text-base">Manage invoices, payments, and financial operations</p>
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Button asChild className="w-full sm:w-auto">
                             <Link href="/admin/invoices/create">
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="mr-2 h-4 w-4" />
                                 Create Invoice
                             </Link>
                         </Button>
@@ -181,25 +167,22 @@ export default function BillingIndex({ stats, recentInvoices, recentPayments, ov
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {statsCards.map((card, index) => (
                         <Card key={index}>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
-                                    {card.title}
-                                </CardTitle>
+                                <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
                                 <card.icon className={`h-4 w-4 ${card.color}`} />
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{card.value}</div>
-                                <p className="text-xs text-muted-foreground flex items-center">
-                                    {card.trend && (
-                                        card.trend === 'up' ? (
-                                            <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
+                                <p className="flex items-center text-xs text-muted-foreground">
+                                    {card.trend &&
+                                        (card.trend === 'up' ? (
+                                            <TrendingUp className="mr-1 h-3 w-3 text-green-500" />
                                         ) : (
-                                            <TrendingDown className="h-3 w-3 mr-1 text-red-500" />
-                                        )
-                                    )}
+                                            <TrendingDown className="mr-1 h-3 w-3 text-red-500" />
+                                        ))}
                                     {card.description}
                                 </p>
                             </CardContent>
@@ -208,28 +191,26 @@ export default function BillingIndex({ stats, recentInvoices, recentPayments, ov
                 </div>
 
                 {/* Quick Actions */}
-                <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <FileText className="h-5 w-5 mr-2" />
+                                <FileText className="mr-2 h-5 w-5" />
                                 Invoice Management
                             </CardTitle>
-                            <CardDescription>
-                                Create, send, and manage customer invoices
-                            </CardDescription>
+                            <CardDescription>Create, send, and manage customer invoices</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
                                 <Button asChild className="w-full">
                                     <Link href="/admin/invoices">
-                                        <Eye className="h-4 w-4 mr-2" />
+                                        <Eye className="mr-2 h-4 w-4" />
                                         View All Invoices
                                     </Link>
                                 </Button>
                                 <Button asChild variant="outline" className="w-full">
                                     <Link href="/admin/invoices/create">
-                                        <Plus className="h-4 w-4 mr-2" />
+                                        <Plus className="mr-2 h-4 w-4" />
                                         Create New Invoice
                                     </Link>
                                 </Button>
@@ -240,24 +221,22 @@ export default function BillingIndex({ stats, recentInvoices, recentPayments, ov
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <CreditCard className="h-5 w-5 mr-2" />
+                                <CreditCard className="mr-2 h-5 w-5" />
                                 Payment Tracking
                             </CardTitle>
-                            <CardDescription>
-                                Monitor payments and transaction history
-                            </CardDescription>
+                            <CardDescription>Monitor payments and transaction history</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
                                 <Button asChild className="w-full">
                                     <Link href="/admin/billing/payments">
-                                        <Eye className="h-4 w-4 mr-2" />
+                                        <Eye className="mr-2 h-4 w-4" />
                                         View All Payments
                                     </Link>
                                 </Button>
                                 <Button asChild variant="outline" className="w-full">
                                     <Link href="/admin/billing/payments?status=pending">
-                                        <Clock className="h-4 w-4 mr-2" />
+                                        <Clock className="mr-2 h-4 w-4" />
                                         Pending Payments
                                     </Link>
                                 </Button>
@@ -268,24 +247,22 @@ export default function BillingIndex({ stats, recentInvoices, recentPayments, ov
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <AlertTriangle className="h-5 w-5 mr-2" />
+                                <AlertTriangle className="mr-2 h-5 w-5" />
                                 Overdue Management
                             </CardTitle>
-                            <CardDescription>
-                                Handle overdue invoices and collections
-                            </CardDescription>
+                            <CardDescription>Handle overdue invoices and collections</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
                                 <Button asChild variant="destructive" className="w-full">
                                     <Link href="/admin/invoices?status=overdue">
-                                        <AlertTriangle className="h-4 w-4 mr-2" />
+                                        <AlertTriangle className="mr-2 h-4 w-4" />
                                         View Overdue ({stats.overdue_invoices})
                                     </Link>
                                 </Button>
                                 <Button asChild variant="outline" className="w-full">
                                     <Link href="/admin/invoices?status=sent">
-                                        <Send className="h-4 w-4 mr-2" />
+                                        <Send className="mr-2 h-4 w-4" />
                                         Send Reminders
                                     </Link>
                                 </Button>

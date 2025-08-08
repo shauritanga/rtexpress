@@ -1,28 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { 
-    FileText,
-    Download,
-    Eye,
-    CreditCard,
-    Clock,
-    CheckCircle,
-    AlertTriangle,
-    XCircle,
-    Calendar,
-    DollarSign,
-    Search,
-    Filter,
-    RefreshCw,
-    Mail,
-    Printer,
-    ExternalLink
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertTriangle, CheckCircle, Clock, CreditCard, Download, Eye, FileText, Mail, RefreshCw, Search, XCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface Invoice {
     id: number;
@@ -74,12 +56,7 @@ interface Props {
     showActions?: boolean;
 }
 
-export default function InvoiceManagement({ 
-    className = '', 
-    onInvoiceSelect,
-    onPaymentInitiate,
-    showActions = true
-}: Props) {
+export default function InvoiceManagement({ className = '', onInvoiceSelect, onPaymentInitiate, showActions = true }: Props) {
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -97,11 +74,11 @@ export default function InvoiceManagement({
             customer_id: 1,
             status: 'paid',
             currency: 'USD',
-            subtotal: 150.00,
-            tax_amount: 15.00,
+            subtotal: 150.0,
+            tax_amount: 15.0,
             discount_amount: 0,
-            total_amount: 165.00,
-            paid_amount: 165.00,
+            total_amount: 165.0,
+            paid_amount: 165.0,
             balance_due: 0,
             issue_date: '2024-01-15',
             due_date: '2024-02-14',
@@ -111,8 +88,8 @@ export default function InvoiceManagement({
                     id: 1,
                     description: 'Express Shipping - New York to Toronto',
                     quantity: 1,
-                    unit_price: 150.00,
-                    total: 150.00,
+                    unit_price: 150.0,
+                    total: 150.0,
                     shipment_id: 1001,
                     service_type: 'express',
                 },
@@ -121,7 +98,7 @@ export default function InvoiceManagement({
                 {
                     id: 1,
                     payment_number: 'PAY-2024-001',
-                    amount: 165.00,
+                    amount: 165.0,
                     method: 'card',
                     gateway: 'stripe',
                     status: 'completed',
@@ -138,9 +115,9 @@ export default function InvoiceManagement({
             customer_id: 1,
             status: 'overdue',
             currency: 'USD',
-            subtotal: 89.50,
+            subtotal: 89.5,
             tax_amount: 8.95,
-            discount_amount: 5.00,
+            discount_amount: 5.0,
             total_amount: 93.45,
             paid_amount: 0,
             balance_due: 93.45,
@@ -152,8 +129,8 @@ export default function InvoiceManagement({
                     id: 2,
                     description: 'Standard Shipping - Los Angeles to Vancouver',
                     quantity: 1,
-                    unit_price: 89.50,
-                    total: 89.50,
+                    unit_price: 89.5,
+                    total: 89.5,
                     shipment_id: 1002,
                     service_type: 'standard',
                 },
@@ -168,12 +145,12 @@ export default function InvoiceManagement({
             customer_id: 1,
             status: 'partial',
             currency: 'USD',
-            subtotal: 275.00,
-            tax_amount: 27.50,
+            subtotal: 275.0,
+            tax_amount: 27.5,
             discount_amount: 0,
-            total_amount: 302.50,
-            paid_amount: 150.00,
-            balance_due: 152.50,
+            total_amount: 302.5,
+            paid_amount: 150.0,
+            balance_due: 152.5,
             issue_date: '2024-01-18',
             due_date: '2024-02-17',
             payment_terms: 'Net 30',
@@ -182,8 +159,8 @@ export default function InvoiceManagement({
                     id: 3,
                     description: 'International Shipping - Chicago to London',
                     quantity: 1,
-                    unit_price: 275.00,
-                    total: 275.00,
+                    unit_price: 275.0,
+                    total: 275.0,
                     shipment_id: 1003,
                     service_type: 'international',
                 },
@@ -192,7 +169,7 @@ export default function InvoiceManagement({
                 {
                     id: 2,
                     payment_number: 'PAY-2024-002',
-                    amount: 150.00,
+                    amount: 150.0,
                     method: 'paypal',
                     gateway: 'paypal',
                     status: 'completed',
@@ -258,24 +235,23 @@ export default function InvoiceManagement({
 
         // Search filter
         if (searchQuery) {
-            filtered = filtered.filter(invoice =>
-                invoice.invoice_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (invoice.items && invoice.items.some(item =>
-                    item.description.toLowerCase().includes(searchQuery.toLowerCase())
-                ))
+            filtered = filtered.filter(
+                (invoice) =>
+                    invoice.invoice_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (invoice.items && invoice.items.some((item) => item.description.toLowerCase().includes(searchQuery.toLowerCase()))),
             );
         }
 
         // Status filter
         if (statusFilter !== 'all') {
-            filtered = filtered.filter(invoice => invoice.status === statusFilter);
+            filtered = filtered.filter((invoice) => invoice.status === statusFilter);
         }
 
         // Date filter
         if (dateFilter !== 'all') {
             const now = new Date();
             const filterDate = new Date();
-            
+
             switch (dateFilter) {
                 case 'last_30_days':
                     filterDate.setDate(now.getDate() - 30);
@@ -287,10 +263,8 @@ export default function InvoiceManagement({
                     filterDate.setMonth(0, 1);
                     break;
             }
-            
-            filtered = filtered.filter(invoice => 
-                new Date(invoice.created_at) >= filterDate
-            );
+
+            filtered = filtered.filter((invoice) => new Date(invoice.created_at) >= filterDate);
         }
 
         setFilteredInvoices(filtered);
@@ -357,8 +331,8 @@ export default function InvoiceManagement({
     const getInvoiceStats = () => {
         const stats = {
             total: invoices.length,
-            paid: invoices.filter(inv => inv.status === 'paid').length,
-            overdue: invoices.filter(inv => inv.status === 'overdue').length,
+            paid: invoices.filter((inv) => inv.status === 'paid').length,
+            overdue: invoices.filter((inv) => inv.status === 'overdue').length,
             totalAmount: invoices.reduce((sum, inv) => sum + inv.total_amount, 0),
             balanceDue: invoices.reduce((sum, inv) => sum + inv.balance_due, 0),
         };
@@ -370,18 +344,16 @@ export default function InvoiceManagement({
     return (
         <Card className={className}>
             <CardHeader className="pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <CardTitle className="text-lg sm:text-xl flex items-center">
-                            <CreditCard className="h-5 w-5 mr-2" />
+                        <CardTitle className="flex items-center text-lg sm:text-xl">
+                            <CreditCard className="mr-2 h-5 w-5" />
                             Outstanding Bills
                         </CardTitle>
-                        <CardDescription>
-                            Pay your unpaid invoices quickly and easily
-                        </CardDescription>
+                        <CardDescription>Pay your unpaid invoices quickly and easily</CardDescription>
                     </div>
                     <Button onClick={loadInvoices} disabled={isLoading}>
-                        <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                         Refresh
                     </Button>
                 </div>
@@ -389,57 +361,53 @@ export default function InvoiceManagement({
 
             <CardContent className="space-y-6">
                 {/* Invoice Statistics */}
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
                     <Card>
                         <CardContent className="pt-4">
                             <div className="text-center">
-                                <p className="text-xs sm:text-sm text-gray-600">Total</p>
-                                <p className="text-lg sm:text-xl font-bold text-gray-900">{stats.total}</p>
+                                <p className="text-xs text-gray-600 sm:text-sm">Total</p>
+                                <p className="text-lg font-bold text-gray-900 sm:text-xl">{stats.total}</p>
                             </div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="pt-4">
                             <div className="text-center">
-                                <p className="text-xs sm:text-sm text-gray-600">Paid</p>
-                                <p className="text-lg sm:text-xl font-bold text-green-600">{stats.paid}</p>
+                                <p className="text-xs text-gray-600 sm:text-sm">Paid</p>
+                                <p className="text-lg font-bold text-green-600 sm:text-xl">{stats.paid}</p>
                             </div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="pt-4">
                             <div className="text-center">
-                                <p className="text-xs sm:text-sm text-gray-600">Overdue</p>
-                                <p className="text-lg sm:text-xl font-bold text-red-600">{stats.overdue}</p>
+                                <p className="text-xs text-gray-600 sm:text-sm">Overdue</p>
+                                <p className="text-lg font-bold text-red-600 sm:text-xl">{stats.overdue}</p>
                             </div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="pt-4">
                             <div className="text-center">
-                                <p className="text-xs sm:text-sm text-gray-600">Total Amount</p>
-                                <p className="text-sm sm:text-base font-bold text-blue-600">
-                                    {formatCurrency(stats.totalAmount)}
-                                </p>
+                                <p className="text-xs text-gray-600 sm:text-sm">Total Amount</p>
+                                <p className="text-sm font-bold text-blue-600 sm:text-base">{formatCurrency(stats.totalAmount)}</p>
                             </div>
                         </CardContent>
                     </Card>
                     <Card>
                         <CardContent className="pt-4">
                             <div className="text-center">
-                                <p className="text-xs sm:text-sm text-gray-600">Balance Due</p>
-                                <p className="text-sm sm:text-base font-bold text-orange-600">
-                                    {formatCurrency(stats.balanceDue)}
-                                </p>
+                                <p className="text-xs text-gray-600 sm:text-sm">Balance Due</p>
+                                <p className="text-sm font-bold text-orange-600 sm:text-base">{formatCurrency(stats.balanceDue)}</p>
                             </div>
                         </CardContent>
                     </Card>
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col gap-4 sm:flex-row">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                         <Input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -478,44 +446,41 @@ export default function InvoiceManagement({
                 {/* Invoices List */}
                 {isLoading ? (
                     <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                         <span className="ml-3 text-gray-600">Loading invoices...</span>
                     </div>
                 ) : filteredInvoices.length === 0 ? (
-                    <div className="text-center py-8">
-                        <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No Invoices Found</h3>
+                    <div className="py-8 text-center">
+                        <FileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                        <h3 className="mb-2 text-lg font-medium text-gray-900">No Invoices Found</h3>
                         <p className="text-gray-600">
                             {searchQuery || statusFilter !== 'all' || dateFilter !== 'all'
                                 ? 'Try adjusting your filters'
-                                : 'Your invoices will appear here once you start shipping'
-                            }
+                                : 'Your invoices will appear here once you start shipping'}
                         </p>
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {(filteredInvoices || []).map((invoice) => (
-                            <Card key={invoice.id} className="hover:shadow-md transition-shadow">
+                            <Card key={invoice.id} className="transition-shadow hover:shadow-md">
                                 <CardContent className="pt-4">
-                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                         <div className="flex-1">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <h4 className="font-medium text-gray-900">
-                                                    {invoice.invoice_number}
-                                                </h4>
+                                            <div className="mb-2 flex items-center gap-3">
+                                                <h4 className="font-medium text-gray-900">{invoice.invoice_number}</h4>
                                                 <Badge className={getStatusColor(invoice.status)}>
                                                     {getStatusIcon(invoice.status)}
                                                     <span className="ml-1 capitalize">{invoice.status}</span>
                                                 </Badge>
                                                 {invoice.status === 'overdue' && (
-                                                    <Badge className="bg-red-100 text-red-800 border-red-300">
-                                                        <AlertTriangle className="h-3 w-3 mr-1" />
+                                                    <Badge className="border-red-300 bg-red-100 text-red-800">
+                                                        <AlertTriangle className="mr-1 h-3 w-3" />
                                                         Overdue
                                                     </Badge>
                                                 )}
                                             </div>
-                                            
-                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-gray-600">
+
+                                            <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 sm:grid-cols-4">
                                                 <div>
                                                     <span className="font-medium">Amount:</span>
                                                     <p className="font-bold text-gray-900">
@@ -524,9 +489,7 @@ export default function InvoiceManagement({
                                                 </div>
                                                 <div>
                                                     <span className="font-medium">Balance Due:</span>
-                                                    <p className={`font-bold ${
-                                                        invoice.balance_due > 0 ? 'text-red-600' : 'text-green-600'
-                                                    }`}>
+                                                    <p className={`font-bold ${invoice.balance_due > 0 ? 'text-red-600' : 'text-green-600'}`}>
                                                         {formatCurrency(invoice.balance_due, invoice.currency)}
                                                     </p>
                                                 </div>
@@ -536,11 +499,13 @@ export default function InvoiceManagement({
                                                 </div>
                                                 <div>
                                                     <span className="font-medium">Due Date:</span>
-                                                    <p className={
-                                                        new Date(invoice.due_date) < new Date() && invoice.balance_due > 0
-                                                            ? 'text-red-600 font-bold'
-                                                            : ''
-                                                    }>
+                                                    <p
+                                                        className={
+                                                            new Date(invoice.due_date) < new Date() && invoice.balance_due > 0
+                                                                ? 'font-bold text-red-600'
+                                                                : ''
+                                                        }
+                                                    >
                                                         {formatDate(invoice.due_date)}
                                                     </p>
                                                 </div>
@@ -550,30 +515,20 @@ export default function InvoiceManagement({
                                             {invoice.items && invoice.items.length > 0 && (
                                                 <div className="mt-3 text-sm text-gray-600">
                                                     <span className="font-medium">Services:</span>
-                                                    <p className="truncate">
-                                                        {invoice.items.map(item => item.description).join(', ')}
-                                                    </p>
+                                                    <p className="truncate">{invoice.items.map((item) => item.description).join(', ')}</p>
                                                 </div>
                                             )}
                                         </div>
 
                                         {/* Actions */}
                                         {showActions && (
-                                            <div className="flex flex-col sm:flex-row gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleViewInvoice(invoice)}
-                                                >
-                                                    <Eye className="h-4 w-4 mr-2" />
+                                            <div className="flex flex-col gap-2 sm:flex-row">
+                                                <Button variant="outline" size="sm" onClick={() => handleViewInvoice(invoice)}>
+                                                    <Eye className="mr-2 h-4 w-4" />
                                                     View
                                                 </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => handleDownloadInvoice(invoice)}
-                                                >
-                                                    <Download className="h-4 w-4 mr-2" />
+                                                <Button variant="outline" size="sm" onClick={() => handleDownloadInvoice(invoice)}>
+                                                    <Download className="mr-2 h-4 w-4" />
                                                     Download
                                                 </Button>
                                                 {invoice.balance_due > 0 && (
@@ -582,7 +537,7 @@ export default function InvoiceManagement({
                                                         onClick={() => handlePayInvoice(invoice)}
                                                         className="bg-green-600 hover:bg-green-700"
                                                     >
-                                                        <CreditCard className="h-4 w-4 mr-2" />
+                                                        <CreditCard className="mr-2 h-4 w-4" />
                                                         Pay Now
                                                     </Button>
                                                 )}

@@ -1,26 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { 
-    MapPin,
-    Search,
-    Navigation,
-    Clock,
-    Star,
-    Package,
-    Shield,
-    Truck,
-    Building,
-    Home,
-    CheckCircle,
-    AlertCircle,
-    Phone,
-    ExternalLink,
-    Filter,
-    Map
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { AlertCircle, Building, CheckCircle, Clock, Home, Map, MapPin, Navigation, Package, Phone, Search, Shield, Star, Truck } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface PickupLocation {
     id: string;
@@ -60,12 +43,12 @@ interface Props {
     packageSize?: 'small' | 'medium' | 'large';
 }
 
-export default function AlternativeLocations({ 
-    className = '', 
-    currentAddress = "123 Business St, New York, NY 10019",
+export default function AlternativeLocations({
+    className = '',
+    currentAddress = '123 Business St, New York, NY 10019',
     selectedLocation,
     onLocationSelect,
-    packageSize = 'medium'
+    packageSize = 'medium',
 }: Props) {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedType, setSelectedType] = useState<string>('all');
@@ -79,7 +62,7 @@ export default function AlternativeLocations({
 
     const loadNearbyLocations = () => {
         setIsLoading(true);
-        
+
         // Simulate API call
         setTimeout(() => {
             const mockLocations: PickupLocation[] = [
@@ -125,8 +108,8 @@ export default function AlternativeLocations({
                     available: true,
                     capacity: 78,
                     maxPackageSize: 'Medium (up to 25 lbs)',
-                    fees: { pickup: 2.99, storage: 1.00 },
-                    coordinates: { lat: 40.7580, lng: -73.9855 },
+                    fees: { pickup: 2.99, storage: 1.0 },
+                    coordinates: { lat: 40.758, lng: -73.9855 },
                 },
                 {
                     id: 'loc-3',
@@ -147,8 +130,8 @@ export default function AlternativeLocations({
                     features: ['Staff Assistance', 'Package Tracking', 'Extended Hours', 'Multiple Services'],
                     available: true,
                     maxPackageSize: 'Large (up to 70 lbs)',
-                    fees: { pickup: 4.99, storage: 2.00 },
-                    coordinates: { lat: 40.7570, lng: -73.9900 },
+                    fees: { pickup: 4.99, storage: 2.0 },
+                    coordinates: { lat: 40.757, lng: -73.99 },
                 },
                 {
                     id: 'loc-4',
@@ -170,7 +153,7 @@ export default function AlternativeLocations({
                     available: true,
                     maxPackageSize: 'Large (up to 70 lbs)',
                     fees: { pickup: 0, storage: 0 },
-                    coordinates: { lat: 40.7540, lng: -73.9920 },
+                    coordinates: { lat: 40.754, lng: -73.992 },
                 },
                 {
                     id: 'loc-5',
@@ -195,15 +178,15 @@ export default function AlternativeLocations({
                     coordinates: { lat: 40.7505, lng: -73.9934 },
                 },
             ];
-            
+
             setLocations(mockLocations);
             setIsLoading(false);
         }, 800);
     };
 
-    const filteredLocations = locations.filter(location => {
-        const matchesSearch = location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            location.address.toLowerCase().includes(searchQuery.toLowerCase());
+    const filteredLocations = locations.filter((location) => {
+        const matchesSearch =
+            location.name.toLowerCase().includes(searchQuery.toLowerCase()) || location.address.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesType = selectedType === 'all' || location.type === selectedType;
         return matchesSearch && matchesType;
     });
@@ -246,44 +229,35 @@ export default function AlternativeLocations({
 
     const renderStars = (rating: number) => {
         return Array.from({ length: 5 }, (_, i) => (
-            <Star
-                key={i}
-                className={`h-4 w-4 ${
-                    i < Math.floor(rating) 
-                        ? 'text-yellow-400 fill-current' 
-                        : 'text-gray-300'
-                }`}
-            />
+            <Star key={i} className={`h-4 w-4 ${i < Math.floor(rating) ? 'fill-current text-yellow-400' : 'text-gray-300'}`} />
         ));
     };
 
     return (
         <Card className={className}>
             <CardHeader className="pb-4">
-                <CardTitle className="text-lg sm:text-xl flex items-center">
-                    <MapPin className="h-5 w-5 mr-2" />
+                <CardTitle className="flex items-center text-lg sm:text-xl">
+                    <MapPin className="mr-2 h-5 w-5" />
                     Alternative Delivery Locations
                 </CardTitle>
-                <CardDescription>
-                    Choose a convenient pickup location near you
-                </CardDescription>
+                <CardDescription>Choose a convenient pickup location near you</CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">
                 {/* Current Address */}
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-3">
                     <div className="flex items-center gap-2">
                         <Home className="h-4 w-4 text-blue-600" />
                         <span className="text-sm font-medium text-blue-900">Current delivery address:</span>
                     </div>
-                    <p className="text-sm text-blue-800 mt-1">{currentAddress}</p>
+                    <p className="mt-1 text-sm text-blue-800">{currentAddress}</p>
                 </div>
 
                 {/* Search and Filters */}
                 <div className="space-y-4">
                     <div className="flex gap-3">
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <div className="relative flex-1">
+                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                             <Input
                                 placeholder="Search locations..."
                                 value={searchQuery}
@@ -291,22 +265,14 @@ export default function AlternativeLocations({
                                 className="pl-10"
                             />
                         </div>
-                        <Button
-                            variant="outline"
-                            onClick={() => setShowMap(!showMap)}
-                            className="px-3"
-                        >
+                        <Button variant="outline" onClick={() => setShowMap(!showMap)} className="px-3">
                             <Map className="h-4 w-4" />
                         </Button>
                     </div>
 
                     {/* Type Filters */}
                     <div className="flex gap-2 overflow-x-auto pb-2">
-                        <Button
-                            variant={selectedType === 'all' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setSelectedType('all')}
-                        >
+                        <Button variant={selectedType === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setSelectedType('all')}>
                             All Types
                         </Button>
                         <Button
@@ -314,23 +280,15 @@ export default function AlternativeLocations({
                             size="sm"
                             onClick={() => setSelectedType('pickup_point')}
                         >
-                            <Package className="h-4 w-4 mr-2" />
+                            <Package className="mr-2 h-4 w-4" />
                             Pickup Points
                         </Button>
-                        <Button
-                            variant={selectedType === 'locker' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setSelectedType('locker')}
-                        >
-                            <Shield className="h-4 w-4 mr-2" />
+                        <Button variant={selectedType === 'locker' ? 'default' : 'outline'} size="sm" onClick={() => setSelectedType('locker')}>
+                            <Shield className="mr-2 h-4 w-4" />
                             Lockers
                         </Button>
-                        <Button
-                            variant={selectedType === 'store' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setSelectedType('store')}
-                        >
-                            <Building className="h-4 w-4 mr-2" />
+                        <Button variant={selectedType === 'store' ? 'default' : 'outline'} size="sm" onClick={() => setSelectedType('store')}>
+                            <Building className="mr-2 h-4 w-4" />
                             Stores
                         </Button>
                     </div>
@@ -339,7 +297,7 @@ export default function AlternativeLocations({
                 {/* Locations List */}
                 {isLoading ? (
                     <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                         <span className="ml-3 text-gray-600">Finding nearby locations...</span>
                     </div>
                 ) : (
@@ -347,37 +305,31 @@ export default function AlternativeLocations({
                         {filteredLocations.map((location) => (
                             <div
                                 key={location.id}
-                                className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                                className={`cursor-pointer rounded-lg border p-4 transition-all ${
                                     selectedLocation === location.id
                                         ? 'border-blue-500 bg-blue-50'
                                         : location.available
-                                        ? 'border-gray-200 hover:border-gray-300'
-                                        : 'border-gray-100 bg-gray-50 cursor-not-allowed opacity-75'
+                                          ? 'border-gray-200 hover:border-gray-300'
+                                          : 'cursor-not-allowed border-gray-100 bg-gray-50 opacity-75'
                                 }`}
                                 onClick={() => handleLocationSelect(location)}
                             >
                                 <div className="flex items-start justify-between">
-                                    <div className="flex items-start gap-3 flex-1">
-                                        <div className={`p-2 rounded-lg ${getLocationTypeColor(location.type)}`}>
+                                    <div className="flex flex-1 items-start gap-3">
+                                        <div className={`rounded-lg p-2 ${getLocationTypeColor(location.type)}`}>
                                             {getLocationTypeIcon(location.type)}
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <h4 className="font-medium text-gray-900 truncate">{location.name}</h4>
-                                                <Badge className={getLocationTypeColor(location.type)}>
-                                                    {getLocationTypeName(location.type)}
-                                                </Badge>
-                                                {!location.available && (
-                                                    <Badge className="bg-red-100 text-red-800 border-red-300">
-                                                        Full
-                                                    </Badge>
-                                                )}
+                                        <div className="min-w-0 flex-1">
+                                            <div className="mb-2 flex items-center gap-2">
+                                                <h4 className="truncate font-medium text-gray-900">{location.name}</h4>
+                                                <Badge className={getLocationTypeColor(location.type)}>{getLocationTypeName(location.type)}</Badge>
+                                                {!location.available && <Badge className="border-red-300 bg-red-100 text-red-800">Full</Badge>}
                                             </div>
-                                            
-                                            <p className="text-sm text-gray-600 mb-2">{location.address}</p>
-                                            
+
+                                            <p className="mb-2 text-sm text-gray-600">{location.address}</p>
+
                                             {/* Distance and Time */}
-                                            <div className="flex items-center gap-4 mb-2 text-sm text-gray-600">
+                                            <div className="mb-2 flex items-center gap-4 text-sm text-gray-600">
                                                 <div className="flex items-center gap-1">
                                                     <Navigation className="h-3 w-3" />
                                                     <span>{location.distance} mi</span>
@@ -393,23 +345,21 @@ export default function AlternativeLocations({
                                             </div>
 
                                             {/* Rating */}
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <div className="flex items-center">
-                                                    {renderStars(location.rating)}
-                                                </div>
+                                            <div className="mb-2 flex items-center gap-2">
+                                                <div className="flex items-center">{renderStars(location.rating)}</div>
                                                 <span className="text-sm text-gray-600">
                                                     {location.rating} ({location.reviewCount} reviews)
                                                 </span>
                                             </div>
 
                                             {/* Hours */}
-                                            <div className="text-sm text-gray-600 mb-2">
+                                            <div className="mb-2 text-sm text-gray-600">
                                                 <span className="font-medium">Hours: </span>
                                                 {location.hours.weekdays}
                                             </div>
 
                                             {/* Features */}
-                                            <div className="flex flex-wrap gap-1 mb-2">
+                                            <div className="mb-2 flex flex-wrap gap-1">
                                                 {location.features.slice(0, 3).map((feature, index) => (
                                                     <Badge key={index} variant="outline" className="text-xs">
                                                         {feature}
@@ -424,30 +374,22 @@ export default function AlternativeLocations({
 
                                             {/* Capacity and Size */}
                                             <div className="flex items-center gap-4 text-xs text-gray-500">
-                                                {location.capacity !== undefined && (
-                                                    <span>Capacity: {location.capacity}% available</span>
-                                                )}
-                                                {location.maxPackageSize && (
-                                                    <span>Max size: {location.maxPackageSize}</span>
-                                                )}
+                                                {location.capacity !== undefined && <span>Capacity: {location.capacity}% available</span>}
+                                                {location.maxPackageSize && <span>Max size: {location.maxPackageSize}</span>}
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="text-right ml-4">
+                                    <div className="ml-4 text-right">
                                         {/* Fees */}
                                         <div className="text-sm">
                                             {location.fees.pickup > 0 ? (
-                                                <span className="font-medium text-gray-900">
-                                                    ${location.fees.pickup.toFixed(2)} pickup fee
-                                                </span>
+                                                <span className="font-medium text-gray-900">${location.fees.pickup.toFixed(2)} pickup fee</span>
                                             ) : (
                                                 <span className="font-medium text-green-600">Free pickup</span>
                                             )}
                                             {location.fees.storage > 0 && (
-                                                <div className="text-xs text-gray-500 mt-1">
-                                                    +${location.fees.storage.toFixed(2)}/day storage
-                                                </div>
+                                                <div className="mt-1 text-xs text-gray-500">+${location.fees.storage.toFixed(2)}/day storage</div>
                                             )}
                                         </div>
 
@@ -456,7 +398,7 @@ export default function AlternativeLocations({
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                className="mt-2 p-1 h-auto"
+                                                className="mt-2 h-auto p-1"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     window.open(`tel:${location.phone}`);
@@ -469,22 +411,16 @@ export default function AlternativeLocations({
                                 </div>
 
                                 {selectedLocation === location.id && (
-                                    <div className="mt-3 p-3 bg-blue-100 border border-blue-200 rounded-lg">
+                                    <div className="mt-3 rounded-lg border border-blue-200 bg-blue-100 p-3">
                                         <div className="flex items-center gap-2">
                                             <CheckCircle className="h-4 w-4 text-blue-600" />
-                                            <span className="text-sm font-medium text-blue-900">
-                                                Selected for pickup
-                                            </span>
+                                            <span className="text-sm font-medium text-blue-900">Selected for pickup</span>
                                         </div>
-                                        <p className="text-sm text-blue-800 mt-1">
-                                            Your package will be available for pickup at this location
-                                        </p>
-                                        <div className="flex items-center gap-4 mt-2 text-sm text-blue-800">
+                                        <p className="mt-1 text-sm text-blue-800">Your package will be available for pickup at this location</p>
+                                        <div className="mt-2 flex items-center gap-4 text-sm text-blue-800">
                                             <span>📍 {location.distance} mi away</span>
                                             <span>🕒 {location.hours.weekdays}</span>
-                                            {location.fees.pickup > 0 && (
-                                                <span>💰 ${location.fees.pickup.toFixed(2)} fee</span>
-                                            )}
+                                            {location.fees.pickup > 0 && <span>💰 ${location.fees.pickup.toFixed(2)} fee</span>}
                                         </div>
                                     </div>
                                 )}
@@ -492,21 +428,19 @@ export default function AlternativeLocations({
                         ))}
 
                         {filteredLocations.length === 0 && !isLoading && (
-                            <div className="text-center py-8">
-                                <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <div className="py-8 text-center">
+                                <AlertCircle className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                 <p className="text-gray-500">No locations found</p>
-                                <p className="text-sm text-gray-400 mt-1">
-                                    Try adjusting your search or filters
-                                </p>
+                                <p className="mt-1 text-sm text-gray-400">Try adjusting your search or filters</p>
                             </div>
                         )}
                     </div>
                 )}
 
                 {/* Summary */}
-                <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-900 mb-3">Pickup Location Benefits</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div className="rounded-lg bg-gray-50 p-4">
+                    <h4 className="mb-3 font-medium text-gray-900">Pickup Location Benefits</h4>
+                    <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                         <div className="flex items-center gap-2">
                             <CheckCircle className="h-4 w-4 text-green-600" />
                             <span>Secure package storage</span>

@@ -1,17 +1,8 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-    Calendar,
-    ChevronLeft,
-    ChevronRight,
-    Package,
-    Clock,
-    MapPin,
-    ExternalLink,
-    CalendarDays
-} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar, CalendarDays, ChevronLeft, ChevronRight, Clock, Package } from 'lucide-react';
+import { useState } from 'react';
 
 interface UpcomingDelivery {
     id: number;
@@ -45,15 +36,13 @@ export default function UpcomingDeliveriesCalendar({ deliveries, className = '' 
     const formatDate = (date: Date) => {
         return date.toLocaleDateString('en-US', {
             month: 'long',
-            year: 'numeric'
+            year: 'numeric',
         });
     };
 
     const getDeliveriesForDate = (date: Date) => {
         const dateString = date.toISOString().split('T')[0];
-        return deliveries.filter(delivery => 
-            delivery.estimated_delivery_date.split('T')[0] === dateString
-        );
+        return deliveries.filter((delivery) => delivery.estimated_delivery_date.split('T')[0] === dateString);
     };
 
     const getPriorityColor = (priority: string) => {
@@ -80,7 +69,7 @@ export default function UpcomingDeliveriesCalendar({ deliveries, className = '' 
     };
 
     const navigateMonth = (direction: 'prev' | 'next') => {
-        setCurrentDate(prev => {
+        setCurrentDate((prev) => {
             const newDate = new Date(prev);
             if (direction === 'prev') {
                 newDate.setMonth(prev.getMonth() - 1);
@@ -110,40 +99,32 @@ export default function UpcomingDeliveriesCalendar({ deliveries, className = '' 
             days.push(
                 <div
                     key={day}
-                    className={`h-20 sm:h-24 p-1 border border-gray-200 ${
-                        isToday ? 'bg-blue-50 border-blue-200' : 'bg-white'
-                    } hover:bg-gray-50 transition-colors`}
+                    className={`h-20 border border-gray-200 p-1 sm:h-24 ${
+                        isToday ? 'border-blue-200 bg-blue-50' : 'bg-white'
+                    } transition-colors hover:bg-gray-50`}
                 >
-                    <div className={`text-sm font-medium mb-1 ${
-                        isToday ? 'text-blue-600' : 'text-gray-900'
-                    }`}>
-                        {day}
-                    </div>
+                    <div className={`mb-1 text-sm font-medium ${isToday ? 'text-blue-600' : 'text-gray-900'}`}>{day}</div>
                     <div className="space-y-1">
-                        {dayDeliveries.slice(0, 2).map(delivery => (
+                        {dayDeliveries.slice(0, 2).map((delivery) => (
                             <div
                                 key={delivery.id}
-                                className={`text-xs px-1 py-0.5 rounded truncate ${getPriorityColor(delivery.priority)}`}
+                                className={`truncate rounded px-1 py-0.5 text-xs ${getPriorityColor(delivery.priority)}`}
                                 title={`${delivery.tracking_number} - ${delivery.recipient_name}`}
                             >
                                 {delivery.tracking_number}
                             </div>
                         ))}
-                        {dayDeliveries.length > 2 && (
-                            <div className="text-xs text-gray-500">
-                                +{dayDeliveries.length - 2} more
-                            </div>
-                        )}
+                        {dayDeliveries.length > 2 && <div className="text-xs text-gray-500">+{dayDeliveries.length - 2} more</div>}
                     </div>
-                </div>
+                </div>,
             );
         }
 
         return (
-            <div className="grid grid-cols-7 gap-0 border border-gray-200 rounded-lg overflow-hidden">
+            <div className="grid grid-cols-7 gap-0 overflow-hidden rounded-lg border border-gray-200">
                 {/* Day headers */}
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="bg-gray-50 p-2 text-center text-sm font-medium text-gray-700 border-b border-gray-200">
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                    <div key={day} className="border-b border-gray-200 bg-gray-50 p-2 text-center text-sm font-medium text-gray-700">
                         {day}
                     </div>
                 ))}
@@ -159,37 +140,31 @@ export default function UpcomingDeliveriesCalendar({ deliveries, className = '' 
 
         return (
             <div className="space-y-3">
-                {sortedDeliveries.map(delivery => (
-                    <div key={delivery.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                {sortedDeliveries.map((delivery) => (
+                    <div key={delivery.id} className="flex items-center space-x-3 rounded-lg bg-gray-50 p-3 transition-colors hover:bg-gray-100">
                         <div className="flex-shrink-0">
-                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getPriorityColor(delivery.priority)}`}>
+                            <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${getPriorityColor(delivery.priority)}`}>
                                 <Package className="h-5 w-5" />
                             </div>
                         </div>
-                        
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2 mb-1">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                    {delivery.tracking_number}
-                                </p>
-                                <Badge className={`text-xs ${getServiceTypeColor(delivery.service_type)}`}>
-                                    {delivery.service_type}
-                                </Badge>
+
+                        <div className="min-w-0 flex-1">
+                            <div className="mb-1 flex items-center space-x-2">
+                                <p className="truncate text-sm font-medium text-gray-900">{delivery.tracking_number}</p>
+                                <Badge className={`text-xs ${getServiceTypeColor(delivery.service_type)}`}>{delivery.service_type}</Badge>
                             </div>
-                            
-                            <p className="text-sm text-gray-600 truncate mb-1">
-                                {delivery.recipient_name}
-                            </p>
-                            
+
+                            <p className="mb-1 truncate text-sm text-gray-600">{delivery.recipient_name}</p>
+
                             <div className="flex items-center space-x-4 text-xs text-gray-500">
                                 <div className="flex items-center">
-                                    <Calendar className="h-3 w-3 mr-1" />
+                                    <Calendar className="mr-1 h-3 w-3" />
                                     {new Date(delivery.estimated_delivery_date).toLocaleDateString()}
                                 </div>
-                                
+
                                 {delivery.delivery_time_window && (
                                     <div className="flex items-center">
-                                        <Clock className="h-3 w-3 mr-1" />
+                                        <Clock className="mr-1 h-3 w-3" />
                                         {delivery.delivery_time_window}
                                     </div>
                                 )}
@@ -197,14 +172,12 @@ export default function UpcomingDeliveriesCalendar({ deliveries, className = '' 
                         </div>
                     </div>
                 ))}
-                
+
                 {sortedDeliveries.length === 0 && (
-                    <div className="text-center py-8">
-                        <CalendarDays className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <div className="py-8 text-center">
+                        <CalendarDays className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                         <p className="text-gray-500">No upcoming deliveries</p>
-                        <p className="text-sm text-gray-400 mt-1">
-                            Your scheduled deliveries will appear here
-                        </p>
+                        <p className="mt-1 text-sm text-gray-400">Your scheduled deliveries will appear here</p>
                     </div>
                 )}
             </div>
@@ -216,83 +189,59 @@ export default function UpcomingDeliveriesCalendar({ deliveries, className = '' 
             <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center">
-                        <CalendarDays className="h-5 w-5 mr-2" />
+                        <CalendarDays className="mr-2 h-5 w-5" />
                         Upcoming Deliveries
                     </div>
                     <div className="flex items-center space-x-2">
-                        <Button
-                            variant={viewMode === 'calendar' ? 'default' : 'ghost'}
-                            size="sm"
-                            onClick={() => setViewMode('calendar')}
-                        >
+                        <Button variant={viewMode === 'calendar' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('calendar')}>
                             Calendar
                         </Button>
-                        <Button
-                            variant={viewMode === 'list' ? 'default' : 'ghost'}
-                            size="sm"
-                            onClick={() => setViewMode('list')}
-                        >
+                        <Button variant={viewMode === 'list' ? 'default' : 'ghost'} size="sm" onClick={() => setViewMode('list')}>
                             List
                         </Button>
                     </div>
                 </CardTitle>
-                <CardDescription>
-                    Track your scheduled deliveries and time windows
-                </CardDescription>
+                <CardDescription>Track your scheduled deliveries and time windows</CardDescription>
             </CardHeader>
             <CardContent>
                 {viewMode === 'calendar' && (
                     <div className="space-y-4">
                         {/* Calendar Navigation */}
                         <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                                {formatDate(currentDate)}
-                            </h3>
+                            <h3 className="text-lg font-semibold text-gray-900">{formatDate(currentDate)}</h3>
                             <div className="flex items-center space-x-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => navigateMonth('prev')}
-                                >
+                                <Button variant="outline" size="sm" onClick={() => navigateMonth('prev')}>
                                     <ChevronLeft className="h-4 w-4" />
                                 </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setCurrentDate(new Date())}
-                                >
+                                <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
                                     Today
                                 </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => navigateMonth('next')}
-                                >
+                                <Button variant="outline" size="sm" onClick={() => navigateMonth('next')}>
                                     <ChevronRight className="h-4 w-4" />
                                 </Button>
                             </div>
                         </div>
-                        
+
                         {renderCalendarView()}
-                        
+
                         {/* Legend */}
                         <div className="flex items-center justify-center space-x-4 text-xs">
                             <div className="flex items-center space-x-1">
-                                <div className="w-3 h-3 bg-red-100 border border-red-200 rounded"></div>
+                                <div className="h-3 w-3 rounded border border-red-200 bg-red-100"></div>
                                 <span>High Priority</span>
                             </div>
                             <div className="flex items-center space-x-1">
-                                <div className="w-3 h-3 bg-yellow-100 border border-yellow-200 rounded"></div>
+                                <div className="h-3 w-3 rounded border border-yellow-200 bg-yellow-100"></div>
                                 <span>Medium Priority</span>
                             </div>
                             <div className="flex items-center space-x-1">
-                                <div className="w-3 h-3 bg-green-100 border border-green-200 rounded"></div>
+                                <div className="h-3 w-3 rounded border border-green-200 bg-green-100"></div>
                                 <span>Low Priority</span>
                             </div>
                         </div>
                     </div>
                 )}
-                
+
                 {viewMode === 'list' && renderListView()}
             </CardContent>
         </Card>

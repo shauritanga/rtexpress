@@ -1,19 +1,8 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-    TrendingUp,
-    TrendingDown,
-    Clock,
-    CheckCircle,
-    AlertTriangle,
-    Target,
-    Calendar,
-    BarChart3,
-    ExternalLink
-} from 'lucide-react';
+import { AlertTriangle, BarChart3, Calendar, CheckCircle, Clock, ExternalLink, Target, TrendingDown, TrendingUp } from 'lucide-react';
 
 interface PerformanceMetrics {
     on_time_delivery_rate: number;
@@ -73,7 +62,7 @@ export default function DeliveryPerformanceWidget({ metrics, className = '' }: P
     const getTrendText = () => {
         const deliveryChange = metrics.total_deliveries_this_month - metrics.total_deliveries_last_month;
         const timeChange = metrics.average_delivery_time - metrics.average_delivery_time_last_month;
-        
+
         if (metrics.performance_trend === 'up') {
             return `+${deliveryChange} deliveries, ${Math.abs(timeChange).toFixed(1)}h faster`;
         } else if (metrics.performance_trend === 'down') {
@@ -89,36 +78,29 @@ export default function DeliveryPerformanceWidget({ metrics, className = '' }: P
             <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center">
-                        <BarChart3 className="h-5 w-5 mr-2" />
+                        <BarChart3 className="mr-2 h-5 w-5" />
                         Delivery Performance
                     </div>
                     <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
                         Details
-                        <ExternalLink className="h-4 w-4 ml-1" />
+                        <ExternalLink className="ml-1 h-4 w-4" />
                     </Button>
                 </CardTitle>
-                <CardDescription>
-                    Your delivery performance metrics and trends
-                </CardDescription>
+                <CardDescription>Your delivery performance metrics and trends</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 {/* Main Performance Score */}
                 <div className="text-center">
-                    <div className="flex items-center justify-center space-x-3 mb-2">
+                    <div className="mb-2 flex items-center justify-center space-x-3">
                         <div className={`text-4xl font-bold ${getPerformanceColor(metrics.on_time_delivery_rate)}`}>
                             {metrics.on_time_delivery_rate.toFixed(1)}%
                         </div>
-                        <Badge className={performanceGrade.color}>
-                            {performanceGrade.grade}
-                        </Badge>
+                        <Badge className={performanceGrade.color}>{performanceGrade.grade}</Badge>
                     </div>
-                    <p className="text-sm text-gray-600 mb-4">On-Time Delivery Rate</p>
-                    
-                    <Progress 
-                        value={metrics.on_time_delivery_rate} 
-                        className="h-2 mb-2"
-                    />
-                    
+                    <p className="mb-4 text-sm text-gray-600">On-Time Delivery Rate</p>
+
+                    <Progress value={metrics.on_time_delivery_rate} className="mb-2 h-2" />
+
                     <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
                         {getTrendIcon()}
                         <span>{getTrendText()}</span>
@@ -128,85 +110,82 @@ export default function DeliveryPerformanceWidget({ metrics, className = '' }: P
                 {/* Performance Breakdown */}
                 <div className="grid grid-cols-3 gap-4">
                     <div className="text-center">
-                        <div className="flex items-center justify-center mb-2">
-                            <CheckCircle className="h-4 w-4 text-green-600 mr-1" />
+                        <div className="mb-2 flex items-center justify-center">
+                            <CheckCircle className="mr-1 h-4 w-4 text-green-600" />
                             <span className="text-sm font-medium text-gray-600">Early</span>
                         </div>
-                        <div className="text-lg font-bold text-green-600">
-                            {metrics.early_deliveries}
-                        </div>
+                        <div className="text-lg font-bold text-green-600">{metrics.early_deliveries}</div>
                         <div className="text-xs text-gray-500">
-                            {((metrics.early_deliveries / (metrics.early_deliveries + metrics.on_time_deliveries + metrics.late_deliveries)) * 100).toFixed(1)}%
+                            {(
+                                (metrics.early_deliveries / (metrics.early_deliveries + metrics.on_time_deliveries + metrics.late_deliveries)) *
+                                100
+                            ).toFixed(1)}
+                            %
                         </div>
                     </div>
-                    
+
                     <div className="text-center">
-                        <div className="flex items-center justify-center mb-2">
-                            <Target className="h-4 w-4 text-blue-600 mr-1" />
+                        <div className="mb-2 flex items-center justify-center">
+                            <Target className="mr-1 h-4 w-4 text-blue-600" />
                             <span className="text-sm font-medium text-gray-600">On Time</span>
                         </div>
-                        <div className="text-lg font-bold text-blue-600">
-                            {metrics.on_time_deliveries}
-                        </div>
+                        <div className="text-lg font-bold text-blue-600">{metrics.on_time_deliveries}</div>
                         <div className="text-xs text-gray-500">
-                            {((metrics.on_time_deliveries / (metrics.early_deliveries + metrics.on_time_deliveries + metrics.late_deliveries)) * 100).toFixed(1)}%
+                            {(
+                                (metrics.on_time_deliveries / (metrics.early_deliveries + metrics.on_time_deliveries + metrics.late_deliveries)) *
+                                100
+                            ).toFixed(1)}
+                            %
                         </div>
                     </div>
-                    
+
                     <div className="text-center">
-                        <div className="flex items-center justify-center mb-2">
-                            <AlertTriangle className="h-4 w-4 text-red-600 mr-1" />
+                        <div className="mb-2 flex items-center justify-center">
+                            <AlertTriangle className="mr-1 h-4 w-4 text-red-600" />
                             <span className="text-sm font-medium text-gray-600">Late</span>
                         </div>
-                        <div className="text-lg font-bold text-red-600">
-                            {metrics.late_deliveries}
-                        </div>
+                        <div className="text-lg font-bold text-red-600">{metrics.late_deliveries}</div>
                         <div className="text-xs text-gray-500">
-                            {((metrics.late_deliveries / (metrics.early_deliveries + metrics.on_time_deliveries + metrics.late_deliveries)) * 100).toFixed(1)}%
+                            {(
+                                (metrics.late_deliveries / (metrics.early_deliveries + metrics.on_time_deliveries + metrics.late_deliveries)) *
+                                100
+                            ).toFixed(1)}
+                            %
                         </div>
                     </div>
                 </div>
 
                 {/* Key Metrics */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
+                <div className="grid grid-cols-1 gap-4 border-t pt-4 sm:grid-cols-2">
                     <div className="flex items-center space-x-3">
-                        <div className="flex items-center justify-center w-10 h-10 bg-blue-50 rounded-lg">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
                             <Clock className="h-5 w-5 text-blue-600" />
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-600">Avg. Delivery Time</p>
-                            <p className="text-lg font-bold text-gray-900">
-                                {formatDeliveryTime(metrics.average_delivery_time)}
-                            </p>
+                            <p className="text-lg font-bold text-gray-900">{formatDeliveryTime(metrics.average_delivery_time)}</p>
                         </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3">
-                        <div className="flex items-center justify-center w-10 h-10 bg-green-50 rounded-lg">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
                             <Calendar className="h-5 w-5 text-green-600" />
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-600">This Month</p>
-                            <p className="text-lg font-bold text-gray-900">
-                                {metrics.total_deliveries_this_month} deliveries
-                            </p>
+                            <p className="text-lg font-bold text-gray-900">{metrics.total_deliveries_this_month} deliveries</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Customer Satisfaction Score (if available) */}
                 {metrics.customer_satisfaction_score && (
-                    <div className="pt-4 border-t">
-                        <div className="flex items-center justify-between mb-2">
+                    <div className="border-t pt-4">
+                        <div className="mb-2 flex items-center justify-between">
                             <span className="text-sm font-medium text-gray-600">Customer Satisfaction</span>
-                            <span className="text-sm font-bold text-gray-900">
-                                {metrics.customer_satisfaction_score.toFixed(1)}/5.0
-                            </span>
+                            <span className="text-sm font-bold text-gray-900">{metrics.customer_satisfaction_score.toFixed(1)}/5.0</span>
                         </div>
-                        <Progress 
-                            value={(metrics.customer_satisfaction_score / 5) * 100} 
-                            className="h-2"
-                        />
+                        <Progress value={(metrics.customer_satisfaction_score / 5) * 100} className="h-2" />
                     </div>
                 )}
             </CardContent>

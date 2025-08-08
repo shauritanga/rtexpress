@@ -1,30 +1,37 @@
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
+    Activity,
     BarChart3,
-    BookOpen,
-    LayoutGrid,
-    Package,
-    Truck,
-    Users,
-    UserCog,
-    Warehouse,
+    Bell,
     CreditCard,
     DollarSign,
-    Package2,
-    MapPin,
     FileText,
-    Bell,
-    Settings,
     HeadphonesIcon,
-    Activity,
-    Wifi,
-    Calculator,
-    Home
+    Home,
+    LayoutGrid,
+    MapPin,
+    Package,
+    Package2,
+    Truck,
+    UserCog,
+    Users,
+    Warehouse,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -157,8 +164,6 @@ const customerNavItems: NavItem[] = [
     },
 ];
 
-
-
 const footerNavItems: NavItem[] = [
     // {
     //     title: 'Settings',
@@ -201,9 +206,7 @@ export function AppSidebar() {
                     <>
                         {/* Core Operations - Most frequently used */}
                         <SidebarGroup>
-                            <SidebarGroupLabel>
-                                Core Operations
-                            </SidebarGroupLabel>
+                            <SidebarGroupLabel>Core Operations</SidebarGroupLabel>
                             <SidebarGroupContent>
                                 <NavMain items={coreOperationsNavItems} />
                             </SidebarGroupContent>
@@ -211,9 +214,7 @@ export function AppSidebar() {
 
                         {/* Business Management - Regular operations */}
                         <SidebarGroup>
-                            <SidebarGroupLabel>
-                                Business Management
-                            </SidebarGroupLabel>
+                            <SidebarGroupLabel>Business Management</SidebarGroupLabel>
                             <SidebarGroupContent>
                                 <NavMain items={businessManagementNavItems} />
                             </SidebarGroupContent>
@@ -221,9 +222,7 @@ export function AppSidebar() {
 
                         {/* Infrastructure & Setup - Configuration */}
                         <SidebarGroup>
-                            <SidebarGroupLabel>
-                                Infrastructure
-                            </SidebarGroupLabel>
+                            <SidebarGroupLabel>Infrastructure</SidebarGroupLabel>
                             <SidebarGroupContent>
                                 <NavMain items={infrastructureNavItems} />
                             </SidebarGroupContent>
@@ -231,9 +230,7 @@ export function AppSidebar() {
 
                         {/* Analytics & Monitoring - Strategic oversight */}
                         <SidebarGroup>
-                            <SidebarGroupLabel>
-                                Analytics & Monitoring
-                            </SidebarGroupLabel>
+                            <SidebarGroupLabel>Analytics & Monitoring</SidebarGroupLabel>
                             <SidebarGroupContent>
                                 <NavMain items={analyticsNavItems} />
                             </SidebarGroupContent>
@@ -241,9 +238,7 @@ export function AppSidebar() {
 
                         {/* Support & Communication - Customer service */}
                         <SidebarGroup>
-                            <SidebarGroupLabel>
-                                Support & Communication
-                            </SidebarGroupLabel>
+                            <SidebarGroupLabel>Support & Communication</SidebarGroupLabel>
                             <SidebarGroupContent>
                                 <NavMain items={supportNavItems} />
                             </SidebarGroupContent>

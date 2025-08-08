@@ -1,24 +1,12 @@
-import React, { useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { 
-    Plus,
-    Search,
-    Filter,
-    MessageSquare,
-    Clock,
-    CheckCircle,
-    AlertTriangle,
-    Star,
-    HeadphonesIcon,
-    MessageCircle,
-    TrendingUp
-} from 'lucide-react';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link } from '@inertiajs/react';
+import { CheckCircle, Clock, HeadphonesIcon, MessageCircle, MessageSquare, Plus, Search, Star } from 'lucide-react';
+import { useState } from 'react';
 
 interface Customer {
     id: number;
@@ -98,11 +86,7 @@ export default function SupportIndex({ customer, tickets, stats, filters }: Prop
 
         const config = priorityConfig[priority as keyof typeof priorityConfig] || priorityConfig.low;
 
-        return (
-            <Badge className={config.className}>
-                {config.label}
-            </Badge>
-        );
+        return <Badge className={config.className}>{config.label}</Badge>;
     };
 
     const formatDate = (dateString: string) => {
@@ -111,27 +95,25 @@ export default function SupportIndex({ customer, tickets, stats, filters }: Prop
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
         });
     };
 
     return (
         <AppLayout>
             <Head title="Support Center" />
-            
+
             <div className="space-y-6 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Support Center</h1>
-                        <p className="text-sm sm:text-base text-gray-600 mt-1">
-                            Get help and manage your support tickets
-                        </p>
+                        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Support Center</h1>
+                        <p className="mt-1 text-sm text-gray-600 sm:text-base">Get help and manage your support tickets</p>
                     </div>
                     <div className="flex gap-2">
                         <Button asChild>
                             <Link href="/customer/support/create">
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="mr-2 h-4 w-4" />
                                 New Ticket
                             </Link>
                         </Button>
@@ -139,11 +121,11 @@ export default function SupportIndex({ customer, tickets, stats, filters }: Prop
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-100 rounded-lg">
+                                <div className="rounded-lg bg-blue-100 p-2">
                                     <HeadphonesIcon className="h-5 w-5 text-blue-600" />
                                 </div>
                                 <div>
@@ -157,7 +139,7 @@ export default function SupportIndex({ customer, tickets, stats, filters }: Prop
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-orange-100 rounded-lg">
+                                <div className="rounded-lg bg-orange-100 p-2">
                                     <Clock className="h-5 w-5 text-orange-600" />
                                 </div>
                                 <div>
@@ -171,7 +153,7 @@ export default function SupportIndex({ customer, tickets, stats, filters }: Prop
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-green-100 rounded-lg">
+                                <div className="rounded-lg bg-green-100 p-2">
                                     <CheckCircle className="h-5 w-5 text-green-600" />
                                 </div>
                                 <div>
@@ -185,7 +167,7 @@ export default function SupportIndex({ customer, tickets, stats, filters }: Prop
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-yellow-100 rounded-lg">
+                                <div className="rounded-lg bg-yellow-100 p-2">
                                     <Star className="h-5 w-5 text-yellow-600" />
                                 </div>
                                 <div>
@@ -200,10 +182,10 @@ export default function SupportIndex({ customer, tickets, stats, filters }: Prop
                 {/* Filters */}
                 <Card>
                     <CardContent className="p-4">
-                        <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex flex-col gap-4 sm:flex-row">
                             <div className="flex-1">
                                 <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                    <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
                                     <Input
                                         placeholder="Search tickets..."
                                         value={searchQuery}
@@ -244,21 +226,17 @@ export default function SupportIndex({ customer, tickets, stats, filters }: Prop
                 <Card>
                     <CardHeader>
                         <CardTitle>Your Support Tickets</CardTitle>
-                        <CardDescription>
-                            View and manage your support requests
-                        </CardDescription>
+                        <CardDescription>View and manage your support requests</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {tickets.data.length === 0 ? (
-                            <div className="text-center py-8">
-                                <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                                <h3 className="text-lg font-medium text-gray-900 mb-2">No tickets found</h3>
-                                <p className="text-gray-600 mb-4">
-                                    You haven't created any support tickets yet.
-                                </p>
+                            <div className="py-8 text-center">
+                                <MessageCircle className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                                <h3 className="mb-2 text-lg font-medium text-gray-900">No tickets found</h3>
+                                <p className="mb-4 text-gray-600">You haven't created any support tickets yet.</p>
                                 <Button asChild>
                                     <Link href="/customer/support/create">
-                                        <Plus className="h-4 w-4 mr-2" />
+                                        <Plus className="mr-2 h-4 w-4" />
                                         Create Your First Ticket
                                     </Link>
                                 </Button>
@@ -266,11 +244,11 @@ export default function SupportIndex({ customer, tickets, stats, filters }: Prop
                         ) : (
                             <div className="space-y-4">
                                 {tickets.data.map((ticket) => (
-                                    <div key={ticket.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                    <div key={ticket.id} className="rounded-lg border p-4 transition-colors hover:bg-gray-50">
+                                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                             <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <Link 
+                                                <div className="mb-2 flex items-center gap-2">
+                                                    <Link
                                                         href={`/customer/support/${ticket.id}`}
                                                         className="font-medium text-blue-600 hover:text-blue-800"
                                                     >
@@ -279,22 +257,16 @@ export default function SupportIndex({ customer, tickets, stats, filters }: Prop
                                                     {getStatusBadge(ticket.status)}
                                                     {getPriorityBadge(ticket.priority)}
                                                 </div>
-                                                <h4 className="font-medium text-gray-900 mb-1">
-                                                    {ticket.subject}
-                                                </h4>
+                                                <h4 className="mb-1 font-medium text-gray-900">{ticket.subject}</h4>
                                                 <div className="flex items-center gap-4 text-sm text-gray-600">
                                                     <span>Category: {ticket.category}</span>
                                                     <span>Created: {formatDate(ticket.created_at)}</span>
-                                                    {ticket.assigned_to && (
-                                                        <span>Assigned to: {ticket.assigned_to.name}</span>
-                                                    )}
+                                                    {ticket.assigned_to && <span>Assigned to: {ticket.assigned_to.name}</span>}
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Button variant="outline" size="sm" asChild>
-                                                    <Link href={`/customer/support/${ticket.id}`}>
-                                                        View Details
-                                                    </Link>
+                                                    <Link href={`/customer/support/${ticket.id}`}>View Details</Link>
                                                 </Button>
                                             </div>
                                         </div>

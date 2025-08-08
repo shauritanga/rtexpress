@@ -1,21 +1,8 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { 
-    CheckCircle,
-    User,
-    MapPin,
-    Package,
-    Truck,
-    DollarSign,
-    ArrowLeft,
-    Loader2,
-    AlertTriangle,
-    Shield,
-    FileText
-} from 'lucide-react';
+import { AlertTriangle, ArrowLeft, CheckCircle, DollarSign, FileText, Loader2, MapPin, Package, Shield, Truck, User } from 'lucide-react';
 
 interface Props {
     data: any;
@@ -28,12 +15,9 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
     const { sender, recipient, packageDetails, serviceType, totalCost } = data;
 
     const formatAddress = (address: any) => {
-        return [
-            address.address_line_1,
-            address.address_line_2,
-            `${address.city}, ${address.state_province} ${address.postal_code}`,
-            address.country
-        ].filter(Boolean).join('\n');
+        return [address.address_line_1, address.address_line_2, `${address.city}, ${address.state_province} ${address.postal_code}`, address.country]
+            .filter(Boolean)
+            .join('\n');
     };
 
     const getSpecialHandlingLabel = (id: string) => {
@@ -54,21 +38,19 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center">
-                        <CheckCircle className="h-5 w-5 mr-2" />
+                        <CheckCircle className="mr-2 h-5 w-5" />
                         Review & Confirm Shipment
                     </CardTitle>
-                    <CardDescription>
-                        Please review all details before creating your shipment
-                    </CardDescription>
+                    <CardDescription>Please review all details before creating your shipment</CardDescription>
                 </CardHeader>
             </Card>
 
             {/* Sender & Recipient Summary */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center text-lg">
-                            <User className="h-4 w-4 mr-2" />
+                            <User className="mr-2 h-4 w-4" />
                             Sender
                         </CardTitle>
                     </CardHeader>
@@ -79,9 +61,7 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
                             <p className="text-sm text-gray-600">{sender.email}</p>
                             <p className="text-sm text-gray-600">{sender.phone}</p>
                             <div className="pt-2">
-                                <p className="text-sm whitespace-pre-line text-gray-600">
-                                    {formatAddress(sender)}
-                                </p>
+                                <p className="text-sm whitespace-pre-line text-gray-600">{formatAddress(sender)}</p>
                             </div>
                         </div>
                     </CardContent>
@@ -90,22 +70,18 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center text-lg">
-                            <MapPin className="h-4 w-4 mr-2" />
+                            <MapPin className="mr-2 h-4 w-4" />
                             Recipient
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-2">
-                            {recipient.company_name && (
-                                <p className="font-medium">{recipient.company_name}</p>
-                            )}
+                            {recipient.company_name && <p className="font-medium">{recipient.company_name}</p>}
                             <p className="font-medium">{recipient.contact_person}</p>
                             <p className="text-sm text-gray-600">{recipient.email}</p>
                             <p className="text-sm text-gray-600">{recipient.phone}</p>
                             <div className="pt-2">
-                                <p className="text-sm whitespace-pre-line text-gray-600">
-                                    {formatAddress(recipient)}
-                                </p>
+                                <p className="text-sm whitespace-pre-line text-gray-600">{formatAddress(recipient)}</p>
                             </div>
                         </div>
                     </CardContent>
@@ -116,15 +92,17 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center text-lg">
-                        <Package className="h-4 w-4 mr-2" />
+                        <Package className="mr-2 h-4 w-4" />
                         Package Details
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <div>
                             <p className="text-sm font-medium text-gray-700">Weight</p>
-                            <p className="text-lg">{packageDetails.weight} {packageDetails.weight_unit}</p>
+                            <p className="text-lg">
+                                {packageDetails.weight} {packageDetails.weight_unit}
+                            </p>
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-700">Dimensions</p>
@@ -146,19 +124,17 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
 
                     <div className="space-y-3">
                         <div>
-                            <p className="text-sm font-medium text-gray-700 mb-2">Contents Description</p>
-                            <p className="text-sm text-gray-600 p-3 bg-gray-50 rounded-md">
-                                {packageDetails.contents_description}
-                            </p>
+                            <p className="mb-2 text-sm font-medium text-gray-700">Contents Description</p>
+                            <p className="rounded-md bg-gray-50 p-3 text-sm text-gray-600">{packageDetails.contents_description}</p>
                         </div>
 
                         {packageDetails.special_handling.length > 0 && (
                             <div>
-                                <p className="text-sm font-medium text-gray-700 mb-2">Special Handling</p>
+                                <p className="mb-2 text-sm font-medium text-gray-700">Special Handling</p>
                                 <div className="flex flex-wrap gap-2">
                                     {packageDetails.special_handling.map((id: string) => (
-                                        <Badge key={id} variant="outline" className="text-orange-700 border-orange-300">
-                                            <AlertTriangle className="h-3 w-3 mr-1" />
+                                        <Badge key={id} variant="outline" className="border-orange-300 text-orange-700">
+                                            <AlertTriangle className="mr-1 h-3 w-3" />
                                             {getSpecialHandlingLabel(id)}
                                         </Badge>
                                     ))}
@@ -169,13 +145,13 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
                         <div className="flex flex-wrap gap-4">
                             {packageDetails.insurance_required && (
                                 <div className="flex items-center text-sm text-green-700">
-                                    <Shield className="h-4 w-4 mr-1" />
+                                    <Shield className="mr-1 h-4 w-4" />
                                     Insurance Coverage Included
                                 </div>
                             )}
                             {packageDetails.signature_required && (
                                 <div className="flex items-center text-sm text-blue-700">
-                                    <FileText className="h-4 w-4 mr-1" />
+                                    <FileText className="mr-1 h-4 w-4" />
                                     Signature Required
                                 </div>
                             )}
@@ -188,18 +164,16 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center text-lg">
-                        <Truck className="h-4 w-4 mr-2" />
+                        <Truck className="mr-2 h-4 w-4" />
                         Selected Service
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-4">
                         <div className="flex-1">
                             <h3 className="font-semibold text-blue-900">{serviceType.name}</h3>
-                            <p className="text-sm text-blue-700 mt-1">{serviceType.description}</p>
-                            <p className="text-sm text-blue-600 mt-2">
-                                Estimated delivery: {serviceType.estimated_days} business days
-                            </p>
+                            <p className="mt-1 text-sm text-blue-700">{serviceType.description}</p>
+                            <p className="mt-2 text-sm text-blue-600">Estimated delivery: {serviceType.estimated_days} business days</p>
                         </div>
                         <div className="text-right">
                             <p className="text-2xl font-bold text-blue-900">${totalCost.toFixed(2)}</p>
@@ -209,11 +183,11 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
 
                     {serviceType.features && serviceType.features.length > 0 && (
                         <div className="mt-4">
-                            <p className="text-sm font-medium text-gray-700 mb-2">Included Features</p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <p className="mb-2 text-sm font-medium text-gray-700">Included Features</p>
+                            <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                                 {serviceType.features.map((feature: string, index: number) => (
                                     <div key={index} className="flex items-center text-sm text-gray-600">
-                                        <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                                        <CheckCircle className="mr-2 h-4 w-4 text-green-600" />
                                         {feature}
                                     </div>
                                 ))}
@@ -227,7 +201,7 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center text-lg">
-                        <DollarSign className="h-4 w-4 mr-2" />
+                        <DollarSign className="mr-2 h-4 w-4" />
                         Cost Summary
                     </CardTitle>
                 </CardHeader>
@@ -260,7 +234,7 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
                             </div>
                         )}
                         <Separator />
-                        <div className="flex justify-between font-semibold text-lg">
+                        <div className="flex justify-between text-lg font-semibold">
                             <span>Total Cost</span>
                             <span>${totalCost.toFixed(2)}</span>
                         </div>
@@ -271,9 +245,9 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
             {/* Terms and Conditions */}
             <Card className="bg-gray-50">
                 <CardContent className="pt-6">
-                    <div className="text-sm text-gray-600 space-y-2">
+                    <div className="space-y-2 text-sm text-gray-600">
                         <p className="font-medium">Terms and Conditions:</p>
-                        <ul className="list-disc list-inside space-y-1 text-xs">
+                        <ul className="list-inside list-disc space-y-1 text-xs">
                             <li>By creating this shipment, you agree to RT Express Terms of Service</li>
                             <li>Declared value must accurately reflect the contents value</li>
                             <li>Prohibited items are not allowed and may result in shipment delays</li>
@@ -287,22 +261,18 @@ export default function ReviewConfirmStep({ data, onSubmit, onPrev, isSubmitting
             {/* Navigation */}
             <div className="flex justify-between">
                 <Button variant="outline" onClick={onPrev} disabled={isSubmitting}>
-                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                 </Button>
-                <Button 
-                    onClick={onSubmit} 
-                    disabled={isSubmitting}
-                    className="min-w-40 bg-green-600 hover:bg-green-700"
-                >
+                <Button onClick={onSubmit} disabled={isSubmitting} className="min-w-40 bg-green-600 hover:bg-green-700">
                     {isSubmitting ? (
                         <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             Creating Shipment...
                         </>
                     ) : (
                         <>
-                            <CheckCircle className="h-4 w-4 mr-2" />
+                            <CheckCircle className="mr-2 h-4 w-4" />
                             Create Shipment
                         </>
                     )}

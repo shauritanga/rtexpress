@@ -1,22 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { 
-    Truck,
-    Clock,
-    DollarSign,
-    ArrowRight,
-    ArrowLeft,
-    Zap,
-    Shield,
-    Plane,
-    CheckCircle,
-    Star,
-    Info
-} from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ArrowLeft, ArrowRight, CheckCircle, Clock, DollarSign, Plane, Star, Truck, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface ServiceType {
     id: string;
@@ -54,38 +42,35 @@ export default function ServiceSelectionStep({ data, serviceTypes, onUpdate, onN
 
     const calculateServiceCosts = async () => {
         setIsCalculating(true);
-        
+
         try {
             // Simulate API call for rate calculation
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
             const { packageDetails, sender, recipient } = data;
-            const billingWeight = Math.max(
-                packageDetails.weight || 0,
-                calculateVolumetricWeight(packageDetails)
-            );
+            const billingWeight = Math.max(packageDetails.weight || 0, calculateVolumetricWeight(packageDetails));
 
             const options: ServiceOption[] = serviceTypes.map((service, index) => {
                 // Mock cost calculation based on service type and package details
-                let baseCost = service.base_rate * billingWeight;
-                
+                const baseCost = service.base_rate * billingWeight;
+
                 // Add surcharges
-                let fuelSurcharge = baseCost * 0.15; // 15% fuel surcharge
-                let insuranceCost = packageDetails.insurance_required ? packageDetails.declared_value * 0.01 : 0;
-                let signatureCost = packageDetails.signature_required ? 5.50 : 0;
-                let specialHandlingCost = packageDetails.special_handling.length * 10;
-                
+                const fuelSurcharge = baseCost * 0.15; // 15% fuel surcharge
+                const insuranceCost = packageDetails.insurance_required ? packageDetails.declared_value * 0.01 : 0;
+                const signatureCost = packageDetails.signature_required ? 5.5 : 0;
+                const specialHandlingCost = packageDetails.special_handling.length * 10;
+
                 // Distance-based adjustment (mock)
-                let distanceMultiplier = 1 + (Math.random() * 0.3); // 0-30% variation
-                
-                let calculatedCost = baseCost * distanceMultiplier;
-                let totalCost = calculatedCost + fuelSurcharge + insuranceCost + signatureCost + specialHandlingCost;
-                
+                const distanceMultiplier = 1 + Math.random() * 0.3; // 0-30% variation
+
+                const calculatedCost = baseCost * distanceMultiplier;
+                const totalCost = calculatedCost + fuelSurcharge + insuranceCost + signatureCost + specialHandlingCost;
+
                 // Calculate delivery date
                 const deliveryDays = parseInt(service.estimated_days.split('-')[0]);
                 const deliveryDate = new Date();
                 deliveryDate.setDate(deliveryDate.getDate() + deliveryDays);
-                
+
                 return {
                     ...service,
                     calculated_cost: Math.round(calculatedCost * 100) / 100,
@@ -93,7 +78,7 @@ export default function ServiceSelectionStep({ data, serviceTypes, onUpdate, onN
                     delivery_date: deliveryDate.toLocaleDateString('en-US', {
                         weekday: 'short',
                         month: 'short',
-                        day: 'numeric'
+                        day: 'numeric',
                     }),
                     is_recommended: index === 1, // Make second option recommended
                 };
@@ -101,7 +86,7 @@ export default function ServiceSelectionStep({ data, serviceTypes, onUpdate, onN
 
             // Sort by cost
             options.sort((a, b) => a.total_cost - b.total_cost);
-            
+
             setServiceOptions(options);
         } catch (error) {
             console.error('Error calculating service costs:', error);
@@ -113,22 +98,22 @@ export default function ServiceSelectionStep({ data, serviceTypes, onUpdate, onN
     const calculateVolumetricWeight = (packageDetails: any) => {
         const { length, width, height, dimension_unit } = packageDetails;
         if (!length || !width || !height) return 0;
-        
+
         let volume = length * width * height;
         if (dimension_unit === 'cm') {
             volume = volume / 16.387; // Convert cm³ to in³
         }
-        
+
         return volume / 166; // Volumetric weight divisor
     };
 
     const handleServiceSelect = (serviceId: string) => {
         setSelectedService(serviceId);
-        const service = serviceOptions.find(s => s.id === serviceId);
+        const service = serviceOptions.find((s) => s.id === serviceId);
         if (service) {
-            onUpdate({ 
+            onUpdate({
                 serviceType: service,
-                totalCost: service.total_cost
+                totalCost: service.total_cost,
             });
         }
     };
@@ -165,18 +150,16 @@ export default function ServiceSelectionStep({ data, serviceTypes, onUpdate, onN
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center">
-                        <Truck className="h-5 w-5 mr-2" />
+                        <Truck className="mr-2 h-5 w-5" />
                         Choose Shipping Service
                     </CardTitle>
-                    <CardDescription>
-                        Compare services and select the best option for your shipment
-                    </CardDescription>
+                    <CardDescription>Compare services and select the best option for your shipment</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {isCalculating ? (
                         <div className="flex items-center justify-center py-12">
                             <div className="text-center">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                                <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                                 <p className="text-gray-600">Calculating shipping rates...</p>
                             </div>
                         </div>
@@ -185,54 +168,52 @@ export default function ServiceSelectionStep({ data, serviceTypes, onUpdate, onN
                             <div className="space-y-4">
                                 {serviceOptions.map((service) => (
                                     <div key={service.id} className="relative">
-                                        <div className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                                            selectedService === service.id 
-                                                ? 'border-blue-500 bg-blue-50' 
-                                                : 'border-gray-200 hover:border-gray-300'
-                                        }`}>
+                                        <div
+                                            className={`cursor-pointer rounded-lg border-2 p-4 transition-all ${
+                                                selectedService === service.id
+                                                    ? 'border-blue-500 bg-blue-50'
+                                                    : 'border-gray-200 hover:border-gray-300'
+                                            }`}
+                                        >
                                             {service.is_recommended && (
                                                 <div className="absolute -top-2 left-4">
                                                     <Badge className="bg-green-600 text-white">
-                                                        <Star className="h-3 w-3 mr-1" />
+                                                        <Star className="mr-1 h-3 w-3" />
                                                         Recommended
                                                     </Badge>
                                                 </div>
                                             )}
-                                            
+
                                             <div className="flex items-center space-x-4">
                                                 <RadioGroupItem value={service.id} id={service.id} />
-                                                
-                                                <div className={`flex items-center justify-center w-12 h-12 rounded-lg ${getServiceColor(service.name)}`}>
+
+                                                <div
+                                                    className={`flex h-12 w-12 items-center justify-center rounded-lg ${getServiceColor(service.name)}`}
+                                                >
                                                     {getServiceIcon(service.name)}
                                                 </div>
-                                                
+
                                                 <div className="flex-1">
                                                     <div className="flex items-center justify-between">
                                                         <div>
-                                                            <Label htmlFor={service.id} className="text-lg font-semibold cursor-pointer">
+                                                            <Label htmlFor={service.id} className="cursor-pointer text-lg font-semibold">
                                                                 {service.name}
                                                             </Label>
-                                                            <p className="text-sm text-gray-600 mt-1">
-                                                                {service.description}
-                                                            </p>
+                                                            <p className="mt-1 text-sm text-gray-600">{service.description}</p>
                                                         </div>
-                                                        
+
                                                         <div className="text-right">
-                                                            <div className="text-2xl font-bold text-gray-900">
-                                                                ${service.total_cost.toFixed(2)}
-                                                            </div>
-                                                            <div className="text-sm text-gray-600">
-                                                                Delivery by {service.delivery_date}
-                                                            </div>
+                                                            <div className="text-2xl font-bold text-gray-900">${service.total_cost.toFixed(2)}</div>
+                                                            <div className="text-sm text-gray-600">Delivery by {service.delivery_date}</div>
                                                         </div>
                                                     </div>
-                                                    
-                                                    <div className="flex items-center space-x-4 mt-3">
+
+                                                    <div className="mt-3 flex items-center space-x-4">
                                                         <div className="flex items-center text-sm text-gray-600">
-                                                            <Clock className="h-4 w-4 mr-1" />
+                                                            <Clock className="mr-1 h-4 w-4" />
                                                             {service.estimated_days} business days
                                                         </div>
-                                                        
+
                                                         {service.features.length > 0 && (
                                                             <div className="flex flex-wrap gap-1">
                                                                 {service.features.slice(0, 3).map((feature, index) => (
@@ -264,28 +245,23 @@ export default function ServiceSelectionStep({ data, serviceTypes, onUpdate, onN
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <DollarSign className="h-5 w-5 mr-2" />
+                            <DollarSign className="mr-2 h-5 w-5" />
                             Cost Breakdown
                         </CardTitle>
-                        <CardDescription>
-                            Detailed breakdown of your shipping costs
-                        </CardDescription>
+                        <CardDescription>Detailed breakdown of your shipping costs</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {(() => {
-                            const service = serviceOptions.find(s => s.id === selectedService);
+                            const service = serviceOptions.find((s) => s.id === selectedService);
                             if (!service) return null;
 
                             const { packageDetails } = data;
-                            const billingWeight = Math.max(
-                                packageDetails.weight || 0,
-                                calculateVolumetricWeight(packageDetails)
-                            );
+                            const billingWeight = Math.max(packageDetails.weight || 0, calculateVolumetricWeight(packageDetails));
 
                             const baseCost = service.calculated_cost;
                             const fuelSurcharge = baseCost * 0.15;
                             const insuranceCost = packageDetails.insurance_required ? packageDetails.declared_value * 0.01 : 0;
-                            const signatureCost = packageDetails.signature_required ? 5.50 : 0;
+                            const signatureCost = packageDetails.signature_required ? 5.5 : 0;
                             const specialHandlingCost = packageDetails.special_handling.length * 10;
 
                             return (
@@ -294,35 +270,35 @@ export default function ServiceSelectionStep({ data, serviceTypes, onUpdate, onN
                                         <span>Base shipping cost ({billingWeight.toFixed(1)} lbs)</span>
                                         <span>${baseCost.toFixed(2)}</span>
                                     </div>
-                                    
+
                                     <div className="flex justify-between">
                                         <span>Fuel surcharge (15%)</span>
                                         <span>${fuelSurcharge.toFixed(2)}</span>
                                     </div>
-                                    
+
                                     {insuranceCost > 0 && (
                                         <div className="flex justify-between">
                                             <span>Insurance coverage</span>
                                             <span>${insuranceCost.toFixed(2)}</span>
                                         </div>
                                     )}
-                                    
+
                                     {signatureCost > 0 && (
                                         <div className="flex justify-between">
                                             <span>Signature required</span>
                                             <span>${signatureCost.toFixed(2)}</span>
                                         </div>
                                     )}
-                                    
+
                                     {specialHandlingCost > 0 && (
                                         <div className="flex justify-between">
                                             <span>Special handling ({packageDetails.special_handling.length} items)</span>
                                             <span>${specialHandlingCost.toFixed(2)}</span>
                                         </div>
                                     )}
-                                    
+
                                     <div className="border-t pt-3">
-                                        <div className="flex justify-between font-semibold text-lg">
+                                        <div className="flex justify-between text-lg font-semibold">
                                             <span>Total Cost</span>
                                             <span>${service.total_cost.toFixed(2)}</span>
                                         </div>
@@ -339,17 +315,17 @@ export default function ServiceSelectionStep({ data, serviceTypes, onUpdate, onN
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <CheckCircle className="h-5 w-5 mr-2" />
+                            <CheckCircle className="mr-2 h-5 w-5" />
                             Service Features
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         {(() => {
-                            const service = serviceOptions.find(s => s.id === selectedService);
+                            const service = serviceOptions.find((s) => s.id === selectedService);
                             if (!service) return null;
 
                             return (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                                     {service.features.map((feature, index) => (
                                         <div key={index} className="flex items-center space-x-2">
                                             <CheckCircle className="h-4 w-4 text-green-600" />
@@ -366,16 +342,12 @@ export default function ServiceSelectionStep({ data, serviceTypes, onUpdate, onN
             {/* Navigation */}
             <div className="flex justify-between">
                 <Button variant="outline" onClick={onPrev}>
-                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                 </Button>
-                <Button 
-                    onClick={handleNext} 
-                    disabled={!selectedService || isCalculating}
-                    className="min-w-32"
-                >
+                <Button onClick={handleNext} disabled={!selectedService || isCalculating} className="min-w-32">
                     Continue
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                    <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </div>
         </div>

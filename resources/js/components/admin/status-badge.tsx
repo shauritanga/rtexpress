@@ -1,12 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { 
-    Clock, 
-    Package, 
-    Truck, 
-    CheckCircle, 
-    AlertTriangle,
-    XCircle
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle, Clock, Package, Truck, XCircle } from 'lucide-react';
 
 interface StatusBadgeProps {
     status: string;
@@ -15,40 +8,40 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
     const statusConfig = {
-        pending: { 
-            color: 'bg-yellow-100 text-yellow-800 border-yellow-200', 
+        pending: {
+            color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
             icon: Clock,
-            label: 'Pending'
+            label: 'Pending',
         },
-        picked_up: { 
-            color: 'bg-blue-100 text-blue-800 border-blue-200', 
+        picked_up: {
+            color: 'bg-blue-100 text-blue-800 border-blue-200',
             icon: Package,
-            label: 'Picked Up'
+            label: 'Picked Up',
         },
-        in_transit: { 
-            color: 'bg-purple-100 text-purple-800 border-purple-200', 
+        in_transit: {
+            color: 'bg-purple-100 text-purple-800 border-purple-200',
             icon: Truck,
-            label: 'In Transit'
+            label: 'In Transit',
         },
-        out_for_delivery: { 
-            color: 'bg-orange-100 text-orange-800 border-orange-200', 
+        out_for_delivery: {
+            color: 'bg-orange-100 text-orange-800 border-orange-200',
             icon: Truck,
-            label: 'Out for Delivery'
+            label: 'Out for Delivery',
         },
-        delivered: { 
-            color: 'bg-green-100 text-green-800 border-green-200', 
+        delivered: {
+            color: 'bg-green-100 text-green-800 border-green-200',
             icon: CheckCircle,
-            label: 'Delivered'
+            label: 'Delivered',
         },
-        exception: { 
-            color: 'bg-red-100 text-red-800 border-red-200', 
+        exception: {
+            color: 'bg-red-100 text-red-800 border-red-200',
             icon: AlertTriangle,
-            label: 'Exception'
+            label: 'Exception',
         },
-        cancelled: { 
-            color: 'bg-gray-100 text-gray-800 border-gray-200', 
+        cancelled: {
+            color: 'bg-gray-100 text-gray-800 border-gray-200',
             icon: XCircle,
-            label: 'Cancelled'
+            label: 'Cancelled',
         },
     };
 
@@ -68,9 +61,7 @@ export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
     };
 
     return (
-        <Badge 
-            className={`${config.color} ${sizeClasses[size]} flex items-center space-x-1 font-medium border`}
-        >
+        <Badge className={`${config.color} ${sizeClasses[size]} flex items-center space-x-1 border font-medium`}>
             <Icon className={iconSizes[size]} />
             <span>{config.label}</span>
         </Badge>
@@ -85,21 +76,21 @@ interface ServiceBadgeProps {
 
 export function ServiceBadge({ serviceType, size = 'md' }: ServiceBadgeProps) {
     const serviceConfig = {
-        standard: { 
+        standard: {
             color: 'bg-gray-100 text-gray-800 border-gray-200',
-            label: 'Standard'
+            label: 'Standard',
         },
-        express: { 
+        express: {
             color: 'bg-blue-100 text-blue-800 border-blue-200',
-            label: 'Express'
+            label: 'Express',
         },
-        overnight: { 
+        overnight: {
             color: 'bg-purple-100 text-purple-800 border-purple-200',
-            label: 'Overnight'
+            label: 'Overnight',
         },
-        international: { 
+        international: {
             color: 'bg-green-100 text-green-800 border-green-200',
-            label: 'International'
+            label: 'International',
         },
     };
 
@@ -111,13 +102,7 @@ export function ServiceBadge({ serviceType, size = 'md' }: ServiceBadgeProps) {
         lg: 'text-base px-3 py-2',
     };
 
-    return (
-        <Badge 
-            className={`${config.color} ${sizeClasses[size]} font-medium border`}
-        >
-            {config.label}
-        </Badge>
-    );
+    return <Badge className={`${config.color} ${sizeClasses[size]} border font-medium`}>{config.label}</Badge>;
 }
 
 // Priority Badge Component
@@ -128,21 +113,21 @@ interface PriorityBadgeProps {
 
 export function PriorityBadge({ priority, size = 'md' }: PriorityBadgeProps) {
     const priorityConfig = {
-        low: { 
+        low: {
             color: 'bg-gray-100 text-gray-800 border-gray-200',
-            label: 'Low'
+            label: 'Low',
         },
-        medium: { 
+        medium: {
             color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-            label: 'Medium'
+            label: 'Medium',
         },
-        high: { 
+        high: {
             color: 'bg-orange-100 text-orange-800 border-orange-200',
-            label: 'High'
+            label: 'High',
         },
-        urgent: { 
+        urgent: {
             color: 'bg-red-100 text-red-800 border-red-200',
-            label: 'Urgent'
+            label: 'Urgent',
         },
     };
 
@@ -154,11 +139,5 @@ export function PriorityBadge({ priority, size = 'md' }: PriorityBadgeProps) {
         lg: 'text-base px-3 py-2',
     };
 
-    return (
-        <Badge 
-            className={`${config.color} ${sizeClasses[size]} font-medium border`}
-        >
-            {config.label}
-        </Badge>
-    );
+    return <Badge className={`${config.color} ${sizeClasses[size]} border font-medium`}>{config.label}</Badge>;
 }

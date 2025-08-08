@@ -1,36 +1,36 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
 import {
-    Package,
-    MapPin,
-    Calendar,
-    Banknote,
-    User,
-    Truck,
-    Clock,
-    CheckCircle,
     AlertTriangle,
-    XCircle,
-    Edit,
     ArrowLeft,
-    Phone,
-    Mail,
+    Banknote,
     Building,
-    Weight,
-    Ruler,
+    Calendar,
+    CheckCircle,
+    Clock,
+    Edit,
+    Mail,
+    MapPin,
+    Package,
+    Phone,
     RefreshCw,
-    Send
+    Ruler,
+    Send,
+    Truck,
+    User,
+    Weight,
+    XCircle,
 } from 'lucide-react';
+import { useState } from 'react';
 
 interface Customer {
     id: number;
@@ -98,7 +98,7 @@ export default function ShipmentShow({ shipment }: Props) {
     const [statusForm, setStatusForm] = useState({
         status: '',
         location: '',
-        notes: ''
+        notes: '',
     });
 
     const handleStatusUpdate = () => {
@@ -113,7 +113,7 @@ export default function ShipmentShow({ shipment }: Props) {
                 setIsStatusModalOpen(false);
                 setStatusForm({ status: '', location: '', notes: '' });
             },
-            onFinish: () => setIsUpdating(false)
+            onFinish: () => setIsUpdating(false),
         });
     };
 
@@ -146,13 +146,13 @@ export default function ShipmentShow({ shipment }: Props) {
 
     const getStatusDisplayName = (status: string) => {
         const statusNames = {
-            'pending': 'Pending Pickup',
-            'picked_up': 'Picked Up',
-            'in_transit': 'In Transit',
-            'out_for_delivery': 'Out for Delivery',
-            'delivered': 'Delivered',
-            'exception': 'Exception',
-            'cancelled': 'Cancelled',
+            pending: 'Pending Pickup',
+            picked_up: 'Picked Up',
+            in_transit: 'In Transit',
+            out_for_delivery: 'Out for Delivery',
+            delivered: 'Delivered',
+            exception: 'Exception',
+            cancelled: 'Cancelled',
         };
         return statusNames[status as keyof typeof statusNames] || status.charAt(0).toUpperCase() + status.slice(1);
     };
@@ -168,12 +168,11 @@ export default function ShipmentShow({ shipment }: Props) {
             cancelled: { label: 'Cancelled', variant: 'destructive' as const, icon: XCircle },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const, icon: Package };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const, icon: Package };
+
         return (
             <Badge variant={config.variant} className="flex items-center">
-                <config.icon className="h-3 w-3 mr-1" />
+                <config.icon className="mr-1 h-3 w-3" />
                 {config.label}
             </Badge>
         );
@@ -188,44 +187,40 @@ export default function ShipmentShow({ shipment }: Props) {
         };
 
         const color = colors[serviceType as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-        
+
         return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${color}`}>
+            <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${color}`}>
                 {serviceType.charAt(0).toUpperCase() + serviceType.slice(1)}
             </span>
         );
     };
 
-
-
     return (
         <AppLayout>
             <Head title={`Shipment ${shipment?.tracking_number || 'Unknown'}`} />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div className="flex items-center space-x-4">
                         <Button variant="outline" size="sm" asChild>
                             <Link href="/admin/shipments">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Shipments
                             </Link>
                         </Button>
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+                            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
                                 {shipment?.tracking_number || 'Unknown Tracking Number'}
                             </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                                Shipment Details
-                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Shipment Details</p>
                         </div>
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Dialog open={isStatusModalOpen} onOpenChange={setIsStatusModalOpen}>
                             <DialogTrigger asChild>
                                 <Button variant="default" className="w-full sm:w-auto">
-                                    <RefreshCw className="h-4 w-4 mr-2" />
+                                    <RefreshCw className="mr-2 h-4 w-4" />
                                     Update Status
                                 </Button>
                             </DialogTrigger>
@@ -233,8 +228,7 @@ export default function ShipmentShow({ shipment }: Props) {
                                 <DialogHeader>
                                     <DialogTitle>Update Shipment Status</DialogTitle>
                                     <DialogDescription>
-                                        Update the status of shipment {shipment.tracking_number}.
-                                        Customer will be notified via email.
+                                        Update the status of shipment {shipment.tracking_number}. Customer will be notified via email.
                                     </DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-4">
@@ -242,7 +236,7 @@ export default function ShipmentShow({ shipment }: Props) {
                                         <Label htmlFor="status">New Status</Label>
                                         <Select
                                             value={statusForm.status}
-                                            onValueChange={(value) => setStatusForm(prev => ({ ...prev, status: value }))}
+                                            onValueChange={(value) => setStatusForm((prev) => ({ ...prev, status: value }))}
                                         >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select status" />
@@ -263,7 +257,7 @@ export default function ShipmentShow({ shipment }: Props) {
                                         <Input
                                             id="location"
                                             value={statusForm.location}
-                                            onChange={(e) => setStatusForm(prev => ({ ...prev, location: e.target.value }))}
+                                            onChange={(e) => setStatusForm((prev) => ({ ...prev, location: e.target.value }))}
                                             placeholder="e.g., Dar es Salaam Distribution Center"
                                         />
                                     </div>
@@ -272,30 +266,24 @@ export default function ShipmentShow({ shipment }: Props) {
                                         <Textarea
                                             id="notes"
                                             value={statusForm.notes}
-                                            onChange={(e) => setStatusForm(prev => ({ ...prev, notes: e.target.value }))}
+                                            onChange={(e) => setStatusForm((prev) => ({ ...prev, notes: e.target.value }))}
                                             placeholder="Additional notes about this status update..."
                                             rows={3}
                                         />
                                     </div>
                                     <div className="flex justify-end space-x-2">
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => setIsStatusModalOpen(false)}
-                                        >
+                                        <Button variant="outline" onClick={() => setIsStatusModalOpen(false)}>
                                             Cancel
                                         </Button>
-                                        <Button
-                                            onClick={handleStatusUpdate}
-                                            disabled={!statusForm.status || !statusForm.location || isUpdating}
-                                        >
+                                        <Button onClick={handleStatusUpdate} disabled={!statusForm.status || !statusForm.location || isUpdating}>
                                             {isUpdating ? (
                                                 <>
-                                                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                                                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                                                     Updating...
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Send className="h-4 w-4 mr-2" />
+                                                    <Send className="mr-2 h-4 w-4" />
                                                     Update & Notify Customer
                                                 </>
                                             )}
@@ -307,7 +295,7 @@ export default function ShipmentShow({ shipment }: Props) {
 
                         <Button variant="outline" asChild className="w-full sm:w-auto">
                             <Link href={route('admin.shipments.edit', shipment?.id || 0)}>
-                                <Edit className="h-4 w-4 mr-2" />
+                                <Edit className="mr-2 h-4 w-4" />
                                 Edit Shipment
                             </Link>
                         </Button>
@@ -315,16 +303,14 @@ export default function ShipmentShow({ shipment }: Props) {
                 </div>
 
                 {/* Status and Service Info */}
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
                                 <Package className="h-5 w-5 text-blue-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Status</p>
-                                    <div className="mt-1">
-                                        {getStatusBadge(shipment?.status || 'pending')}
-                                    </div>
+                                    <div className="mt-1">{getStatusBadge(shipment?.status || 'pending')}</div>
                                 </div>
                             </div>
                         </CardContent>
@@ -336,9 +322,7 @@ export default function ShipmentShow({ shipment }: Props) {
                                 <Truck className="h-5 w-5 text-green-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Service Type</p>
-                                    <div className="mt-1">
-                                        {getServiceTypeBadge(shipment?.service_type || 'standard')}
-                                    </div>
+                                    <div className="mt-1">{getServiceTypeBadge(shipment?.service_type || 'standard')}</div>
                                 </div>
                             </div>
                         </CardContent>
@@ -350,9 +334,7 @@ export default function ShipmentShow({ shipment }: Props) {
                                 <Banknote className="h-5 w-5 text-purple-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Declared Value</p>
-                                    <p className="text-lg font-bold">
-                                        {formatCurrency(shipment?.declared_value || 0)}
-                                    </p>
+                                    <p className="text-lg font-bold">{formatCurrency(shipment?.declared_value || 0)}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -365,10 +347,7 @@ export default function ShipmentShow({ shipment }: Props) {
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Est. Delivery</p>
                                     <p className="text-sm font-medium">
-                                        {shipment?.estimated_delivery_date
-                                            ? formatDate(shipment.estimated_delivery_date)
-                                            : 'Not set'
-                                        }
+                                        {shipment?.estimated_delivery_date ? formatDate(shipment.estimated_delivery_date) : 'Not set'}
                                     </p>
                                 </div>
                             </div>
@@ -377,12 +356,12 @@ export default function ShipmentShow({ shipment }: Props) {
                 </div>
 
                 {/* Main Content */}
-                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* Customer Information */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <User className="h-5 w-5 mr-2" />
+                                <User className="mr-2 h-5 w-5" />
                                 Customer Information
                             </CardTitle>
                         </CardHeader>
@@ -390,9 +369,7 @@ export default function ShipmentShow({ shipment }: Props) {
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Customer</p>
                                 <p className="font-medium">{shipment?.customer?.name || 'Unknown Customer'}</p>
-                                <p className="text-sm text-muted-foreground">
-                                    Code: {shipment?.customer?.customer_code || 'N/A'}
-                                </p>
+                                <p className="text-sm text-muted-foreground">Code: {shipment?.customer?.customer_code || 'N/A'}</p>
                             </div>
                             <Separator />
                             <div className="space-y-2">
@@ -414,7 +391,7 @@ export default function ShipmentShow({ shipment }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <Package className="h-5 w-5 mr-2" />
+                                <Package className="mr-2 h-5 w-5" />
                                 Shipment Details
                             </CardTitle>
                         </CardHeader>
@@ -451,23 +428,21 @@ export default function ShipmentShow({ shipment }: Props) {
                 </div>
 
                 {/* Addresses */}
-                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <MapPin className="h-5 w-5 mr-2" />
+                                <MapPin className="mr-2 h-5 w-5" />
                                 Origin Address
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm">{shipment?.origin_address || 'N/A'}</p>
                             {shipment?.origin_warehouse && (
-                                <div className="mt-2 pt-2 border-t">
+                                <div className="mt-2 border-t pt-2">
                                     <div className="flex items-center space-x-2">
                                         <Building className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-sm font-medium">
-                                            {shipment.origin_warehouse.name}
-                                        </span>
+                                        <span className="text-sm font-medium">{shipment.origin_warehouse.name}</span>
                                     </div>
                                 </div>
                             )}
@@ -477,19 +452,17 @@ export default function ShipmentShow({ shipment }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <MapPin className="h-5 w-5 mr-2" />
+                                <MapPin className="mr-2 h-5 w-5" />
                                 Destination Address
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             <p className="text-sm">{shipment?.destination_address || 'N/A'}</p>
                             {shipment?.destination_warehouse && (
-                                <div className="mt-2 pt-2 border-t">
+                                <div className="mt-2 border-t pt-2">
                                     <div className="flex items-center space-x-2">
                                         <Building className="h-4 w-4 text-muted-foreground" />
-                                        <span className="text-sm font-medium">
-                                            {shipment.destination_warehouse.name}
-                                        </span>
+                                        <span className="text-sm font-medium">{shipment.destination_warehouse.name}</span>
                                     </div>
                                 </div>
                             )}
@@ -513,12 +486,10 @@ export default function ShipmentShow({ shipment }: Props) {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <Clock className="h-5 w-5 mr-2" />
+                            <Clock className="mr-2 h-5 w-5" />
                             Tracking History
                         </CardTitle>
-                        <CardDescription>
-                            Complete tracking history for this shipment
-                        </CardDescription>
+                        <CardDescription>Complete tracking history for this shipment</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {shipment?.tracking_history?.length > 0 ? (
@@ -526,37 +497,23 @@ export default function ShipmentShow({ shipment }: Props) {
                                 {shipment.tracking_history.map((tracking, index) => (
                                     <div key={tracking.id} className="flex items-start space-x-3">
                                         <div className="flex-shrink-0">
-                                            <div className={`w-3 h-3 rounded-full mt-1 ${
-                                                index === 0 ? 'bg-green-500' : 'bg-gray-300'
-                                            }`} />
+                                            <div className={`mt-1 h-3 w-3 rounded-full ${index === 0 ? 'bg-green-500' : 'bg-gray-300'}`} />
                                         </div>
-                                        <div className="flex-1 min-w-0">
+                                        <div className="min-w-0 flex-1">
                                             <div className="flex items-center space-x-2">
-                                                <p className="text-sm font-medium">
-                                                    {getStatusDisplayName(tracking.status)}
-                                                </p>
+                                                <p className="text-sm font-medium">{getStatusDisplayName(tracking.status)}</p>
                                                 {tracking.status === 'exception' && (
                                                     <Badge variant="destructive" className="text-xs">
                                                         Requires Attention
                                                     </Badge>
                                                 )}
                                             </div>
-                                            <p className="text-xs text-muted-foreground">
-                                                {tracking.location || 'Location not specified'}
-                                            </p>
-                                            {tracking.notes && (
-                                                <p className="text-xs text-muted-foreground mt-1">
-                                                    {tracking.notes}
-                                                </p>
-                                            )}
-                                            <div className="flex items-center justify-between mt-1">
-                                                <p className="text-xs text-muted-foreground">
-                                                    {formatDateTime(tracking.occurred_at)}
-                                                </p>
+                                            <p className="text-xs text-muted-foreground">{tracking.location || 'Location not specified'}</p>
+                                            {tracking.notes && <p className="mt-1 text-xs text-muted-foreground">{tracking.notes}</p>}
+                                            <div className="mt-1 flex items-center justify-between">
+                                                <p className="text-xs text-muted-foreground">{formatDateTime(tracking.occurred_at)}</p>
                                                 {tracking.recorded_by && (
-                                                    <p className="text-xs text-muted-foreground">
-                                                        by {tracking.recorded_by.name}
-                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">by {tracking.recorded_by.name}</p>
                                                 )}
                                             </div>
                                         </div>
@@ -564,11 +521,9 @@ export default function ShipmentShow({ shipment }: Props) {
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-6">
-                                <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                <p className="text-sm text-muted-foreground">
-                                    No tracking events available yet
-                                </p>
+                            <div className="py-6 text-center">
+                                <Clock className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                                <p className="text-sm text-muted-foreground">No tracking events available yet</p>
                             </div>
                         )}
                     </CardContent>

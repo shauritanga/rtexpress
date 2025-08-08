@@ -1,49 +1,30 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { route } from 'ziggy-js';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
-} from '@/components/ui/select';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
 import {
-    Search,
-    Plus,
-    Package2,
     AlertTriangle,
-    TrendingDown,
+    Barcode,
     DollarSign,
+    Edit,
     Eye,
     Filter,
-    Barcode,
-    Warehouse,
     MoreHorizontal,
-    Edit,
-    Trash2
+    Package2,
+    Plus,
+    Search,
+    Trash2,
+    TrendingDown,
+    Warehouse,
 } from 'lucide-react';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { useState } from 'react';
+import { route } from 'ziggy-js';
 
 interface InventoryItem {
     id: number;
@@ -135,7 +116,7 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
             },
             onError: (errors) => {
                 console.error('Delete failed:', errors);
-            }
+            },
         });
     };
 
@@ -164,12 +145,11 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
             overstock: { label: 'Overstock', variant: 'default' as const, icon: Package2 },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: 'Unknown', variant: 'default' as const, icon: Package2 };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: 'Unknown', variant: 'default' as const, icon: Package2 };
+
         return (
             <Badge variant={config.variant} className="flex items-center">
-                <config.icon className="h-3 w-3 mr-1" />
+                <config.icon className="mr-1 h-3 w-3" />
                 {config.label}
             </Badge>
         );
@@ -186,26 +166,25 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
             found: { label: 'Found', color: 'bg-yellow-100 text-yellow-800' },
         };
 
-        const config = typeConfig[type as keyof typeof typeConfig] || 
-                      { label: type, color: 'bg-gray-100 text-gray-800' };
-        
-        return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
-                {config.label}
-            </span>
-        );
+        const config = typeConfig[type as keyof typeof typeConfig] || { label: type, color: 'bg-gray-100 text-gray-800' };
+
+        return <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${config.color}`}>{config.label}</span>;
     };
 
     const handleSearch = () => {
-        router.get(route('admin.inventory.index'), {
-            search: searchTerm,
-            category: selectedCategory !== 'all' ? selectedCategory : undefined,
-            stock_status: selectedStockStatus !== 'all' ? selectedStockStatus : undefined,
-            warehouse_id: selectedWarehouse !== 'all' ? selectedWarehouse : undefined,
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        router.get(
+            route('admin.inventory.index'),
+            {
+                search: searchTerm,
+                category: selectedCategory !== 'all' ? selectedCategory : undefined,
+                stock_status: selectedStockStatus !== 'all' ? selectedStockStatus : undefined,
+                warehouse_id: selectedWarehouse !== 'all' ? selectedWarehouse : undefined,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     const handleClearFilters = () => {
@@ -213,30 +192,32 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
         setSelectedCategory('all');
         setSelectedStockStatus('all');
         setSelectedWarehouse('all');
-        
-        router.get(route('admin.inventory.index'), {}, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+
+        router.get(
+            route('admin.inventory.index'),
+            {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     return (
         <AppLayout>
             <Head title="Inventory Management" />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Inventory Management</h1>
-                        <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                            Track and manage inventory items and stock levels
-                        </p>
+                        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Inventory Management</h1>
+                        <p className="mt-1 text-sm text-muted-foreground sm:text-base">Track and manage inventory items and stock levels</p>
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Button asChild className="w-full sm:w-auto">
                             <Link href="/admin/inventory/create">
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="mr-2 h-4 w-4" />
                                 Add Item
                             </Link>
                         </Button>
@@ -244,7 +225,7 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
@@ -252,9 +233,7 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Items</p>
                                     <p className="text-2xl font-bold">{stats.total_items}</p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Active inventory
-                                    </p>
+                                    <p className="text-xs text-muted-foreground">Active inventory</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -267,9 +246,7 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Low Stock</p>
                                     <p className="text-2xl font-bold">{stats.low_stock_items}</p>
-                                    <p className="text-xs text-orange-600">
-                                        Need reordering
-                                    </p>
+                                    <p className="text-xs text-orange-600">Need reordering</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -282,9 +259,7 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Out of Stock</p>
                                     <p className="text-2xl font-bold">{stats.out_of_stock_items}</p>
-                                    <p className="text-xs text-red-600">
-                                        Urgent attention
-                                    </p>
+                                    <p className="text-xs text-red-600">Urgent attention</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -296,12 +271,8 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                                 <DollarSign className="h-5 w-5 text-green-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Total Value</p>
-                                    <p className="text-2xl font-bold">
-                                        {formatCurrency(stats.total_value)}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        Inventory worth
-                                    </p>
+                                    <p className="text-2xl font-bold">{formatCurrency(stats.total_value)}</p>
+                                    <p className="text-xs text-muted-foreground">Inventory worth</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -312,19 +283,17 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <Filter className="h-5 w-5 mr-2" />
+                            <Filter className="mr-2 h-5 w-5" />
                             Filter Inventory
                         </CardTitle>
-                        <CardDescription>
-                            Search and filter inventory items by various criteria
-                        </CardDescription>
+                        <CardDescription>Search and filter inventory items by various criteria</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-6">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
                             <div className="space-y-2 sm:col-span-2 lg:col-span-2">
                                 <label className="text-sm font-medium">Search</label>
                                 <div className="relative">
-                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         placeholder="Name, SKU, barcode, brand..."
                                         value={searchTerm}
@@ -334,7 +303,7 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                                     />
                                 </div>
                             </div>
-                            
+
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Category</label>
                                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -388,7 +357,7 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                                 <label className="text-sm font-medium">Actions</label>
                                 <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                                     <Button onClick={handleSearch} className="flex-1">
-                                        <Search className="h-4 w-4 mr-2" />
+                                        <Search className="mr-2 h-4 w-4" />
                                         Search
                                     </Button>
                                     <Button variant="outline" onClick={handleClearFilters} className="flex-1 sm:flex-none">
@@ -404,12 +373,10 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                 <Card>
                     <CardHeader>
                         <CardTitle>Inventory Items</CardTitle>
-                        <CardDescription>
-                            All inventory items and their current stock levels
-                        </CardDescription>
+                        <CardDescription>All inventory items and their current stock levels</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="rounded-md border overflow-hidden">
+                        <div className="overflow-hidden rounded-md border">
                             <div className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
@@ -419,113 +386,111 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                                             <TableHead className="min-w-[100px]">Category</TableHead>
                                             <TableHead className="min-w-[100px]">Stock Status</TableHead>
                                             <TableHead className="min-w-[100px]">Quantity</TableHead>
-                                            <TableHead className="min-w-[100px] hidden sm:table-cell">Unit Cost</TableHead>
-                                            <TableHead className="min-w-[120px] hidden md:table-cell">Warehouses</TableHead>
-                                            <TableHead className="text-right min-w-[80px]">Actions</TableHead>
+                                            <TableHead className="hidden min-w-[100px] sm:table-cell">Unit Cost</TableHead>
+                                            <TableHead className="hidden min-w-[120px] md:table-cell">Warehouses</TableHead>
+                                            <TableHead className="min-w-[80px] text-right">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {items.data.length > 0 ? items.data.map((item) => (
-                                            <TableRow key={item.id}>
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium">{item.name}</p>
-                                                        {item.brand && (
-                                                            <p className="text-sm text-muted-foreground">{item.brand}</p>
-                                                        )}
-                                                        {item.barcode && (
-                                                            <div className="flex items-center mt-1">
-                                                                <Barcode className="h-3 w-3 mr-1 text-muted-foreground" />
-                                                                <span className="text-xs text-muted-foreground">{item.barcode}</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <span className="font-mono text-sm">{item.sku}</span>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <span className="capitalize">{item.category}</span>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {getStockStatusBadge(item.stock_status || 'in_stock', item.total_quantity)}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium">{item.total_quantity} {item.unit_of_measure}</p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            Available: {item.available_quantity}
-                                                        </p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="hidden sm:table-cell">
-                                                    {formatCurrency(item.unit_cost)}
-                                                </TableCell>
-                                                <TableCell className="hidden md:table-cell">
-                                                    <div className="space-y-1">
-                                                        {item.warehouse_stock.slice(0, 2).map((stock) => (
-                                                            <div key={stock.id} className="flex items-center text-sm">
-                                                                <Warehouse className="h-3 w-3 mr-1 text-muted-foreground" />
-                                                                <span>{stock.warehouse.name}: {stock.quantity_available}</span>
-                                                            </div>
-                                                        ))}
-                                                        {item.warehouse_stock.length > 2 && (
-                                                            <p className="text-xs text-muted-foreground">
-                                                                +{item.warehouse_stock.length - 2} more
+                                        {items.data.length > 0 ? (
+                                            items.data.map((item) => (
+                                                <TableRow key={item.id}>
+                                                    <TableCell>
+                                                        <div>
+                                                            <p className="font-medium">{item.name}</p>
+                                                            {item.brand && <p className="text-sm text-muted-foreground">{item.brand}</p>}
+                                                            {item.barcode && (
+                                                                <div className="mt-1 flex items-center">
+                                                                    <Barcode className="mr-1 h-3 w-3 text-muted-foreground" />
+                                                                    <span className="text-xs text-muted-foreground">{item.barcode}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <span className="font-mono text-sm">{item.sku}</span>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <span className="capitalize">{item.category}</span>
+                                                    </TableCell>
+                                                    <TableCell>{getStockStatusBadge(item.stock_status || 'in_stock', item.total_quantity)}</TableCell>
+                                                    <TableCell>
+                                                        <div>
+                                                            <p className="font-medium">
+                                                                {item.total_quantity} {item.unit_of_measure}
                                                             </p>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                                <span className="sr-only">Open menu</span>
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end" className="w-48">
-                                                            <DropdownMenuItem
-                                                                onClick={() => router.visit(route('admin.inventory.show', item.id))}
-                                                                className="cursor-pointer"
-                                                            >
-                                                                <Eye className="mr-2 h-4 w-4" />
-                                                                View Details
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem
-                                                                onClick={() => router.visit(route('admin.inventory.edit', item.id))}
-                                                                className="cursor-pointer"
-                                                            >
-                                                                <Edit className="mr-2 h-4 w-4" />
-                                                                Edit Item
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuSeparator />
-                                                            <ConfirmationDialog
-                                                                title="Delete Inventory Item"
-                                                                description={`Are you sure you want to delete inventory item ${item.sku} (${item.name})?\n\nThis action will:\n• Delete the inventory item record\n• Remove all warehouse stock records\n• Cannot be undone if there are no stock movements\n\nPlease confirm this action.`}
-                                                                confirmText="Delete Item"
-                                                                cancelText="Cancel"
-                                                                variant="destructive"
-                                                                icon="delete"
-                                                                onConfirm={() => {
-                                                                    handleDelete(item.id);
-                                                                }}
-                                                            >
+                                                            <p className="text-sm text-muted-foreground">Available: {item.available_quantity}</p>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="hidden sm:table-cell">{formatCurrency(item.unit_cost)}</TableCell>
+                                                    <TableCell className="hidden md:table-cell">
+                                                        <div className="space-y-1">
+                                                            {item.warehouse_stock.slice(0, 2).map((stock) => (
+                                                                <div key={stock.id} className="flex items-center text-sm">
+                                                                    <Warehouse className="mr-1 h-3 w-3 text-muted-foreground" />
+                                                                    <span>
+                                                                        {stock.warehouse.name}: {stock.quantity_available}
+                                                                    </span>
+                                                                </div>
+                                                            ))}
+                                                            {item.warehouse_stock.length > 2 && (
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    +{item.warehouse_stock.length - 2} more
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                    <span className="sr-only">Open menu</span>
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end" className="w-48">
                                                                 <DropdownMenuItem
-                                                                    onSelect={(e) => e.preventDefault()}
-                                                                    className="cursor-pointer text-red-600 focus:text-red-600"
+                                                                    onClick={() => router.visit(route('admin.inventory.show', item.id))}
+                                                                    className="cursor-pointer"
                                                                 >
-                                                                    <Trash2 className="mr-2 h-4 w-4" />
-                                                                    Delete Item
+                                                                    <Eye className="mr-2 h-4 w-4" />
+                                                                    View Details
                                                                 </DropdownMenuItem>
-                                                            </ConfirmationDialog>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                </TableCell>
-                                            </TableRow>
-                                        )) : (
+                                                                <DropdownMenuItem
+                                                                    onClick={() => router.visit(route('admin.inventory.edit', item.id))}
+                                                                    className="cursor-pointer"
+                                                                >
+                                                                    <Edit className="mr-2 h-4 w-4" />
+                                                                    Edit Item
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuSeparator />
+                                                                <ConfirmationDialog
+                                                                    title="Delete Inventory Item"
+                                                                    description={`Are you sure you want to delete inventory item ${item.sku} (${item.name})?\n\nThis action will:\n• Delete the inventory item record\n• Remove all warehouse stock records\n• Cannot be undone if there are no stock movements\n\nPlease confirm this action.`}
+                                                                    confirmText="Delete Item"
+                                                                    cancelText="Cancel"
+                                                                    variant="destructive"
+                                                                    icon="delete"
+                                                                    onConfirm={() => {
+                                                                        handleDelete(item.id);
+                                                                    }}
+                                                                >
+                                                                    <DropdownMenuItem
+                                                                        onSelect={(e) => e.preventDefault()}
+                                                                        className="cursor-pointer text-red-600 focus:text-red-600"
+                                                                    >
+                                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                                        Delete Item
+                                                                    </DropdownMenuItem>
+                                                                </ConfirmationDialog>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        ) : (
                                             <TableRow>
-                                                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                                                <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                                                     No inventory items found matching your criteria.
                                                 </TableCell>
                                             </TableRow>
@@ -537,15 +502,15 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
 
                         {/* Pagination */}
                         {items?.meta?.last_page > 1 && (
-                            <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 py-4">
-                                <div className="text-sm text-muted-foreground text-center sm:text-left">
+                            <div className="flex flex-col space-y-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                                <div className="text-center text-sm text-muted-foreground sm:text-left">
                                     Showing {items?.meta?.from || 0} to {items?.meta?.to || 0} of {items?.meta?.total || 0} items
                                 </div>
-                                <div className="flex flex-wrap justify-center sm:justify-end gap-2">
+                                <div className="flex flex-wrap justify-center gap-2 sm:justify-end">
                                     {items?.links?.map((link, index) => (
                                         <Button
                                             key={index}
-                                            variant={link.active ? "default" : "outline"}
+                                            variant={link.active ? 'default' : 'outline'}
                                             size="sm"
                                             onClick={() => link.url && router.get(link.url)}
                                             disabled={!link.url}
@@ -563,41 +528,34 @@ export default function InventoryIndex({ items, stats, warehouses, filters }: Pr
                 <Card>
                     <CardHeader>
                         <CardTitle>Recent Stock Movements</CardTitle>
-                        <CardDescription>
-                            Latest inventory movements and adjustments
-                        </CardDescription>
+                        <CardDescription>Latest inventory movements and adjustments</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {stats.recent_movements.length > 0 ? stats.recent_movements.map((movement) => (
-                                <div key={movement.id} className="flex items-center justify-between p-3 border rounded-lg">
-                                    <div className="flex items-center space-x-3">
-                                        <div>
-                                            {getMovementTypeBadge(movement.type)}
+                            {stats.recent_movements.length > 0 ? (
+                                stats.recent_movements.map((movement) => (
+                                    <div key={movement.id} className="flex items-center justify-between rounded-lg border p-3">
+                                        <div className="flex items-center space-x-3">
+                                            <div>{getMovementTypeBadge(movement.type)}</div>
+                                            <div>
+                                                <p className="font-medium">{movement.inventory_item.name}</p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    SKU: {movement.inventory_item.sku} • {movement.warehouse.name}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-medium">{movement.inventory_item.name}</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                SKU: {movement.inventory_item.sku} • {movement.warehouse.name}
+                                        <div className="text-right">
+                                            <p className={`font-medium ${movement.quantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                {movement.quantity > 0 ? '+' : ''}
+                                                {movement.quantity}
                                             </p>
+                                            <p className="text-sm text-muted-foreground">{formatDate(movement.movement_date)}</p>
+                                            <p className="text-xs text-muted-foreground">by {movement.created_by.name}</p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className={`font-medium ${movement.quantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                            {movement.quantity > 0 ? '+' : ''}{movement.quantity}
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {formatDate(movement.movement_date)}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            by {movement.created_by.name}
-                                        </p>
-                                    </div>
-                                </div>
-                            )) : (
-                                <p className="text-center text-muted-foreground py-8">
-                                    No recent stock movements found.
-                                </p>
+                                ))
+                            ) : (
+                                <p className="py-8 text-center text-muted-foreground">No recent stock movements found.</p>
                             )}
                         </div>
                     </CardContent>

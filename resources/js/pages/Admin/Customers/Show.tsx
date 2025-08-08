@@ -1,35 +1,11 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from '@/components/ui/table';
-import {
-    ArrowLeft,
-    User,
-    Building,
-    MapPin,
-    Mail,
-    Phone,
-    CreditCard,
-    Edit,
-    Package,
-    Banknote,
-    Calendar,
-    TrendingUp,
-    UserCheck,
-    UserX,
-    AlertTriangle
-} from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
+import { AlertTriangle, ArrowLeft, Banknote, Calendar, CreditCard, Edit, Mail, MapPin, Package, Phone, User, UserCheck, UserX } from 'lucide-react';
 
 interface Shipment {
     id: number;
@@ -94,12 +70,11 @@ export default function CustomerShow({ customer }: Props) {
             suspended: { label: 'Suspended', variant: 'destructive' as const, icon: AlertTriangle },
         };
 
-        const config = statusConfig[status as keyof typeof statusConfig] || 
-                      { label: status, variant: 'default' as const, icon: User };
-        
+        const config = statusConfig[status as keyof typeof statusConfig] || { label: status, variant: 'default' as const, icon: User };
+
         return (
             <Badge variant={config.variant} className="flex items-center">
-                <config.icon className="h-3 w-3 mr-1" />
+                <config.icon className="mr-1 h-3 w-3" />
                 {config.label}
             </Badge>
         );
@@ -107,17 +82,17 @@ export default function CustomerShow({ customer }: Props) {
 
     const getPaymentTermsBadge = (terms: string) => {
         const colors = {
-            'net_30': 'bg-blue-100 text-blue-800',
-            'net_15': 'bg-green-100 text-green-800',
-            'net_7': 'bg-yellow-100 text-yellow-800',
-            'cod': 'bg-red-100 text-red-800',
-            'prepaid': 'bg-purple-100 text-purple-800',
+            net_30: 'bg-blue-100 text-blue-800',
+            net_15: 'bg-green-100 text-green-800',
+            net_7: 'bg-yellow-100 text-yellow-800',
+            cod: 'bg-red-100 text-red-800',
+            prepaid: 'bg-purple-100 text-purple-800',
         };
 
         const color = colors[terms as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-        
+
         return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${color}`}>
+            <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${color}`}>
                 {terms.replace('_', ' ').toUpperCase()}
             </span>
         );
@@ -135,9 +110,9 @@ export default function CustomerShow({ customer }: Props) {
         };
 
         const color = colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-        
+
         return (
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${color}`}>
+            <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${color}`}>
                 {status.replace('_', ' ').charAt(0).toUpperCase() + status.replace('_', ' ').slice(1)}
             </span>
         );
@@ -150,30 +125,26 @@ export default function CustomerShow({ customer }: Props) {
     return (
         <AppLayout>
             <Head title={`Customer ${customer?.customer_code || 'Unknown'}`} />
-            
+
             <div className="space-y-6 p-4 md:p-6">
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div className="flex items-center space-x-4">
                         <Button variant="outline" size="sm" asChild>
                             <Link href="/admin/customers">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Customers
                             </Link>
                         </Button>
                         <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                                {customer?.company_name || 'Unknown Company'}
-                            </h1>
-                            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                                Customer Code: {customer?.customer_code || 'N/A'}
-                            </p>
+                            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{customer?.company_name || 'Unknown Company'}</h1>
+                            <p className="mt-1 text-sm text-muted-foreground sm:text-base">Customer Code: {customer?.customer_code || 'N/A'}</p>
                         </div>
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Button variant="outline" asChild className="w-full sm:w-auto">
                             <Link href={route('admin.customers.edit', customer?.id || 0)}>
-                                <Edit className="h-4 w-4 mr-2" />
+                                <Edit className="mr-2 h-4 w-4" />
                                 Edit Customer
                             </Link>
                         </Button>
@@ -188,16 +159,14 @@ export default function CustomerShow({ customer }: Props) {
                 </div>
 
                 {/* Status and Stats Cards */}
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center space-x-2">
                                 <User className="h-5 w-5 text-blue-600" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Status</p>
-                                    <div className="mt-1">
-                                        {getStatusBadge(customer?.status || 'inactive')}
-                                    </div>
+                                    <div className="mt-1">{getStatusBadge(customer?.status || 'inactive')}</div>
                                 </div>
                             </div>
                         </CardContent>
@@ -241,12 +210,12 @@ export default function CustomerShow({ customer }: Props) {
                 </div>
 
                 {/* Main Content */}
-                <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* Contact Information */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <User className="h-5 w-5 mr-2" />
+                                <User className="mr-2 h-5 w-5" />
                                 Contact Information
                             </CardTitle>
                         </CardHeader>
@@ -271,9 +240,7 @@ export default function CustomerShow({ customer }: Props) {
                             <Separator />
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Payment Terms</p>
-                                <div className="mt-1">
-                                    {getPaymentTermsBadge(customer?.payment_terms || 'net_30')}
-                                </div>
+                                <div className="mt-1">{getPaymentTermsBadge(customer?.payment_terms || 'net_30')}</div>
                             </div>
                         </CardContent>
                     </Card>
@@ -282,7 +249,7 @@ export default function CustomerShow({ customer }: Props) {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center">
-                                <MapPin className="h-5 w-5 mr-2" />
+                                <MapPin className="mr-2 h-5 w-5" />
                                 Address Information
                             </CardTitle>
                         </CardHeader>
@@ -291,9 +258,7 @@ export default function CustomerShow({ customer }: Props) {
                                 <p className="text-sm font-medium text-muted-foreground">Business Address</p>
                                 <div className="mt-1">
                                     <p className="text-sm">{customer?.address_line_1 || 'N/A'}</p>
-                                    {customer?.address_line_2 && (
-                                        <p className="text-sm">{customer.address_line_2}</p>
-                                    )}
+                                    {customer?.address_line_2 && <p className="text-sm">{customer.address_line_2}</p>}
                                     <p className="text-sm">
                                         {customer?.city || 'Unknown'}, {customer?.state_province || 'Unknown'} {customer?.postal_code || ''}
                                     </p>
@@ -303,7 +268,7 @@ export default function CustomerShow({ customer }: Props) {
                             <Separator />
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Account Created</p>
-                                <div className="flex items-center space-x-2 mt-1">
+                                <div className="mt-1 flex items-center space-x-2">
                                     <Calendar className="h-4 w-4 text-muted-foreground" />
                                     <span className="text-sm">{formatDate(customer?.created_at || new Date().toISOString())}</span>
                                 </div>
@@ -329,22 +294,18 @@ export default function CustomerShow({ customer }: Props) {
                     <CardHeader>
                         <CardTitle className="flex items-center justify-between">
                             <span className="flex items-center">
-                                <Package className="h-5 w-5 mr-2" />
+                                <Package className="mr-2 h-5 w-5" />
                                 Recent Shipments
                             </span>
                             <Button variant="outline" size="sm" asChild>
-                                <Link href={`/admin/shipments?customer_id=${customer?.id || 0}`}>
-                                    View All
-                                </Link>
+                                <Link href={`/admin/shipments?customer_id=${customer?.id || 0}`}>View All</Link>
                             </Button>
                         </CardTitle>
-                        <CardDescription>
-                            Latest shipments for this customer
-                        </CardDescription>
+                        <CardDescription>Latest shipments for this customer</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {customer?.shipments?.length > 0 ? (
-                            <div className="rounded-md border overflow-hidden">
+                            <div className="overflow-hidden rounded-md border">
                                 <div className="overflow-x-auto">
                                     <Table>
                                         <TableHeader>
@@ -361,30 +322,20 @@ export default function CustomerShow({ customer }: Props) {
                                             {customer?.shipments?.slice(0, 5).map((shipment) => (
                                                 <TableRow key={shipment.id}>
                                                     <TableCell>
-                                                        <Link 
+                                                        <Link
                                                             href={route('admin.shipments.show', shipment.id)}
                                                             className="font-medium text-blue-600 hover:underline"
                                                         >
                                                             {shipment.tracking_number}
                                                         </Link>
                                                     </TableCell>
+                                                    <TableCell>{getShipmentStatusBadge(shipment.status)}</TableCell>
+                                                    <TableCell className="capitalize">{shipment.service_type}</TableCell>
                                                     <TableCell>
-                                                        {getShipmentStatusBadge(shipment.status)}
+                                                        <p className="max-w-[200px] truncate text-sm">{shipment.destination_address}</p>
                                                     </TableCell>
-                                                    <TableCell className="capitalize">
-                                                        {shipment.service_type}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <p className="text-sm truncate max-w-[200px]">
-                                                            {shipment.destination_address}
-                                                        </p>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {formatCurrency(shipment.declared_value)}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {formatDate(shipment.created_at)}
-                                                    </TableCell>
+                                                    <TableCell>{formatCurrency(shipment.declared_value)}</TableCell>
+                                                    <TableCell>{formatDate(shipment.created_at)}</TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>
@@ -392,13 +343,11 @@ export default function CustomerShow({ customer }: Props) {
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-center py-8 text-muted-foreground">
-                                <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                            <div className="py-8 text-center text-muted-foreground">
+                                <Package className="mx-auto mb-4 h-12 w-12 text-muted-foreground/50" />
                                 <p>No shipments found for this customer.</p>
                                 <Button variant="outline" size="sm" className="mt-4" asChild>
-                                    <Link href={`/admin/shipments/create?customer_id=${customer?.id || 0}`}>
-                                        Create First Shipment
-                                    </Link>
+                                    <Link href={`/admin/shipments/create?customer_id=${customer?.id || 0}`}>Create First Shipment</Link>
                                 </Button>
                             </div>
                         )}

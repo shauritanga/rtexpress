@@ -1,27 +1,14 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { 
-    Truck,
-    Calendar as CalendarIcon,
-    Clock,
-    MapPin,
-    Phone,
-    User,
-    Package,
-    CheckCircle,
-    AlertTriangle,
-    Info,
-    Loader2
-} from 'lucide-react';
+import { Calendar as CalendarIcon, CheckCircle, Info, Loader2, Package, Truck, User } from 'lucide-react';
+import { useState } from 'react';
 
 interface Customer {
     id: number;
@@ -65,15 +52,9 @@ const TIME_WINDOWS = [
     { value: '9-15', label: '9:00 AM - 3:00 PM', description: 'Business hours' },
 ];
 
-const READY_TIMES = [
-    '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
-    '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
-];
+const READY_TIMES = ['8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
 
-const CLOSE_TIMES = [
-    '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM',
-    '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM'
-];
+const CLOSE_TIMES = ['12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM'];
 
 export default function PickupScheduler({ customer, shipmentIds = [], className = '', onScheduled }: Props) {
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -95,18 +76,18 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleInputChange = (field: keyof PickupRequest, value: any) => {
-        setPickupRequest(prev => ({ ...prev, [field]: value }));
+        setPickupRequest((prev) => ({ ...prev, [field]: value }));
         if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: '' }));
+            setErrors((prev) => ({ ...prev, [field]: '' }));
         }
     };
 
     const handleDateSelect = (date: Date | undefined) => {
         if (date) {
             setSelectedDate(date);
-            setPickupRequest(prev => ({ 
-                ...prev, 
-                pickup_date: date.toISOString().split('T')[0] 
+            setPickupRequest((prev) => ({
+                ...prev,
+                pickup_date: date.toISOString().split('T')[0],
             }));
             setIsCalendarOpen(false);
         }
@@ -121,11 +102,11 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
             const selectedDate = new Date(pickupRequest.pickup_date);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            
+
             if (selectedDate < today) {
                 newErrors.pickup_date = 'Pickup date cannot be in the past';
             }
-            
+
             // Check if it's a weekend
             if (selectedDate.getDay() === 0 || selectedDate.getDay() === 6) {
                 newErrors.pickup_date = 'Pickup is not available on weekends';
@@ -194,7 +175,7 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
             weekday: 'long',
             year: 'numeric',
             month: 'long',
-            day: 'numeric'
+            day: 'numeric',
         });
     };
 
@@ -215,12 +196,10 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center">
-                        <Truck className="h-5 w-5 mr-2" />
+                        <Truck className="mr-2 h-5 w-5" />
                         Schedule Package Pickup
                     </CardTitle>
-                    <CardDescription>
-                        Schedule a convenient time for our driver to collect your packages
-                    </CardDescription>
+                    <CardDescription>Schedule a convenient time for our driver to collect your packages</CardDescription>
                 </CardHeader>
             </Card>
 
@@ -228,13 +207,13 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center">
-                        <CalendarIcon className="h-4 w-4 mr-2" />
+                        <CalendarIcon className="mr-2 h-4 w-4" />
                         Pickup Details
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {/* Date and Time Selection */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label>Pickup Date *</Label>
                             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
@@ -242,11 +221,11 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
                                     <Button
                                         variant="outline"
                                         className={`w-full justify-start text-left font-normal ${
-                                            !selectedDate && "text-muted-foreground"
+                                            !selectedDate && 'text-muted-foreground'
                                         } ${errors.pickup_date ? 'border-red-500' : ''}`}
                                     >
                                         <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {selectedDate ? formatDate(selectedDate) : "Select pickup date"}
+                                        {selectedDate ? formatDate(selectedDate) : 'Select pickup date'}
                                     </Button>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
@@ -259,9 +238,7 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
                                     />
                                 </PopoverContent>
                             </Popover>
-                            {errors.pickup_date && (
-                                <p className="text-sm text-red-600">{errors.pickup_date}</p>
-                            )}
+                            {errors.pickup_date && <p className="text-sm text-red-600">{errors.pickup_date}</p>}
                         </div>
 
                         <div className="space-y-2">
@@ -288,13 +265,10 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
                     </div>
 
                     {/* Ready and Close Times */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label>Ready Time</Label>
-                            <Select
-                                value={pickupRequest.ready_time}
-                                onValueChange={(value) => handleInputChange('ready_time', value)}
-                            >
+                            <Select value={pickupRequest.ready_time} onValueChange={(value) => handleInputChange('ready_time', value)}>
                                 <SelectTrigger>
                                     <SelectValue />
                                 </SelectTrigger>
@@ -311,10 +285,7 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
 
                         <div className="space-y-2">
                             <Label>Close Time</Label>
-                            <Select
-                                value={pickupRequest.close_time}
-                                onValueChange={(value) => handleInputChange('close_time', value)}
-                            >
+                            <Select value={pickupRequest.close_time} onValueChange={(value) => handleInputChange('close_time', value)}>
                                 <SelectTrigger>
                                     <SelectValue />
                                 </SelectTrigger>
@@ -336,12 +307,12 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center">
-                        <User className="h-4 w-4 mr-2" />
+                        <User className="mr-2 h-4 w-4" />
                         Contact Information
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="contact_person">Contact Person *</Label>
                             <Input
@@ -351,9 +322,7 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
                                 placeholder="John Doe"
                                 className={errors.contact_person ? 'border-red-500' : ''}
                             />
-                            {errors.contact_person && (
-                                <p className="text-sm text-red-600">{errors.contact_person}</p>
-                            )}
+                            {errors.contact_person && <p className="text-sm text-red-600">{errors.contact_person}</p>}
                         </div>
 
                         <div className="space-y-2">
@@ -365,9 +334,7 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
                                 placeholder="+1 (555) 123-4567"
                                 className={errors.contact_phone ? 'border-red-500' : ''}
                             />
-                            {errors.contact_phone && (
-                                <p className="text-sm text-red-600">{errors.contact_phone}</p>
-                            )}
+                            {errors.contact_phone && <p className="text-sm text-red-600">{errors.contact_phone}</p>}
                         </div>
                     </div>
 
@@ -381,9 +348,7 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
                             rows={3}
                             className={errors.pickup_location ? 'border-red-500' : ''}
                         />
-                        {errors.pickup_location && (
-                            <p className="text-sm text-red-600">{errors.pickup_location}</p>
-                        )}
+                        {errors.pickup_location && <p className="text-sm text-red-600">{errors.pickup_location}</p>}
                     </div>
                 </CardContent>
             </Card>
@@ -392,12 +357,12 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center">
-                        <Package className="h-4 w-4 mr-2" />
+                        <Package className="mr-2 h-4 w-4" />
                         Package Information
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                             <Label htmlFor="package_count">Number of Packages *</Label>
                             <Input
@@ -408,9 +373,7 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
                                 onChange={(e) => handleInputChange('package_count', parseInt(e.target.value) || 0)}
                                 className={errors.package_count ? 'border-red-500' : ''}
                             />
-                            {errors.package_count && (
-                                <p className="text-sm text-red-600">{errors.package_count}</p>
-                            )}
+                            {errors.package_count && <p className="text-sm text-red-600">{errors.package_count}</p>}
                         </div>
 
                         <div className="space-y-2">
@@ -425,9 +388,7 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
                                 placeholder="0.0"
                                 className={errors.total_weight ? 'border-red-500' : ''}
                             />
-                            {errors.total_weight && (
-                                <p className="text-sm text-red-600">{errors.total_weight}</p>
-                            )}
+                            {errors.total_weight && <p className="text-sm text-red-600">{errors.total_weight}</p>}
                         </div>
                     </div>
 
@@ -456,13 +417,13 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
             </Card>
 
             {/* Important Notes */}
-            <Card className="bg-blue-50 border-blue-200">
+            <Card className="border-blue-200 bg-blue-50">
                 <CardContent className="pt-6">
                     <div className="flex items-start space-x-2">
-                        <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+                        <Info className="mt-0.5 h-5 w-5 text-blue-600" />
                         <div className="space-y-2">
                             <h4 className="font-medium text-blue-900">Important Pickup Information</h4>
-                            <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                            <ul className="list-inside list-disc space-y-1 text-sm text-blue-800">
                                 <li>Pickup requests must be scheduled at least 24 hours in advance</li>
                                 <li>Pickups are available Monday through Friday, excluding holidays</li>
                                 <li>Please have all packages ready and properly labeled</li>
@@ -476,20 +437,15 @@ export default function PickupScheduler({ customer, shipmentIds = [], className 
 
             {/* Schedule Button */}
             <div className="flex justify-end">
-                <Button 
-                    onClick={handleSchedulePickup}
-                    disabled={isScheduling}
-                    size="lg"
-                    className="min-w-48"
-                >
+                <Button onClick={handleSchedulePickup} disabled={isScheduling} size="lg" className="min-w-48">
                     {isScheduling ? (
                         <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             Scheduling Pickup...
                         </>
                     ) : (
                         <>
-                            <CheckCircle className="h-4 w-4 mr-2" />
+                            <CheckCircle className="mr-2 h-4 w-4" />
                             Schedule Pickup
                         </>
                     )}

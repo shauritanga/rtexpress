@@ -1,19 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { 
-    Smartphone, 
-    Wifi, 
-    WifiOff, 
-    Download, 
-    RefreshCw,
-    Bell,
-    BellOff,
-    Home,
-    X
-} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Bell, Download, RefreshCw, Smartphone, Wifi, WifiOff, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 // PWA Status Hook
 export function usePWAStatus() {
@@ -26,15 +16,16 @@ export function usePWAStatus() {
         // Online/Offline status
         const handleOnline = () => setIsOnline(true);
         const handleOffline = () => setIsOnline(false);
-        
+
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
 
         // Check if app is installed/standalone
         const checkStandalone = () => {
-            const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches ||
-                                   (window.navigator as any).standalone ||
-                                   document.referrer.includes('android-app://');
+            const isStandaloneMode =
+                window.matchMedia('(display-mode: standalone)').matches ||
+                (window.navigator as any).standalone ||
+                document.referrer.includes('android-app://');
             setIsStandalone(isStandaloneMode);
             setIsInstalled(isStandaloneMode);
         };
@@ -66,7 +57,7 @@ export function usePWAStatus() {
         isInstalled,
         isStandalone,
         notificationPermission,
-        requestNotificationPermission
+        requestNotificationPermission,
     };
 }
 
@@ -76,14 +67,7 @@ interface TouchButtonProps extends React.ComponentProps<typeof Button> {
     haptic?: boolean;
 }
 
-export function TouchButton({ 
-    children, 
-    className, 
-    touchSize = 'md', 
-    haptic = false,
-    onClick,
-    ...props 
-}: TouchButtonProps) {
+export function TouchButton({ children, className, touchSize = 'md', haptic = false, onClick, ...props }: TouchButtonProps) {
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         // Haptic feedback on supported devices
         if (haptic && 'vibrate' in navigator) {
@@ -96,17 +80,12 @@ export function TouchButton({
     const sizeClasses = {
         sm: 'min-h-[44px] min-w-[44px] px-4 py-2',
         md: 'min-h-[48px] min-w-[48px] px-6 py-3',
-        lg: 'min-h-[56px] min-w-[56px] px-8 py-4'
+        lg: 'min-h-[56px] min-w-[56px] px-8 py-4',
     };
 
     return (
         <Button
-            className={cn(
-                sizeClasses[touchSize],
-                'touch-manipulation select-none',
-                'active:scale-95 transition-transform duration-100',
-                className
-            )}
+            className={cn(sizeClasses[touchSize], 'touch-manipulation select-none', 'transition-transform duration-100 active:scale-95', className)}
             onClick={handleClick}
             {...props}
         >
@@ -122,10 +101,7 @@ export function PWAStatusIndicator() {
     return (
         <div className="flex items-center gap-2">
             {/* Online/Offline Status */}
-            <Badge 
-                variant={isOnline ? "secondary" : "destructive"}
-                className="flex items-center gap-1"
-            >
+            <Badge variant={isOnline ? 'secondary' : 'destructive'} className="flex items-center gap-1">
                 {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
                 {isOnline ? 'Online' : 'Offline'}
             </Badge>
@@ -173,11 +149,11 @@ export function InstallPrompt() {
 
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        
+
         if (outcome === 'accepted') {
             console.log('User accepted the install prompt');
         }
-        
+
         setDeferredPrompt(null);
         setShowPrompt(false);
     };
@@ -190,11 +166,11 @@ export function InstallPrompt() {
     if (!showPrompt) return null;
 
     return (
-        <Card className="fixed bottom-4 left-4 right-4 z-50 bg-rt-red text-white border-rt-red shadow-rt-red-lg">
+        <Card className="bg-rt-red border-rt-red shadow-rt-red-lg fixed right-4 bottom-4 left-4 z-50 text-white">
             <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/20 rounded-lg">
+                        <div className="rounded-lg bg-white/20 p-2">
                             <Download className="h-5 w-5" />
                         </div>
                         <div>
@@ -203,20 +179,10 @@ export function InstallPrompt() {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <TouchButton
-                            size="sm"
-                            variant="secondary"
-                            onClick={handleInstall}
-                            className="bg-white text-rt-red hover:bg-white/90"
-                        >
+                        <TouchButton size="sm" variant="secondary" onClick={handleInstall} className="text-rt-red bg-white hover:bg-white/90">
                             Install
                         </TouchButton>
-                        <TouchButton
-                            size="sm"
-                            variant="ghost"
-                            onClick={handleDismiss}
-                            className="text-white hover:bg-white/20"
-                        >
+                        <TouchButton size="sm" variant="ghost" onClick={handleDismiss} className="text-white hover:bg-white/20">
                             <X className="h-4 w-4" />
                         </TouchButton>
                     </div>
@@ -244,21 +210,15 @@ export function OfflineIndicator() {
     if (!showOffline) return null;
 
     return (
-        <div className={cn(
-            "fixed top-4 left-4 right-4 z-50 p-3 rounded-lg shadow-lg transition-all duration-300",
-            isOnline 
-                ? "bg-green-500 text-white" 
-                : "bg-yellow-500 text-black"
-        )}>
+        <div
+            className={cn(
+                'fixed top-4 right-4 left-4 z-50 rounded-lg p-3 shadow-lg transition-all duration-300',
+                isOnline ? 'bg-green-500 text-white' : 'bg-yellow-500 text-black',
+            )}
+        >
             <div className="flex items-center gap-2">
-                {isOnline ? (
-                    <Wifi className="h-4 w-4" />
-                ) : (
-                    <WifiOff className="h-4 w-4" />
-                )}
-                <span className="text-sm font-medium">
-                    {isOnline ? 'Back online!' : 'You\'re offline - Some features may be limited'}
-                </span>
+                {isOnline ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
+                <span className="text-sm font-medium">{isOnline ? 'Back online!' : "You're offline - Some features may be limited"}</span>
             </div>
         </div>
     );
@@ -279,7 +239,7 @@ export function UpdateNotification() {
 
     const handleUpdate = async () => {
         setIsUpdating(true);
-        
+
         // Refresh the page to load the new version
         window.location.reload();
     };
@@ -291,11 +251,11 @@ export function UpdateNotification() {
     if (!showUpdate) return null;
 
     return (
-        <Card className="fixed top-4 left-4 right-4 z-50 bg-blue-500 text-white border-blue-500 shadow-lg">
+        <Card className="fixed top-4 right-4 left-4 z-50 border-blue-500 bg-blue-500 text-white shadow-lg">
             <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/20 rounded-lg">
+                        <div className="rounded-lg bg-white/20 p-2">
                             <RefreshCw className="h-5 w-5" />
                         </div>
                         <div>
@@ -311,18 +271,9 @@ export function UpdateNotification() {
                             disabled={isUpdating}
                             className="bg-white text-blue-500 hover:bg-white/90"
                         >
-                            {isUpdating ? (
-                                <RefreshCw className="h-4 w-4 animate-spin" />
-                            ) : (
-                                'Update'
-                            )}
+                            {isUpdating ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Update'}
                         </TouchButton>
-                        <TouchButton
-                            size="sm"
-                            variant="ghost"
-                            onClick={handleDismiss}
-                            className="text-white hover:bg-white/20"
-                        >
+                        <TouchButton size="sm" variant="ghost" onClick={handleDismiss} className="text-white hover:bg-white/20">
                             <X className="h-4 w-4" />
                         </TouchButton>
                     </div>
@@ -350,8 +301,8 @@ export function NotificationPermissionRequest() {
         if (permission === 'granted') {
             // Show a test notification
             new Notification('RT Express', {
-                body: 'Notifications enabled! You\'ll receive updates about your shipments.',
-                icon: '/images/icons/icon-192x192.png'
+                body: "Notifications enabled! You'll receive updates about your shipments.",
+                icon: '/images/icons/icon-192x192.png',
             });
         }
         setShowRequest(false);
@@ -364,11 +315,11 @@ export function NotificationPermissionRequest() {
     if (!showRequest || notificationPermission !== 'default') return null;
 
     return (
-        <Card className="fixed bottom-4 left-4 right-4 z-50 bg-blue-500 text-white border-blue-500 shadow-lg">
+        <Card className="fixed right-4 bottom-4 left-4 z-50 border-blue-500 bg-blue-500 text-white shadow-lg">
             <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/20 rounded-lg">
+                        <div className="rounded-lg bg-white/20 p-2">
                             <Bell className="h-5 w-5" />
                         </div>
                         <div>
@@ -377,20 +328,10 @@ export function NotificationPermissionRequest() {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <TouchButton
-                            size="sm"
-                            variant="secondary"
-                            onClick={handleRequest}
-                            className="bg-white text-blue-500 hover:bg-white/90"
-                        >
+                        <TouchButton size="sm" variant="secondary" onClick={handleRequest} className="bg-white text-blue-500 hover:bg-white/90">
                             Enable
                         </TouchButton>
-                        <TouchButton
-                            size="sm"
-                            variant="ghost"
-                            onClick={handleDismiss}
-                            className="text-white hover:bg-white/20"
-                        >
+                        <TouchButton size="sm" variant="ghost" onClick={handleDismiss} className="text-white hover:bg-white/20">
                             <X className="h-4 w-4" />
                         </TouchButton>
                     </div>

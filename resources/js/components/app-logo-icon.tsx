@@ -5,12 +5,5 @@ interface AppLogoIconProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, 'sr
 }
 
 export default function AppLogoIcon({ className, ...props }: AppLogoIconProps) {
-    return (
-        <img
-            src="/images/logo.jpeg"
-            alt="RT Express Logo"
-            className={`object-contain ${className}`}
-            {...props}
-        />
-    );
+    return <img src="/images/logo.jpeg" alt="RT Express Logo" className={`object-contain ${className}`} {...props} />;
 }

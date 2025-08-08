@@ -1,27 +1,14 @@
-import React from 'react';
-import { Head } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import DeliveryTimeSlots from '@/components/customer/delivery/DeliveryTimeSlots';
 import AlternativeLocations from '@/components/customer/delivery/AlternativeLocations';
 import DeliveryPreferences from '@/components/customer/delivery/DeliveryPreferences';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import DeliveryTimeSlots from '@/components/customer/delivery/DeliveryTimeSlots';
 import { Badge } from '@/components/ui/badge';
-import { 
-    Calendar,
-    MapPin,
-    Settings,
-    ArrowLeft,
-    Clock,
-    Package,
-    Truck,
-    CheckCircle,
-    Star,
-    Zap,
-    Shield,
-    Home
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AppLayout from '@/layouts/app-layout';
+import { Head } from '@inertiajs/react';
+import { ArrowLeft, Calendar, CheckCircle, Clock, Home, MapPin, Package, Settings, Shield, Star, Truck, Zap } from 'lucide-react';
+import React from 'react';
 
 interface Customer {
     id: number;
@@ -43,16 +30,16 @@ interface Props {
     currentShipment?: any;
 }
 
-export default function DeliveryIndex({ 
-    customer, 
+export default function DeliveryIndex({
+    customer,
     deliveryStats = {
         onTimeDeliveries: 47,
         totalDeliveries: 52,
         averageDeliveryTime: '2.3 days',
         preferredTimeSlot: '12:00 PM - 5:00 PM',
-        mostUsedLocation: 'Front Door'
+        mostUsedLocation: 'Front Door',
     },
-    currentShipment
+    currentShipment,
 }: Props) {
     const [selectedDate, setSelectedDate] = React.useState<Date>();
     const [selectedSlot, setSelectedSlot] = React.useState<string>();
@@ -82,53 +69,49 @@ export default function DeliveryIndex({
     return (
         <AppLayout>
             <Head title="Flexible Delivery Options" />
-            
-            <div className="space-y-4 sm:space-y-6 px-4 sm:px-6 lg:px-8">
+
+            <div className="space-y-4 px-4 sm:space-y-6 sm:px-6 lg:px-8">
                 {/* Header - Mobile Optimized */}
-                <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
+                <div className="rounded-lg border bg-white p-4 shadow-sm sm:p-6">
                     <div className="flex flex-col space-y-4">
                         <div className="flex items-center justify-between">
                             <Button variant="ghost" size="sm" onClick={() => window.history.back()}>
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back
                             </Button>
-                            
+
                             {/* Quick Actions - Mobile Responsive */}
                             <div className="flex gap-2">
                                 <Button variant="outline" size="sm" className="p-2 sm:px-3">
                                     <Calendar className="h-4 w-4" />
-                                    <span className="hidden sm:inline ml-2">Schedule</span>
+                                    <span className="ml-2 hidden sm:inline">Schedule</span>
                                 </Button>
                                 <Button variant="outline" size="sm" className="p-2 sm:px-3">
                                     <MapPin className="h-4 w-4" />
-                                    <span className="hidden sm:inline ml-2">Locations</span>
+                                    <span className="ml-2 hidden sm:inline">Locations</span>
                                 </Button>
                             </div>
                         </div>
-                        
+
                         <div>
-                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center">
-                                <Truck className="h-6 w-6 sm:h-8 sm:w-8 mr-3 text-blue-600" />
+                            <h1 className="flex items-center text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
+                                <Truck className="mr-3 h-6 w-6 text-blue-600 sm:h-8 sm:w-8" />
                                 Flexible Delivery Options
                             </h1>
-                            <p className="text-sm sm:text-base text-gray-600 mt-1">
-                                {customer.company_name} • Customize your delivery experience
-                            </p>
+                            <p className="mt-1 text-sm text-gray-600 sm:text-base">{customer.company_name} • Customize your delivery experience</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Delivery Performance Summary - Mobile First Grid */}
-                <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-4 sm:pt-6">
                             <div className="flex items-center space-x-2">
-                                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                                <CheckCircle className="h-4 w-4 text-green-600 sm:h-5 sm:w-5" />
                                 <div className="min-w-0">
-                                    <p className="text-xs sm:text-sm font-medium text-gray-600">On-Time Rate</p>
-                                    <p className="text-sm sm:text-lg font-bold text-green-600 truncate">
-                                        {onTimePercentage}%
-                                    </p>
+                                    <p className="text-xs font-medium text-gray-600 sm:text-sm">On-Time Rate</p>
+                                    <p className="truncate text-sm font-bold text-green-600 sm:text-lg">{onTimePercentage}%</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -137,12 +120,10 @@ export default function DeliveryIndex({
                     <Card>
                         <CardContent className="pt-4 sm:pt-6">
                             <div className="flex items-center space-x-2">
-                                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                                <Clock className="h-4 w-4 text-blue-600 sm:h-5 sm:w-5" />
                                 <div className="min-w-0">
-                                    <p className="text-xs sm:text-sm font-medium text-gray-600">Avg Time</p>
-                                    <p className="text-sm sm:text-lg font-bold text-blue-600 truncate">
-                                        {deliveryStats.averageDeliveryTime}
-                                    </p>
+                                    <p className="text-xs font-medium text-gray-600 sm:text-sm">Avg Time</p>
+                                    <p className="truncate text-sm font-bold text-blue-600 sm:text-lg">{deliveryStats.averageDeliveryTime}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -151,12 +132,10 @@ export default function DeliveryIndex({
                     <Card>
                         <CardContent className="pt-4 sm:pt-6">
                             <div className="flex items-center space-x-2">
-                                <Star className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600" />
+                                <Star className="h-4 w-4 text-yellow-600 sm:h-5 sm:w-5" />
                                 <div className="min-w-0">
-                                    <p className="text-xs sm:text-sm font-medium text-gray-600">Preferred Slot</p>
-                                    <p className="text-xs sm:text-sm font-bold text-yellow-600 truncate">
-                                        {deliveryStats.preferredTimeSlot}
-                                    </p>
+                                    <p className="text-xs font-medium text-gray-600 sm:text-sm">Preferred Slot</p>
+                                    <p className="truncate text-xs font-bold text-yellow-600 sm:text-sm">{deliveryStats.preferredTimeSlot}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -165,12 +144,10 @@ export default function DeliveryIndex({
                     <Card>
                         <CardContent className="pt-4 sm:pt-6">
                             <div className="flex items-center space-x-2">
-                                <Home className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
+                                <Home className="h-4 w-4 text-purple-600 sm:h-5 sm:w-5" />
                                 <div className="min-w-0">
-                                    <p className="text-xs sm:text-sm font-medium text-gray-600">Top Location</p>
-                                    <p className="text-xs sm:text-sm font-bold text-purple-600 truncate">
-                                        {deliveryStats.mostUsedLocation}
-                                    </p>
+                                    <p className="text-xs font-medium text-gray-600 sm:text-sm">Top Location</p>
+                                    <p className="truncate text-xs font-bold text-purple-600 sm:text-sm">{deliveryStats.mostUsedLocation}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -182,20 +159,16 @@ export default function DeliveryIndex({
                     <Card>
                         <CardContent className="pt-4">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                <div className="rounded-lg bg-blue-100 p-2 text-blue-600">
                                     <Package className="h-5 w-5" />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="font-medium text-gray-900">
-                                        Customizing delivery for: {currentShipment.tracking_number}
-                                    </h3>
+                                    <h3 className="font-medium text-gray-900">Customizing delivery for: {currentShipment.tracking_number}</h3>
                                     <p className="text-sm text-gray-600">
                                         {currentShipment.service_type} • {currentShipment.destination_address}
                                     </p>
                                 </div>
-                                <Badge className="bg-blue-100 text-blue-800 border-blue-300">
-                                    Active
-                                </Badge>
+                                <Badge className="border-blue-300 bg-blue-100 text-blue-800">Active</Badge>
                             </div>
                         </CardContent>
                     </Card>
@@ -205,21 +178,21 @@ export default function DeliveryIndex({
                 <Tabs defaultValue="timeslots" className="space-y-6">
                     <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="timeslots" className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-2" />
+                            <Calendar className="mr-2 h-4 w-4" />
                             <span className="hidden sm:inline">Time Slots</span>
                         </TabsTrigger>
                         <TabsTrigger value="locations" className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-2" />
+                            <MapPin className="mr-2 h-4 w-4" />
                             <span className="hidden sm:inline">Locations</span>
                         </TabsTrigger>
                         <TabsTrigger value="preferences" className="flex items-center">
-                            <Settings className="h-4 w-4 mr-2" />
+                            <Settings className="mr-2 h-4 w-4" />
                             <span className="hidden sm:inline">Preferences</span>
                         </TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="timeslots">
-                        <DeliveryTimeSlots 
+                        <DeliveryTimeSlots
                             selectedDate={selectedDate}
                             selectedSlot={selectedSlot}
                             onDateSelect={handleDateSelect}
@@ -239,10 +212,7 @@ export default function DeliveryIndex({
                     </TabsContent>
 
                     <TabsContent value="preferences">
-                        <DeliveryPreferences
-                            preferences={deliveryPreferences}
-                            onPreferencesChange={handlePreferencesChange}
-                        />
+                        <DeliveryPreferences preferences={deliveryPreferences} onPreferencesChange={handlePreferencesChange} />
                     </TabsContent>
                 </Tabs>
 
@@ -251,38 +221,32 @@ export default function DeliveryIndex({
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-lg">Delivery Summary</CardTitle>
-                            <CardDescription>
-                                Review your selected delivery options
-                            </CardDescription>
+                            <CardDescription>Review your selected delivery options</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
                                 {selectedDate && selectedSlot && (
-                                    <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 p-3">
                                         <Calendar className="h-5 w-5 text-blue-600" />
                                         <div>
                                             <h4 className="font-medium text-blue-900">Scheduled Delivery</h4>
-                                            <p className="text-sm text-blue-800">
-                                                {selectedDate.toLocaleDateString()} • Time slot selected
-                                            </p>
+                                            <p className="text-sm text-blue-800">{selectedDate.toLocaleDateString()} • Time slot selected</p>
                                         </div>
                                     </div>
                                 )}
 
                                 {selectedLocation && (
-                                    <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                    <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-3">
                                         <MapPin className="h-5 w-5 text-green-600" />
                                         <div>
                                             <h4 className="font-medium text-green-900">Alternative Location</h4>
-                                            <p className="text-sm text-green-800">
-                                                Pickup location selected
-                                            </p>
+                                            <p className="text-sm text-green-800">Pickup location selected</p>
                                         </div>
                                     </div>
                                 )}
 
                                 {Object.keys(deliveryPreferences).length > 0 && (
-                                    <div className="flex items-center gap-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                                    <div className="flex items-center gap-3 rounded-lg border border-purple-200 bg-purple-50 p-3">
                                         <Settings className="h-5 w-5 text-purple-600" />
                                         <div>
                                             <h4 className="font-medium text-purple-900">Custom Preferences</h4>
@@ -295,12 +259,10 @@ export default function DeliveryIndex({
 
                                 <div className="flex gap-3 pt-4">
                                     <Button className="flex-1">
-                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                        <CheckCircle className="mr-2 h-4 w-4" />
                                         Apply Delivery Options
                                     </Button>
-                                    <Button variant="outline">
-                                        Save as Default
-                                    </Button>
+                                    <Button variant="outline">Save as Default</Button>
                                 </div>
                             </div>
                         </CardContent>
@@ -311,54 +273,44 @@ export default function DeliveryIndex({
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-lg">Flexible Delivery Benefits</CardTitle>
-                        <CardDescription>
-                            Why customize your delivery experience
-                        </CardDescription>
+                        <CardDescription>Why customize your delivery experience</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div className="flex items-start gap-3">
-                                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                <div className="rounded-lg bg-blue-100 p-2 text-blue-600">
                                     <Clock className="h-4 w-4" />
                                 </div>
                                 <div>
                                     <h4 className="font-medium text-gray-900">Time Flexibility</h4>
-                                    <p className="text-sm text-gray-600">
-                                        Choose delivery windows that work with your schedule
-                                    </p>
+                                    <p className="text-sm text-gray-600">Choose delivery windows that work with your schedule</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <div className="p-2 bg-green-100 text-green-600 rounded-lg">
+                                <div className="rounded-lg bg-green-100 p-2 text-green-600">
                                     <MapPin className="h-4 w-4" />
                                 </div>
                                 <div>
                                     <h4 className="font-medium text-gray-900">Location Options</h4>
-                                    <p className="text-sm text-gray-600">
-                                        Secure pickup points when you're not home
-                                    </p>
+                                    <p className="text-sm text-gray-600">Secure pickup points when you're not home</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
+                                <div className="rounded-lg bg-purple-100 p-2 text-purple-600">
                                     <Shield className="h-4 w-4" />
                                 </div>
                                 <div>
                                     <h4 className="font-medium text-gray-900">Security Control</h4>
-                                    <p className="text-sm text-gray-600">
-                                        Customize security and signature requirements
-                                    </p>
+                                    <p className="text-sm text-gray-600">Customize security and signature requirements</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">
-                                <div className="p-2 bg-yellow-100 text-yellow-600 rounded-lg">
+                                <div className="rounded-lg bg-yellow-100 p-2 text-yellow-600">
                                     <Zap className="h-4 w-4" />
                                 </div>
                                 <div>
                                     <h4 className="font-medium text-gray-900">Smart Notifications</h4>
-                                    <p className="text-sm text-gray-600">
-                                        Get updates exactly how and when you want them
-                                    </p>
+                                    <p className="text-sm text-gray-600">Get updates exactly how and when you want them</p>
                                 </div>
                             </div>
                         </div>

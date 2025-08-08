@@ -1,19 +1,12 @@
-import { Head, Link, useForm } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-    Select, 
-    SelectContent, 
-    SelectItem, 
-    SelectTrigger, 
-    SelectValue 
-} from '@/components/ui/select';
-import { ArrowLeft, Plus, HeadphonesIcon } from 'lucide-react';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, HeadphonesIcon, Plus } from 'lucide-react';
 
 interface Customer {
     id: number;
@@ -75,7 +68,7 @@ export default function SupportCreate({ customers }: Props) {
                     <div className="flex items-center space-x-4">
                         <Button variant="ghost" size="sm" asChild>
                             <Link href={route('admin.support.index')}>
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Support
                             </Link>
                         </Button>
@@ -94,20 +87,15 @@ export default function SupportCreate({ customers }: Props) {
                 <Card>
                     <CardHeader>
                         <CardTitle>Ticket Details</CardTitle>
-                        <CardDescription>
-                            Fill in the details below to create a new support ticket
-                        </CardDescription>
+                        <CardDescription>Fill in the details below to create a new support ticket</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 {/* Customer Selection */}
                                 <div className="space-y-2">
                                     <Label htmlFor="customer_id">Customer *</Label>
-                                    <Select 
-                                        value={data.customer_id} 
-                                        onValueChange={(value) => setData('customer_id', value)}
-                                    >
+                                    <Select value={data.customer_id} onValueChange={(value) => setData('customer_id', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select customer" />
                                         </SelectTrigger>
@@ -124,18 +112,13 @@ export default function SupportCreate({ customers }: Props) {
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.customer_id && (
-                                        <p className="text-sm text-red-600">{errors.customer_id}</p>
-                                    )}
+                                    {errors.customer_id && <p className="text-sm text-red-600">{errors.customer_id}</p>}
                                 </div>
 
                                 {/* Priority */}
                                 <div className="space-y-2">
                                     <Label htmlFor="priority">Priority *</Label>
-                                    <Select 
-                                        value={data.priority} 
-                                        onValueChange={(value) => setData('priority', value)}
-                                    >
+                                    <Select value={data.priority} onValueChange={(value) => setData('priority', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select priority" />
                                         </SelectTrigger>
@@ -143,7 +126,7 @@ export default function SupportCreate({ customers }: Props) {
                                             {priorityOptions.map((option) => (
                                                 <SelectItem key={option.value} value={option.value}>
                                                     <div className="flex items-center space-x-2">
-                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${option.color}`}>
+                                                        <span className={`rounded-full px-2 py-1 text-xs font-medium ${option.color}`}>
                                                             {option.label}
                                                         </span>
                                                     </div>
@@ -151,18 +134,13 @@ export default function SupportCreate({ customers }: Props) {
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.priority && (
-                                        <p className="text-sm text-red-600">{errors.priority}</p>
-                                    )}
+                                    {errors.priority && <p className="text-sm text-red-600">{errors.priority}</p>}
                                 </div>
 
                                 {/* Category */}
                                 <div className="space-y-2">
                                     <Label htmlFor="category">Category *</Label>
-                                    <Select 
-                                        value={data.category} 
-                                        onValueChange={(value) => setData('category', value)}
-                                    >
+                                    <Select value={data.category} onValueChange={(value) => setData('category', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select category" />
                                         </SelectTrigger>
@@ -174,18 +152,13 @@ export default function SupportCreate({ customers }: Props) {
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.category && (
-                                        <p className="text-sm text-red-600">{errors.category}</p>
-                                    )}
+                                    {errors.category && <p className="text-sm text-red-600">{errors.category}</p>}
                                 </div>
 
                                 {/* Source */}
                                 <div className="space-y-2">
                                     <Label htmlFor="source">Source</Label>
-                                    <Select 
-                                        value={data.source} 
-                                        onValueChange={(value) => setData('source', value)}
-                                    >
+                                    <Select value={data.source} onValueChange={(value) => setData('source', value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select source" />
                                         </SelectTrigger>
@@ -197,9 +170,7 @@ export default function SupportCreate({ customers }: Props) {
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.source && (
-                                        <p className="text-sm text-red-600">{errors.source}</p>
-                                    )}
+                                    {errors.source && <p className="text-sm text-red-600">{errors.source}</p>}
                                 </div>
                             </div>
 
@@ -214,9 +185,7 @@ export default function SupportCreate({ customers }: Props) {
                                     placeholder="Enter ticket subject"
                                     className="w-full"
                                 />
-                                {errors.subject && (
-                                    <p className="text-sm text-red-600">{errors.subject}</p>
-                                )}
+                                {errors.subject && <p className="text-sm text-red-600">{errors.subject}</p>}
                             </div>
 
                             {/* Description */}
@@ -230,20 +199,16 @@ export default function SupportCreate({ customers }: Props) {
                                     rows={6}
                                     className="w-full"
                                 />
-                                {errors.description && (
-                                    <p className="text-sm text-red-600">{errors.description}</p>
-                                )}
+                                {errors.description && <p className="text-sm text-red-600">{errors.description}</p>}
                             </div>
 
                             {/* Submit Buttons */}
-                            <div className="flex items-center justify-end space-x-4 pt-6 border-t">
+                            <div className="flex items-center justify-end space-x-4 border-t pt-6">
                                 <Button variant="outline" asChild>
-                                    <Link href={route('admin.support.index')}>
-                                        Cancel
-                                    </Link>
+                                    <Link href={route('admin.support.index')}>Cancel</Link>
                                 </Button>
                                 <Button type="submit" disabled={processing}>
-                                    <Plus className="h-4 w-4 mr-2" />
+                                    <Plus className="mr-2 h-4 w-4" />
                                     {processing ? 'Creating...' : 'Create Ticket'}
                                 </Button>
                             </div>

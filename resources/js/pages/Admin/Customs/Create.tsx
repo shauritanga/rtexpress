@@ -1,35 +1,14 @@
-import { Head, Link, useForm } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue
-} from '@/components/ui/select';
-import {
-    MobileForm,
-    MobileFormSection,
-    MobileFormField,
-    MobileInputGroup,
-    MobileFormActions,
-    MobileSubmitButton
-} from '@/components/ui/mobile-form';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import {
-    ArrowLeft,
-    Plus,
-    Trash2,
-    DollarSign,
-    Truck,
-    User,
-    MapPin
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { MobileForm, MobileFormActions, MobileFormField, MobileFormSection, MobileInputGroup, MobileSubmitButton } from '@/components/ui/mobile-form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, DollarSign, MapPin, Plus, Trash2, Truck, User } from 'lucide-react';
+import { useState } from 'react';
 
 interface Customer {
     id: number;
@@ -75,8 +54,8 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
             brand: '',
             model: '',
             material: '',
-            purpose: ''
-        }
+            purpose: '',
+        },
     ]);
 
     const { data, setData, post, processing, errors } = useForm({
@@ -100,40 +79,43 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
             address: '',
             phone: '',
             email: '',
-            tax_id: ''
+            tax_id: '',
         },
         importer_details: {
             name: '',
             address: '',
             phone: '',
             email: '',
-            tax_id: ''
+            tax_id: '',
         },
         consignee_details: {
             name: '',
             address: '',
             phone: '',
-            email: ''
+            email: '',
         },
         incoterms: '',
         items: items,
     });
 
     const addItem = () => {
-        const newItems = [...items, {
-            description: '',
-            hs_code: '',
-            country_of_origin: '',
-            quantity: 1,
-            unit_value: 0,
-            unit_weight: 0,
-            unit_of_measure: 'piece',
-            manufacturer: '',
-            brand: '',
-            model: '',
-            material: '',
-            purpose: ''
-        }];
+        const newItems = [
+            ...items,
+            {
+                description: '',
+                hs_code: '',
+                country_of_origin: '',
+                quantity: 1,
+                unit_value: 0,
+                unit_weight: 0,
+                unit_of_measure: 'piece',
+                manufacturer: '',
+                brand: '',
+                model: '',
+                material: '',
+                purpose: '',
+            },
+        ];
         setItems(newItems);
         setData('items', newItems);
     };
@@ -149,17 +131,21 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
         newItems[index] = { ...newItems[index], [field]: value };
         setItems(newItems);
         setData('items', newItems);
-        
+
         // Update total value
-        const totalValue = newItems.reduce((sum, item) => sum + (item.quantity * item.unit_value), 0);
+        const totalValue = newItems.reduce((sum, item) => sum + item.quantity * item.unit_value, 0);
         setData('total_value', totalValue);
     };
 
     const selectShipment = (shipment: Shipment) => {
         setSelectedShipment(shipment);
         setData('shipment_id', shipment.id);
-        const declaredValue = typeof shipment.declared_value === 'number' ? shipment.declared_value :
-                             typeof shipment.declared_value === 'string' ? parseFloat(shipment.declared_value) || 0 : 0;
+        const declaredValue =
+            typeof shipment.declared_value === 'number'
+                ? shipment.declared_value
+                : typeof shipment.declared_value === 'string'
+                  ? parseFloat(shipment.declared_value) || 0
+                  : 0;
         setData('total_value', declaredValue);
         setData('description_of_goods', `Shipment ${shipment.tracking_number}`);
     };
@@ -183,7 +169,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
         { code: 'FRA', name: 'France' },
         { code: 'JPN', name: 'Japan' },
         { code: 'ZAF', name: 'South Africa' },
-        { code: 'ARE', name: 'United Arab Emirates' }
+        { code: 'ARE', name: 'United Arab Emirates' },
     ];
 
     return (
@@ -192,28 +178,23 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
 
             <div className="min-h-screen bg-gray-50 sm:bg-white">
                 {/* Mobile Header */}
-                <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-4 py-3 sm:px-6">
+                <div className="sticky top-0 z-10 border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
                     <div className="flex items-center space-x-3">
                         <Link
                             href={route('admin.customs.index')}
-                            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors"
+                            className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-gray-100"
                         >
                             <ArrowLeft className="h-5 w-5 text-gray-600" />
                         </Link>
-                        <div className="flex-1 min-w-0">
-                            <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-                                Create Customs Declaration
-                            </h1>
-                            <p className="text-sm text-gray-500 hidden sm:block">
-                                Create a new customs declaration for shipment processing
-                            </p>
+                        <div className="min-w-0 flex-1">
+                            <h1 className="truncate text-lg font-semibold text-gray-900 sm:text-xl">Create Customs Declaration</h1>
+                            <p className="hidden text-sm text-gray-500 sm:block">Create a new customs declaration for shipment processing</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Form Container */}
                 <div className="px-4 py-4 sm:px-6 sm:py-6">
-
                     <MobileForm onSubmit={handleSubmit}>
                         {/* Shipment Selection */}
                         <MobileFormSection
@@ -231,7 +212,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                     <Select
                                         value={data.shipment_id.toString()}
                                         onValueChange={(value) => {
-                                            const shipment = pendingShipments.find(s => s.id.toString() === value);
+                                            const shipment = pendingShipments.find((s) => s.id.toString() === value);
                                             if (shipment) {
                                                 selectShipment(shipment);
                                             }
@@ -243,16 +224,15 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                         <SelectContent>
                                             {pendingShipments.length > 0 ? (
                                                 pendingShipments.map((shipment) => (
-                                                    <SelectItem
-                                                        key={shipment.id}
-                                                        value={shipment.id.toString()}
-                                                        className="text-base py-3"
-                                                    >
+                                                    <SelectItem key={shipment.id} value={shipment.id.toString()} className="py-3 text-base">
                                                         <div className="flex flex-col space-y-1">
                                                             <div className="flex items-center space-x-2">
                                                                 <span className="font-medium">{shipment.tracking_number}</span>
                                                                 <Badge variant="secondary" className="text-xs">
-                                                                    ${typeof shipment.declared_value === 'number' ? shipment.declared_value.toFixed(2) : '0.00'}
+                                                                    $
+                                                                    {typeof shipment.declared_value === 'number'
+                                                                        ? shipment.declared_value.toFixed(2)
+                                                                        : '0.00'}
                                                                 </Badge>
                                                             </div>
                                                             <div className="text-sm text-gray-500">
@@ -262,7 +242,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                     </SelectItem>
                                                 ))
                                             ) : (
-                                                <SelectItem value="no-shipments" disabled className="text-base py-3">
+                                                <SelectItem value="no-shipments" disabled className="py-3 text-base">
                                                     No pending shipments available
                                                 </SelectItem>
                                             )}
@@ -274,57 +254,54 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
 
                         {/* Selected Shipment Info */}
                         {selectedShipment && (
-                            <MobileFormSection
-                                title="Selected Shipment Details"
-                                description="Review the shipment information"
-                                variant="card"
-                            >
+                            <MobileFormSection title="Selected Shipment Details" description="Review the shipment information" variant="card">
                                 <div className="space-y-4">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        <div className="flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
                                             <div className="flex-shrink-0">
                                                 <Truck className="h-5 w-5 text-gray-400" />
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Tracking</p>
-                                                <p className="text-sm font-semibold text-gray-900 truncate">
-                                                    {selectedShipment.tracking_number}
-                                                </p>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">Tracking</p>
+                                                <p className="truncate text-sm font-semibold text-gray-900">{selectedShipment.tracking_number}</p>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                        <div className="flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
                                             <div className="flex-shrink-0">
                                                 <User className="h-5 w-5 text-gray-400" />
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Customer</p>
-                                                <p className="text-sm font-semibold text-gray-900 truncate">
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">Customer</p>
+                                                <p className="truncate text-sm font-semibold text-gray-900">
                                                     {selectedShipment.customer.company_name}
                                                 </p>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                        <div className="flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
                                             <div className="flex-shrink-0">
                                                 <MapPin className="h-5 w-5 text-gray-400" />
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Destination</p>
-                                                <p className="text-sm font-semibold text-gray-900 truncate">
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">Destination</p>
+                                                <p className="truncate text-sm font-semibold text-gray-900">
                                                     {selectedShipment.destinationWarehouse?.city || 'N/A'}
                                                 </p>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                        <div className="flex items-center space-x-3 rounded-lg bg-gray-50 p-3">
                                             <div className="flex-shrink-0">
                                                 <DollarSign className="h-5 w-5 text-gray-400" />
                                             </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Value</p>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">Value</p>
                                                 <p className="text-sm font-semibold text-gray-900">
-                                                    ${typeof selectedShipment.declared_value === 'number' ? selectedShipment.declared_value.toFixed(2) : '0.00'}
+                                                    $
+                                                    {typeof selectedShipment.declared_value === 'number'
+                                                        ? selectedShipment.declared_value.toFixed(2)
+                                                        : '0.00'}
                                                 </p>
                                             </div>
                                         </div>
@@ -336,71 +313,62 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                         {/* Declaration Details */}
                         {selectedShipment && (
                             <>
-                                <MobileFormSection
-                                    title="Declaration Details"
-                                    description="Provide customs declaration information"
-                                    variant="card"
-                                >
+                                <MobileFormSection title="Declaration Details" description="Provide customs declaration information" variant="card">
                                     <MobileInputGroup columns={1}>
-                                        <MobileFormField
-                                            label="Declaration Type"
-                                            required
-                                            error={errors.declaration_type}
-                                        >
-                                            <Select
-                                                value={data.declaration_type}
-                                                onValueChange={(value) => setData('declaration_type', value)}
-                                            >
+                                        <MobileFormField label="Declaration Type" required error={errors.declaration_type}>
+                                            <Select value={data.declaration_type} onValueChange={(value) => setData('declaration_type', value)}>
                                                 <SelectTrigger className="h-11 text-base">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="export" className="text-base py-3">Export</SelectItem>
-                                                    <SelectItem value="import" className="text-base py-3">Import</SelectItem>
-                                                    <SelectItem value="transit" className="text-base py-3">Transit</SelectItem>
+                                                    <SelectItem value="export" className="py-3 text-base">
+                                                        Export
+                                                    </SelectItem>
+                                                    <SelectItem value="import" className="py-3 text-base">
+                                                        Import
+                                                    </SelectItem>
+                                                    <SelectItem value="transit" className="py-3 text-base">
+                                                        Transit
+                                                    </SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </MobileFormField>
 
-                                        <MobileFormField
-                                            label="Shipment Type"
-                                            required
-                                            error={errors.shipment_type}
-                                        >
-                                            <Select
-                                                value={data.shipment_type}
-                                                onValueChange={(value) => setData('shipment_type', value)}
-                                            >
+                                        <MobileFormField label="Shipment Type" required error={errors.shipment_type}>
+                                            <Select value={data.shipment_type} onValueChange={(value) => setData('shipment_type', value)}>
                                                 <SelectTrigger className="h-11 text-base">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="commercial" className="text-base py-3">Commercial</SelectItem>
-                                                    <SelectItem value="gift" className="text-base py-3">Gift</SelectItem>
-                                                    <SelectItem value="sample" className="text-base py-3">Sample</SelectItem>
-                                                    <SelectItem value="return" className="text-base py-3">Return</SelectItem>
-                                                    <SelectItem value="personal" className="text-base py-3">Personal</SelectItem>
+                                                    <SelectItem value="commercial" className="py-3 text-base">
+                                                        Commercial
+                                                    </SelectItem>
+                                                    <SelectItem value="gift" className="py-3 text-base">
+                                                        Gift
+                                                    </SelectItem>
+                                                    <SelectItem value="sample" className="py-3 text-base">
+                                                        Sample
+                                                    </SelectItem>
+                                                    <SelectItem value="return" className="py-3 text-base">
+                                                        Return
+                                                    </SelectItem>
+                                                    <SelectItem value="personal" className="py-3 text-base">
+                                                        Personal
+                                                    </SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </MobileFormField>
                                     </MobileInputGroup>
 
                                     <MobileInputGroup columns={2}>
-                                        <MobileFormField
-                                            label="Origin Country"
-                                            required
-                                            error={errors.origin_country}
-                                        >
-                                            <Select
-                                                value={data.origin_country}
-                                                onValueChange={(value) => setData('origin_country', value)}
-                                            >
+                                        <MobileFormField label="Origin Country" required error={errors.origin_country}>
+                                            <Select value={data.origin_country} onValueChange={(value) => setData('origin_country', value)}>
                                                 <SelectTrigger className="h-11 text-base">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {countries.map((country) => (
-                                                        <SelectItem key={country.code} value={country.code} className="text-base py-3">
+                                                        <SelectItem key={country.code} value={country.code} className="py-3 text-base">
                                                             {country.name}
                                                         </SelectItem>
                                                     ))}
@@ -408,21 +376,14 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                             </Select>
                                         </MobileFormField>
 
-                                        <MobileFormField
-                                            label="Destination Country"
-                                            required
-                                            error={errors.destination_country}
-                                        >
-                                            <Select
-                                                value={data.destination_country}
-                                                onValueChange={(value) => setData('destination_country', value)}
-                                            >
+                                        <MobileFormField label="Destination Country" required error={errors.destination_country}>
+                                            <Select value={data.destination_country} onValueChange={(value) => setData('destination_country', value)}>
                                                 <SelectTrigger className="h-11 text-base">
                                                     <SelectValue placeholder="Select destination" />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {countries.map((country) => (
-                                                        <SelectItem key={country.code} value={country.code} className="text-base py-3">
+                                                        <SelectItem key={country.code} value={country.code} className="py-3 text-base">
                                                             {country.name}
                                                         </SelectItem>
                                                     ))}
@@ -432,33 +393,32 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                     </MobileInputGroup>
 
                                     <MobileInputGroup columns={2}>
-                                        <MobileFormField
-                                            label="Currency"
-                                            required
-                                            error={errors.currency}
-                                        >
-                                            <Select
-                                                value={data.currency}
-                                                onValueChange={(value) => setData('currency', value)}
-                                            >
+                                        <MobileFormField label="Currency" required error={errors.currency}>
+                                            <Select value={data.currency} onValueChange={(value) => setData('currency', value)}>
                                                 <SelectTrigger className="h-11 text-base">
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="USD" className="text-base py-3">USD - US Dollar</SelectItem>
-                                                    <SelectItem value="EUR" className="text-base py-3">EUR - Euro</SelectItem>
-                                                    <SelectItem value="TZS" className="text-base py-3">TZS - Tanzanian Shilling</SelectItem>
-                                                    <SelectItem value="KES" className="text-base py-3">KES - Kenyan Shilling</SelectItem>
-                                                    <SelectItem value="UGX" className="text-base py-3">UGX - Ugandan Shilling</SelectItem>
+                                                    <SelectItem value="USD" className="py-3 text-base">
+                                                        USD - US Dollar
+                                                    </SelectItem>
+                                                    <SelectItem value="EUR" className="py-3 text-base">
+                                                        EUR - Euro
+                                                    </SelectItem>
+                                                    <SelectItem value="TZS" className="py-3 text-base">
+                                                        TZS - Tanzanian Shilling
+                                                    </SelectItem>
+                                                    <SelectItem value="KES" className="py-3 text-base">
+                                                        KES - Kenyan Shilling
+                                                    </SelectItem>
+                                                    <SelectItem value="UGX" className="py-3 text-base">
+                                                        UGX - Ugandan Shilling
+                                                    </SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </MobileFormField>
 
-                                        <MobileFormField
-                                            label="Total Value"
-                                            required
-                                            error={errors.total_value}
-                                        >
+                                        <MobileFormField label="Total Value" required error={errors.total_value}>
                                             <Input
                                                 type="number"
                                                 step="0.01"
@@ -482,15 +442,12 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                 value={data.description_of_goods}
                                                 onChange={(e) => setData('description_of_goods', e.target.value)}
                                                 placeholder="Detailed description of the goods being shipped"
-                                                className="text-base resize-none"
+                                                className="resize-none text-base"
                                                 rows={3}
                                             />
                                         </MobileFormField>
 
-                                        <MobileFormField
-                                            label="Reason for Export"
-                                            error={errors.reason_for_export}
-                                        >
+                                        <MobileFormField label="Reason for Export" error={errors.reason_for_export}>
                                             <Input
                                                 value={data.reason_for_export}
                                                 onChange={(e) => setData('reason_for_export', e.target.value)}
@@ -508,7 +465,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                     variant="card"
                                 >
                                     <div className="space-y-4">
-                                        <div className="flex items-center space-x-3 p-3 border rounded-lg">
+                                        <div className="flex items-center space-x-3 rounded-lg border p-3">
                                             <Checkbox
                                                 id="contains_batteries"
                                                 checked={data.contains_batteries}
@@ -516,14 +473,14 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                 className="h-5 w-5"
                                             />
                                             <div className="flex-1">
-                                                <label htmlFor="contains_batteries" className="text-base font-medium cursor-pointer">
+                                                <label htmlFor="contains_batteries" className="cursor-pointer text-base font-medium">
                                                     Contains batteries
                                                 </label>
                                                 <p className="text-sm text-gray-500">Lithium batteries or battery-powered devices</p>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center space-x-3 p-3 border rounded-lg">
+                                        <div className="flex items-center space-x-3 rounded-lg border p-3">
                                             <Checkbox
                                                 id="contains_liquids"
                                                 checked={data.contains_liquids}
@@ -531,14 +488,14 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                 className="h-5 w-5"
                                             />
                                             <div className="flex-1">
-                                                <label htmlFor="contains_liquids" className="text-base font-medium cursor-pointer">
+                                                <label htmlFor="contains_liquids" className="cursor-pointer text-base font-medium">
                                                     Contains liquids
                                                 </label>
                                                 <p className="text-sm text-gray-500">Any liquid substances or solutions</p>
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center space-x-3 p-3 border rounded-lg">
+                                        <div className="flex items-center space-x-3 rounded-lg border p-3">
                                             <Checkbox
                                                 id="contains_dangerous_goods"
                                                 checked={data.contains_dangerous_goods}
@@ -546,7 +503,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                 className="h-5 w-5"
                                             />
                                             <div className="flex-1">
-                                                <label htmlFor="contains_dangerous_goods" className="text-base font-medium cursor-pointer">
+                                                <label htmlFor="contains_dangerous_goods" className="cursor-pointer text-base font-medium">
                                                     Contains dangerous goods
                                                 </label>
                                                 <p className="text-sm text-gray-500">Hazardous materials requiring special handling</p>
@@ -563,7 +520,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                     value={data.dangerous_goods_details}
                                                     onChange={(e) => setData('dangerous_goods_details', e.target.value)}
                                                     placeholder="Provide details about dangerous goods"
-                                                    className="text-base resize-none"
+                                                    className="resize-none text-base"
                                                     rows={3}
                                                 />
                                             </MobileFormField>
@@ -578,33 +535,27 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                     variant="card"
                                 >
                                     <div className="space-y-4">
-                                        <div className="flex justify-between items-center">
+                                        <div className="flex items-center justify-between">
                                             <div className="text-sm text-gray-600">
                                                 {items.length} item{items.length !== 1 ? 's' : ''} added
                                             </div>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={addItem}
-                                                className="h-9 px-3 text-sm"
-                                            >
-                                                <Plus className="h-4 w-4 mr-1" />
+                                            <Button type="button" variant="outline" size="sm" onClick={addItem} className="h-9 px-3 text-sm">
+                                                <Plus className="mr-1 h-4 w-4" />
                                                 Add Item
                                             </Button>
                                         </div>
 
                                         {items.map((item, index) => (
-                                            <div key={index} className="border rounded-lg p-4 space-y-4 bg-gray-50">
-                                                <div className="flex justify-between items-center">
-                                                    <h4 className="font-medium text-base">Item {index + 1}</h4>
+                                            <div key={index} className="space-y-4 rounded-lg border bg-gray-50 p-4">
+                                                <div className="flex items-center justify-between">
+                                                    <h4 className="text-base font-medium">Item {index + 1}</h4>
                                                     {items.length > 1 && (
                                                         <Button
                                                             type="button"
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => removeItem(index)}
-                                                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                            className="h-8 w-8 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
                                                         >
                                                             <Trash2 className="h-4 w-4" />
                                                         </Button>
@@ -612,10 +563,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                 </div>
 
                                                 <MobileInputGroup columns={1}>
-                                                    <MobileFormField
-                                                        label="Description"
-                                                        required
-                                                    >
+                                                    <MobileFormField label="Description" required>
                                                         <Input
                                                             value={item.description}
                                                             onChange={(e) => updateItem(index, 'description', e.target.value)}
@@ -626,10 +574,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                 </MobileInputGroup>
 
                                                 <MobileInputGroup columns={2}>
-                                                    <MobileFormField
-                                                        label="Quantity"
-                                                        required
-                                                    >
+                                                    <MobileFormField label="Quantity" required>
                                                         <Input
                                                             type="number"
                                                             min="1"
@@ -640,10 +585,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                         />
                                                     </MobileFormField>
 
-                                                    <MobileFormField
-                                                        label="Unit Weight (kg)"
-                                                        required
-                                                    >
+                                                    <MobileFormField label="Unit Weight (kg)" required>
                                                         <Input
                                                             type="number"
                                                             step="0.01"
@@ -657,10 +599,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                 </MobileInputGroup>
 
                                                 <MobileInputGroup columns={2}>
-                                                    <MobileFormField
-                                                        label="Unit Value"
-                                                        required
-                                                    >
+                                                    <MobileFormField label="Unit Value" required>
                                                         <Input
                                                             type="number"
                                                             step="0.01"
@@ -672,10 +611,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                         />
                                                     </MobileFormField>
 
-                                                    <MobileFormField
-                                                        label="HS Code"
-                                                        description="Harmonized System Code"
-                                                    >
+                                                    <MobileFormField label="HS Code" description="Harmonized System Code">
                                                         <Input
                                                             value={item.hs_code}
                                                             onChange={(e) => updateItem(index, 'hs_code', e.target.value)}
@@ -686,10 +622,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                 </MobileInputGroup>
 
                                                 <MobileInputGroup columns={1}>
-                                                    <MobileFormField
-                                                        label="Country of Origin"
-                                                        required
-                                                    >
+                                                    <MobileFormField label="Country of Origin" required>
                                                         <Select
                                                             value={item.country_of_origin}
                                                             onValueChange={(value) => updateItem(index, 'country_of_origin', value)}
@@ -699,7 +632,7 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                                             </SelectTrigger>
                                                             <SelectContent>
                                                                 {countries.map((country) => (
-                                                                    <SelectItem key={country.code} value={country.code} className="text-base py-3">
+                                                                    <SelectItem key={country.code} value={country.code} className="py-3 text-base">
                                                                         {country.name}
                                                                     </SelectItem>
                                                                 ))}
@@ -712,22 +645,19 @@ export default function CustomsCreate({ shipment, pendingShipments }: Props) {
                                     </div>
                                 </MobileFormSection>
 
-                            <MobileFormActions>
-                                <Link
-                                    href={route('admin.customs.index')}
-                                    className="flex-1 h-12 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 flex items-center justify-center text-base font-medium"
-                                >
-                                    Cancel
-                                </Link>
-                                <MobileSubmitButton
-                                    disabled={processing || !selectedShipment}
-                                    loading={processing}
-                                >
-                                    {processing ? 'Creating...' : 'Create Declaration'}
-                                </MobileSubmitButton>
-                            </MobileFormActions>
-                        </>
-                    )}
+                                <MobileFormActions>
+                                    <Link
+                                        href={route('admin.customs.index')}
+                                        className="flex h-12 flex-1 items-center justify-center rounded-lg border border-gray-300 px-4 text-base font-medium text-gray-700 hover:bg-gray-50"
+                                    >
+                                        Cancel
+                                    </Link>
+                                    <MobileSubmitButton disabled={processing || !selectedShipment} loading={processing}>
+                                        {processing ? 'Creating...' : 'Create Declaration'}
+                                    </MobileSubmitButton>
+                                </MobileFormActions>
+                            </>
+                        )}
                     </MobileForm>
                 </div>
             </div>

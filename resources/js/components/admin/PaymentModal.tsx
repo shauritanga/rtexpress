@@ -1,33 +1,13 @@
-import { useState, useEffect } from 'react';
-import { router } from '@inertiajs/react';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import {
-    CreditCard,
-    Smartphone,
-    Building2,
-    DollarSign,
-    AlertTriangle,
-    Loader2,
-} from 'lucide-react';
+import { router } from '@inertiajs/react';
+import { AlertTriangle, Building2, CreditCard, DollarSign, Loader2, Smartphone } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface PaymentMethod {
     id: string;
@@ -168,23 +148,19 @@ export default function PaymentModal({ isOpen, onClose, invoice }: Props) {
         }
     };
 
-    const availableMethods = paymentMethods.filter(method => 
-        selectedGateway ? method.gateway === selectedGateway : true
-    );
+    const availableMethods = paymentMethods.filter((method) => (selectedGateway ? method.gateway === selectedGateway : true));
 
     const requiresPhoneNumber = ['mpesa', 'tigopesa', 'airtelmoney', 'halopesa'].includes(selectedMethod);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center">
-                        <DollarSign className="h-5 w-5 mr-2" />
+                        <DollarSign className="mr-2 h-5 w-5" />
                         Process Payment
                     </DialogTitle>
-                    <DialogDescription>
-                        Process payment for invoice {invoice.invoice_number}
-                    </DialogDescription>
+                    <DialogDescription>Process payment for invoice {invoice.invoice_number}</DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -202,9 +178,7 @@ export default function PaymentModal({ isOpen, onClose, invoice }: Props) {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-sm text-muted-foreground">Balance Due:</span>
-                                    <span className="text-lg font-bold">
-                                        {formatCurrency(invoice.balance_due, invoice.currency)}
-                                    </span>
+                                    <span className="text-lg font-bold">{formatCurrency(invoice.balance_due, invoice.currency)}</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -225,9 +199,7 @@ export default function PaymentModal({ isOpen, onClose, invoice }: Props) {
                                 ))}
                             </SelectContent>
                         </Select>
-                        {errors.gateway && (
-                            <p className="text-sm text-red-600">{errors.gateway}</p>
-                        )}
+                        {errors.gateway && <p className="text-sm text-red-600">{errors.gateway}</p>}
                     </div>
 
                     {/* Payment Method */}
@@ -242,16 +214,14 @@ export default function PaymentModal({ isOpen, onClose, invoice }: Props) {
                                     {availableMethods.map((method) => (
                                         <SelectItem key={method.id} value={method.id}>
                                             <div className="flex items-center">
-                                                <method.icon className="h-4 w-4 mr-2" />
+                                                <method.icon className="mr-2 h-4 w-4" />
                                                 {method.name}
                                             </div>
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
-                            {errors.method && (
-                                <p className="text-sm text-red-600">{errors.method}</p>
-                            )}
+                            {errors.method && <p className="text-sm text-red-600">{errors.method}</p>}
                         </div>
                     )}
 
@@ -269,9 +239,7 @@ export default function PaymentModal({ isOpen, onClose, invoice }: Props) {
                             placeholder="Enter payment amount"
                             required
                         />
-                        {errors.amount && (
-                            <p className="text-sm text-red-600">{errors.amount}</p>
-                        )}
+                        {errors.amount && <p className="text-sm text-red-600">{errors.amount}</p>}
                     </div>
 
                     {/* Phone Number for Mobile Money */}
@@ -286,9 +254,7 @@ export default function PaymentModal({ isOpen, onClose, invoice }: Props) {
                                 placeholder="+255 XXX XXX XXX"
                                 required
                             />
-                            {errors.phone_number && (
-                                <p className="text-sm text-red-600">{errors.phone_number}</p>
-                            )}
+                            {errors.phone_number && <p className="text-sm text-red-600">{errors.phone_number}</p>}
                         </div>
                     )}
 
@@ -314,9 +280,7 @@ export default function PaymentModal({ isOpen, onClose, invoice }: Props) {
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-sm text-muted-foreground">Gateway Fee:</span>
-                                        <span className="text-sm text-orange-600">
-                                            {formatCurrency(fees.fee_amount, invoice.currency)}
-                                        </span>
+                                        <span className="text-sm text-orange-600">{formatCurrency(fees.fee_amount, invoice.currency)}</span>
                                     </div>
                                     <Separator />
                                     <div className="flex justify-between font-medium">
@@ -341,17 +305,17 @@ export default function PaymentModal({ isOpen, onClose, invoice }: Props) {
                         <Button type="button" variant="outline" onClick={onClose} disabled={isProcessing}>
                             Cancel
                         </Button>
-                        
+
                         {['stripe', 'paypal'].includes(selectedGateway) && selectedMethod !== 'bank_transfer' && (
-                            <Button 
-                                type="button" 
-                                variant="outline" 
+                            <Button
+                                type="button"
+                                variant="outline"
                                 onClick={handleCreatePaymentIntent}
                                 disabled={isProcessing || !selectedGateway || !selectedMethod}
                             >
                                 {isProcessing ? (
                                     <>
-                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                         Creating...
                                     </>
                                 ) : (
@@ -359,14 +323,11 @@ export default function PaymentModal({ isOpen, onClose, invoice }: Props) {
                                 )}
                             </Button>
                         )}
-                        
-                        <Button 
-                            type="submit" 
-                            disabled={isProcessing || !selectedGateway || !selectedMethod}
-                        >
+
+                        <Button type="submit" disabled={isProcessing || !selectedGateway || !selectedMethod}>
                             {isProcessing ? (
                                 <>
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Processing...
                                 </>
                             ) : (

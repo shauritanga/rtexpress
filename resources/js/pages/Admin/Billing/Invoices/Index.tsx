@@ -1,18 +1,7 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useConfirmationModal } from '@/components/admin/ConfirmationModal';
 import { Badge } from '@/components/ui/badge';
-import { 
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableHead, 
-    TableHeader, 
-    TableRow 
-} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -21,28 +10,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { 
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { 
-    FileText, 
-    Plus, 
-    Search, 
-    Filter,
-    MoreHorizontal,
-    Eye,
-    Send,
-    Banknote,
-    Calendar,
-    Download,
-    Edit,
-    Trash2
-} from 'lucide-react';
-import { useConfirmationModal } from '@/components/admin/ConfirmationModal';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, router } from '@inertiajs/react';
+import { Banknote, Calendar, Download, Eye, FileText, Filter, MoreHorizontal, Plus, Search, Send, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 interface Invoice {
     id: number;
@@ -105,14 +79,22 @@ interface Props {
     stats: InvoiceStats;
 }
 
-export default function InvoicesIndex({ 
-    invoices = { data: [], links: [], meta: { total: 0, from: 0, to: 0, last_page: 1 } }, 
-    customers = [], 
-    filters = {}, 
-    stats = { 
-        total: 0, draft: 0, sent: 0, viewed: 0, paid: 0, overdue: 0, cancelled: 0,
-        total_amount: 0, paid_amount: 0, outstanding_amount: 0 
-    } 
+export default function InvoicesIndex({
+    invoices = { data: [], links: [], meta: { total: 0, from: 0, to: 0, last_page: 1 } },
+    customers = [],
+    filters = {},
+    stats = {
+        total: 0,
+        draft: 0,
+        sent: 0,
+        viewed: 0,
+        paid: 0,
+        overdue: 0,
+        cancelled: 0,
+        total_amount: 0,
+        paid_amount: 0,
+        outstanding_amount: 0,
+    },
 }: Props) {
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
     const [selectedStatus, setSelectedStatus] = useState(filters.status || 'all');
@@ -124,7 +106,7 @@ export default function InvoicesIndex({
         if (searchTerm) params.set('search', searchTerm);
         if (selectedStatus !== 'all') params.set('status', selectedStatus);
         if (selectedCustomer !== 'all') params.set('customer_id', selectedCustomer);
-        
+
         router.get('/admin/invoices', Object.fromEntries(params));
     };
 
@@ -155,7 +137,7 @@ export default function InvoicesIndex({
     const getStatusBadge = (status: string, dueDate?: string) => {
         // Check if overdue
         const isOverdue = dueDate && new Date(dueDate) < new Date() && status !== 'paid' && status !== 'cancelled';
-        
+
         if (isOverdue) {
             return <Badge variant="destructive">Overdue</Badge>;
         }
@@ -179,9 +161,13 @@ export default function InvoicesIndex({
             confirmText: 'Send Invoice',
             variant: 'default',
             onConfirm: () => {
-                router.post(`/admin/invoices/${invoice.id}/send`, {}, {
-                    preserveScroll: true,
-                });
+                router.post(
+                    `/admin/invoices/${invoice.id}/send`,
+                    {},
+                    {
+                        preserveScroll: true,
+                    },
+                );
             },
         });
     };
@@ -193,9 +179,13 @@ export default function InvoicesIndex({
             confirmText: 'Cancel Invoice',
             variant: 'destructive',
             onConfirm: () => {
-                router.post(`/admin/invoices/${invoice.id}/cancel`, {}, {
-                    preserveScroll: true,
-                });
+                router.post(
+                    `/admin/invoices/${invoice.id}/cancel`,
+                    {},
+                    {
+                        preserveScroll: true,
+                    },
+                );
             },
         });
     };
@@ -240,15 +230,13 @@ export default function InvoicesIndex({
                 {/* Header */}
                 <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Invoice Management</h1>
-                        <p className="text-sm sm:text-base text-muted-foreground mt-1">
-                            Create, send, and manage customer invoices
-                        </p>
+                        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Invoice Management</h1>
+                        <p className="mt-1 text-sm text-muted-foreground sm:text-base">Create, send, and manage customer invoices</p>
                     </div>
                     <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                         <Button asChild className="w-full sm:w-auto">
                             <Link href="/admin/invoices/create">
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="mr-2 h-4 w-4" />
                                 Create Invoice
                             </Link>
                         </Button>
@@ -256,20 +244,16 @@ export default function InvoicesIndex({
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {statsCards.map((card, index) => (
                         <Card key={index}>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
-                                    {card.title}
-                                </CardTitle>
+                                <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
                                 <card.icon className={`h-4 w-4 ${card.color}`} />
                             </CardHeader>
                             <CardContent>
                                 <div className="text-2xl font-bold">{card.value}</div>
-                                <p className="text-xs text-muted-foreground">
-                                    {card.description}
-                                </p>
+                                <p className="text-xs text-muted-foreground">{card.description}</p>
                             </CardContent>
                         </Card>
                     ))}
@@ -279,16 +263,16 @@ export default function InvoicesIndex({
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center">
-                            <Filter className="h-5 w-5 mr-2" />
+                            <Filter className="mr-2 h-5 w-5" />
                             Filters
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <div className="space-y-2 sm:col-span-2 lg:col-span-1">
                                 <label className="text-sm font-medium">Search</label>
                                 <div className="relative">
-                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Search className="absolute top-2.5 left-2 h-4 w-4 text-muted-foreground" />
                                     <Input
                                         placeholder="Invoice number, customer..."
                                         value={searchTerm}
@@ -338,7 +322,7 @@ export default function InvoicesIndex({
                                 <label className="text-sm font-medium">Actions</label>
                                 <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
                                     <Button onClick={handleSearch} className="flex-1">
-                                        <Search className="h-4 w-4 mr-2" />
+                                        <Search className="mr-2 h-4 w-4" />
                                         Search
                                     </Button>
                                     <Button variant="outline" onClick={handleClearFilters} className="flex-1 sm:flex-none">
@@ -352,9 +336,8 @@ export default function InvoicesIndex({
 
                 {/* Invoice Table */}
                 <Card>
-                    
                     <CardContent>
-                        <div className="rounded-md border overflow-hidden">
+                        <div className="overflow-hidden rounded-md border">
                             <div className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
@@ -363,136 +346,130 @@ export default function InvoicesIndex({
                                             <TableHead className="min-w-[180px]">Customer</TableHead>
                                             <TableHead className="min-w-[100px]">Status</TableHead>
                                             <TableHead className="min-w-[120px]">Amount</TableHead>
-                                            <TableHead className="min-w-[100px] hidden sm:table-cell">Due Date</TableHead>
-                                            <TableHead className="min-w-[80px] hidden md:table-cell">Payments</TableHead>
-                                            <TableHead className="text-right min-w-[80px]">Actions</TableHead>
+                                            <TableHead className="hidden min-w-[100px] sm:table-cell">Due Date</TableHead>
+                                            <TableHead className="hidden min-w-[80px] md:table-cell">Payments</TableHead>
+                                            <TableHead className="min-w-[80px] text-right">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
-                                <TableBody>
-                                    {invoices?.data?.length > 0 ? invoices.data.map((invoice) => (
-                                        <TableRow key={invoice.id}>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="font-medium">{invoice.invoice_number}</div>
-                                                    <div className="text-sm text-muted-foreground">
-                                                        {formatDate(invoice.issue_date)}
-                                                    </div>
-                                                    {invoice.shipment && (
-                                                        <div className="text-xs text-muted-foreground">
-                                                            Shipment: {invoice.shipment.tracking_number}
+                                    <TableBody>
+                                        {invoices?.data?.length > 0 ? (
+                                            invoices.data.map((invoice) => (
+                                                <TableRow key={invoice.id}>
+                                                    <TableCell>
+                                                        <div>
+                                                            <div className="font-medium">{invoice.invoice_number}</div>
+                                                            <div className="text-sm text-muted-foreground">{formatDate(invoice.issue_date)}</div>
+                                                            {invoice.shipment && (
+                                                                <div className="text-xs text-muted-foreground">
+                                                                    Shipment: {invoice.shipment.tracking_number}
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="font-medium">{invoice.customer.company_name || invoice.customer.contact_person}</div>
-                                                    <div className="text-sm text-muted-foreground">
-                                                        {invoice.customer.email}
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                {getStatusBadge(invoice.status, invoice.due_date)}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="font-medium">
-                                                        {formatCurrency(invoice.total_amount, invoice.currency)}
-                                                    </div>
-                                                    {invoice.balance_due > 0 && (
-                                                        <div className="text-sm text-orange-600">
-                                                            Due: {formatCurrency(invoice.balance_due, invoice.currency)}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div>
+                                                            <div className="font-medium">
+                                                                {invoice.customer.company_name || invoice.customer.contact_person}
+                                                            </div>
+                                                            <div className="text-sm text-muted-foreground">{invoice.customer.email}</div>
                                                         </div>
-                                                    )}
-                                                    {invoice.paid_amount > 0 && (
-                                                        <div className="text-sm text-green-600">
-                                                            Paid: {formatCurrency(invoice.paid_amount, invoice.currency)}
+                                                    </TableCell>
+                                                    <TableCell>{getStatusBadge(invoice.status, invoice.due_date)}</TableCell>
+                                                    <TableCell>
+                                                        <div>
+                                                            <div className="font-medium">
+                                                                {formatCurrency(invoice.total_amount, invoice.currency)}
+                                                            </div>
+                                                            {invoice.balance_due > 0 && (
+                                                                <div className="text-sm text-orange-600">
+                                                                    Due: {formatCurrency(invoice.balance_due, invoice.currency)}
+                                                                </div>
+                                                            )}
+                                                            {invoice.paid_amount > 0 && (
+                                                                <div className="text-sm text-green-600">
+                                                                    Paid: {formatCurrency(invoice.paid_amount, invoice.currency)}
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="hidden sm:table-cell">
-                                                <div className="text-sm">
-                                                    {formatDate(invoice.due_date)}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="hidden md:table-cell">
-                                                <div className="text-sm">
-                                                    {invoice.payments_count} payment{invoice.payments_count !== 1 ? 's' : ''}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                        <DropdownMenuItem asChild>
-                                                            <Link href={`/admin/invoices/${invoice.id}`}>
-                                                                <Eye className="h-4 w-4 mr-2" />
-                                                                View Details
-                                                            </Link>
-                                                        </DropdownMenuItem>
-                                                        {invoice.status === 'draft' && (
-                                                            <DropdownMenuItem
-                                                                onClick={() => handleSendInvoice(invoice)}
-                                                            >
-                                                                <Send className="h-4 w-4 mr-2" />
-                                                                Send Invoice
-                                                            </DropdownMenuItem>
-                                                        )}
-                                                        <DropdownMenuItem>
-                                                            <Download className="h-4 w-4 mr-2" />
-                                                            Download PDF
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuSeparator />
-                                                        {['draft', 'sent', 'viewed'].includes(invoice.status) && (
-                                                            <DropdownMenuItem
-                                                                onClick={() => handleCancelInvoice(invoice)}
-                                                                className="text-red-600"
-                                                            >
-                                                                <Trash2 className="h-4 w-4 mr-2" />
-                                                                Cancel Invoice
-                                                            </DropdownMenuItem>
-                                                        )}
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>
-                                        </TableRow>
-                                    )) : (
-                                        <TableRow>
-                                            <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                                                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                                                <p>No invoices found</p>
-                                                <Button asChild className="mt-4">
-                                                    <Link href="/admin/invoices/create">
-                                                        <Plus className="h-4 w-4 mr-2" />
-                                                        Create First Invoice
-                                                    </Link>
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
+                                                    </TableCell>
+                                                    <TableCell className="hidden sm:table-cell">
+                                                        <div className="text-sm">{formatDate(invoice.due_date)}</div>
+                                                    </TableCell>
+                                                    <TableCell className="hidden md:table-cell">
+                                                        <div className="text-sm">
+                                                            {invoice.payments_count} payment{invoice.payments_count !== 1 ? 's' : ''}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-right">
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                                <DropdownMenuItem asChild>
+                                                                    <Link href={`/admin/invoices/${invoice.id}`}>
+                                                                        <Eye className="mr-2 h-4 w-4" />
+                                                                        View Details
+                                                                    </Link>
+                                                                </DropdownMenuItem>
+                                                                {invoice.status === 'draft' && (
+                                                                    <DropdownMenuItem onClick={() => handleSendInvoice(invoice)}>
+                                                                        <Send className="mr-2 h-4 w-4" />
+                                                                        Send Invoice
+                                                                    </DropdownMenuItem>
+                                                                )}
+                                                                <DropdownMenuItem>
+                                                                    <Download className="mr-2 h-4 w-4" />
+                                                                    Download PDF
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuSeparator />
+                                                                {['draft', 'sent', 'viewed'].includes(invoice.status) && (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleCancelInvoice(invoice)}
+                                                                        className="text-red-600"
+                                                                    >
+                                                                        <Trash2 className="mr-2 h-4 w-4" />
+                                                                        Cancel Invoice
+                                                                    </DropdownMenuItem>
+                                                                )}
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        ) : (
+                                            <TableRow>
+                                                <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                                                    <FileText className="mx-auto mb-4 h-12 w-12 opacity-50" />
+                                                    <p>No invoices found</p>
+                                                    <Button asChild className="mt-4">
+                                                        <Link href="/admin/invoices/create">
+                                                            <Plus className="mr-2 h-4 w-4" />
+                                                            Create First Invoice
+                                                        </Link>
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
                             </div>
                         </div>
 
                         {/* Pagination */}
                         {invoices?.meta?.last_page > 1 && (
-                            <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 py-4">
-                                <div className="text-sm text-muted-foreground text-center sm:text-left">
+                            <div className="flex flex-col space-y-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                                <div className="text-center text-sm text-muted-foreground sm:text-left">
                                     Showing {invoices?.meta?.from || 0} to {invoices?.meta?.to || 0} of {invoices?.meta?.total || 0} invoices
                                 </div>
-                                <div className="flex flex-wrap justify-center sm:justify-end gap-2">
+                                <div className="flex flex-wrap justify-center gap-2 sm:justify-end">
                                     {invoices?.links?.map((link, index) => (
                                         <Button
                                             key={index}
-                                            variant={link.active ? "default" : "outline"}
+                                            variant={link.active ? 'default' : 'outline'}
                                             size="sm"
                                             onClick={() => link.url && router.get(link.url)}
                                             disabled={!link.url}

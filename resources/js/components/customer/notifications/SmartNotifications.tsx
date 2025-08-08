@@ -1,40 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-    Zap,
-    Brain,
-    Target,
-    AlertTriangle,
-    TrendingUp,
-    Clock,
-    MapPin,
-    Thermometer,
-    Wifi,
-    Smartphone,
-    Mail,
-    MessageSquare,
-    Bell,
-    Settings,
-    Plus,
-    Trash2,
-    Edit,
-    Save,
-    RefreshCw,
-    CheckCircle,
-    Info,
-    Calendar,
-    DollarSign,
-    Package,
-    Users,
-    BarChart3
-} from 'lucide-react';
+import { AlertTriangle, Brain, Edit, Info, Plus, Save, Target, Trash2, TrendingUp, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface SmartRule {
     id: string;
@@ -103,11 +76,7 @@ interface Props {
     onAlertAction?: (alertId: string, action: string) => void;
 }
 
-export default function SmartNotifications({ 
-    className = '', 
-    onRuleUpdate,
-    onAlertAction
-}: Props) {
+export default function SmartNotifications({ className = '', onRuleUpdate, onAlertAction }: Props) {
     const [smartRules, setSmartRules] = useState<SmartRule[]>([]);
     const [proactiveAlerts, setProactiveAlerts] = useState<ProactiveAlert[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -160,9 +129,7 @@ export default function SmartNotifications({
             enabled: true,
             trigger: {
                 type: 'condition',
-                conditions: [
-                    { field: 'declared_value', operator: 'greater_than', value: 1000 },
-                ],
+                conditions: [{ field: 'declared_value', operator: 'greater_than', value: 1000 }],
             },
             actions: [
                 {
@@ -307,7 +274,7 @@ export default function SmartNotifications({
         setIsLoading(true);
         try {
             // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             setSmartRules(mockSmartRules);
             setProactiveAlerts(mockProactiveAlerts);
         } catch (error) {
@@ -318,9 +285,7 @@ export default function SmartNotifications({
     };
 
     const handleRuleToggle = (ruleId: string, enabled: boolean) => {
-        setSmartRules(prev => prev.map(rule =>
-            rule.id === ruleId ? { ...rule, enabled } : rule
-        ));
+        setSmartRules((prev) => prev.map((rule) => (rule.id === ruleId ? { ...rule, enabled } : rule)));
     };
 
     const handleCreateRule = () => {
@@ -337,9 +302,7 @@ export default function SmartNotifications({
     const handleSaveRule = () => {
         if (editingRule) {
             // Update existing rule
-            setSmartRules(prev => prev.map(rule =>
-                rule.id === editingRule.id ? { ...rule, ...newRule } as SmartRule : rule
-            ));
+            setSmartRules((prev) => prev.map((rule) => (rule.id === editingRule.id ? ({ ...rule, ...newRule } as SmartRule) : rule)));
         } else {
             // Create new rule
             const rule: SmartRule = {
@@ -348,9 +311,9 @@ export default function SmartNotifications({
                 created_at: new Date().toISOString(),
                 trigger_count: 0,
             } as SmartRule;
-            setSmartRules(prev => [...prev, rule]);
+            setSmartRules((prev) => [...prev, rule]);
         }
-        
+
         setIsCreatingRule(false);
         setEditingRule(null);
         setNewRule({
@@ -365,19 +328,17 @@ export default function SmartNotifications({
 
     const handleDeleteRule = (ruleId: string) => {
         if (confirm('Are you sure you want to delete this rule?')) {
-            setSmartRules(prev => prev.filter(rule => rule.id !== ruleId));
+            setSmartRules((prev) => prev.filter((rule) => rule.id !== ruleId));
         }
     };
 
     const handleDismissAlert = (alertId: string) => {
-        setProactiveAlerts(prev => prev.map(alert =>
-            alert.id === alertId ? { ...alert, dismissed: true } : alert
-        ));
+        setProactiveAlerts((prev) => prev.map((alert) => (alert.id === alertId ? { ...alert, dismissed: true } : alert)));
         onAlertAction?.(alertId, 'dismiss');
     };
 
     const handleAlertAction = (alertId: string, actionIndex: number) => {
-        const alert = proactiveAlerts.find(a => a.id === alertId);
+        const alert = proactiveAlerts.find((a) => a.id === alertId);
         if (alert && alert.suggested_actions[actionIndex]) {
             const action = alert.suggested_actions[actionIndex];
             console.log('Executing action:', action.action);
@@ -439,7 +400,7 @@ export default function SmartNotifications({
             <Card className={className}>
                 <CardContent className="pt-6">
                     <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                         <span className="ml-3 text-gray-600">Loading smart notification features...</span>
                     </div>
                 </CardContent>
@@ -452,102 +413,96 @@ export default function SmartNotifications({
             {/* Proactive Alerts */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-lg flex items-center">
-                        <Brain className="h-5 w-5 mr-2" />
+                    <CardTitle className="flex items-center text-lg">
+                        <Brain className="mr-2 h-5 w-5" />
                         Proactive Alerts
                     </CardTitle>
-                    <CardDescription>
-                        AI-powered insights and recommendations based on your shipping patterns
-                    </CardDescription>
+                    <CardDescription>AI-powered insights and recommendations based on your shipping patterns</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {proactiveAlerts.filter(alert => !alert.dismissed).length === 0 ? (
-                        <div className="text-center py-8">
-                            <Brain className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Alerts</h3>
+                    {proactiveAlerts.filter((alert) => !alert.dismissed).length === 0 ? (
+                        <div className="py-8 text-center">
+                            <Brain className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                            <h3 className="mb-2 text-lg font-medium text-gray-900">No Active Alerts</h3>
                             <p className="text-gray-600">We'll notify you when we detect opportunities or issues</p>
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {proactiveAlerts.filter(alert => !alert.dismissed).map((alert) => (
-                                <Card key={alert.id} className="border-l-4 border-l-blue-500">
-                                    <CardContent className="pt-4">
-                                        <div className="space-y-4">
-                                            <div className="flex items-start justify-between">
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <h4 className="font-medium text-gray-900">{alert.title}</h4>
-                                                        <Badge className={getTypeColor(alert.type)}>
-                                                            {getTypeIcon(alert.type)}
-                                                            <span className="ml-1 capitalize">{alert.type}</span>
-                                                        </Badge>
-                                                        <Badge variant="outline">
-                                                            {alert.confidence}% confidence
-                                                        </Badge>
-                                                        <Badge variant="outline" className={getImpactColor(alert.impact)}>
-                                                            {alert.impact} impact
-                                                        </Badge>
-                                                    </div>
-                                                    <p className="text-sm text-gray-600 mb-3">{alert.message}</p>
-                                                </div>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => handleDismissAlert(alert.id)}
-                                                >
-                                                    ×
-                                                </Button>
-                                            </div>
-                                            
-                                            {/* Data Points */}
-                                            <div className="bg-gray-50 p-3 rounded-lg">
-                                                <h5 className="font-medium text-gray-900 mb-2">Key Data Points:</h5>
-                                                <ul className="text-sm text-gray-600 space-y-1">
-                                                    {alert.data_points.map((point, index) => (
-                                                        <li key={index}>• {point}</li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                            
-                                            {/* Suggested Actions */}
-                                            <div>
-                                                <h5 className="font-medium text-gray-900 mb-2">Suggested Actions:</h5>
-                                                <div className="space-y-2">
-                                                    {alert.suggested_actions.map((action, index) => (
-                                                        <div key={index} className="flex items-center justify-between p-3 bg-white border rounded-lg">
-                                                            <div className="flex-1">
-                                                                <h6 className="font-medium text-gray-900">{action.action}</h6>
-                                                                <p className="text-sm text-gray-600">{action.description}</p>
-                                                                <div className="flex items-center gap-4 mt-1">
-                                                                    <span className="text-xs text-gray-500">
-                                                                        Effort: <span className={getImpactColor(action.effort)}>{action.effort}</span>
-                                                                    </span>
-                                                                    <span className="text-xs text-gray-500">
-                                                                        Impact: <span className={getImpactColor(action.impact)}>{action.impact}</span>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                            <Button
-                                                                size="sm"
-                                                                onClick={() => handleAlertAction(alert.id, index)}
-                                                            >
-                                                                Take Action
-                                                            </Button>
+                            {proactiveAlerts
+                                .filter((alert) => !alert.dismissed)
+                                .map((alert) => (
+                                    <Card key={alert.id} className="border-l-4 border-l-blue-500">
+                                        <CardContent className="pt-4">
+                                            <div className="space-y-4">
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex-1">
+                                                        <div className="mb-2 flex items-center gap-2">
+                                                            <h4 className="font-medium text-gray-900">{alert.title}</h4>
+                                                            <Badge className={getTypeColor(alert.type)}>
+                                                                {getTypeIcon(alert.type)}
+                                                                <span className="ml-1 capitalize">{alert.type}</span>
+                                                            </Badge>
+                                                            <Badge variant="outline">{alert.confidence}% confidence</Badge>
+                                                            <Badge variant="outline" className={getImpactColor(alert.impact)}>
+                                                                {alert.impact} impact
+                                                            </Badge>
                                                         </div>
-                                                    ))}
+                                                        <p className="mb-3 text-sm text-gray-600">{alert.message}</p>
+                                                    </div>
+                                                    <Button variant="ghost" size="sm" onClick={() => handleDismissAlert(alert.id)}>
+                                                        ×
+                                                    </Button>
+                                                </div>
+
+                                                {/* Data Points */}
+                                                <div className="rounded-lg bg-gray-50 p-3">
+                                                    <h5 className="mb-2 font-medium text-gray-900">Key Data Points:</h5>
+                                                    <ul className="space-y-1 text-sm text-gray-600">
+                                                        {alert.data_points.map((point, index) => (
+                                                            <li key={index}>• {point}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+
+                                                {/* Suggested Actions */}
+                                                <div>
+                                                    <h5 className="mb-2 font-medium text-gray-900">Suggested Actions:</h5>
+                                                    <div className="space-y-2">
+                                                        {alert.suggested_actions.map((action, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className="flex items-center justify-between rounded-lg border bg-white p-3"
+                                                            >
+                                                                <div className="flex-1">
+                                                                    <h6 className="font-medium text-gray-900">{action.action}</h6>
+                                                                    <p className="text-sm text-gray-600">{action.description}</p>
+                                                                    <div className="mt-1 flex items-center gap-4">
+                                                                        <span className="text-xs text-gray-500">
+                                                                            Effort:{' '}
+                                                                            <span className={getImpactColor(action.effort)}>{action.effort}</span>
+                                                                        </span>
+                                                                        <span className="text-xs text-gray-500">
+                                                                            Impact:{' '}
+                                                                            <span className={getImpactColor(action.impact)}>{action.impact}</span>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <Button size="sm" onClick={() => handleAlertAction(alert.id, index)}>
+                                                                    Take Action
+                                                                </Button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <div className="text-xs text-gray-500">
+                                                    Created: {formatDate(alert.created_at)}
+                                                    {alert.expires_at && <span className="ml-4">Expires: {formatDate(alert.expires_at)}</span>}
                                                 </div>
                                             </div>
-                                            
-                                            <div className="text-xs text-gray-500">
-                                                Created: {formatDate(alert.created_at)}
-                                                {alert.expires_at && (
-                                                    <span className="ml-4">Expires: {formatDate(alert.expires_at)}</span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
+                                        </CardContent>
+                                    </Card>
+                                ))}
                         </div>
                     )}
                 </CardContent>
@@ -558,28 +513,26 @@ export default function SmartNotifications({
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-lg flex items-center">
-                                <Zap className="h-5 w-5 mr-2" />
+                            <CardTitle className="flex items-center text-lg">
+                                <Zap className="mr-2 h-5 w-5" />
                                 Smart Notification Rules
                             </CardTitle>
-                            <CardDescription>
-                                Automated rules that trigger notifications based on conditions and events
-                            </CardDescription>
+                            <CardDescription>Automated rules that trigger notifications based on conditions and events</CardDescription>
                         </div>
                         <Button onClick={handleCreateRule}>
-                            <Plus className="h-4 w-4 mr-2" />
+                            <Plus className="mr-2 h-4 w-4" />
                             Create Rule
                         </Button>
                     </div>
                 </CardHeader>
                 <CardContent>
                     {smartRules.length === 0 ? (
-                        <div className="text-center py-8">
-                            <Zap className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">No Smart Rules</h3>
-                            <p className="text-gray-600 mb-4">Create automated notification rules to stay informed</p>
+                        <div className="py-8 text-center">
+                            <Zap className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+                            <h3 className="mb-2 text-lg font-medium text-gray-900">No Smart Rules</h3>
+                            <p className="mb-4 text-gray-600">Create automated notification rules to stay informed</p>
                             <Button onClick={handleCreateRule}>
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="mr-2 h-4 w-4" />
                                 Create Your First Rule
                             </Button>
                         </div>
@@ -590,46 +543,42 @@ export default function SmartNotifications({
                                     <CardContent className="pt-4">
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">
-                                                <div className="flex items-center gap-3 mb-2">
+                                                <div className="mb-2 flex items-center gap-3">
                                                     <h4 className="font-medium text-gray-900">{rule.name}</h4>
-                                                    <Badge className={getPriorityColor(rule.priority)}>
-                                                        {rule.priority}
-                                                    </Badge>
+                                                    <Badge className={getPriorityColor(rule.priority)}>{rule.priority}</Badge>
                                                     <Switch
                                                         checked={rule.enabled}
                                                         onCheckedChange={(enabled) => handleRuleToggle(rule.id, enabled)}
                                                     />
                                                 </div>
-                                                <p className="text-sm text-gray-600 mb-3">{rule.description}</p>
-                                                
-                                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                                                <p className="mb-3 text-sm text-gray-600">{rule.description}</p>
+
+                                                <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
                                                     <div>
                                                         <span className="font-medium text-gray-700">Trigger:</span>
                                                         <p className="text-gray-600 capitalize">{rule.trigger.type}</p>
                                                     </div>
                                                     <div>
                                                         <span className="font-medium text-gray-700">Actions:</span>
-                                                        <p className="text-gray-600">{rule.actions.length} action{rule.actions.length > 1 ? 's' : ''}</p>
+                                                        <p className="text-gray-600">
+                                                            {rule.actions.length} action{rule.actions.length > 1 ? 's' : ''}
+                                                        </p>
                                                     </div>
                                                     <div>
                                                         <span className="font-medium text-gray-700">Triggered:</span>
                                                         <p className="text-gray-600">{rule.trigger_count} times</p>
                                                     </div>
                                                 </div>
-                                                
+
                                                 {rule.last_triggered && (
-                                                    <div className="text-xs text-gray-500 mt-2">
+                                                    <div className="mt-2 text-xs text-gray-500">
                                                         Last triggered: {formatDate(rule.last_triggered)}
                                                     </div>
                                                 )}
                                             </div>
-                                            
+
                                             <div className="flex items-center gap-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => handleEditRule(rule)}
-                                                >
+                                                <Button variant="ghost" size="sm" onClick={() => handleEditRule(rule)}>
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
                                                 <Button
@@ -654,26 +603,24 @@ export default function SmartNotifications({
             {isCreatingRule && (
                 <Card className="border-2 border-blue-500">
                     <CardHeader>
-                        <CardTitle className="text-lg">
-                            {editingRule ? 'Edit Smart Rule' : 'Create Smart Rule'}
-                        </CardTitle>
+                        <CardTitle className="text-lg">{editingRule ? 'Edit Smart Rule' : 'Create Smart Rule'}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <Label htmlFor="rule-name">Rule Name</Label>
                                 <Input
                                     id="rule-name"
                                     value={newRule.name || ''}
-                                    onChange={(e) => setNewRule(prev => ({ ...prev, name: e.target.value }))}
+                                    onChange={(e) => setNewRule((prev) => ({ ...prev, name: e.target.value }))}
                                     placeholder="Enter rule name"
                                 />
                             </div>
                             <div>
                                 <Label htmlFor="rule-priority">Priority</Label>
-                                <Select 
-                                    value={newRule.priority || 'medium'} 
-                                    onValueChange={(priority) => setNewRule(prev => ({ ...prev, priority: priority as any }))}
+                                <Select
+                                    value={newRule.priority || 'medium'}
+                                    onValueChange={(priority) => setNewRule((prev) => ({ ...prev, priority: priority as any }))}
                                 >
                                     <SelectTrigger>
                                         <SelectValue />
@@ -687,26 +634,28 @@ export default function SmartNotifications({
                                 </Select>
                             </div>
                         </div>
-                        
+
                         <div>
                             <Label htmlFor="rule-description">Description</Label>
                             <Textarea
                                 id="rule-description"
                                 value={newRule.description || ''}
-                                onChange={(e) => setNewRule(prev => ({ ...prev, description: e.target.value }))}
+                                onChange={(e) => setNewRule((prev) => ({ ...prev, description: e.target.value }))}
                                 placeholder="Describe what this rule does"
                                 rows={3}
                             />
                         </div>
-                        
+
                         <div>
                             <Label htmlFor="trigger-type">Trigger Type</Label>
-                            <Select 
-                                value={newRule.trigger?.type || 'event'} 
-                                onValueChange={(type) => setNewRule(prev => ({ 
-                                    ...prev, 
-                                    trigger: { ...prev.trigger, type: type as any } 
-                                }))}
+                            <Select
+                                value={newRule.trigger?.type || 'event'}
+                                onValueChange={(type) =>
+                                    setNewRule((prev) => ({
+                                        ...prev,
+                                        trigger: { ...prev.trigger, type: type as any },
+                                    }))
+                                }
                             >
                                 <SelectTrigger>
                                     <SelectValue />
@@ -720,22 +669,19 @@ export default function SmartNotifications({
                                 </SelectContent>
                             </Select>
                         </div>
-                        
+
                         <div className="flex items-center space-x-2">
-                            <Switch
-                                checked={newRule.enabled || true}
-                                onCheckedChange={(enabled) => setNewRule(prev => ({ ...prev, enabled }))}
-                            />
+                            <Switch checked={newRule.enabled || true} onCheckedChange={(enabled) => setNewRule((prev) => ({ ...prev, enabled }))} />
                             <Label>Enable this rule</Label>
                         </div>
-                        
+
                         <div className="flex gap-3">
                             <Button onClick={handleSaveRule}>
-                                <Save className="h-4 w-4 mr-2" />
+                                <Save className="mr-2 h-4 w-4" />
                                 {editingRule ? 'Update Rule' : 'Create Rule'}
                             </Button>
-                            <Button 
-                                variant="outline" 
+                            <Button
+                                variant="outline"
                                 onClick={() => {
                                     setIsCreatingRule(false);
                                     setEditingRule(null);

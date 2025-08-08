@@ -1,18 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-    MapPin,
-    Truck,
-    Navigation,
-    Maximize2,
-    Minimize2,
-    RotateCcw,
-    Layers,
-    Crosshair,
-    Route
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Crosshair, Layers, MapPin, Maximize2, Minimize2, Navigation, RotateCcw, Route, Truck } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 interface MapLocation {
     lat: number;
@@ -32,13 +22,13 @@ interface Props {
     height?: string;
 }
 
-export default function TrackingMap({ 
-    currentLocation, 
-    destination, 
-    route = [], 
+export default function TrackingMap({
+    currentLocation,
+    destination,
+    route = [],
     driverLocation,
     className = '',
-    height = 'h-64 sm:h-80 lg:h-96'
+    height = 'h-64 sm:h-80 lg:h-96',
 }: Props) {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [mapType, setMapType] = useState<'roadmap' | 'satellite'>('roadmap');
@@ -58,12 +48,12 @@ export default function TrackingMap({
 
         try {
             // Simulate map loading
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
             // In a real implementation, you would initialize the actual map here
             // For now, we'll create a mock map visualization
             createMockMap();
-            
+
             setIsLoading(false);
         } catch (error) {
             setMapError('Failed to load map');
@@ -118,7 +108,7 @@ export default function TrackingMap({
         marker.setAttribute('stroke', 'white');
         marker.setAttribute('stroke-width', '2');
         marker.style.cursor = 'pointer';
-        
+
         // Add title for accessibility
         const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
         titleElement.textContent = title;
@@ -154,45 +144,24 @@ export default function TrackingMap({
     return (
         <Card className={`${className} ${isFullscreen ? 'fixed inset-4 z-50' : ''}`}>
             <CardHeader className="pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <CardTitle className="text-lg sm:text-xl">Live Tracking Map</CardTitle>
-                        <CardDescription>
-                            Real-time location and route information
-                        </CardDescription>
+                        <CardDescription>Real-time location and route information</CardDescription>
                     </div>
-                    
+
                     {/* Map Controls - Mobile Optimized */}
                     <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={toggleMapType}
-                            className="flex-1 sm:flex-none"
-                        >
-                            <Layers className="h-4 w-4 mr-2" />
+                        <Button variant="outline" size="sm" onClick={toggleMapType} className="flex-1 sm:flex-none">
+                            <Layers className="mr-2 h-4 w-4" />
                             {mapType === 'roadmap' ? 'Satellite' : 'Road'}
                         </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={centerOnCurrent}
-                            className="flex-1 sm:flex-none"
-                        >
-                            <Crosshair className="h-4 w-4 mr-2" />
+                        <Button variant="outline" size="sm" onClick={centerOnCurrent} className="flex-1 sm:flex-none">
+                            <Crosshair className="mr-2 h-4 w-4" />
                             Center
                         </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={toggleFullscreen}
-                            className="p-2"
-                        >
-                            {isFullscreen ? (
-                                <Minimize2 className="h-4 w-4" />
-                            ) : (
-                                <Maximize2 className="h-4 w-4" />
-                            )}
+                        <Button variant="outline" size="sm" onClick={toggleFullscreen} className="p-2">
+                            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                         </Button>
                     </div>
                 </div>
@@ -200,38 +169,36 @@ export default function TrackingMap({
             <CardContent>
                 <div className="space-y-4">
                     {/* Route Information - Mobile First */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="grid grid-cols-1 gap-4 rounded-lg border border-blue-200 bg-blue-50 p-4 sm:grid-cols-3">
                         <div className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-blue-700 mb-1">
+                            <div className="mb-1 flex items-center justify-center gap-2 text-blue-700">
                                 <Route className="h-4 w-4" />
                                 <span className="text-sm font-medium">Distance</span>
                             </div>
                             <p className="text-lg font-bold text-blue-900">{getEstimatedDistance()}</p>
                         </div>
                         <div className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-blue-700 mb-1">
+                            <div className="mb-1 flex items-center justify-center gap-2 text-blue-700">
                                 <Navigation className="h-4 w-4" />
                                 <span className="text-sm font-medium">ETA</span>
                             </div>
                             <p className="text-lg font-bold text-blue-900">{getEstimatedTime()}</p>
                         </div>
                         <div className="text-center">
-                            <div className="flex items-center justify-center gap-2 text-blue-700 mb-1">
+                            <div className="mb-1 flex items-center justify-center gap-2 text-blue-700">
                                 <Truck className="h-4 w-4" />
                                 <span className="text-sm font-medium">Status</span>
                             </div>
-                            <Badge className="bg-green-100 text-green-800 border-green-300">
-                                In Transit
-                            </Badge>
+                            <Badge className="border-green-300 bg-green-100 text-green-800">In Transit</Badge>
                         </div>
                     </div>
 
                     {/* Map Container */}
-                    <div className={`relative ${height} ${isFullscreen ? 'h-full' : ''} rounded-lg border overflow-hidden`}>
+                    <div className={`relative ${height} ${isFullscreen ? 'h-full' : ''} overflow-hidden rounded-lg border`}>
                         {isLoading && (
                             <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                                 <div className="text-center">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                                    <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
                                     <p className="text-gray-600">Loading map...</p>
                                 </div>
                             </div>
@@ -240,40 +207,33 @@ export default function TrackingMap({
                         {mapError && (
                             <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                                 <div className="text-center">
-                                    <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                                    <MapPin className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                     <p className="text-gray-600">{mapError}</p>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={initializeMap}
-                                        className="mt-2"
-                                    >
-                                        <RotateCcw className="h-4 w-4 mr-2" />
+                                    <Button variant="outline" size="sm" onClick={initializeMap} className="mt-2">
+                                        <RotateCcw className="mr-2 h-4 w-4" />
                                         Retry
                                     </Button>
                                 </div>
                             </div>
                         )}
 
-                        {!isLoading && !mapError && (
-                            <div ref={mapRef} className="w-full h-full" />
-                        )}
+                        {!isLoading && !mapError && <div ref={mapRef} className="h-full w-full" />}
 
                         {/* Map Legend - Mobile Responsive */}
                         {!isLoading && !mapError && (
-                            <div className="absolute bottom-4 left-4 right-4 sm:right-auto">
-                                <div className="bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
+                            <div className="absolute right-4 bottom-4 left-4 sm:right-auto">
+                                <div className="rounded-lg bg-white/90 p-3 shadow-lg backdrop-blur-sm">
                                     <div className="grid grid-cols-3 gap-3 text-xs">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                            <div className="h-3 w-3 rounded-full bg-green-500"></div>
                                             <span>Origin</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                                            <div className="h-3 w-3 rounded-full bg-blue-500"></div>
                                             <span>Current</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                            <div className="h-3 w-3 rounded-full bg-red-500"></div>
                                             <span>Destination</span>
                                         </div>
                                     </div>
@@ -283,24 +243,20 @@ export default function TrackingMap({
                     </div>
 
                     {/* Location Details - Mobile Optimized */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-2">
                             <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
                                 <MapPin className="h-4 w-4 text-blue-600" />
                                 Current Location
                             </div>
-                            <p className="text-sm text-gray-600 pl-6">
-                                {currentLocation.address}
-                            </p>
+                            <p className="pl-6 text-sm text-gray-600">{currentLocation.address}</p>
                         </div>
                         <div className="space-y-2">
                             <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
                                 <MapPin className="h-4 w-4 text-red-600" />
                                 Destination
                             </div>
-                            <p className="text-sm text-gray-600 pl-6">
-                                {destination.address}
-                            </p>
+                            <p className="pl-6 text-sm text-gray-600">{destination.address}</p>
                         </div>
                     </div>
                 </div>

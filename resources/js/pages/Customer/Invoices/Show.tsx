@@ -1,25 +1,24 @@
-import React from 'react';
-import { Head, Link } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link } from '@inertiajs/react';
 import {
+    AlertCircle,
     ArrowLeft,
-    Download,
-    CreditCard,
-    FileText,
-    Calendar,
-    DollarSign,
     Building,
-    Mail,
-    Phone,
-    MapPin,
+    Calendar,
     CheckCircle,
     Clock,
-    AlertCircle,
+    CreditCard,
+    DollarSign,
+    Download,
+    Eye,
+    FileText,
+    Mail,
+    MapPin,
+    Phone,
     Send,
-    Eye
 } from 'lucide-react';
 
 interface Invoice {
@@ -121,22 +120,22 @@ export default function InvoiceShow({ invoice, customer }: Props) {
     return (
         <AppLayout>
             <Head title={`Invoice ${invoice.invoice_number}`} />
-            
+
             <div className="space-y-6 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <div className="flex items-center space-x-4">
                         <Link href="/customer/invoices">
                             <Button variant="ghost" size="sm">
-                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Invoices
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+                            <h1 className="flex items-center gap-3 text-2xl font-bold text-gray-900">
                                 Invoice {invoice.invoice_number}
                                 <Badge className={statusInfo.color}>
-                                    <StatusIcon className="w-3 h-3 mr-1" />
+                                    <StatusIcon className="mr-1 h-3 w-3" />
                                     {statusInfo.label}
                                 </Badge>
                             </h1>
@@ -145,50 +144,52 @@ export default function InvoiceShow({ invoice, customer }: Props) {
                     </div>
                     <div className="flex gap-2">
                         <Button variant="outline">
-                            <Download className="w-4 h-4 mr-2" />
+                            <Download className="mr-2 h-4 w-4" />
                             Download PDF
                         </Button>
                         {invoice.balance_due > 0 && (
                             <Button>
-                                <CreditCard className="w-4 h-4 mr-2" />
+                                <CreditCard className="mr-2 h-4 w-4" />
                                 Pay Now
                             </Button>
                         )}
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     {/* Invoice Details */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className="space-y-6 lg:col-span-2">
                         {/* Invoice Header */}
                         <Card>
                             <CardHeader>
                                 <CardTitle>Invoice Details</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                     {/* Bill From */}
                                     <div>
-                                        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                            <Building className="w-4 h-4" />
+                                        <h3 className="mb-3 flex items-center gap-2 font-semibold text-gray-900">
+                                            <Building className="h-4 w-4" />
                                             From
                                         </h3>
-                                        <div className="text-sm text-gray-600 space-y-1">
+                                        <div className="space-y-1 text-sm text-gray-600">
                                             <p className="font-medium">{companyAddress.name || 'RT Express'}</p>
                                             {companyAddress.address && <p>{companyAddress.address}</p>}
                                             {companyAddress.city && companyAddress.country && (
-                                                <p>{companyAddress.city}, {companyAddress.country}</p>
+                                                <p>
+                                                    {companyAddress.city}, {companyAddress.country}
+                                                </p>
                                             )}
                                             {companyAddress.postal_code && <p>{companyAddress.postal_code}</p>}
                                             {companyAddress.email && (
                                                 <p className="flex items-center gap-1">
-                                                    <Mail className="w-3 h-3" />
+                                                    <Mail className="h-3 w-3" />
                                                     {companyAddress.email}
                                                 </p>
                                             )}
                                             {companyAddress.phone && (
                                                 <p className="flex items-center gap-1">
-                                                    <Phone className="w-3 h-3" />
+                                                    <Phone className="h-3 w-3" />
                                                     {companyAddress.phone}
                                                 </p>
                                             )}
@@ -198,31 +199,33 @@ export default function InvoiceShow({ invoice, customer }: Props) {
 
                                     {/* Bill To */}
                                     <div>
-                                        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                                            <MapPin className="w-4 h-4" />
+                                        <h3 className="mb-3 flex items-center gap-2 font-semibold text-gray-900">
+                                            <MapPin className="h-4 w-4" />
                                             Bill To
                                         </h3>
-                                        <div className="text-sm text-gray-600 space-y-1">
+                                        <div className="space-y-1 text-sm text-gray-600">
                                             <p className="font-medium">{customer.company_name}</p>
                                             <p>{billingAddress.name || customer.contact_person}</p>
                                             <p className="flex items-center gap-1">
-                                                <Mail className="w-3 h-3" />
+                                                <Mail className="h-3 w-3" />
                                                 {billingAddress.email || customer.email}
                                             </p>
                                             <p className="flex items-center gap-1">
-                                                <Phone className="w-3 h-3" />
+                                                <Phone className="h-3 w-3" />
                                                 {billingAddress.phone || customer.phone}
                                             </p>
                                             {billingAddress.address && <p>{billingAddress.address}</p>}
                                             {billingAddress.city && billingAddress.country && (
-                                                <p>{billingAddress.city}, {billingAddress.country}</p>
+                                                <p>
+                                                    {billingAddress.city}, {billingAddress.country}
+                                                </p>
                                             )}
                                             {billingAddress.postal_code && <p>{billingAddress.postal_code}</p>}
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t">
+                                <div className="mt-6 grid grid-cols-1 gap-4 border-t pt-6 md:grid-cols-3">
                                     <div>
                                         <p className="text-sm font-medium text-gray-600">Invoice Number</p>
                                         <p className="text-sm text-gray-900">{invoice.invoice_number}</p>
@@ -246,12 +249,10 @@ export default function InvoiceShow({ invoice, customer }: Props) {
                                 <CardDescription>Services and charges for this invoice</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-center py-8">
-                                    <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                                <div className="py-8 text-center">
+                                    <FileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                     <p className="text-gray-500">Invoice line items will be displayed here</p>
-                                    <p className="text-sm text-gray-400 mt-1">
-                                        Detailed breakdown of services and charges
-                                    </p>
+                                    <p className="mt-1 text-sm text-gray-400">Detailed breakdown of services and charges</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -266,7 +267,7 @@ export default function InvoiceShow({ invoice, customer }: Props) {
                                 <CardContent>
                                     <div className="space-y-3">
                                         {invoice.payments.map((payment) => (
-                                            <div key={payment.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                            <div key={payment.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
                                                 <div>
                                                     <p className="font-medium text-gray-900">{payment.payment_number}</p>
                                                     <p className="text-sm text-gray-600">
@@ -274,9 +275,7 @@ export default function InvoiceShow({ invoice, customer }: Props) {
                                                     </p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="font-medium text-green-600">
-                                                        {formatCurrency(payment.amount, invoice.currency)}
-                                                    </p>
+                                                    <p className="font-medium text-green-600">{formatCurrency(payment.amount, invoice.currency)}</p>
                                                     <Badge variant="outline" className="text-xs">
                                                         {payment.status}
                                                     </Badge>
@@ -295,7 +294,7 @@ export default function InvoiceShow({ invoice, customer }: Props) {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <DollarSign className="w-5 h-5" />
+                                    <DollarSign className="h-5 w-5" />
                                     Amount Summary
                                 </CardTitle>
                             </CardHeader>
@@ -319,7 +318,7 @@ export default function InvoiceShow({ invoice, customer }: Props) {
                                 <div className="border-t pt-3">
                                     <div className="flex justify-between">
                                         <span className="font-semibold text-gray-900">Total</span>
-                                        <span className="font-bold text-lg">{formatCurrency(invoice.total_amount, invoice.currency)}</span>
+                                        <span className="text-lg font-bold">{formatCurrency(invoice.total_amount, invoice.currency)}</span>
                                     </div>
                                 </div>
                                 <div className="flex justify-between">
@@ -329,7 +328,7 @@ export default function InvoiceShow({ invoice, customer }: Props) {
                                 <div className="border-t pt-3">
                                     <div className="flex justify-between">
                                         <span className="font-semibold text-gray-900">Balance Due</span>
-                                        <span className={`font-bold text-lg ${invoice.balance_due > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                        <span className={`text-lg font-bold ${invoice.balance_due > 0 ? 'text-red-600' : 'text-green-600'}`}>
                                             {formatCurrency(invoice.balance_due, invoice.currency)}
                                         </span>
                                     </div>
@@ -341,15 +340,15 @@ export default function InvoiceShow({ invoice, customer }: Props) {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Calendar className="w-5 h-5" />
+                                    <Calendar className="h-5 w-5" />
                                     Payment Terms
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-sm text-gray-600">{invoice.payment_terms}</p>
-                                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                                <div className="mt-4 rounded-lg bg-blue-50 p-3">
                                     <p className="text-sm text-blue-800">
-                                        <Clock className="w-4 h-4 inline mr-1" />
+                                        <Clock className="mr-1 inline h-4 w-4" />
                                         Due: {formatDate(invoice.due_date)}
                                     </p>
                                 </div>
@@ -364,11 +363,11 @@ export default function InvoiceShow({ invoice, customer }: Props) {
                                 </CardHeader>
                                 <CardContent className="space-y-3">
                                     <Button className="w-full">
-                                        <CreditCard className="w-4 h-4 mr-2" />
+                                        <CreditCard className="mr-2 h-4 w-4" />
                                         Pay {formatCurrency(invoice.balance_due, invoice.currency)}
                                     </Button>
                                     <Button variant="outline" className="w-full">
-                                        <Download className="w-4 h-4 mr-2" />
+                                        <Download className="mr-2 h-4 w-4" />
                                         Download PDF
                                     </Button>
                                 </CardContent>

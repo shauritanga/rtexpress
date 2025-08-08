@@ -1,20 +1,8 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-    MapPin,
-    Truck,
-    Package,
-    Clock,
-    CheckCircle,
-    AlertCircle,
-    Navigation,
-    Camera,
-    ChevronDown,
-    ChevronUp,
-    ExternalLink
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, Camera, CheckCircle, ChevronDown, ChevronUp, Clock, ExternalLink, MapPin, Navigation, Package, Truck } from 'lucide-react';
+import { useState } from 'react';
 
 interface TrackingEvent {
     id: string;
@@ -47,31 +35,31 @@ export default function TrackingTimeline({ events, currentStatus, className = ''
 
     const getStatusIcon = (status: string, isCompleted: boolean) => {
         const iconClass = `h-5 w-5 ${isCompleted ? 'text-green-600' : 'text-gray-400'}`;
-        
+
         const icons = {
-            'pending': <Clock className={iconClass} />,
-            'picked_up': <Package className={iconClass} />,
-            'in_transit': <Truck className={iconClass} />,
-            'out_for_delivery': <Navigation className={iconClass} />,
-            'delivered': <CheckCircle className={iconClass} />,
-            'exception': <AlertCircle className={iconClass} />,
+            pending: <Clock className={iconClass} />,
+            picked_up: <Package className={iconClass} />,
+            in_transit: <Truck className={iconClass} />,
+            out_for_delivery: <Navigation className={iconClass} />,
+            delivered: <CheckCircle className={iconClass} />,
+            exception: <AlertCircle className={iconClass} />,
         };
-        
+
         return icons[status as keyof typeof icons] || <Clock className={iconClass} />;
     };
 
     const getStatusColor = (status: string, isCompleted: boolean) => {
         if (!isCompleted) return 'bg-gray-100 text-gray-600 border-gray-300';
-        
+
         const colors = {
-            'pending': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-            'picked_up': 'bg-blue-100 text-blue-800 border-blue-300',
-            'in_transit': 'bg-purple-100 text-purple-800 border-purple-300',
-            'out_for_delivery': 'bg-orange-100 text-orange-800 border-orange-300',
-            'delivered': 'bg-green-100 text-green-800 border-green-300',
-            'exception': 'bg-red-100 text-red-800 border-red-300',
+            pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+            picked_up: 'bg-blue-100 text-blue-800 border-blue-300',
+            in_transit: 'bg-purple-100 text-purple-800 border-purple-300',
+            out_for_delivery: 'bg-orange-100 text-orange-800 border-orange-300',
+            delivered: 'bg-green-100 text-green-800 border-green-300',
+            exception: 'bg-red-100 text-red-800 border-red-300',
         };
-        
+
         return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-600 border-gray-300';
     };
 
@@ -88,12 +76,12 @@ export default function TrackingTimeline({ events, currentStatus, className = ''
             date: date.toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
-                year: 'numeric'
+                year: 'numeric',
             }),
             time: date.toLocaleTimeString('en-US', {
                 hour: '2-digit',
-                minute: '2-digit'
-            })
+                minute: '2-digit',
+            }),
         };
     };
 
@@ -107,9 +95,7 @@ export default function TrackingTimeline({ events, currentStatus, className = ''
         <Card className={className}>
             <CardHeader className="pb-4">
                 <CardTitle className="text-lg sm:text-xl">Tracking Timeline</CardTitle>
-                <CardDescription>
-                    Follow your shipment's journey in real-time
-                </CardDescription>
+                <CardDescription>Follow your shipment's journey in real-time</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
@@ -122,49 +108,45 @@ export default function TrackingTimeline({ events, currentStatus, className = ''
                         return (
                             <div key={event.id} className="relative">
                                 {/* Timeline Line */}
-                                {!isLast && (
-                                    <div className="absolute left-6 top-12 w-0.5 h-full bg-gray-200 -z-10" />
-                                )}
+                                {!isLast && <div className="absolute top-12 left-6 -z-10 h-full w-0.5 bg-gray-200" />}
 
                                 {/* Event Card - Mobile Optimized */}
-                                <div className={`flex gap-4 p-4 rounded-lg border transition-all ${
-                                    isCompleted 
-                                        ? 'bg-white border-gray-200 shadow-sm' 
-                                        : 'bg-gray-50 border-gray-100'
-                                }`}>
+                                <div
+                                    className={`flex gap-4 rounded-lg border p-4 transition-all ${
+                                        isCompleted ? 'border-gray-200 bg-white shadow-sm' : 'border-gray-100 bg-gray-50'
+                                    }`}
+                                >
                                     {/* Status Icon */}
-                                    <div className={`flex-shrink-0 w-12 h-12 rounded-full border-2 flex items-center justify-center ${
-                                        isCompleted 
-                                            ? 'bg-green-50 border-green-200' 
-                                            : 'bg-gray-100 border-gray-200'
-                                    }`}>
+                                    <div
+                                        className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                                            isCompleted ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-100'
+                                        }`}
+                                    >
                                         {getStatusIcon(event.status, isCompleted)}
                                     </div>
 
                                     {/* Event Content */}
-                                    <div className="flex-1 min-w-0">
+                                    <div className="min-w-0 flex-1">
                                         {/* Header */}
-                                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <Badge className={`${getStatusColor(event.status, isCompleted)} border text-xs px-2 py-1`}>
+                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                            <div className="min-w-0 flex-1">
+                                                <div className="mb-1 flex items-center gap-2">
+                                                    <Badge className={`${getStatusColor(event.status, isCompleted)} border px-2 py-1 text-xs`}>
                                                         {event.status.replace('_', ' ').toUpperCase()}
                                                     </Badge>
                                                 </div>
-                                                <h3 className="font-medium text-gray-900 truncate">
-                                                    {event.description}
-                                                </h3>
+                                                <h3 className="truncate font-medium text-gray-900">{event.description}</h3>
                                             </div>
-                                            
+
                                             {/* Timestamp - Mobile Responsive */}
-                                            <div className="text-right text-sm text-gray-600 flex-shrink-0">
+                                            <div className="flex-shrink-0 text-right text-sm text-gray-600">
                                                 <div className="font-medium">{time}</div>
                                                 <div>{date}</div>
                                             </div>
                                         </div>
 
                                         {/* Location */}
-                                        <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                                        <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
                                             <MapPin className="h-4 w-4 flex-shrink-0" />
                                             <span className="truncate">{event.location}</span>
                                         </div>
@@ -175,16 +157,16 @@ export default function TrackingTimeline({ events, currentStatus, className = ''
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => toggleEventExpansion(event.id)}
-                                                className="mt-2 p-0 h-auto text-blue-600 hover:text-blue-800"
+                                                className="mt-2 h-auto p-0 text-blue-600 hover:text-blue-800"
                                             >
                                                 {isExpanded ? (
                                                     <>
-                                                        <ChevronUp className="h-4 w-4 mr-1" />
+                                                        <ChevronUp className="mr-1 h-4 w-4" />
                                                         Show less
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <ChevronDown className="h-4 w-4 mr-1" />
+                                                        <ChevronDown className="mr-1 h-4 w-4" />
                                                         Show details
                                                     </>
                                                 )}
@@ -193,35 +175,27 @@ export default function TrackingTimeline({ events, currentStatus, className = ''
 
                                         {/* Expanded Content */}
                                         {isExpanded && (
-                                            <div className="mt-3 space-y-3 p-3 bg-gray-50 rounded-md">
+                                            <div className="mt-3 space-y-3 rounded-md bg-gray-50 p-3">
                                                 {/* Additional Details */}
-                                                {event.details && (
-                                                    <p className="text-sm text-gray-700">
-                                                        {event.details}
-                                                    </p>
-                                                )}
+                                                {event.details && <p className="text-sm text-gray-700">{event.details}</p>}
 
                                                 {/* Driver Info */}
                                                 {event.driver && (
-                                                    <div className="flex items-center gap-3 p-2 bg-white rounded border">
+                                                    <div className="flex items-center gap-3 rounded border bg-white p-2">
                                                         {event.driver.photo ? (
                                                             <img
                                                                 src={event.driver.photo}
                                                                 alt={event.driver.name}
-                                                                className="w-8 h-8 rounded-full object-cover"
+                                                                className="h-8 w-8 rounded-full object-cover"
                                                             />
                                                         ) : (
-                                                            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200">
                                                                 <Truck className="h-4 w-4 text-gray-600" />
                                                             </div>
                                                         )}
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-sm font-medium text-gray-900 truncate">
-                                                                {event.driver.name}
-                                                            </p>
-                                                            <p className="text-xs text-gray-600">
-                                                                Driver
-                                                            </p>
+                                                        <div className="min-w-0 flex-1">
+                                                            <p className="truncate text-sm font-medium text-gray-900">{event.driver.name}</p>
+                                                            <p className="text-xs text-gray-600">Driver</p>
                                                         </div>
                                                     </div>
                                                 )}
@@ -233,16 +207,16 @@ export default function TrackingTimeline({ events, currentStatus, className = ''
                                                             <Camera className="h-4 w-4" />
                                                             Photos ({event.photos.length})
                                                         </div>
-                                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                                                             {event.photos.map((photo, photoIndex) => (
-                                                                <div key={photoIndex} className="relative group">
+                                                                <div key={photoIndex} className="group relative">
                                                                     <img
                                                                         src={photo}
                                                                         alt={`Event photo ${photoIndex + 1}`}
-                                                                        className="w-full h-20 object-cover rounded border cursor-pointer hover:opacity-90 transition-opacity"
+                                                                        className="h-20 w-full cursor-pointer rounded border object-cover transition-opacity hover:opacity-90"
                                                                         onClick={() => window.open(photo, '_blank')}
                                                                     />
-                                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
                                                                         <ExternalLink className="h-4 w-4 text-white drop-shadow-lg" />
                                                                     </div>
                                                                 </div>
@@ -262,7 +236,7 @@ export default function TrackingTimeline({ events, currentStatus, className = ''
                                                         }}
                                                         className="w-full sm:w-auto"
                                                     >
-                                                        <MapPin className="h-4 w-4 mr-2" />
+                                                        <MapPin className="mr-2 h-4 w-4" />
                                                         View on Map
                                                     </Button>
                                                 )}
@@ -276,20 +250,16 @@ export default function TrackingTimeline({ events, currentStatus, className = ''
 
                     {/* Show More/Less Button */}
                     {events.length > 5 && (
-                        <div className="text-center pt-4">
-                            <Button
-                                variant="outline"
-                                onClick={() => setShowAllEvents(!showAllEvents)}
-                                className="w-full sm:w-auto"
-                            >
+                        <div className="pt-4 text-center">
+                            <Button variant="outline" onClick={() => setShowAllEvents(!showAllEvents)} className="w-full sm:w-auto">
                                 {showAllEvents ? (
                                     <>
-                                        <ChevronUp className="h-4 w-4 mr-2" />
+                                        <ChevronUp className="mr-2 h-4 w-4" />
                                         Show Less
                                     </>
                                 ) : (
                                     <>
-                                        <ChevronDown className="h-4 w-4 mr-2" />
+                                        <ChevronDown className="mr-2 h-4 w-4" />
                                         Show All Events ({events.length})
                                     </>
                                 )}
@@ -299,12 +269,10 @@ export default function TrackingTimeline({ events, currentStatus, className = ''
 
                     {/* Empty State */}
                     {events.length === 0 && (
-                        <div className="text-center py-8">
-                            <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <div className="py-8 text-center">
+                            <Clock className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                             <p className="text-gray-500">No tracking events available yet</p>
-                            <p className="text-sm text-gray-400 mt-1">
-                                Check back later for updates
-                            </p>
+                            <p className="mt-1 text-sm text-gray-400">Check back later for updates</p>
                         </div>
                     )}
                 </div>

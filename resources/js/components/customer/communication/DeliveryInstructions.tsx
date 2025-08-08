@@ -1,25 +1,11 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { 
-    MapPin,
-    Clock,
-    Key,
-    Bell,
-    Package,
-    AlertTriangle,
-    CheckCircle,
-    Edit,
-    Save,
-    X,
-    Home,
-    Building,
-    Shield
-} from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { AlertTriangle, Bell, Building, CheckCircle, Clock, Edit, Home, MapPin, Package, Save, Shield, X } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface DeliveryInstruction {
     id: string;
@@ -37,12 +23,7 @@ interface Props {
     className?: string;
 }
 
-export default function DeliveryInstructions({ 
-    trackingNumber, 
-    currentInstructions = '', 
-    onUpdateInstructions,
-    className = '' 
-}: Props) {
+export default function DeliveryInstructions({ trackingNumber, currentInstructions = '', onUpdateInstructions, className = '' }: Props) {
     const [isEditing, setIsEditing] = useState(false);
     const [instructions, setInstructions] = useState(currentInstructions);
     const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
@@ -100,11 +81,7 @@ export default function DeliveryInstructions({
     ];
 
     const handlePreferenceToggle = (preferenceId: string) => {
-        setSelectedPreferences(prev => 
-            prev.includes(preferenceId)
-                ? prev.filter(id => id !== preferenceId)
-                : [...prev, preferenceId]
-        );
+        setSelectedPreferences((prev) => (prev.includes(preferenceId) ? prev.filter((id) => id !== preferenceId) : [...prev, preferenceId]));
     };
 
     const handleSave = async () => {
@@ -138,25 +115,18 @@ export default function DeliveryInstructions({
     return (
         <Card className={className}>
             <CardHeader className="pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <CardTitle className="text-lg sm:text-xl flex items-center">
-                            <MapPin className="h-5 w-5 mr-2" />
+                        <CardTitle className="flex items-center text-lg sm:text-xl">
+                            <MapPin className="mr-2 h-5 w-5" />
                             Delivery Instructions
                         </CardTitle>
-                        <CardDescription>
-                            Provide specific instructions for your delivery • {trackingNumber}
-                        </CardDescription>
+                        <CardDescription>Provide specific instructions for your delivery • {trackingNumber}</CardDescription>
                     </div>
-                    
+
                     {!isEditing && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setIsEditing(true)}
-                            className="w-full sm:w-auto"
-                        >
-                            <Edit className="h-4 w-4 mr-2" />
+                        <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="w-full sm:w-auto">
+                            <Edit className="mr-2 h-4 w-4" />
                             Edit Instructions
                         </Button>
                     )}
@@ -168,24 +138,20 @@ export default function DeliveryInstructions({
                 {!isEditing && (
                     <div className="space-y-4">
                         {currentInstructions ? (
-                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
                                 <div className="flex items-start gap-3">
-                                    <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                                    <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
                                     <div>
-                                        <h4 className="font-medium text-blue-900 mb-2">Active Instructions</h4>
-                                        <p className="text-sm text-blue-800 whitespace-pre-wrap">
-                                            {currentInstructions}
-                                        </p>
+                                        <h4 className="mb-2 font-medium text-blue-900">Active Instructions</h4>
+                                        <p className="text-sm whitespace-pre-wrap text-blue-800">{currentInstructions}</p>
                                     </div>
                                 </div>
                             </div>
                         ) : (
-                            <div className="text-center py-8">
-                                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <div className="py-8 text-center">
+                                <Package className="mx-auto mb-4 h-12 w-12 text-gray-400" />
                                 <p className="text-gray-500">No delivery instructions set</p>
-                                <p className="text-sm text-gray-400 mt-1">
-                                    Add instructions to help your driver deliver your package
-                                </p>
+                                <p className="mt-1 text-sm text-gray-400">Add instructions to help your driver deliver your package</p>
                             </div>
                         )}
                     </div>
@@ -197,11 +163,11 @@ export default function DeliveryInstructions({
                         {/* Quick Preferences - Mobile Optimized */}
                         <div className="space-y-4">
                             <h4 className="font-medium text-gray-900">Quick Preferences</h4>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 {commonInstructions.map((instruction) => (
                                     <div
                                         key={instruction.id}
-                                        className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                                        className={`cursor-pointer rounded-lg border p-3 transition-all ${
                                             selectedPreferences.includes(instruction.id)
                                                 ? 'border-blue-500 bg-blue-50'
                                                 : 'border-gray-200 hover:border-gray-300'
@@ -214,13 +180,11 @@ export default function DeliveryInstructions({
                                                 onChange={() => handlePreferenceToggle(instruction.id)}
                                                 className="mt-0.5"
                                             />
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-1">
+                                            <div className="min-w-0 flex-1">
+                                                <div className="mb-1 flex items-center gap-2">
                                                     {instruction.icon}
-                                                    <span className="font-medium text-sm">{instruction.title}</span>
-                                                    <Badge className={`${getTypeColor(instruction.type)} text-xs`}>
-                                                        {instruction.type}
-                                                    </Badge>
+                                                    <span className="text-sm font-medium">{instruction.title}</span>
+                                                    <Badge className={`${getTypeColor(instruction.type)} text-xs`}>{instruction.type}</Badge>
                                                 </div>
                                                 <p className="text-xs text-gray-600">{instruction.description}</p>
                                             </div>
@@ -243,15 +207,13 @@ export default function DeliveryInstructions({
                                 rows={4}
                                 className="text-base sm:text-sm"
                             />
-                            <p className="text-xs text-gray-500">
-                                Be specific about location, access codes, or any special requirements
-                            </p>
+                            <p className="text-xs text-gray-500">Be specific about location, access codes, or any special requirements</p>
                         </div>
 
                         {/* Common Examples */}
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                            <h5 className="font-medium text-gray-900 mb-2">Example Instructions:</h5>
-                            <ul className="text-sm text-gray-600 space-y-1">
+                        <div className="rounded-lg bg-gray-50 p-4">
+                            <h5 className="mb-2 font-medium text-gray-900">Example Instructions:</h5>
+                            <ul className="space-y-1 text-sm text-gray-600">
                                 <li>• "Apartment 4B, use buzzer code #1234"</li>
                                 <li>• "Leave with concierge in main lobby"</li>
                                 <li>• "Ring doorbell twice, dog may bark"</li>
@@ -261,31 +223,22 @@ export default function DeliveryInstructions({
                         </div>
 
                         {/* Action Buttons - Mobile Optimized */}
-                        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
-                            <Button
-                                onClick={handleSave}
-                                disabled={isSaving}
-                                className="flex-1 sm:flex-none"
-                            >
+                        <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row">
+                            <Button onClick={handleSave} disabled={isSaving} className="flex-1 sm:flex-none">
                                 {isSaving ? (
                                     <>
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
                                         Saving...
                                     </>
                                 ) : (
                                     <>
-                                        <Save className="h-4 w-4 mr-2" />
+                                        <Save className="mr-2 h-4 w-4" />
                                         Save Instructions
                                     </>
                                 )}
                             </Button>
-                            <Button
-                                variant="outline"
-                                onClick={handleCancel}
-                                disabled={isSaving}
-                                className="flex-1 sm:flex-none"
-                            >
-                                <X className="h-4 w-4 mr-2" />
+                            <Button variant="outline" onClick={handleCancel} disabled={isSaving} className="flex-1 sm:flex-none">
+                                <X className="mr-2 h-4 w-4" />
                                 Cancel
                             </Button>
                         </div>
@@ -293,12 +246,12 @@ export default function DeliveryInstructions({
                 )}
 
                 {/* Security Notice */}
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
                     <div className="flex items-start gap-2">
-                        <Shield className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+                        <Shield className="mt-0.5 h-4 w-4 flex-shrink-0 text-yellow-600" />
                         <div className="text-sm">
                             <p className="font-medium text-yellow-800">Security Notice</p>
-                            <p className="text-yellow-700 mt-1">
+                            <p className="mt-1 text-yellow-700">
                                 Never include sensitive information like passwords, PINs, or security codes in delivery instructions.
                             </p>
                         </div>

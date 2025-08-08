@@ -1,24 +1,12 @@
-import React, { useState } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { 
-    ArrowLeft,
-    Clock,
-    CheckCircle,
-    MessageSquare,
-    User,
-    Calendar,
-    Tag,
-    AlertTriangle,
-    Star,
-    Send
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import AppLayout from '@/layouts/app-layout';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ArrowLeft, Calendar, CheckCircle, Clock, MessageSquare, Send, Star, Tag, User } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface Customer {
     id: number;
@@ -71,12 +59,17 @@ interface Props {
 export default function SupportShow({ customer, ticket }: Props) {
     const [showSatisfactionForm, setShowSatisfactionForm] = useState(false);
     const [rating, setRating] = useState(0);
-    
+
     const { data, setData, post, processing } = useForm({
         message: '',
     });
 
-    const { data: satisfactionData, setData: setSatisfactionData, post: postSatisfaction, processing: processingSatisfaction } = useForm({
+    const {
+        data: satisfactionData,
+        setData: setSatisfactionData,
+        post: postSatisfaction,
+        processing: processingSatisfaction,
+    } = useForm({
         rating: 0,
         feedback: '',
     });
@@ -86,7 +79,7 @@ export default function SupportShow({ customer, ticket }: Props) {
         post(`/customer/support/${ticket.id}/reply`, {
             onSuccess: () => {
                 setData('message', '');
-            }
+            },
         });
     };
 
@@ -95,7 +88,7 @@ export default function SupportShow({ customer, ticket }: Props) {
         postSatisfaction(`/customer/support/${ticket.id}/satisfaction`, {
             onSuccess: () => {
                 setShowSatisfactionForm(false);
-            }
+            },
         });
     };
 
@@ -128,11 +121,7 @@ export default function SupportShow({ customer, ticket }: Props) {
 
         const config = priorityConfig[priority as keyof typeof priorityConfig] || priorityConfig.low;
 
-        return (
-            <Badge className={config.className}>
-                {config.label}
-            </Badge>
-        );
+        return <Badge className={config.className}>{config.label}</Badge>;
     };
 
     const formatDate = (dateString: string) => {
@@ -141,7 +130,7 @@ export default function SupportShow({ customer, ticket }: Props) {
             month: 'short',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
         });
     };
 
@@ -152,9 +141,7 @@ export default function SupportShow({ customer, ticket }: Props) {
                     <Star
                         key={star}
                         className={`h-5 w-5 ${
-                            star <= currentRating 
-                                ? 'text-yellow-400 fill-current' 
-                                : 'text-gray-300'
+                            star <= currentRating ? 'fill-current text-yellow-400' : 'text-gray-300'
                         } ${interactive ? 'cursor-pointer hover:text-yellow-400' : ''}`}
                         onClick={interactive ? () => setSatisfactionData('rating', star) : undefined}
                     />
@@ -166,21 +153,19 @@ export default function SupportShow({ customer, ticket }: Props) {
     return (
         <AppLayout>
             <Head title={`Ticket ${ticket.ticket_number}`} />
-            
+
             <div className="space-y-6 px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="flex items-center gap-4">
                     <Button variant="outline" size="sm" asChild>
                         <Link href="/customer/support">
-                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            <ArrowLeft className="mr-2 h-4 w-4" />
                             Back to Support
                         </Link>
                     </Button>
                     <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-1">
-                            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                                {ticket.ticket_number}
-                            </h1>
+                        <div className="mb-1 flex items-center gap-3">
+                            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{ticket.ticket_number}</h1>
                             {getStatusBadge(ticket.status)}
                             {getPriorityBadge(ticket.priority)}
                         </div>
@@ -188,9 +173,9 @@ export default function SupportShow({ customer, ticket }: Props) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className="space-y-6 lg:col-span-2">
                         {/* Original Message */}
                         <Card>
                             <CardHeader>
@@ -228,9 +213,7 @@ export default function SupportShow({ customer, ticket }: Props) {
                                         </Avatar>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2">
-                                                <span className="font-medium">
-                                                    {reply.user ? reply.user.name : reply.customer?.name}
-                                                </span>
+                                                <span className="font-medium">{reply.user ? reply.user.name : reply.customer?.name}</span>
                                                 <Badge variant={reply.user ? 'default' : 'outline'}>
                                                     {reply.user ? 'Support Agent' : 'Customer'}
                                                 </Badge>
@@ -252,9 +235,7 @@ export default function SupportShow({ customer, ticket }: Props) {
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Add Reply</CardTitle>
-                                    <CardDescription>
-                                        Continue the conversation with our support team
-                                    </CardDescription>
+                                    <CardDescription>Continue the conversation with our support team</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <form onSubmit={handleReply} className="space-y-4">
@@ -266,7 +247,7 @@ export default function SupportShow({ customer, ticket }: Props) {
                                             required
                                         />
                                         <Button type="submit" disabled={processing}>
-                                            <Send className="h-4 w-4 mr-2" />
+                                            <Send className="mr-2 h-4 w-4" />
                                             {processing ? 'Sending...' : 'Send Reply'}
                                         </Button>
                                     </form>
@@ -279,22 +260,18 @@ export default function SupportShow({ customer, ticket }: Props) {
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Rate Your Experience</CardTitle>
-                                    <CardDescription>
-                                        Help us improve by rating the support you received
-                                    </CardDescription>
+                                    <CardDescription>Help us improve by rating the support you received</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     {!showSatisfactionForm ? (
                                         <Button onClick={() => setShowSatisfactionForm(true)}>
-                                            <Star className="h-4 w-4 mr-2" />
+                                            <Star className="mr-2 h-4 w-4" />
                                             Rate Support
                                         </Button>
                                     ) : (
                                         <form onSubmit={handleSatisfactionSubmit} className="space-y-4">
                                             <div>
-                                                <label className="block text-sm font-medium mb-2">
-                                                    How satisfied are you with the support?
-                                                </label>
+                                                <label className="mb-2 block text-sm font-medium">How satisfied are you with the support?</label>
                                                 {renderStars(satisfactionData.rating, true)}
                                             </div>
                                             <Textarea
@@ -307,11 +284,7 @@ export default function SupportShow({ customer, ticket }: Props) {
                                                 <Button type="submit" disabled={processingSatisfaction || satisfactionData.rating === 0}>
                                                     {processingSatisfaction ? 'Submitting...' : 'Submit Rating'}
                                                 </Button>
-                                                <Button 
-                                                    type="button" 
-                                                    variant="outline" 
-                                                    onClick={() => setShowSatisfactionForm(false)}
-                                                >
+                                                <Button type="button" variant="outline" onClick={() => setShowSatisfactionForm(false)}>
                                                     Cancel
                                                 </Button>
                                             </div>
@@ -331,9 +304,7 @@ export default function SupportShow({ customer, ticket }: Props) {
                                     <div className="space-y-2">
                                         {renderStars(ticket.satisfaction_rating)}
                                         {ticket.satisfaction_feedback && (
-                                            <p className="text-sm text-gray-600 italic">
-                                                "{ticket.satisfaction_feedback}"
-                                            </p>
+                                            <p className="text-sm text-gray-600 italic">"{ticket.satisfaction_feedback}"</p>
                                         )}
                                     </div>
                                 </CardContent>
@@ -356,7 +327,7 @@ export default function SupportShow({ customer, ticket }: Props) {
                                         <p className="text-sm text-gray-600">{formatDate(ticket.created_at)}</p>
                                     </div>
                                 </div>
-                                
+
                                 <div className="flex items-center gap-2">
                                     <Tag className="h-4 w-4 text-gray-500" />
                                     <div>
@@ -394,9 +365,7 @@ export default function SupportShow({ customer, ticket }: Props) {
                             </CardHeader>
                             <CardContent className="space-y-3">
                                 <Button variant="outline" className="w-full justify-start" asChild>
-                                    <Link href="/customer/support/create">
-                                        Create New Ticket
-                                    </Link>
+                                    <Link href="/customer/support/create">Create New Ticket</Link>
                                 </Button>
                             </CardContent>
                         </Card>

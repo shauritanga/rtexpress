@@ -1,27 +1,15 @@
-import { Head } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
 import RealTimeTracker from '@/components/customer/tracking/RealTimeTracker';
-import TrackingTimeline from '@/components/customer/tracking/TrackingTimeline';
 import TrackingMap from '@/components/customer/tracking/TrackingMap';
+import TrackingTimeline from '@/components/customer/tracking/TrackingTimeline';
 import { BarcodeScanner } from '@/components/ui/barcode-scanner';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarcodeScanResult } from '@/hooks/useBarcodeScanner';
-import { router } from '@inertiajs/react';
-import {
-    MapPin,
-    ArrowLeft,
-    Share,
-    Bell,
-    Download,
-    Clock,
-    Truck,
-    Package,
-    Scan,
-    Search
-} from 'lucide-react';
+import AppLayout from '@/layouts/app-layout';
+import { Head, router } from '@inertiajs/react';
+import { ArrowLeft, Bell, Clock, Download, MapPin, Package, Scan, Search, Share, Truck } from 'lucide-react';
+import { useState } from 'react';
 
 interface TrackingEvent {
     id: string;
@@ -96,13 +84,13 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
             <AppLayout customer={customer}>
                 <Head title="Track Shipment" />
                 <div className="container mx-auto px-4 py-8">
-                    <div className="text-center mb-8">
-                        <h1 className="text-2xl font-bold text-gray-900 mb-4">Package Tracking</h1>
+                    <div className="mb-8 text-center">
+                        <h1 className="mb-4 text-2xl font-bold text-gray-900">Package Tracking</h1>
                         <p className="text-gray-600">Search for your shipment using tracking number or scan barcode.</p>
                     </div>
 
                     {/* Tracking Methods Tabs */}
-                    <div className="max-w-4xl mx-auto">
+                    <div className="mx-auto max-w-4xl">
                         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                             <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="search" className="flex items-center gap-2">
@@ -166,55 +154,53 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
     return (
         <AppLayout>
             <Head title="Track Shipment" />
-            
-            <div className="space-y-4 sm:space-y-6 px-4 sm:px-6 lg:px-8">
+
+            <div className="space-y-4 px-4 sm:space-y-6 sm:px-6 lg:px-8">
                 {/* Header - Mobile Optimized */}
-                <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6">
+                <div className="rounded-lg border bg-white p-4 shadow-sm sm:p-6">
                     <div className="flex flex-col space-y-4">
                         <div className="flex items-center justify-between">
                             <Button variant="ghost" size="sm" onClick={() => window.history.back()}>
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back
                             </Button>
-                            
+
                             {/* Action Buttons - Mobile Responsive */}
                             <div className="flex gap-2">
                                 <Button variant="outline" size="sm" onClick={handleShare} className="p-2 sm:px-3">
                                     <Share className="h-4 w-4" />
-                                    <span className="hidden sm:inline ml-2">Share</span>
+                                    <span className="ml-2 hidden sm:inline">Share</span>
                                 </Button>
                                 <Button variant="outline" size="sm" onClick={handleNotificationToggle} className="p-2 sm:px-3">
                                     <Bell className="h-4 w-4" />
-                                    <span className="hidden sm:inline ml-2">Alerts</span>
+                                    <span className="ml-2 hidden sm:inline">Alerts</span>
                                 </Button>
                                 <Button variant="outline" size="sm" onClick={handleDownloadReport} className="p-2 sm:px-3">
                                     <Download className="h-4 w-4" />
-                                    <span className="hidden sm:inline ml-2">Report</span>
+                                    <span className="ml-2 hidden sm:inline">Report</span>
                                 </Button>
                             </div>
                         </div>
-                        
+
                         <div>
-                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center">
-                                <Package className="h-6 w-6 sm:h-8 sm:w-8 mr-3 text-blue-600" />
+                            <h1 className="flex items-center text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
+                                <Package className="mr-3 h-6 w-6 text-blue-600 sm:h-8 sm:w-8" />
                                 Real-time Tracking
                             </h1>
-                            <p className="text-sm sm:text-base text-gray-600 mt-1">
-                                {customer.company_name} • Live shipment monitoring and updates
-                            </p>
+                            <p className="mt-1 text-sm text-gray-600 sm:text-base">{customer.company_name} • Live shipment monitoring and updates</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Quick Stats - Mobile First Grid */}
-                <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                     <Card>
                         <CardContent className="pt-4 sm:pt-6">
                             <div className="flex items-center space-x-2">
-                                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
+                                <Clock className="h-4 w-4 text-blue-600 sm:h-5 sm:w-5" />
                                 <div className="min-w-0">
-                                    <p className="text-xs sm:text-sm font-medium text-gray-600">ETA</p>
-                                    <p className="text-sm sm:text-lg font-bold text-gray-900 truncate">
+                                    <p className="text-xs font-medium text-gray-600 sm:text-sm">ETA</p>
+                                    <p className="truncate text-sm font-bold text-gray-900 sm:text-lg">
                                         {new Date(realTrackingData.estimated_delivery).toLocaleDateString()}
                                     </p>
                                 </div>
@@ -225,10 +211,10 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                     <Card>
                         <CardContent className="pt-4 sm:pt-6">
                             <div className="flex items-center space-x-2">
-                                <Truck className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+                                <Truck className="h-4 w-4 text-green-600 sm:h-5 sm:w-5" />
                                 <div className="min-w-0">
-                                    <p className="text-xs sm:text-sm font-medium text-gray-600">Status</p>
-                                    <p className="text-sm sm:text-lg font-bold text-gray-900 capitalize truncate">
+                                    <p className="text-xs font-medium text-gray-600 sm:text-sm">Status</p>
+                                    <p className="truncate text-sm font-bold text-gray-900 capitalize sm:text-lg">
                                         {realTrackingData.current_status.replace('_', ' ')}
                                     </p>
                                 </div>
@@ -239,10 +225,10 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                     <Card>
                         <CardContent className="pt-4 sm:pt-6">
                             <div className="flex items-center space-x-2">
-                                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
+                                <MapPin className="h-4 w-4 text-purple-600 sm:h-5 sm:w-5" />
                                 <div className="min-w-0">
-                                    <p className="text-xs sm:text-sm font-medium text-gray-600">Location</p>
-                                    <p className="text-sm sm:text-lg font-bold text-gray-900 truncate">
+                                    <p className="text-xs font-medium text-gray-600 sm:text-sm">Location</p>
+                                    <p className="truncate text-sm font-bold text-gray-900 sm:text-lg">
                                         {realTrackingData.current_location?.address || 'Location updating...'}
                                     </p>
                                 </div>
@@ -253,12 +239,10 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                     <Card>
                         <CardContent className="pt-4 sm:pt-6">
                             <div className="flex items-center space-x-2">
-                                <Package className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600" />
+                                <Package className="h-4 w-4 text-orange-600 sm:h-5 sm:w-5" />
                                 <div className="min-w-0">
-                                    <p className="text-xs sm:text-sm font-medium text-gray-600">Events</p>
-                                    <p className="text-sm sm:text-lg font-bold text-gray-900">
-                                        {realTrackingData.events.length}
-                                    </p>
+                                    <p className="text-xs font-medium text-gray-600 sm:text-sm">Events</p>
+                                    <p className="text-sm font-bold text-gray-900 sm:text-lg">{realTrackingData.events.length}</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -266,7 +250,7 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                 </div>
 
                 {/* Main Tracking Interface */}
-                <RealTimeTracker 
+                <RealTimeTracker
                     trackingNumber={trackingNumber}
                     className="lg:hidden" // Show on mobile/tablet only
                 />
@@ -281,7 +265,7 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                         </TabsList>
 
                         <TabsContent value="overview" className="space-y-6">
-                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
                                 <RealTimeTracker trackingNumber={trackingNumber} />
                                 <TrackingMap
                                     currentLocation={realTrackingData.current_location}
@@ -289,10 +273,7 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                                     height="h-96"
                                 />
                             </div>
-                            <TrackingTimeline
-                                events={realTrackingData.events}
-                                currentStatus={realTrackingData.current_status}
-                            />
+                            <TrackingTimeline events={realTrackingData.events} currentStatus={realTrackingData.current_status} />
                         </TabsContent>
 
                         <TabsContent value="map">
@@ -304,25 +285,15 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
                         </TabsContent>
 
                         <TabsContent value="timeline">
-                            <TrackingTimeline
-                                events={realTrackingData.events}
-                                currentStatus={realTrackingData.current_status}
-                            />
+                            <TrackingTimeline events={realTrackingData.events} currentStatus={realTrackingData.current_status} />
                         </TabsContent>
                     </Tabs>
                 </div>
 
                 {/* Mobile Layout - Stacked Components */}
-                <div className="lg:hidden space-y-4">
-                    <TrackingMap
-                        currentLocation={realTrackingData.current_location}
-                        destination={realTrackingData.destination}
-                        height="h-64"
-                    />
-                    <TrackingTimeline
-                        events={realTrackingData.events}
-                        currentStatus={realTrackingData.current_status}
-                    />
+                <div className="space-y-4 lg:hidden">
+                    <TrackingMap currentLocation={realTrackingData.current_location} destination={realTrackingData.destination} height="h-64" />
+                    <TrackingTimeline events={realTrackingData.events} currentStatus={realTrackingData.current_status} />
                 </div>
             </div>
         </AppLayout>

@@ -1,23 +1,10 @@
-import React from 'react';
-import { Head, Link } from '@inertiajs/react';
-import MarketingLayout from '@/layouts/marketing-layout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { 
-    Package,
-    MapPin,
-    Clock,
-    Truck,
-    CheckCircle,
-    User,
-    Calendar,
-    ArrowLeft,
-    Share,
-    Download,
-    Bell
-} from 'lucide-react';
+import MarketingLayout from '@/layouts/marketing-layout';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowLeft, Bell, CheckCircle, Clock, Download, MapPin, Package, Share, Truck } from 'lucide-react';
 
 interface TimelineItem {
     title: string;
@@ -86,7 +73,7 @@ export default function TrackingResult({ shipment, timeline, progress, recentSea
             case 'pending':
                 return 'Pending Pickup';
             default:
-                return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+                return status.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase());
         }
     };
 
@@ -109,65 +96,59 @@ export default function TrackingResult({ shipment, timeline, progress, recentSea
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
         });
     };
 
     return (
         <MarketingLayout>
             <Head title={`Track ${shipment.tracking_number} - RT Express`} />
-            
+
             <div className="min-h-screen bg-gray-50 py-12">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
                     {/* Header */}
                     <div className="mb-8">
                         <Button variant="ghost" className="mb-4" asChild>
                             <Link href="/track">
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Tracking
                             </Link>
                         </Button>
-                        
+
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                                    Tracking: {shipment.tracking_number}
-                                </h1>
+                                <h1 className="mb-2 text-3xl font-bold text-gray-900">Tracking: {shipment.tracking_number}</h1>
                                 <div className="flex items-center space-x-4">
-                                    <Badge className={getStatusColor(shipment.status)}>
-                                        {getStatusText(shipment.status)}
-                                    </Badge>
-                                    <span className="text-sm text-gray-500 capitalize">
-                                        {shipment.service_type} Service
-                                    </span>
+                                    <Badge className={getStatusColor(shipment.status)}>{getStatusText(shipment.status)}</Badge>
+                                    <span className="text-sm text-gray-500 capitalize">{shipment.service_type} Service</span>
                                 </div>
                             </div>
-                            
-                            <div className="flex space-x-2 mt-4 sm:mt-0">
+
+                            <div className="mt-4 flex space-x-2 sm:mt-0">
                                 <Button variant="outline" size="sm">
-                                    <Share className="h-4 w-4 mr-2" />
+                                    <Share className="mr-2 h-4 w-4" />
                                     Share
                                 </Button>
                                 <Button variant="outline" size="sm">
-                                    <Download className="h-4 w-4 mr-2" />
+                                    <Download className="mr-2 h-4 w-4" />
                                     Download
                                 </Button>
                                 <Button variant="outline" size="sm">
-                                    <Bell className="h-4 w-4 mr-2" />
+                                    <Bell className="mr-2 h-4 w-4" />
                                     Notify
                                 </Button>
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                         {/* Main Tracking Info */}
-                        <div className="lg:col-span-2 space-y-6">
+                        <div className="space-y-6 lg:col-span-2">
                             {/* Progress */}
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center">
-                                        <Package className="h-5 w-5 mr-2" />
+                                        <Package className="mr-2 h-5 w-5" />
                                         Delivery Progress
                                     </CardTitle>
                                 </CardHeader>
@@ -196,7 +177,7 @@ export default function TrackingResult({ shipment, timeline, progress, recentSea
                             <Card>
                                 <CardHeader>
                                     <CardTitle className="flex items-center">
-                                        <Clock className="h-5 w-5 mr-2" />
+                                        <Clock className="mr-2 h-5 w-5" />
                                         Tracking Timeline
                                     </CardTitle>
                                 </CardHeader>
@@ -205,32 +186,24 @@ export default function TrackingResult({ shipment, timeline, progress, recentSea
                                         {timeline.map((item, index) => {
                                             const Icon = getIcon(item.icon);
                                             const isCompleted = item.status === 'completed';
-                                            
+
                                             return (
                                                 <div key={index} className="flex items-start space-x-4">
-                                                    <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                                                        isCompleted 
-                                                            ? 'bg-green-100 text-green-600' 
-                                                            : 'bg-gray-100 text-gray-400'
-                                                    }`}>
+                                                    <div
+                                                        className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                                                            isCompleted ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'
+                                                        }`}
+                                                    >
                                                         <Icon className="h-5 w-5" />
                                                     </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className={`font-medium ${
-                                                            isCompleted ? 'text-gray-900' : 'text-gray-500'
-                                                        }`}>
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className={`font-medium ${isCompleted ? 'text-gray-900' : 'text-gray-500'}`}>
                                                             {item.title}
                                                         </div>
-                                                        <div className={`text-sm ${
-                                                            isCompleted ? 'text-gray-600' : 'text-gray-400'
-                                                        }`}>
+                                                        <div className={`text-sm ${isCompleted ? 'text-gray-600' : 'text-gray-400'}`}>
                                                             {item.description}
                                                         </div>
-                                                        {item.date && (
-                                                            <div className="text-xs text-gray-500 mt-1">
-                                                                {formatDate(item.date)}
-                                                            </div>
-                                                        )}
+                                                        {item.date && <div className="mt-1 text-xs text-gray-500">{formatDate(item.date)}</div>}
                                                     </div>
                                                 </div>
                                             );
@@ -257,13 +230,11 @@ export default function TrackingResult({ shipment, timeline, progress, recentSea
                                             </div>
                                         )}
                                     </div>
-                                    
+
                                     <div>
                                         <div className="text-sm font-medium text-gray-500">To</div>
                                         <div className="text-sm">{shipment.recipient_name}</div>
-                                        <div className="text-xs text-gray-500">
-                                            {shipment.recipient_address}
-                                        </div>
+                                        <div className="text-xs text-gray-500">{shipment.recipient_address}</div>
                                     </div>
 
                                     <div>
@@ -307,9 +278,7 @@ export default function TrackingResult({ shipment, timeline, progress, recentSea
                                 </CardHeader>
                                 <CardContent className="space-y-3">
                                     <Button variant="outline" className="w-full justify-start" asChild>
-                                        <Link href="/contact">
-                                            Contact Support
-                                        </Link>
+                                        <Link href="/contact">Contact Support</Link>
                                     </Button>
                                     <Button variant="outline" className="w-full justify-start">
                                         Report Issue
