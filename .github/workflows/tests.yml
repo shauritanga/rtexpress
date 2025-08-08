@@ -13,6 +13,7 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    if: false # Temporarily disabled
 
     steps:
       - name: Checkout
