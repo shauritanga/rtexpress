@@ -5,15 +5,20 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\ShipmentController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\WarehouseController;
+use App\Http\Controllers\MarketingController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Main route redirects to login
-Route::get('/', function () {
-    return redirect()->route('login');
-})->name('home');
+// Marketing landing page
+Route::get('/', [MarketingController::class, 'landing'])->name('home');
+Route::get('/marketing', [MarketingController::class, 'landing'])->name('marketing.landing');
+
+// Marketing functionality
+Route::post('/marketing/shipment-request', [MarketingController::class, 'shipmentRequest'])->name('marketing.shipment.request');
+Route::post('/marketing/track', [MarketingController::class, 'track'])->name('marketing.track');
+Route::post('/marketing/contact', [MarketingController::class, 'marketingContact'])->name('marketing.contact');
 
 
 

@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Shipment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -248,5 +251,173 @@ class MarketingController extends Controller
         // Mail::to('contact@rtexpress.com')->send(new ContactFormMail($validated));
 
         return redirect()->back()->with('success', 'Thank you for your message! We will get back to you within 24 hours.');
+    }
+
+    /**
+     * Show the marketing landing page (Blade version)
+     */
+    public function landing()
+    {
+        return view('marketing.landing');
+    }
+
+    /**
+     * Handle shipment request from marketing page
+     */
+    public function shipmentRequest(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'item_description' => 'required|string|max:1000',
+            'pickup_location' => 'required|string|max:255',
+            'delivery_location' => 'required|string|max:255',
+            'additional_notes' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $data = $validator->validated();
+
+        try {
+            // Send email to admin
+            $this->sendShipmentRequestEmail($data);
+
+            Log::info('Marketing shipment request submitted', [
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'pickup_location' => $data['pickup_location'],
+                'delivery_location' => $data['delivery_location'],
+            ]);
+
+            return back()->with('success',
+                'Thank you! Your shipment request has been submitted. We will contact you shortly with a quote.');
+
+        } catch (\Exception $e) {
+            Log::error('Failed to send marketing shipment request email', [
+                'error' => $e->getMessage(),
+                'data' => $data,
+            ]);
+
+            return back()
+                ->withErrors(['email' => 'Failed to submit request. Please try again or contact us directly.'])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Handle tracking request from marketing page
+     */
+    public function track(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'tracking_number' => 'required|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $trackingNumber = $request->tracking_number;
+
+        // Find shipment by tracking number
+        $shipment = Shipment::where('tracking_number', $trackingNumber)->first();
+
+        if (!$shipment) {
+            return back()
+                ->withErrors(['tracking_number' => 'Tracking number not found. Please check and try again.'])
+                ->withInput();
+        }
+
+        // Redirect to tracking results page
+        return view('marketing.tracking-result', compact('shipment'));
+    }
+
+    /**
+     * Handle marketing contact form submission
+     */
+    public function marketingContact(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string|max:2000',
+        ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $data = $validator->validated();
+
+        try {
+            // Send email to admin
+            $this->sendContactEmail($data);
+
+            Log::info('Contact form submitted', [
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'subject' => $data['subject'],
+            ]);
+
+            return back()->with('success',
+                'Thank you for your message! We will get back to you within 24 hours.');
+
+        } catch (\Exception $e) {
+            Log::error('Failed to send contact form email', [
+                'error' => $e->getMessage(),
+                'data' => $data,
+            ]);
+
+            return back()
+                ->withErrors(['email' => 'Failed to send message. Please try again or contact us directly.'])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Send shipment request email to admin
+     */
+    private function sendShipmentRequestEmail(array $data)
+    {
+        $adminEmail = 'admin@rtexpress.co.tz';
+        $subject = 'New Shipment Request from Website';
+
+        $emailContent = view('emails.marketing.shipment-request', compact('data'))->render();
+
+        Mail::send([], [], function ($message) use ($adminEmail, $subject, $emailContent) {
+            $message->to($adminEmail)
+                    ->subject($subject)
+                    ->html($emailContent);
+        });
+    }
+
+    /**
+     * Send contact form email to admin
+     */
+    private function sendContactEmail(array $data)
+    {
+        $adminEmail = 'admin@rtexpress.co.tz';
+        $subject = 'New Contact Form Message: ' . $data['subject'];
+
+        $emailContent = view('emails.marketing.contact-form', compact('data'))->render();
+
+        Mail::send([], [], function ($message) use ($adminEmail, $subject, $emailContent) {
+            $message->to($adminEmail)
+                    ->subject($subject)
+                    ->html($emailContent);
+        });
     }
 }
