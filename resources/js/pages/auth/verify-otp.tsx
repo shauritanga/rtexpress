@@ -10,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import TextLink from '@/components/text-link';
 import ParticleBackground from '@/components/ParticleBackground';
+import AppLogoIcon from '@/components/app-logo-icon';
 
 interface VerifyOtpProps {
     user: {
@@ -102,8 +103,8 @@ export default function VerifyOtp({ user, canResend, cooldownSeconds, status }: 
                 <div className="max-w-md mx-auto w-full">
                     {/* Header */}
                     <div className="text-center mb-8">
-                        <div className="mx-auto h-16 w-16 bg-gradient-to-br from-green-600 to-blue-700 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                            <Shield className="h-8 w-8 text-white" />
+                        <div className="mx-auto h-16 w-16 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-lg border">
+                            <AppLogoIcon className="h-10 w-10 rounded-lg" />
                         </div>
                         <h2 className="text-3xl font-bold text-gray-900 mb-2">Enter Verification Code</h2>
                         <p className="text-gray-600">Two-factor authentication</p>
