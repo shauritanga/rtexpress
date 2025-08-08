@@ -72,9 +72,19 @@ class OtpService
         try {
             $expirationMinutes = config('otp.expiration_minutes', 5);
 
+            // Log mail configuration for debugging
+            Log::info('Attempting to send OTP email', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'type' => $type,
+                'mail_driver' => config('mail.default'),
+                'mail_host' => config('mail.mailers.smtp.host'),
+                'mail_from' => config('mail.from.address'),
+            ]);
+
             $user->notify(new OtpCodeNotification($otpCode, $type, $expirationMinutes));
 
-            Log::info('OTP email sent', [
+            Log::info('OTP email sent successfully', [
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'type' => $type,
@@ -85,7 +95,10 @@ class OtpService
             Log::error('OTP email sending failed', [
                 'user_id' => $user->id,
                 'email' => $user->email,
-                'error' => $e->getMessage()
+                'type' => $type,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'mail_driver' => config('mail.default'),
             ]);
             return false;
         }
