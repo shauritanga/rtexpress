@@ -1,4 +1,5 @@
 import '../css/app.css';
+import './particles'; // Import particles for marketing pages
 
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
