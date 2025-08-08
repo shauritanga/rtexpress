@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Shipment;
 use App\Models\TrackingEvent;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
-use Carbon\Carbon;
 
 class ScannerController extends Controller
 {
@@ -43,8 +43,8 @@ class ScannerController extends Controller
                 $customerId = Auth::user()->customer->id;
                 $query->where(function ($q) use ($customerId) {
                     $q->where('sender_id', $customerId)
-                      ->orWhere('recipient_id', $customerId)
-                      ->orWhere('is_public_tracking', true);
+                        ->orWhere('recipient_id', $customerId)
+                        ->orWhere('is_public_tracking', true);
                 });
             } else {
                 // For non-authenticated users, only allow public tracking
@@ -53,10 +53,10 @@ class ScannerController extends Controller
 
             $shipment = $query->first();
 
-            if (!$shipment) {
+            if (! $shipment) {
                 return response()->json([
                     'error' => 'Package not found',
-                    'message' => "No package found with tracking number: {$trackingNumber}. Please check the number and try again."
+                    'message' => "No package found with tracking number: {$trackingNumber}. Please check the number and try again.",
                 ], 404);
             }
 
@@ -88,10 +88,10 @@ class ScannerController extends Controller
                 'recipient_name' => $shipment->recipient->name ?? $shipment->recipient_name,
                 'origin' => $shipment->origin_warehouse->name ?? $shipment->origin_address,
                 'destination' => $shipment->destination_warehouse->name ?? $shipment->destination_address,
-                'estimated_delivery' => $shipment->estimated_delivery_date 
+                'estimated_delivery' => $shipment->estimated_delivery_date
                     ? Carbon::parse($shipment->estimated_delivery_date)->format('M d, Y')
                     : 'Not specified',
-                'actual_delivery' => $shipment->actual_delivery_date 
+                'actual_delivery' => $shipment->actual_delivery_date
                     ? Carbon::parse($shipment->actual_delivery_date)->format('M d, Y g:i A')
                     : null,
                 'current_location' => $currentLocation,
@@ -117,12 +117,12 @@ class ScannerController extends Controller
             Log::error('Customer scanner tracking error', [
                 'tracking_number' => $trackingNumber,
                 'error' => $e->getMessage(),
-                'user_id' => Auth::id()
+                'user_id' => Auth::id(),
             ]);
 
             return response()->json([
                 'error' => 'Tracking failed',
-                'message' => 'An error occurred while tracking your package. Please try again later.'
+                'message' => 'An error occurred while tracking your package. Please try again later.',
             ], 500);
         }
     }
@@ -152,9 +152,9 @@ class ScannerController extends Controller
         try {
             $shipment = Shipment::where('tracking_number', $trackingNumber)->first();
 
-            if (!$shipment) {
+            if (! $shipment) {
                 return response()->json([
-                    'error' => 'Package not found'
+                    'error' => 'Package not found',
                 ], 404);
             }
 
@@ -171,11 +171,11 @@ class ScannerController extends Controller
         } catch (\Exception $e) {
             Log::error('Estimated delivery calculation error', [
                 'tracking_number' => $trackingNumber,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'error' => 'Unable to calculate estimated delivery'
+                'error' => 'Unable to calculate estimated delivery',
             ], 500);
         }
     }
@@ -209,7 +209,7 @@ class ScannerController extends Controller
                 $estimatedDate = $now->addHours(8); // Same day delivery
                 break;
             case 'delivered':
-                $estimatedDate = $shipment->actual_delivery_date 
+                $estimatedDate = $shipment->actual_delivery_date
                     ? Carbon::parse($shipment->actual_delivery_date)
                     : $now;
                 break;
@@ -256,9 +256,9 @@ class ScannerController extends Controller
         try {
             $shipment = Shipment::where('tracking_number', $trackingNumber)->first();
 
-            if (!$shipment) {
+            if (! $shipment) {
                 return response()->json([
-                    'error' => 'Package not found'
+                    'error' => 'Package not found',
                 ], 404);
             }
 
@@ -283,25 +283,25 @@ class ScannerController extends Controller
             Log::info('Delivery issue reported via scanner', [
                 'tracking_number' => $trackingNumber,
                 'issue_type' => $request->issue_type,
-                'user_id' => Auth::id()
+                'user_id' => Auth::id(),
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Issue reported successfully. Our team will investigate and contact you soon.',
-                'reference_number' => 'ISS-' . strtoupper(substr(md5($trackingNumber . time()), 0, 8))
+                'reference_number' => 'ISS-'.strtoupper(substr(md5($trackingNumber.time()), 0, 8)),
             ]);
 
         } catch (\Exception $e) {
             Log::error('Issue report error', [
                 'tracking_number' => $trackingNumber,
                 'error' => $e->getMessage(),
-                'user_id' => Auth::id()
+                'user_id' => Auth::id(),
             ]);
 
             return response()->json([
                 'error' => 'Failed to report issue',
-                'message' => 'An error occurred while reporting the issue. Please try again.'
+                'message' => 'An error occurred while reporting the issue. Please try again.',
             ], 500);
         }
     }

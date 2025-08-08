@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
-use App\Models\Shipment;
 use App\Models\CustomsRegulation;
+use App\Models\Shipment;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class CustomsController extends Controller
 {
@@ -22,7 +22,7 @@ class CustomsController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return redirect()->route('customer.dashboard')
                 ->with('error', 'Customer account required');
         }
@@ -90,7 +90,7 @@ class CustomsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to calculate duty and tax: ' . $e->getMessage(),
+                'message' => 'Failed to calculate duty and tax: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -124,7 +124,7 @@ class CustomsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to check compliance: ' . $e->getMessage(),
+                'message' => 'Failed to check compliance: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -179,7 +179,7 @@ class CustomsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to save document: ' . $e->getMessage(),
+                'message' => 'Failed to save document: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -207,7 +207,7 @@ class CustomsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate document: ' . $e->getMessage(),
+                'message' => 'Failed to generate document: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -271,14 +271,14 @@ class CustomsController extends Controller
             ->where('is_active', true)
             ->where(function ($query) use ($hsCode) {
                 $query->where('hs_code', $hsCode)
-                      ->orWhere('hs_code', substr($hsCode, 0, 6))
-                      ->orWhere('hs_code', substr($hsCode, 0, 4))
-                      ->orWhere('hs_code', substr($hsCode, 0, 2))
-                      ->orWhereNull('hs_code');
+                    ->orWhere('hs_code', substr($hsCode, 0, 6))
+                    ->orWhere('hs_code', substr($hsCode, 0, 4))
+                    ->orWhere('hs_code', substr($hsCode, 0, 2))
+                    ->orWhereNull('hs_code');
             })
             ->where('regulation_type', 'duty_rate')
             ->orderByRaw('CASE WHEN hs_code = ? THEN 1 WHEN hs_code = ? THEN 2 WHEN hs_code = ? THEN 3 WHEN hs_code = ? THEN 4 ELSE 5 END', [
-                $hsCode, substr($hsCode, 0, 6), substr($hsCode, 0, 4), substr($hsCode, 0, 2)
+                $hsCode, substr($hsCode, 0, 6), substr($hsCode, 0, 4), substr($hsCode, 0, 2),
             ])
             ->first();
 
@@ -294,7 +294,7 @@ class CustomsController extends Controller
 
         // Fallback to default rates if no regulation found
         $defaultRates = [
-            'CA' => 6.5, 'GB' => 4.0, 'AU' => 5.0, 'DE' => 4.7, 'US' => 3.5
+            'CA' => 6.5, 'GB' => 4.0, 'AU' => 5.0, 'DE' => 4.7, 'US' => 3.5,
         ];
 
         return [
@@ -351,7 +351,7 @@ class CustomsController extends Controller
             ->where('is_active', true)
             ->where(function ($query) use ($itemCategory) {
                 $query->whereNull('product_category')
-                      ->orWhere('product_category', $itemCategory);
+                    ->orWhere('product_category', $itemCategory);
             })
             ->get();
 
@@ -374,7 +374,7 @@ class CustomsController extends Controller
             // Check for restrictions
             if ($regulation->regulation_type === 'restriction') {
                 $restrictions = $regulation->restrictions ?? [];
-                if (!empty($restrictions)) {
+                if (! empty($restrictions)) {
                     $issues[] = [
                         'type' => 'restricted',
                         'severity' => 'medium',
@@ -391,7 +391,7 @@ class CustomsController extends Controller
 
             // Check if permits are required
             if ($regulation->requires_permit) {
-                $additionalRequirements[] = 'Permit from ' . ($regulation->permit_authority ?? 'relevant authority');
+                $additionalRequirements[] = 'Permit from '.($regulation->permit_authority ?? 'relevant authority');
             }
         }
 
@@ -403,7 +403,7 @@ class CustomsController extends Controller
 
         // Determine status
         $status = 'compliant';
-        if (count(array_filter($issues, fn($issue) => $issue['severity'] === 'high')) > 0) {
+        if (count(array_filter($issues, fn ($issue) => $issue['severity'] === 'high')) > 0) {
             $status = 'violation';
         } elseif (count($issues) > 0) {
             $status = 'warning';
@@ -437,7 +437,9 @@ class CustomsController extends Controller
      */
     private function extractCountryFromAddress(?string $address): ?string
     {
-        if (!$address) return null;
+        if (! $address) {
+            return null;
+        }
 
         // Simple country extraction - in real app, would use proper address parsing
         $countryCodes = [
@@ -467,8 +469,8 @@ class CustomsController extends Controller
             Storage::makeDirectory('public/customs');
 
             // Generate filename
-            $filename = $documentType . '_' . time() . '_' . uniqid() . '.pdf';
-            $filePath = 'public/customs/' . $filename;
+            $filename = $documentType.'_'.time().'_'.uniqid().'.pdf';
+            $filePath = 'public/customs/'.$filename;
 
             // Generate PDF content based on document type
             $html = $this->generateDocumentHTML($documentType, $documentData);
@@ -484,7 +486,7 @@ class CustomsController extends Controller
             return Storage::url($filePath);
 
         } catch (\Exception $e) {
-            \Log::error('PDF generation failed: ' . $e->getMessage(), [
+            \Log::error('PDF generation failed: '.$e->getMessage(), [
                 'document_type' => $documentType,
                 'document_data' => $documentData,
             ]);
@@ -547,25 +549,25 @@ class CustomsController extends Controller
 
             <div class="company-info">
                 <strong>Exporter:</strong><br>
-                ' . ($data['exporterInfo']['name'] ?? $customer->company_name) . '<br>
-                ' . ($data['exporterInfo']['address'] ?? $customer->address) . '<br>
-                Phone: ' . ($data['exporterInfo']['phone'] ?? $customer->phone) . '<br>
-                Email: ' . ($data['exporterInfo']['email'] ?? $customer->email) . '
+                '.($data['exporterInfo']['name'] ?? $customer->company_name).'<br>
+                '.($data['exporterInfo']['address'] ?? $customer->address).'<br>
+                Phone: '.($data['exporterInfo']['phone'] ?? $customer->phone).'<br>
+                Email: '.($data['exporterInfo']['email'] ?? $customer->email).'
             </div>
 
             <div class="company-info">
                 <strong>Importer:</strong><br>
-                ' . ($data['importerInfo']['name'] ?? '') . '<br>
-                ' . ($data['importerInfo']['address'] ?? '') . '<br>
-                Phone: ' . ($data['importerInfo']['phone'] ?? '') . '<br>
-                Email: ' . ($data['importerInfo']['email'] ?? '') . '
+                '.($data['importerInfo']['name'] ?? '').'<br>
+                '.($data['importerInfo']['address'] ?? '').'<br>
+                Phone: '.($data['importerInfo']['phone'] ?? '').'<br>
+                Email: '.($data['importerInfo']['email'] ?? '').'
             </div>
 
             <div class="invoice-details">
-                <strong>Invoice Date:</strong> ' . $date . '<br>
-                <strong>Currency:</strong> ' . ($data['currency'] ?? 'USD') . '<br>
-                <strong>Incoterms:</strong> ' . ($data['incoterms'] ?? 'DDP') . '<br>
-                <strong>Export Reason:</strong> ' . ($data['exportReason'] ?? 'Sale') . '
+                <strong>Invoice Date:</strong> '.$date.'<br>
+                <strong>Currency:</strong> '.($data['currency'] ?? 'USD').'<br>
+                <strong>Incoterms:</strong> '.($data['incoterms'] ?? 'DDP').'<br>
+                <strong>Export Reason:</strong> '.($data['exportReason'] ?? 'Sale').'
             </div>
 
             <table>
@@ -584,12 +586,12 @@ class CustomsController extends Controller
         foreach ($items as $item) {
             $html .= '
                     <tr>
-                        <td>' . ($item['description'] ?? '') . '</td>
-                        <td>' . ($item['hsCode'] ?? '') . '</td>
-                        <td>' . ($item['quantity'] ?? 0) . '</td>
-                        <td>' . number_format($item['unitValue'] ?? 0, 2) . '</td>
-                        <td>' . number_format($item['totalValue'] ?? 0, 2) . '</td>
-                        <td>' . ($item['countryOfOrigin'] ?? '') . '</td>
+                        <td>'.($item['description'] ?? '').'</td>
+                        <td>'.($item['hsCode'] ?? '').'</td>
+                        <td>'.($item['quantity'] ?? 0).'</td>
+                        <td>'.number_format($item['unitValue'] ?? 0, 2).'</td>
+                        <td>'.number_format($item['totalValue'] ?? 0, 2).'</td>
+                        <td>'.($item['countryOfOrigin'] ?? '').'</td>
                     </tr>';
         }
 
@@ -598,7 +600,7 @@ class CustomsController extends Controller
                 <tfoot>
                     <tr class="total">
                         <td colspan="4">TOTAL</td>
-                        <td>' . number_format($totalValue, 2) . '</td>
+                        <td>'.number_format($totalValue, 2).'</td>
                         <td></td>
                     </tr>
                 </tfoot>
@@ -652,7 +654,7 @@ class CustomsController extends Controller
         <html>
         <head>
             <meta charset="utf-8">
-            <title>' . $title . '</title>
+            <title>'.$title.'</title>
             <style>
                 body { font-family: Arial, sans-serif; font-size: 12px; }
                 .header { text-align: center; margin-bottom: 20px; }
@@ -661,12 +663,12 @@ class CustomsController extends Controller
         </head>
         <body>
             <div class="header">
-                <h1>' . strtoupper($title) . '</h1>
-                <p>Date: ' . $date . '</p>
+                <h1>'.strtoupper($title).'</h1>
+                <p>Date: '.$date.'</p>
             </div>
 
             <div class="content">
-                <p>This is a ' . $title . ' document generated for ' . $customer->company_name . '.</p>
+                <p>This is a '.$title.' document generated for '.$customer->company_name.'.</p>
                 <p>Document data has been processed and is available for customs clearance.</p>
             </div>
         </body>

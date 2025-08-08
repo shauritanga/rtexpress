@@ -35,15 +35,15 @@ class TrackingController extends Controller
             ->with(['customer', 'originWarehouse', 'destinationWarehouse'])
             ->first();
 
-        if (!$shipment) {
+        if (! $shipment) {
             return redirect()->back()->withErrors([
-                'tracking_number' => 'Tracking number not found. Please check your tracking number and try again.'
+                'tracking_number' => 'Tracking number not found. Please check your tracking number and try again.',
             ])->withInput();
         }
 
         // Store in recent searches (limit to 5)
         $recentSearches = session('recent_tracking_searches', []);
-        $recentSearches = array_filter($recentSearches, fn($search) => $search !== $trackingNumber);
+        $recentSearches = array_filter($recentSearches, fn ($search) => $search !== $trackingNumber);
         array_unshift($recentSearches, $trackingNumber);
         $recentSearches = array_slice($recentSearches, 0, 5);
         session(['recent_tracking_searches' => $recentSearches]);
@@ -127,7 +127,7 @@ class TrackingController extends Controller
                 'status' => 'completed',
                 'icon' => 'MapPin',
             ];
-        } else if ($shipment->status === 'picked_up') {
+        } elseif ($shipment->status === 'picked_up') {
             $timeline[] = [
                 'title' => 'In Transit',
                 'description' => 'Package will be in transit soon.',
@@ -142,13 +142,13 @@ class TrackingController extends Controller
             $timeline[] = [
                 'title' => 'Out for Delivery',
                 'description' => 'Package is out for delivery and will arrive today.',
-                'date' => $shipment->actual_delivery_date ? 
-                    $shipment->actual_delivery_date->subHours(2) : 
+                'date' => $shipment->actual_delivery_date ?
+                    $shipment->actual_delivery_date->subHours(2) :
                     $shipment->estimated_delivery_date,
                 'status' => 'completed',
                 'icon' => 'Truck',
             ];
-        } else if (in_array($shipment->status, ['picked_up', 'in_transit'])) {
+        } elseif (in_array($shipment->status, ['picked_up', 'in_transit'])) {
             $timeline[] = [
                 'title' => 'Out for Delivery',
                 'description' => 'Package will be out for delivery soon.',

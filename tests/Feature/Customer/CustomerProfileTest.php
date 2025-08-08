@@ -21,9 +21,8 @@ test('customer can view profile page', function () {
     $response = $this->get('/customer/profile');
 
     $response->assertStatus(200);
-    $response->assertInertia(fn ($page) =>
-        $page->has('user')
-             ->has('customer')
+    $response->assertInertia(fn ($page) => $page->has('user')
+        ->has('customer')
     );
 });
 
@@ -38,9 +37,8 @@ test('customer can view profile edit page', function () {
     $response = $this->get('/customer/profile/edit');
 
     $response->assertStatus(200);
-    $response->assertInertia(fn ($page) =>
-        $page->has('user')
-             ->has('customer')
+    $response->assertInertia(fn ($page) => $page->has('user')
+        ->has('customer')
     );
 });
 

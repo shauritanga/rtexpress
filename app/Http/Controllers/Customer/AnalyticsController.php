@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Shipment;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -20,7 +18,7 @@ class AnalyticsController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
@@ -176,8 +174,8 @@ class AnalyticsController extends Controller
         ];
 
         // Add sample data if no real data exists
-        $filteredStatusData = array_values(array_filter($statusData, fn($item) => $item['value'] > 0));
-        $filteredServiceData = array_values(array_filter($serviceData, fn($item) => $item['value'] > 0));
+        $filteredStatusData = array_values(array_filter($statusData, fn ($item) => $item['value'] > 0));
+        $filteredServiceData = array_values(array_filter($serviceData, fn ($item) => $item['value'] > 0));
 
         // If no data, provide sample data for better visualization
         if (empty($filteredStatusData)) {
@@ -390,10 +388,12 @@ class AnalyticsController extends Controller
      */
     private function calculateAverageGrowth($volumeData)
     {
-        if (count($volumeData) < 2) return 0;
+        if (count($volumeData) < 2) {
+            return 0;
+        }
 
         $growthRates = array_column($volumeData, 'growth_rate');
-        $validGrowthRates = array_filter($growthRates, function($rate) {
+        $validGrowthRates = array_filter($growthRates, function ($rate) {
             return $rate !== 0;
         });
 

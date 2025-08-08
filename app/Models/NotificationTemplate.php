@@ -69,12 +69,12 @@ class NotificationTemplate extends Model
      */
     private function renderString(?string $template, array $variables): ?string
     {
-        if (!$template) {
+        if (! $template) {
             return null;
         }
 
         foreach ($variables as $key => $value) {
-            $placeholder = '{{' . $key . '}}';
+            $placeholder = '{{'.$key.'}}';
             $template = str_replace($placeholder, $value, $template);
         }
 
@@ -98,7 +98,7 @@ class NotificationTemplate extends Model
         $missing = [];
 
         foreach ($required as $variable) {
-            if (!isset($variables[$variable])) {
+            if (! isset($variables[$variable])) {
                 $missing[] = $variable;
             }
         }
@@ -111,7 +111,7 @@ class NotificationTemplate extends Model
      */
     public function getRequiredVariables(): array
     {
-        $content = $this->subject . ' ' . $this->content;
+        $content = $this->subject.' '.$this->content;
         preg_match_all('/\{\{([^}]+)\}\}/', $content, $matches);
 
         return array_unique($matches[1] ?? []);
@@ -139,6 +139,7 @@ class NotificationTemplate extends Model
     public function getPreview(): array
     {
         $sampleVariables = $this->getSampleVariables();
+
         return $this->render($sampleVariables);
     }
 
@@ -163,7 +164,7 @@ class NotificationTemplate extends Model
         $result = [];
 
         foreach ($required as $variable) {
-            $result[$variable] = $samples[$variable] ?? '[' . $variable . ']';
+            $result[$variable] = $samples[$variable] ?? '['.$variable.']';
         }
 
         return $result;

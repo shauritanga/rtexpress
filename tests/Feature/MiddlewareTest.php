@@ -20,10 +20,10 @@ test('role middleware allows users with correct role', function () {
     $user->assignRole($role);
 
     $request = Request::create('/test');
-    $request->setUserResolver(fn() => $user);
+    $request->setUserResolver(fn () => $user);
 
-    $middleware = new RoleMiddleware();
-    $response = $middleware->handle($request, fn() => new Response('OK'), 'admin');
+    $middleware = new RoleMiddleware;
+    $response = $middleware->handle($request, fn () => new Response('OK'), 'admin');
 
     expect($response->getContent())->toBe('OK');
 });
@@ -37,11 +37,11 @@ test('role middleware blocks users without correct role', function () {
     ]);
 
     $request = Request::create('/test');
-    $request->setUserResolver(fn() => $user);
+    $request->setUserResolver(fn () => $user);
 
-    $middleware = new RoleMiddleware();
+    $middleware = new RoleMiddleware;
 
-    expect(fn() => $middleware->handle($request, fn() => new Response('OK'), 'admin'))
+    expect(fn () => $middleware->handle($request, fn () => new Response('OK'), 'admin'))
         ->toThrow(\Symfony\Component\HttpKernel\Exception\HttpException::class);
 });
 
@@ -56,15 +56,15 @@ test('role middleware blocks inactive users', function () {
     $user->assignRole($role);
 
     $request = Request::create('/test');
-    $request->setUserResolver(fn() => $user);
+    $request->setUserResolver(fn () => $user);
 
     // Mock the auth facade
     $this->mock('auth', function ($mock) {
         $mock->shouldReceive('logout')->once();
     });
 
-    $middleware = new RoleMiddleware();
-    $response = $middleware->handle($request, fn() => new Response('OK'), 'admin');
+    $middleware = new RoleMiddleware;
+    $response = $middleware->handle($request, fn () => new Response('OK'), 'admin');
 
     expect($response->getStatusCode())->toBe(302); // Redirect
 });
@@ -88,10 +88,10 @@ test('permission middleware allows users with correct permission', function () {
     $user->assignRole($role);
 
     $request = Request::create('/test');
-    $request->setUserResolver(fn() => $user);
+    $request->setUserResolver(fn () => $user);
 
-    $middleware = new PermissionMiddleware();
-    $response = $middleware->handle($request, fn() => new Response('OK'), 'test.permission');
+    $middleware = new PermissionMiddleware;
+    $response = $middleware->handle($request, fn () => new Response('OK'), 'test.permission');
 
     expect($response->getContent())->toBe('OK');
 });
@@ -100,11 +100,11 @@ test('permission middleware blocks users without correct permission', function (
     $user = User::factory()->create(['status' => 'active']);
 
     $request = Request::create('/test');
-    $request->setUserResolver(fn() => $user);
+    $request->setUserResolver(fn () => $user);
 
-    $middleware = new PermissionMiddleware();
+    $middleware = new PermissionMiddleware;
 
-    expect(fn() => $middleware->handle($request, fn() => new Response('OK'), 'test.permission'))
+    expect(fn () => $middleware->handle($request, fn () => new Response('OK'), 'test.permission'))
         ->toThrow(\Symfony\Component\HttpKernel\Exception\HttpException::class);
 });
 
@@ -112,13 +112,13 @@ test('middleware allows access when no roles or permissions specified', function
     $user = User::factory()->create(['status' => 'active']);
 
     $request = Request::create('/test');
-    $request->setUserResolver(fn() => $user);
+    $request->setUserResolver(fn () => $user);
 
-    $roleMiddleware = new RoleMiddleware();
-    $permissionMiddleware = new PermissionMiddleware();
+    $roleMiddleware = new RoleMiddleware;
+    $permissionMiddleware = new PermissionMiddleware;
 
-    $roleResponse = $roleMiddleware->handle($request, fn() => new Response('OK'));
-    $permissionResponse = $permissionMiddleware->handle($request, fn() => new Response('OK'));
+    $roleResponse = $roleMiddleware->handle($request, fn () => new Response('OK'));
+    $permissionResponse = $permissionMiddleware->handle($request, fn () => new Response('OK'));
 
     expect($roleResponse->getContent())->toBe('OK');
     expect($permissionResponse->getContent())->toBe('OK');
@@ -126,13 +126,13 @@ test('middleware allows access when no roles or permissions specified', function
 
 test('middleware redirects unauthenticated users', function () {
     $request = Request::create('/test');
-    $request->setUserResolver(fn() => null);
+    $request->setUserResolver(fn () => null);
 
-    $roleMiddleware = new RoleMiddleware();
-    $permissionMiddleware = new PermissionMiddleware();
+    $roleMiddleware = new RoleMiddleware;
+    $permissionMiddleware = new PermissionMiddleware;
 
-    $roleResponse = $roleMiddleware->handle($request, fn() => new Response('OK'), 'admin');
-    $permissionResponse = $permissionMiddleware->handle($request, fn() => new Response('OK'), 'test.permission');
+    $roleResponse = $roleMiddleware->handle($request, fn () => new Response('OK'), 'admin');
+    $permissionResponse = $permissionMiddleware->handle($request, fn () => new Response('OK'), 'test.permission');
 
     expect($roleResponse->getStatusCode())->toBe(302); // Redirect to login
     expect($permissionResponse->getStatusCode())->toBe(302); // Redirect to login

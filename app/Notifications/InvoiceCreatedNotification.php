@@ -39,17 +39,17 @@ class InvoiceCreatedNotification extends Notification implements ShouldQueue
     {
         $customer = $this->invoice->customer;
         $formattedAmount = $this->formatCurrency($this->invoice->total_amount, $this->invoice->currency);
-        
+
         return (new MailMessage)
-            ->subject('New Invoice - ' . $this->invoice->invoice_number)
-            ->greeting('Hello ' . $customer->contact_person . ',')
+            ->subject('New Invoice - '.$this->invoice->invoice_number)
+            ->greeting('Hello '.$customer->contact_person.',')
             ->line('A new invoice has been created for your account.')
             ->line('**Invoice Details:**')
-            ->line('Invoice Number: ' . $this->invoice->invoice_number)
-            ->line('Amount: ' . $formattedAmount)
-            ->line('Due Date: ' . $this->invoice->due_date->format('M d, Y'))
-            ->line('Payment Terms: ' . ($this->invoice->payment_terms ?: 'Net 30 days'))
-            ->action('View Invoice', url('/customer/invoices/' . $this->invoice->id))
+            ->line('Invoice Number: '.$this->invoice->invoice_number)
+            ->line('Amount: '.$formattedAmount)
+            ->line('Due Date: '.$this->invoice->due_date->format('M d, Y'))
+            ->line('Payment Terms: '.($this->invoice->payment_terms ?: 'Net 30 days'))
+            ->action('View Invoice', url('/customer/invoices/'.$this->invoice->id))
             ->line('Please review the invoice and make payment by the due date.')
             ->line('If you have any questions, please contact our billing department.')
             ->salutation('Best regards, RT Express Billing Team');
@@ -64,7 +64,7 @@ class InvoiceCreatedNotification extends Notification implements ShouldQueue
     {
         $customer = $this->invoice->customer;
         $formattedAmount = $this->formatCurrency($this->invoice->total_amount, $this->invoice->currency);
-        
+
         return [
             'type' => 'invoice_created',
             'title' => 'New Invoice Created',
@@ -76,7 +76,7 @@ class InvoiceCreatedNotification extends Notification implements ShouldQueue
             'amount' => $this->invoice->total_amount,
             'currency' => $this->invoice->currency,
             'due_date' => $this->invoice->due_date,
-            'action_url' => '/customer/invoices/' . $this->invoice->id,
+            'action_url' => '/customer/invoices/'.$this->invoice->id,
             'icon' => 'FileText',
             'color' => 'blue',
         ];
@@ -88,9 +88,9 @@ class InvoiceCreatedNotification extends Notification implements ShouldQueue
     private function formatCurrency(float $amount, string $currency): string
     {
         if ($currency === 'TZS') {
-            return 'TSh ' . number_format($amount, 0);
+            return 'TSh '.number_format($amount, 0);
         }
-        
-        return $currency . ' ' . number_format($amount, 2);
+
+        return $currency.' '.number_format($amount, 2);
     }
 }

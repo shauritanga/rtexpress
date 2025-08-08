@@ -66,7 +66,7 @@ class Warehouse extends Model
         'inventory_count',
         'shipments_count',
         'formatted_operating_hours',
-        'short_operating_hours'
+        'short_operating_hours',
     ];
 
     /**
@@ -121,8 +121,9 @@ class Warehouse extends Model
     {
         $address = $this->address_line_1 ?? '';
         if ($this->address_line_2) {
-            $address .= ', ' . $this->address_line_2;
+            $address .= ', '.$this->address_line_2;
         }
+
         return $address ?: 'No address provided';
     }
 
@@ -188,7 +189,7 @@ class Warehouse extends Model
             $operatingHours = json_decode($operatingHours, true);
         }
 
-        if (!$operatingHours || empty($operatingHours)) {
+        if (! $operatingHours || empty($operatingHours)) {
             return '24/7 Operation';
         }
 
@@ -200,7 +201,7 @@ class Warehouse extends Model
             'thursday' => 'Thu',
             'friday' => 'Fri',
             'saturday' => 'Sat',
-            'sunday' => 'Sun'
+            'sunday' => 'Sun',
         ];
 
         foreach ($days as $day => $abbrev) {
@@ -237,7 +238,7 @@ class Warehouse extends Model
             $operatingHours = json_decode($operatingHours, true);
         }
 
-        if (!$operatingHours || empty($operatingHours)) {
+        if (! $operatingHours || empty($operatingHours)) {
             return '24/7';
         }
 
@@ -266,21 +267,21 @@ class Warehouse extends Model
 
         if (count($uniqueWeekdays) === 1 && count($uniqueWeekends) <= 2) {
             $weekdayTime = $uniqueWeekdays[0];
-            $result = "Mon-Fri: " . ($weekdayTime === 'closed' ? 'Closed' : $this->formatTimeRange($weekdayTime));
+            $result = 'Mon-Fri: '.($weekdayTime === 'closed' ? 'Closed' : $this->formatTimeRange($weekdayTime));
 
-            if (!empty($uniqueWeekends)) {
+            if (! empty($uniqueWeekends)) {
                 if (count($uniqueWeekends) === 1) {
                     $weekendTime = $uniqueWeekends[0];
-                    $result .= ", Sat-Sun: " . ($weekendTime === 'closed' ? 'Closed' : $this->formatTimeRange($weekendTime));
+                    $result .= ', Sat-Sun: '.($weekendTime === 'closed' ? 'Closed' : $this->formatTimeRange($weekendTime));
                 } else {
                     // Different weekend hours
                     if (isset($operatingHours['saturday'])) {
                         $satTime = $operatingHours['saturday'];
-                        $result .= ", Sat: " . ($satTime === 'closed' ? 'Closed' : $this->formatTimeRange($satTime));
+                        $result .= ', Sat: '.($satTime === 'closed' ? 'Closed' : $this->formatTimeRange($satTime));
                     }
                     if (isset($operatingHours['sunday'])) {
                         $sunTime = $operatingHours['sunday'];
-                        $result .= ", Sun: " . ($sunTime === 'closed' ? 'Closed' : $this->formatTimeRange($sunTime));
+                        $result .= ', Sun: '.($sunTime === 'closed' ? 'Closed' : $this->formatTimeRange($sunTime));
                     }
                 }
             }
@@ -292,7 +293,8 @@ class Warehouse extends Model
         $today = strtolower(date('l'));
         if (isset($operatingHours[$today])) {
             $todayHours = $operatingHours[$today];
-            return "Today: " . ($todayHours === 'closed' ? 'Closed' : $this->formatTimeRange($todayHours));
+
+            return 'Today: '.($todayHours === 'closed' ? 'Closed' : $this->formatTimeRange($todayHours));
         }
 
         return 'Varies';
@@ -307,8 +309,10 @@ class Warehouse extends Model
         if (count($times) === 2) {
             $start = $this->formatTime($times[0]);
             $end = $this->formatTime($times[1]);
+
             return "{$start}-{$end}";
         }
+
         return $timeRange;
     }
 
@@ -342,19 +346,19 @@ class Warehouse extends Model
      */
     public function isOperational(?\DateTime $dateTime = null): bool
     {
-        if (!$this->isActive()) {
+        if (! $this->isActive()) {
             return false;
         }
 
-        if (!$this->operating_hours || empty($this->operating_hours)) {
+        if (! $this->operating_hours || empty($this->operating_hours)) {
             return true; // 24/7 operation if no hours specified
         }
 
-        $dateTime = $dateTime ?: new \DateTime();
+        $dateTime = $dateTime ?: new \DateTime;
         $dayOfWeek = strtolower($dateTime->format('l'));
         $currentTime = $dateTime->format('H:i');
 
-        if (!isset($this->operating_hours[$dayOfWeek])) {
+        if (! isset($this->operating_hours[$dayOfWeek])) {
             return false; // Closed on this day
         }
 
@@ -397,13 +401,13 @@ class Warehouse extends Model
         $address = $this->address_line_1;
 
         if ($this->address_line_2) {
-            $address .= ', ' . $this->address_line_2;
+            $address .= ', '.$this->address_line_2;
         }
 
-        $address .= ', ' . $this->city;
-        $address .= ', ' . $this->state_province;
-        $address .= ' ' . $this->postal_code;
-        $address .= ', ' . $this->country;
+        $address .= ', '.$this->city;
+        $address .= ', '.$this->state_province;
+        $address .= ' '.$this->postal_code;
+        $address .= ', '.$this->country;
 
         return $address;
     }
@@ -413,7 +417,7 @@ class Warehouse extends Model
      */
     public function distanceTo(Warehouse $warehouse): ?float
     {
-        if (!$this->latitude || !$this->longitude || !$warehouse->latitude || !$warehouse->longitude) {
+        if (! $this->latitude || ! $this->longitude || ! $warehouse->latitude || ! $warehouse->longitude) {
             return null;
         }
 
@@ -451,9 +455,9 @@ class Warehouse extends Model
     {
         return $query->where(function ($q) use ($search) {
             $q->where('code', 'like', "%{$search}%")
-              ->orWhere('name', 'like', "%{$search}%")
-              ->orWhere('city', 'like', "%{$search}%")
-              ->orWhere('country', 'like', "%{$search}%");
+                ->orWhere('name', 'like', "%{$search}%")
+                ->orWhere('city', 'like', "%{$search}%")
+                ->orWhere('country', 'like', "%{$search}%");
         });
     }
 
@@ -471,7 +475,7 @@ class Warehouse extends Model
     public function scopeWithinRadius($query, float $latitude, float $longitude, float $radiusKm)
     {
         return $query->whereRaw(
-            "(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) < ?",
+            '(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) < ?',
             [$latitude, $longitude, $latitude, $radiusKm]
         );
     }

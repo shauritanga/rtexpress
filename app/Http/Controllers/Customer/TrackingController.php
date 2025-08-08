@@ -41,7 +41,7 @@ class TrackingController extends Controller
         // Public tracking - no authentication required
         $trackingData = $this->getTrackingData($trackingNumber, null);
 
-        if (!$trackingData) {
+        if (! $trackingData) {
             return response()->json([
                 'error' => 'Tracking information not found',
                 'message' => 'The tracking number you entered could not be found in our system.',
@@ -61,7 +61,7 @@ class TrackingController extends Controller
 
         $trackingData = $this->getTrackingData($trackingNumber, $customer);
 
-        if (!$trackingData) {
+        if (! $trackingData) {
             return response()->json([
                 'error' => 'Tracking information not found',
             ], 404);
@@ -121,12 +121,12 @@ class TrackingController extends Controller
             'lat' => $this->getLocationCoordinates($latestTracking->location)['lat'] ?? null,
             'lng' => $this->getLocationCoordinates($latestTracking->location)['lng'] ?? null,
             'address' => $latestTracking->location,
-            'type' => 'current'
+            'type' => 'current',
         ] : [
             'lat' => null,
             'lng' => null,
             'address' => $shipment->originWarehouse?->address ?? 'Origin Location',
-            'type' => 'current'
+            'type' => 'current',
         ];
 
         return [
@@ -217,7 +217,7 @@ class TrackingController extends Controller
      */
     private function getStatusDescription(string $status): string
     {
-        return match($status) {
+        return match ($status) {
             'pending' => 'Shipment created and ready for pickup',
             'picked_up' => 'Package picked up from sender',
             'in_transit' => 'Package in transit',
@@ -228,8 +228,6 @@ class TrackingController extends Controller
             default => 'Status updated',
         };
     }
-
-
 
     /**
      * Get current location address based on status.
@@ -256,7 +254,7 @@ class TrackingController extends Controller
             return [
                 'name' => 'Mike Johnson',
                 'phone' => '+1 (555) 123-4567',
-                'vehicle' => 'Truck #RT-' . substr($shipment->tracking_number, -4),
+                'vehicle' => 'Truck #RT-'.substr($shipment->tracking_number, -4),
             ];
         }
 
@@ -268,12 +266,12 @@ class TrackingController extends Controller
      */
     private function getDeliveryWindow(Shipment $shipment): ?string
     {
-        if (!$shipment->estimated_delivery_date) {
+        if (! $shipment->estimated_delivery_date) {
             return null;
         }
 
         // Delivery window based on service type
-        return match($shipment->service_type ?? 'standard') {
+        return match ($shipment->service_type ?? 'standard') {
             'express' => '9:00 AM - 1:00 PM',
             'overnight' => '8:00 AM - 12:00 PM',
             'same_day' => '2:00 PM - 6:00 PM',
@@ -323,6 +321,4 @@ class TrackingController extends Controller
         // Default to Dar es Salaam if no match found
         return ['lat' => -6.7924, 'lng' => 39.2083];
     }
-
-
 }

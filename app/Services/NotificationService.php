@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Models\Notification;
-use App\Models\NotificationTemplate;
 use App\Models\NotificationPreference;
-use Illuminate\Support\Facades\Mail;
+use App\Models\NotificationTemplate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class NotificationService
 {
@@ -17,7 +17,7 @@ class NotificationService
     {
         // Create notification record
         // If title and message are not provided, try to get them from template
-        if (!isset($data['title']) || !isset($data['message'])) {
+        if (! isset($data['title']) || ! isset($data['message'])) {
             $template = NotificationTemplate::where('type', $data['type'])
                 ->where('channel', $data['channel'])
                 ->where('is_active', true)
@@ -54,7 +54,7 @@ class NotificationService
         ]);
 
         // Send immediately if not scheduled
-        if (!$notification->isScheduled()) {
+        if (! $notification->isScheduled()) {
             $this->sendNotification($notification);
         }
 
@@ -69,8 +69,9 @@ class NotificationService
         foreach ($variables as $key => $value) {
             // Convert null values to empty string to avoid deprecation warnings
             $replacement = $value ?? '';
-            $content = str_replace('{{' . $key . '}}', $replacement, $content);
+            $content = str_replace('{{'.$key.'}}', $replacement, $content);
         }
+
         return $content;
     }
 
@@ -83,15 +84,17 @@ class NotificationService
             ->where('is_active', true)
             ->first();
 
-        if (!$template) {
+        if (! $template) {
             Log::warning("Notification template not found: {$templateCode}");
+
             return null;
         }
 
         // Validate required variables
         $missing = $template->validateVariables($data['variables'] ?? []);
-        if (!empty($missing)) {
-            Log::warning("Missing template variables: " . implode(', ', $missing));
+        if (! empty($missing)) {
+            Log::warning('Missing template variables: '.implode(', ', $missing));
+
             return null;
         }
 
@@ -121,7 +124,7 @@ class NotificationService
             try {
                 $results[] = $this->send($notificationData);
             } catch (\Exception $e) {
-                Log::error("Failed to send bulk notification: " . $e->getMessage());
+                Log::error('Failed to send bulk notification: '.$e->getMessage());
                 $results[] = null;
             }
         }
@@ -165,7 +168,7 @@ class NotificationService
                 $processed++;
             } catch (\Exception $e) {
                 $notification->markAsFailed($e->getMessage());
-                Log::error("Failed to send notification {$notification->id}: " . $e->getMessage());
+                Log::error("Failed to send notification {$notification->id}: ".$e->getMessage());
             }
         }
 
@@ -203,8 +206,8 @@ class NotificationService
         try {
             Mail::send([], [], function ($message) use ($notification) {
                 $message->to($notification->recipient_email)
-                        ->subject($notification->title)
-                        ->html($notification->message);
+                    ->subject($notification->title)
+                    ->html($notification->message);
             });
 
             $notification->markAsSent();
@@ -267,7 +270,7 @@ class NotificationService
             ->where('notification_type', $notificationType)
             ->first();
 
-        if (!$preference) {
+        if (! $preference) {
             // Return default preferences
             return [
                 'email' => true,
@@ -291,9 +294,10 @@ class NotificationService
     public function markAsRead(int $notificationId): bool
     {
         $notification = Notification::find($notificationId);
-        
+
         if ($notification) {
             $notification->markAsRead();
+
             return true;
         }
 
@@ -371,7 +375,7 @@ class NotificationService
         $variables = [
             'customer_name' => $customer->name,
             'invoice_number' => $invoice->invoice_number,
-            'amount' => '$' . number_format($payment->amount, 2),
+            'amount' => '$'.number_format($payment->amount, 2),
             'payment_date' => $payment->created_at->format('M d, Y'),
             'payment_method' => ucfirst($payment->payment_method),
             'company_name' => 'RT Express',
@@ -422,12 +426,12 @@ class NotificationService
     public function sendShipmentStatusUpdate(\App\Models\Shipment $shipment, string $status): array
     {
         $customer = $shipment->customer;
-        if (!$customer) {
+        if (! $customer) {
             return [];
         }
 
         $notificationType = $this->getNotificationTypeForStatus($status);
-        if (!$notificationType) {
+        if (! $notificationType) {
             return [];
         }
 
@@ -451,7 +455,7 @@ class NotificationService
 
     private function getNotificationTypeForStatus(string $status): ?string
     {
-        return match($status) {
+        return match ($status) {
             'created' => 'shipment_created',
             'picked_up' => 'shipment_picked_up',
             'in_transit' => 'shipment_in_transit',
@@ -464,7 +468,7 @@ class NotificationService
 
     private function getTitleForStatus(string $status, string $trackingNumber): string
     {
-        return match($status) {
+        return match ($status) {
             'created' => "Shipment Created - {$trackingNumber}",
             'picked_up' => "Shipment Picked Up - {$trackingNumber}",
             'in_transit' => "Shipment In Transit - {$trackingNumber}",
@@ -480,7 +484,7 @@ class NotificationService
         $trackingNumber = $shipment->tracking_number;
         $recipientName = $shipment->recipient_name;
 
-        return match($status) {
+        return match ($status) {
             'created' => "Your shipment {$trackingNumber} has been created and is being processed.",
             'picked_up' => "Your shipment {$trackingNumber} has been picked up and is on its way.",
             'in_transit' => "Your shipment {$trackingNumber} is currently in transit to {$recipientName}.",
@@ -493,7 +497,7 @@ class NotificationService
 
     private function getPriorityForStatus(string $status): string
     {
-        return match($status) {
+        return match ($status) {
             'delivered' => 'high',
             'exception' => 'urgent',
             'created', 'picked_up' => 'medium',

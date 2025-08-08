@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use App\Models\Customer;
 use App\Models\SupportTicket;
 use App\Models\TicketReply;
-use App\Models\Customer;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class SupportTicketSeeder extends Seeder
 {
@@ -21,6 +20,7 @@ class SupportTicketSeeder extends Seeder
 
         if ($customers->isEmpty() || $users->isEmpty()) {
             $this->command->warn('No customers or admin users found. Please seed customers and users first.');
+
             return;
         }
 

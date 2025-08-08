@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Events\ShipmentStatusUpdated;
 use App\Events\RouteProgressUpdated;
-use App\Models\Shipment;
+use App\Events\ShipmentStatusUpdated;
+use App\Http\Controllers\Controller;
 use App\Models\Route;
+use App\Models\Shipment;
+use Illuminate\Http\Request;
 
 class WebSocketController extends Controller
 {
@@ -18,7 +18,7 @@ class WebSocketController extends Controller
     {
         $shipment = Shipment::first();
 
-        if (!$shipment) {
+        if (! $shipment) {
             return response()->json(['error' => 'No shipments found'], 404);
         }
 
@@ -37,7 +37,7 @@ class WebSocketController extends Controller
             'shipment' => $shipment->tracking_number,
             'old_status' => $oldStatus,
             'new_status' => $newStatus,
-            'location' => $location
+            'location' => $location,
         ]);
     }
 
@@ -48,7 +48,7 @@ class WebSocketController extends Controller
     {
         $route = Route::first();
 
-        if (!$route) {
+        if (! $route) {
             return response()->json(['error' => 'No routes found'], 404);
         }
 
@@ -62,11 +62,9 @@ class WebSocketController extends Controller
             'message' => 'Route progress updated and broadcasted',
             'route' => $route->route_number,
             'progress' => $progress,
-            'current_stop' => $currentStop
+            'current_stop' => $currentStop,
         ]);
     }
-
-
 
     /**
      * Send a custom real-time event
@@ -81,7 +79,7 @@ class WebSocketController extends Controller
             'type' => $eventType,
             'message' => $message,
             'data' => $data,
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->toISOString(),
         ];
 
         // Broadcast to general channel
@@ -92,7 +90,7 @@ class WebSocketController extends Controller
 
         return response()->json([
             'message' => 'Custom event broadcasted',
-            'event' => $eventData
+            'event' => $eventData,
         ]);
     }
 
@@ -102,19 +100,19 @@ class WebSocketController extends Controller
     public function connectionInfo()
     {
         return response()->json([
-            'websocket_url' => config('broadcasting.connections.reverb.host', 'localhost') . ':' . config('broadcasting.connections.reverb.port', 8080),
+            'websocket_url' => config('broadcasting.connections.reverb.host', 'localhost').':'.config('broadcasting.connections.reverb.port', 8080),
             'app_key' => config('broadcasting.connections.reverb.key'),
             'channels' => [
                 'shipments' => 'All shipment updates',
                 'routes' => 'All route updates',
                 'general' => 'General notifications',
                 'shipment.{tracking_number}' => 'Specific shipment updates',
-                'route.{route_id}' => 'Specific route updates'
+                'route.{route_id}' => 'Specific route updates',
             ],
             'events' => [
                 'shipment.status.updated' => 'Shipment status changes',
-                'route.progress.updated' => 'Route progress updates'
-            ]
+                'route.progress.updated' => 'Route progress updates',
+            ],
         ]);
     }
 }

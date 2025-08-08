@@ -39,17 +39,17 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
     {
         $customer = $this->invoice->customer;
         $formattedAmount = $this->formatCurrency($this->invoice->total_amount, $this->invoice->currency);
-        
+
         return (new MailMessage)
-            ->subject('Invoice Due - ' . $this->invoice->invoice_number)
-            ->greeting('Hello ' . $customer->contact_person . ',')
+            ->subject('Invoice Due - '.$this->invoice->invoice_number)
+            ->greeting('Hello '.$customer->contact_person.',')
             ->line('Your invoice is now due for payment.')
             ->line('**Invoice Details:**')
-            ->line('Invoice Number: ' . $this->invoice->invoice_number)
-            ->line('Amount Due: ' . $formattedAmount)
-            ->line('Due Date: ' . $this->invoice->due_date->format('M d, Y'))
-            ->line('Days Until Due: ' . now()->diffInDays($this->invoice->due_date, false))
-            ->action('Pay Now', url('/customer/invoices/' . $this->invoice->id))
+            ->line('Invoice Number: '.$this->invoice->invoice_number)
+            ->line('Amount Due: '.$formattedAmount)
+            ->line('Due Date: '.$this->invoice->due_date->format('M d, Y'))
+            ->line('Days Until Due: '.now()->diffInDays($this->invoice->due_date, false))
+            ->action('Pay Now', url('/customer/invoices/'.$this->invoice->id))
             ->line('Please make payment by the due date to avoid any late fees.')
             ->line('You can pay online using our secure payment portal.')
             ->line('If you have already made payment, please disregard this notice.')
@@ -66,7 +66,7 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
         $customer = $this->invoice->customer;
         $formattedAmount = $this->formatCurrency($this->invoice->total_amount, $this->invoice->currency);
         $daysUntilDue = now()->diffInDays($this->invoice->due_date, false);
-        
+
         return [
             'type' => 'invoice_sent',
             'title' => 'Invoice Payment Due',
@@ -79,7 +79,7 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
             'currency' => $this->invoice->currency,
             'due_date' => $this->invoice->due_date,
             'days_until_due' => $daysUntilDue,
-            'action_url' => '/customer/invoices/' . $this->invoice->id,
+            'action_url' => '/customer/invoices/'.$this->invoice->id,
             'icon' => 'Clock',
             'color' => 'orange',
         ];
@@ -91,9 +91,9 @@ class InvoiceSentNotification extends Notification implements ShouldQueue
     private function formatCurrency(float $amount, string $currency): string
     {
         if ($currency === 'TZS') {
-            return 'TSh ' . number_format($amount, 0);
+            return 'TSh '.number_format($amount, 0);
         }
-        
-        return $currency . ' ' . number_format($amount, 2);
+
+        return $currency.' '.number_format($amount, 2);
     }
 }

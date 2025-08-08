@@ -112,6 +112,7 @@ class InvoiceItem extends Model
     public function getEffectiveUnitPrice(): float
     {
         $discountPerUnit = $this->discount_amount / $this->quantity;
+
         return $this->unit_price - $discountPerUnit;
     }
 }

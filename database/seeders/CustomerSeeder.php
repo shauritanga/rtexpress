@@ -14,8 +14,9 @@ class CustomerSeeder extends Seeder
     {
         $adminUser = \App\Models\User::where('email', 'admin@rtexpress.com')->first();
 
-        if (!$adminUser) {
+        if (! $adminUser) {
             $this->command->error('Admin user not found. Please run AdminUserSeeder first!');
+
             return;
         }
 

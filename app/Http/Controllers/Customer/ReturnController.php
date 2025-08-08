@@ -20,7 +20,7 @@ class ReturnController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
@@ -41,7 +41,7 @@ class ReturnController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -61,7 +61,7 @@ class ReturnController extends Controller
                 ->where('customer_id', $customer->id)
                 ->first();
 
-            if (!$originalShipment) {
+            if (! $originalShipment) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Original shipment not found or does not belong to your account',
@@ -69,7 +69,7 @@ class ReturnController extends Controller
             }
 
             // Generate return tracking number
-            $returnTrackingNumber = 'RET' . strtoupper(substr(uniqid(), -8));
+            $returnTrackingNumber = 'RET'.strtoupper(substr(uniqid(), -8));
 
             // In a real application, you would save this to a returns table
             $returnData = [
@@ -109,7 +109,7 @@ class ReturnController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create return request: ' . $e->getMessage(),
+                'message' => 'Failed to create return request: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -128,7 +128,7 @@ class ReturnController extends Controller
             'Not as Described',
             'Size/Fit Issue',
             'Customer Changed Mind',
-            'Warranty Claim'
+            'Warranty Claim',
         ];
 
         // Get some recent shipments for realistic data
@@ -146,10 +146,10 @@ class ReturnController extends Controller
 
             $returns[] = [
                 'id' => $i + 1,
-                'return_tracking_number' => 'RET' . strtoupper(substr(uniqid(), -8)),
+                'return_tracking_number' => 'RET'.strtoupper(substr(uniqid(), -8)),
                 'original_tracking_number' => $originalShipment
                     ? $originalShipment->tracking_number
-                    : 'RT' . strtoupper(substr(uniqid(), -8)),
+                    : 'RT'.strtoupper(substr(uniqid(), -8)),
                 'return_reason' => $reason,
                 'return_type' => $type,
                 'status' => $status,
@@ -159,15 +159,15 @@ class ReturnController extends Controller
                 'return_value' => rand(25, 500),
                 'sender_name' => $originalShipment
                     ? $originalShipment->recipient_name
-                    : 'Customer ' . ($i + 1),
+                    : 'Customer '.($i + 1),
                 'recipient_name' => $customer->contact_person,
-                'recipient_address' => $customer->address_line_1 . ', ' . $customer->city,
+                'recipient_address' => $customer->address_line_1.', '.$customer->city,
                 'special_instructions' => rand(0, 1) ? 'Handle with care - fragile items' : null,
             ];
         }
 
         // Sort by created date (newest first)
-        usort($returns, function($a, $b) {
+        usort($returns, function ($a, $b) {
             return strtotime($b['created_date']) - strtotime($a['created_date']);
         });
 
@@ -182,7 +182,7 @@ class ReturnController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -197,12 +197,12 @@ class ReturnController extends Controller
 
             return response($labelContent)
                 ->header('Content-Type', 'application/pdf')
-                ->header('Content-Disposition', 'attachment; filename="return-label-' . $returnId . '.pdf"');
+                ->header('Content-Disposition', 'attachment; filename="return-label-'.$returnId.'.pdf"');
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate return label: ' . $e->getMessage(),
+                'message' => 'Failed to generate return label: '.$e->getMessage(),
             ], 500);
         }
     }

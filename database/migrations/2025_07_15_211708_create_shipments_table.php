@@ -42,7 +42,7 @@ return new class extends Migration
             // Status and tracking
             $table->enum('status', [
                 'pending', 'picked_up', 'in_transit', 'out_for_delivery',
-                'delivered', 'exception', 'cancelled'
+                'delivered', 'exception', 'cancelled',
             ])->default('pending');
             $table->timestamp('estimated_delivery_date')->nullable();
             $table->timestamp('actual_delivery_date')->nullable();

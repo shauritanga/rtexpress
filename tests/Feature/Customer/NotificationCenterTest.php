@@ -2,19 +2,19 @@
 
 namespace Tests\Feature\Customer;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Notification;
-use App\Models\NotificationPreference;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class NotificationCenterTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
     protected $customerUser;
+
     protected $customer;
 
     protected function setUp(): void
@@ -58,10 +58,9 @@ class NotificationCenterTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Notifications/Index')
-                ->has('customer')
-                ->has('summary')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Notifications/Index')
+            ->has('customer')
+            ->has('summary')
         );
     }
 
@@ -121,7 +120,7 @@ class NotificationCenterTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
-        
+
         // Check that preferences were updated in database
         $this->assertDatabaseHas('notification_preferences', [
             'user_type' => 'customer',
@@ -200,7 +199,7 @@ class NotificationCenterTest extends TestCase
 
         // Debug: Check what we actually got
         if (empty($notifications)) {
-            $this->fail('No notifications returned. Response: ' . json_encode($response->json()));
+            $this->fail('No notifications returned. Response: '.json_encode($response->json()));
         }
 
         $this->assertCount(2, $notifications);
@@ -388,7 +387,7 @@ class NotificationCenterTest extends TestCase
             ->getJson('/customer/api/notifications/preferences');
 
         $response->assertStatus(200);
-        
+
         $preferences = $response->json('preferences');
         $this->assertEquals($this->customer->id, $preferences['customer_id']);
         $this->assertTrue($preferences['email_enabled']);
@@ -396,7 +395,7 @@ class NotificationCenterTest extends TestCase
         $this->assertFalse($preferences['push_enabled']);
         $this->assertTrue($preferences['in_app_enabled']);
         $this->assertEquals('en', $preferences['language']);
-        
+
         // Check that preferences were created in database
         $this->assertDatabaseHas('notification_preferences', [
             'user_type' => 'customer',

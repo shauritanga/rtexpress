@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Shipment;
+use App\Models\User;
 use App\Models\Warehouse;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Carbon\Carbon;
 
 class Phase3FinalTest extends TestCase
 {
@@ -20,7 +20,7 @@ class Phase3FinalTest extends TestCase
         $customer = Customer::factory()->create([
             'email' => 'customer@test.com',
         ]);
-        
+
         $customerUser = User::factory()->create([
             'email' => 'customer@test.com',
             'customer_id' => $customer->id,
@@ -30,7 +30,7 @@ class Phase3FinalTest extends TestCase
 
         // Test 1: Shipment Creation Workflow
         $this->actingAs($customerUser);
-        
+
         // Access shipment creation page
         $response = $this->get('/customer/shipments/create');
         $response->assertStatus(200);
@@ -128,7 +128,7 @@ class Phase3FinalTest extends TestCase
         // Test 7: Authorization tests
         // Test unauthenticated access
         $this->app['auth']->logout();
-        
+
         $response = $this->get('/customer/shipments/create');
         $response->assertRedirect('/login');
 

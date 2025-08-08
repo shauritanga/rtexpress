@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Exports\AnalyticsExport;
-use App\Exports\ShipmentsExport;
 use App\Exports\PerformanceReportExport;
-use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ShipmentsExport;
+use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ExportController extends Controller
 {
@@ -20,14 +20,15 @@ class ExportController extends Controller
     {
         $request->validate([
             'period' => 'required|in:7,30,90,365',
-            'format' => 'required|in:excel,pdf'
+            'format' => 'required|in:excel,pdf',
         ]);
 
         $period = $request->input('period', '30');
         $format = $request->input('format', 'excel');
 
         if ($format === 'excel') {
-            $fileName = 'analytics_report_' . $period . 'days_' . now()->format('Y-m-d') . '.xlsx';
+            $fileName = 'analytics_report_'.$period.'days_'.now()->format('Y-m-d').'.xlsx';
+
             return Excel::download(new AnalyticsExport($period), $fileName);
         } else {
             return $this->exportAnalyticsPDF($period);
@@ -47,14 +48,15 @@ class ExportController extends Controller
             'service_type' => 'nullable|string',
             'customer_id' => 'nullable|integer',
             'warehouse_id' => 'nullable|integer',
-            'search' => 'nullable|string'
+            'search' => 'nullable|string',
         ]);
 
         $filters = $request->only(['start_date', 'end_date', 'status', 'service_type', 'customer_id', 'warehouse_id', 'search']);
         $format = $request->input('format', 'excel');
 
         if ($format === 'excel') {
-            $fileName = 'shipments_export_' . now()->format('Y-m-d_H-i-s') . '.xlsx';
+            $fileName = 'shipments_export_'.now()->format('Y-m-d_H-i-s').'.xlsx';
+
             return Excel::download(new ShipmentsExport($filters), $fileName);
         } else {
             return $this->exportShipmentsPDF($filters);
@@ -69,7 +71,7 @@ class ExportController extends Controller
         $request->validate([
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'format' => 'required|in:excel,pdf'
+            'format' => 'required|in:excel,pdf',
         ]);
 
         $startDate = $request->input('start_date');
@@ -77,7 +79,8 @@ class ExportController extends Controller
         $format = $request->input('format', 'excel');
 
         if ($format === 'excel') {
-            $fileName = 'performance_report_' . now()->format('Y-m-d') . '.xlsx';
+            $fileName = 'performance_report_'.now()->format('Y-m-d').'.xlsx';
+
             return Excel::download(new PerformanceReportExport($startDate, $endDate), $fileName);
         } else {
             return $this->exportPerformancePDF($startDate, $endDate);
@@ -100,10 +103,11 @@ class ExportController extends Controller
             'period' => $period,
             'startDate' => $startDate,
             'endDate' => $endDate,
-            'generatedAt' => now()
+            'generatedAt' => now(),
         ]);
 
-        $fileName = 'analytics_report_' . $period . 'days_' . now()->format('Y-m-d') . '.pdf';
+        $fileName = 'analytics_report_'.$period.'days_'.now()->format('Y-m-d').'.pdf';
+
         return $pdf->download($fileName);
     }
 
@@ -120,20 +124,20 @@ class ExportController extends Controller
             ->whereBetween('created_at', [$startDate, $endDate]);
 
         // Apply filters (same logic as ShipmentsExport)
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $shipmentsQuery->where('status', $filters['status']);
         }
-        if (!empty($filters['service_type'])) {
+        if (! empty($filters['service_type'])) {
             $shipmentsQuery->where('service_type', $filters['service_type']);
         }
-        if (!empty($filters['customer_id'])) {
+        if (! empty($filters['customer_id'])) {
             $shipmentsQuery->where('customer_id', $filters['customer_id']);
         }
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
-            $shipmentsQuery->where(function($q) use ($search) {
+            $shipmentsQuery->where(function ($q) use ($search) {
                 $q->where('tracking_number', 'like', "%{$search}%")
-                  ->orWhere('recipient_name', 'like', "%{$search}%");
+                    ->orWhere('recipient_name', 'like', "%{$search}%");
             });
         }
 
@@ -144,10 +148,11 @@ class ExportController extends Controller
             'filters' => $filters,
             'startDate' => $startDate,
             'endDate' => $endDate,
-            'generatedAt' => now()
+            'generatedAt' => now(),
         ]);
 
-        $fileName = 'shipments_report_' . now()->format('Y-m-d') . '.pdf';
+        $fileName = 'shipments_report_'.now()->format('Y-m-d').'.pdf';
+
         return $pdf->download($fileName);
     }
 
@@ -169,10 +174,11 @@ class ExportController extends Controller
             'shipments' => $shipments,
             'startDate' => $startDate,
             'endDate' => $endDate,
-            'generatedAt' => now()
+            'generatedAt' => now(),
         ]);
 
-        $fileName = 'performance_report_' . now()->format('Y-m-d') . '.pdf';
+        $fileName = 'performance_report_'.now()->format('Y-m-d').'.pdf';
+
         return $pdf->download($fileName);
     }
 }

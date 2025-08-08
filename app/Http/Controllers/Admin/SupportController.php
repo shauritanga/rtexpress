@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\SupportTicket;
 use App\Models\TicketReply;
-use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class SupportController extends Controller
@@ -26,10 +25,10 @@ class SupportController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('ticket_number', 'like', "%{$search}%")
-                  ->orWhere('subject', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function ($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhere('subject', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -97,7 +96,7 @@ class SupportController extends Controller
             'createdBy',
             'replies' => function ($query) {
                 $query->with(['user', 'customer'])->orderBy('created_at', 'asc');
-            }
+            },
         ]);
 
         // Get agents for assignment
@@ -203,7 +202,7 @@ class SupportController extends Controller
             TicketReply::create([
                 'ticket_id' => $ticket->id,
                 'user_id' => auth()->id(),
-                'message' => "Ticket unassigned",
+                'message' => 'Ticket unassigned',
                 'type' => 'status_change',
                 'is_internal' => true,
             ]);
@@ -373,7 +372,7 @@ class SupportController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->back()
-                ->with('error', 'Failed to delete ticket: ' . $e->getMessage());
+                ->with('error', 'Failed to delete ticket: '.$e->getMessage());
         }
     }
 
@@ -392,7 +391,7 @@ class SupportController extends Controller
             TicketReply::create([
                 'ticket_id' => $ticket->id,
                 'user_id' => auth()->id(),
-                'message' => "Ticket archived by " . auth()->user()->name,
+                'message' => 'Ticket archived by '.auth()->user()->name,
                 'type' => 'status_change',
                 'is_internal' => true,
             ]);
@@ -403,7 +402,7 @@ class SupportController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->back()
-                ->with('error', 'Failed to archive ticket: ' . $e->getMessage());
+                ->with('error', 'Failed to archive ticket: '.$e->getMessage());
         }
     }
 
@@ -422,7 +421,7 @@ class SupportController extends Controller
             TicketReply::create([
                 'ticket_id' => $ticket->id,
                 'user_id' => auth()->id(),
-                'message' => "Ticket restored from archive by " . auth()->user()->name,
+                'message' => 'Ticket restored from archive by '.auth()->user()->name,
                 'type' => 'status_change',
                 'is_internal' => true,
             ]);
@@ -433,7 +432,7 @@ class SupportController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->back()
-                ->with('error', 'Failed to restore ticket: ' . $e->getMessage());
+                ->with('error', 'Failed to restore ticket: '.$e->getMessage());
         }
     }
 
@@ -457,7 +456,9 @@ class SupportController extends Controller
         try {
             foreach ($ticketIds as $ticketId) {
                 $ticket = SupportTicket::find($ticketId);
-                if (!$ticket) continue;
+                if (! $ticket) {
+                    continue;
+                }
 
                 switch ($action) {
                     case 'delete':
@@ -508,7 +509,7 @@ class SupportController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->back()
-                ->with('error', 'Bulk operation failed: ' . $e->getMessage());
+                ->with('error', 'Bulk operation failed: '.$e->getMessage());
         }
     }
 }

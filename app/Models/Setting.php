@@ -53,6 +53,7 @@ class Setting extends Model
 
         return Cache::remember($cacheKey, 3600, function () use ($key, $default) {
             $setting = static::where('key', $key)->first();
+
             return $setting ? $setting->value : $default;
         });
     }
@@ -60,7 +61,7 @@ class Setting extends Model
     /**
      * Set a setting value by key.
      */
-    public static function set(string $key, $value, string $description = null, bool $isPublic = false, User $user = null): void
+    public static function set(string $key, $value, ?string $description = null, bool $isPublic = false, ?User $user = null): void
     {
         $setting = static::updateOrCreate(
             ['key' => $key],
@@ -101,7 +102,7 @@ class Setting extends Model
             $parts = explode('.', $setting->key);
             $category = $parts[0] ?? 'general';
 
-            if (!isset($grouped[$category])) {
+            if (! isset($grouped[$category])) {
                 $grouped[$category] = [];
             }
 

@@ -15,7 +15,7 @@ class RatesController extends Controller
         return response()->json([
             'success' => true,
             'rates' => [],
-            'message' => 'Rate calculation not implemented yet.'
+            'message' => 'Rate calculation not implemented yet.',
         ]);
     }
 
@@ -27,7 +27,7 @@ class RatesController extends Controller
         return response()->json([
             'success' => true,
             'discount' => 0,
-            'message' => 'Discount application not implemented yet.'
+            'message' => 'Discount application not implemented yet.',
         ]);
     }
 
@@ -39,7 +39,7 @@ class RatesController extends Controller
         return response()->json([
             'success' => true,
             'optimizations' => [],
-            'message' => 'Rate optimizations not implemented yet.'
+            'message' => 'Rate optimizations not implemented yet.',
         ]);
     }
 }

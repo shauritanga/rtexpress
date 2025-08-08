@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Only add columns that don't exist
-            if (!Schema::hasColumn('users', 'last_activity')) {
+            if (! Schema::hasColumn('users', 'last_activity')) {
                 $table->timestamp('last_activity')->nullable()->after('email_verified_at');
             }
-            if (!Schema::hasColumn('users', 'otp_enabled')) {
+            if (! Schema::hasColumn('users', 'otp_enabled')) {
                 $table->boolean('otp_enabled')->default(false)->after('phone');
             }
         });

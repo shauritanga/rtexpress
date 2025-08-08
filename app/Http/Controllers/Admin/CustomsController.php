@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ComplianceDocument;
 use App\Models\CustomsDeclaration;
 use App\Models\CustomsItem;
-use App\Models\ComplianceDocument;
-use App\Models\CustomsRegulation;
 use App\Models\Shipment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,10 +26,10 @@ class CustomsController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('declaration_number', 'like', "%{$search}%")
-                  ->orWhere('customs_reference', 'like', "%{$search}%")
-                  ->orWhereHas('shipment', function ($q) use ($search) {
-                      $q->where('tracking_number', 'like', "%{$search}%");
-                  });
+                    ->orWhere('customs_reference', 'like', "%{$search}%")
+                    ->orWhereHas('shipment', function ($q) use ($search) {
+                        $q->where('tracking_number', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -45,7 +44,7 @@ class CustomsController extends Controller
         if ($request->filled('country')) {
             $query->where(function ($q) use ($request) {
                 $q->where('origin_country', $request->country)
-                  ->orWhere('destination_country', $request->country);
+                    ->orWhere('destination_country', $request->country);
             });
         }
 
@@ -54,7 +53,7 @@ class CustomsController extends Controller
         }
 
         if ($request->filled('date_to')) {
-            $query->where('created_at', '<=', $request->date_to . ' 23:59:59');
+            $query->where('created_at', '<=', $request->date_to.' 23:59:59');
         }
 
         $declarations = $query->paginate(15)->withQueryString();
@@ -85,7 +84,7 @@ class CustomsController extends Controller
             'shipment.customer',
             'items',
             'documents.uploadedBy',
-            'createdBy'
+            'createdBy',
         ]);
 
         $complianceStatus = $declaration->getComplianceStatus();
@@ -214,7 +213,7 @@ class CustomsController extends Controller
      */
     public function submit(CustomsDeclaration $declaration)
     {
-        if (!$declaration->isComplete()) {
+        if (! $declaration->isComplete()) {
             return redirect()
                 ->back()
                 ->withErrors(['error' => 'Declaration is incomplete. Please ensure all required fields and documents are provided.']);
@@ -300,7 +299,7 @@ class CustomsController extends Controller
 
         try {
             $file = $request->file('file');
-            $fileName = time() . '_' . $file->getClientOriginalName();
+            $fileName = time().'_'.$file->getClientOriginalName();
             $filePath = $file->storeAs('compliance_documents', $fileName);
 
             ComplianceDocument::create([

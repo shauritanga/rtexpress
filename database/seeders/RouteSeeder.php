@@ -2,14 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\Driver;
 use App\Models\DeliveryRoute;
+use App\Models\Driver;
 use App\Models\RouteStop;
-use App\Models\Warehouse;
 use App\Models\Shipment;
 use App\Models\User;
+use App\Models\Warehouse;
+use Illuminate\Database\Seeder;
 
 class RouteSeeder extends Seeder
 {
@@ -24,6 +23,7 @@ class RouteSeeder extends Seeder
 
         if ($warehouses->isEmpty() || $users->isEmpty()) {
             $this->command->warn('No warehouses or users found. Please seed warehouses and users first.');
+
             return;
         }
 
@@ -43,7 +43,7 @@ class RouteSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Jane Smith',
                     'phone' => '+1-555-0102',
-                    'relationship' => 'Spouse'
+                    'relationship' => 'Spouse',
                 ],
                 'working_hours' => [
                     'monday' => ['start' => '08:00', 'end' => '17:00'],
@@ -72,7 +72,7 @@ class RouteSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Carlos Garcia',
                     'phone' => '+1-555-0202',
-                    'relationship' => 'Brother'
+                    'relationship' => 'Brother',
                 ],
                 'working_hours' => [
                     'monday' => ['start' => '07:00', 'end' => '16:00'],
@@ -100,7 +100,7 @@ class RouteSeeder extends Seeder
                 'emergency_contact' => [
                     'name' => 'Sarah Johnson',
                     'phone' => '+1-555-0302',
-                    'relationship' => 'Wife'
+                    'relationship' => 'Wife',
                 ],
                 'working_hours' => [
                     'monday' => ['start' => '09:00', 'end' => '18:00'],

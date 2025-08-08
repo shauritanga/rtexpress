@@ -25,7 +25,7 @@ class UserManagementController extends Controller
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('email', 'like', "%{$request->search}%");
+                    ->orWhere('email', 'like', "%{$request->search}%");
             });
         }
 
@@ -115,14 +115,14 @@ class UserManagementController extends Controller
             'roles.permissions',
             'createdShipments' => function ($query) {
                 $query->with(['customer', 'originWarehouse'])
-                      ->latest()
-                      ->limit(10);
+                    ->latest()
+                    ->limit(10);
             },
             'assignedShipments' => function ($query) {
                 $query->with(['customer', 'originWarehouse'])
-                      ->latest()
-                      ->limit(10);
-            }
+                    ->latest()
+                    ->limit(10);
+            },
         ]);
 
         // Get user statistics
@@ -179,7 +179,7 @@ class UserManagementController extends Controller
             ];
 
             // Only update password if provided
-            if (!empty($validated['password'])) {
+            if (! empty($validated['password'])) {
                 $updateData['password'] = Hash::make($validated['password']);
             }
 
@@ -248,7 +248,7 @@ class UserManagementController extends Controller
                 ->with('success', "User {$userName} deleted successfully!");
 
         } catch (\Exception $e) {
-            \Log::error('User deletion failed: ' . $e->getMessage(), [
+            \Log::error('User deletion failed: '.$e->getMessage(), [
                 'user_id' => $user->id,
                 'deleted_by' => auth()->id(),
             ]);
@@ -290,7 +290,7 @@ class UserManagementController extends Controller
         ]);
 
         try {
-            if (!$user->hasRole($validated['role_id'])) {
+            if (! $user->hasRole($validated['role_id'])) {
                 $user->roles()->attach($validated['role_id']);
                 $role = Role::find($validated['role_id']);
 
@@ -345,7 +345,8 @@ class UserManagementController extends Controller
             ];
         } catch (\Exception $e) {
             // Return default stats if there's an error
-            \Log::error('Error getting user stats: ' . $e->getMessage());
+            \Log::error('Error getting user stats: '.$e->getMessage());
+
             return [
                 'total' => 0,
                 'active' => 0,

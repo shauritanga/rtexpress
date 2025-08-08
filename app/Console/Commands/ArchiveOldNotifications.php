@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Notification;
+use Illuminate\Console\Command;
 
 class ArchiveOldNotifications extends Command
 {
@@ -29,7 +29,7 @@ class ArchiveOldNotifications extends Command
         $archiveDays = (int) $this->option('days');
         $deleteDays = (int) $this->option('delete-days');
 
-        $this->info("Starting notification cleanup process...");
+        $this->info('Starting notification cleanup process...');
 
         // Archive old read notifications
         $this->info("Archiving read notifications older than {$archiveDays} days...");
@@ -41,7 +41,7 @@ class ArchiveOldNotifications extends Command
         $deletedCount = Notification::deleteOldArchivedNotifications($deleteDays);
         $this->info("Deleted {$deletedCount} old archived notifications.");
 
-        $this->info("Notification cleanup completed!");
+        $this->info('Notification cleanup completed!');
         $this->info("Summary: {$archivedCount} archived, {$deletedCount} deleted");
 
         return 0;

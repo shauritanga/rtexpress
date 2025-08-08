@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use Inertia\Response;
 
 class CommunicationController extends Controller
 {
@@ -20,13 +19,13 @@ class CommunicationController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
         $trackingNumber = $request->get('tracking_number');
 
-        if (!$trackingNumber) {
+        if (! $trackingNumber) {
             return redirect()->route('customer.tracking.index');
         }
 
@@ -35,7 +34,7 @@ class CommunicationController extends Controller
             ->where('customer_id', $customer->id)
             ->first();
 
-        if (!$shipment) {
+        if (! $shipment) {
             return redirect()->route('customer.tracking.index')
                 ->with('error', 'Shipment not found');
         }
@@ -63,7 +62,7 @@ class CommunicationController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -80,7 +79,7 @@ class CommunicationController extends Controller
                 ->where('customer_id', $customer->id)
                 ->first();
 
-            if (!$shipment) {
+            if (! $shipment) {
                 return response()->json(['error' => 'Shipment not found'], 404);
             }
 
@@ -121,7 +120,7 @@ class CommunicationController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send message: ' . $e->getMessage(),
+                'message' => 'Failed to send message: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -134,7 +133,7 @@ class CommunicationController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -151,7 +150,7 @@ class CommunicationController extends Controller
                 ->where('customer_id', $customer->id)
                 ->first();
 
-            if (!$shipment) {
+            if (! $shipment) {
                 return response()->json(['error' => 'Shipment not found'], 404);
             }
 
@@ -173,7 +172,7 @@ class CommunicationController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update instructions: ' . $e->getMessage(),
+                'message' => 'Failed to update instructions: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -186,7 +185,7 @@ class CommunicationController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -195,7 +194,7 @@ class CommunicationController extends Controller
             ->where('customer_id', $customer->id)
             ->first();
 
-        if (!$shipment) {
+        if (! $shipment) {
             return response()->json(['error' => 'Shipment not found'], 404);
         }
 
@@ -220,13 +219,13 @@ class CommunicationController extends Controller
                 'id' => 'driver-123',
                 'name' => 'Mike Johnson',
                 'phone' => '+1 (555) 123-4567',
-                'vehicle' => 'Truck #RT-' . substr($trackingNumber, -4),
+                'vehicle' => 'Truck #RT-'.substr($trackingNumber, -4),
                 'status' => 'online',
                 'location' => [
                     'lat' => 40.7128,
                     'lng' => -74.0060,
-                    'address' => 'En route to delivery location'
-                ]
+                    'address' => 'En route to delivery location',
+                ],
             ] : null,
             'messages' => $this->getMockMessages($trackingNumber),
             'deliveryInstructions' => $shipment->special_instructions,
@@ -283,14 +282,14 @@ class CommunicationController extends Controller
                 'location' => [
                     'lat' => 40.7589,
                     'lng' => -73.9851,
-                    'address' => '456 Business St, New York, NY 10019'
+                    'address' => '456 Business St, New York, NY 10019',
                 ],
                 'driver' => [
                     'name' => 'Mike Johnson',
-                    'id' => 'driver-123'
+                    'id' => 'driver-123',
                 ],
                 'type' => 'delivery',
-                'description' => 'Package delivered to front door as requested'
+                'description' => 'Package delivered to front door as requested',
             ],
         ];
     }

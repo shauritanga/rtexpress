@@ -2,16 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Services\NotificationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Services\NotificationService;
 use Illuminate\Support\Facades\Log;
 
 class ProcessNotifications implements ShouldQueue
 {
-    use Queueable, InteractsWithQueue, SerializesModels;
+    use InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * The number of times the job may be attempted.
@@ -39,13 +39,13 @@ class ProcessNotifications implements ShouldQueue
         try {
             $processed = $notificationService->processPending();
 
-            Log::info("ProcessNotifications job completed", [
+            Log::info('ProcessNotifications job completed', [
                 'processed_count' => $processed,
                 'timestamp' => now(),
             ]);
 
         } catch (\Exception $e) {
-            Log::error("ProcessNotifications job failed", [
+            Log::error('ProcessNotifications job failed', [
                 'error' => $e->getMessage(),
                 'timestamp' => now(),
             ]);
@@ -59,7 +59,7 @@ class ProcessNotifications implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error("ProcessNotifications job failed permanently", [
+        Log::error('ProcessNotifications job failed permanently', [
             'error' => $exception->getMessage(),
             'timestamp' => now(),
         ]);

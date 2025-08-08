@@ -20,7 +20,7 @@ class NotificationsController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return redirect()->route('customer.dashboard')
                 ->with('error', 'Customer profile not found.');
         }
@@ -55,7 +55,7 @@ class NotificationsController extends Controller
             'contact_info' => [
                 'email_address' => $customer->email,
                 'phone_number' => $customer->phone,
-            ]
+            ],
         ];
 
         // Get notification statistics
@@ -93,7 +93,7 @@ class NotificationsController extends Controller
         return Inertia::render('Customer/Notifications/Index', [
             'preferences' => $preferences,
             'notifications' => $notifications,
-            'stats' => $stats
+            'stats' => $stats,
         ]);
     }
 
@@ -105,7 +105,7 @@ class NotificationsController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return back()->with('error', 'Customer profile not found.');
         }
 
@@ -182,7 +182,7 @@ class NotificationsController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return back()->with('error', 'Customer profile not found.');
         }
 
@@ -190,7 +190,7 @@ class NotificationsController extends Controller
             ->where('id', $notificationId)
             ->first();
 
-        if (!$notification) {
+        if (! $notification) {
             return back()->with('error', 'Notification not found.');
         }
 
@@ -207,7 +207,7 @@ class NotificationsController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return back()->with('error', 'Customer profile not found.');
         }
 
@@ -230,7 +230,7 @@ class NotificationsController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return back()->with('error', 'Customer profile not found.');
         }
 
@@ -238,7 +238,7 @@ class NotificationsController extends Controller
             ->where('id', $notificationId)
             ->first();
 
-        if (!$notification) {
+        if (! $notification) {
             return back()->with('error', 'Notification not found.');
         }
 
@@ -255,7 +255,7 @@ class NotificationsController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return back()->with('error', 'Customer profile not found.');
         }
 
@@ -263,7 +263,7 @@ class NotificationsController extends Controller
             ->where('id', $notificationId)
             ->first();
 
-        if (!$notification) {
+        if (! $notification) {
             return back()->with('error', 'Notification not found.');
         }
 
@@ -280,7 +280,7 @@ class NotificationsController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Customer not found'], 404);
         }
 
@@ -295,15 +295,15 @@ class NotificationsController extends Controller
     public function testNotification(Request $request)
     {
         $user = Auth::user();
-        
+
         $validated = $request->validate([
             'type' => 'required|in:email,sms,push',
-            'message' => 'required|string|max:255'
+            'message' => 'required|string|max:255',
         ]);
 
         // Implementation for sending test notification
         // This would use your notification service
-        
+
         return back()->with('success', 'Test notification sent successfully.');
     }
 }

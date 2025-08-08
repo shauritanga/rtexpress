@@ -25,7 +25,7 @@ class PaymentFactory extends Factory
         $netAmount = $amount - $feeAmount;
 
         return [
-            'payment_number' => 'PAY-' . date('Y') . '-' . str_pad($this->faker->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
+            'payment_number' => 'PAY-'.date('Y').'-'.str_pad($this->faker->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
             'invoice_id' => Invoice::factory(),
             'customer_id' => Customer::factory(),
             'status' => $this->faker->randomElement(['pending', 'completed', 'failed', 'refunded']),
@@ -84,7 +84,7 @@ class PaymentFactory extends Factory
                 'Card declined',
                 'Expired card',
                 'Invalid card number',
-                'Processing error'
+                'Processing error',
             ]),
             'fee_amount' => 0,
             'net_amount' => 0,
@@ -115,7 +115,7 @@ class PaymentFactory extends Factory
                 'Customer request',
                 'Duplicate payment',
                 'Service not delivered',
-                'Billing error'
+                'Billing error',
             ]),
         ]);
     }

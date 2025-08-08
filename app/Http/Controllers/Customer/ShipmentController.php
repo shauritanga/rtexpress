@@ -22,7 +22,7 @@ class ShipmentController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
@@ -32,7 +32,7 @@ class ShipmentController extends Controller
 
         // Apply search filter
         if (request('search')) {
-            $query->where('tracking_number', 'like', '%' . request('search') . '%');
+            $query->where('tracking_number', 'like', '%'.request('search').'%');
         }
 
         // Apply status filter
@@ -83,7 +83,7 @@ class ShipmentController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
@@ -157,7 +157,7 @@ class ShipmentController extends Controller
             return [
                 'id' => $warehouse->id,
                 'name' => $warehouse->name,
-                'address' => trim($warehouse->address_line_1 . ($warehouse->address_line_2 ? ', ' . $warehouse->address_line_2 : '')),
+                'address' => trim($warehouse->address_line_1.($warehouse->address_line_2 ? ', '.$warehouse->address_line_2 : '')),
                 'city' => $warehouse->city,
                 'country' => $warehouse->country,
             ];
@@ -171,8 +171,6 @@ class ShipmentController extends Controller
         ]);
     }
 
-
-
     /**
      * Store a new shipment (original method for backward compatibility).
      */
@@ -181,7 +179,7 @@ class ShipmentController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -300,12 +298,10 @@ class ShipmentController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create shipment: ' . $e->getMessage(),
+                'message' => 'Failed to create shipment: '.$e->getMessage(),
             ], 500);
         }
     }
-
-
 
     /**
      * Generate a unique tracking number.
@@ -313,7 +309,7 @@ class ShipmentController extends Controller
     private function generateTrackingNumber(): string
     {
         do {
-            $trackingNumber = 'RT-' . date('Y') . '-' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
+            $trackingNumber = 'RT-'.date('Y').'-'.str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
         } while (Shipment::where('tracking_number', $trackingNumber)->exists());
 
         return $trackingNumber;
@@ -341,13 +337,13 @@ class ShipmentController extends Controller
 
         // Add delivery option costs
         $optionCosts = 0;
-        if (!empty($deliveryOptions['signature_required'])) {
+        if (! empty($deliveryOptions['signature_required'])) {
             $optionCosts += 1000;
         }
-        if (!empty($deliveryOptions['weekend_delivery'])) {
+        if (! empty($deliveryOptions['weekend_delivery'])) {
             $optionCosts += 2000;
         }
-        if (!empty($deliveryOptions['evening_delivery'])) {
+        if (! empty($deliveryOptions['evening_delivery'])) {
             $optionCosts += 1500;
         }
 
@@ -397,7 +393,7 @@ class ShipmentController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer || $shipment->customer_id !== $customer->id) {
+        if (! $customer || $shipment->customer_id !== $customer->id) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
@@ -415,7 +411,7 @@ class ShipmentController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer || $shipment->customer_id !== $customer->id) {
+        if (! $customer || $shipment->customer_id !== $customer->id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -433,12 +429,12 @@ class ShipmentController extends Controller
 
             return response($labelContent)
                 ->header('Content-Type', 'application/pdf')
-                ->header('Content-Disposition', 'attachment; filename="shipping-label-' . $shipment->tracking_number . '.pdf"');
+                ->header('Content-Disposition', 'attachment; filename="shipping-label-'.$shipment->tracking_number.'.pdf"');
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate label: ' . $e->getMessage(),
+                'message' => 'Failed to generate label: '.$e->getMessage(),
             ], 500);
         }
     }

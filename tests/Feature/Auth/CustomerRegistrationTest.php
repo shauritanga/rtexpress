@@ -41,7 +41,7 @@ test('customer registration with valid data creates user and customer', function
     Role::firstOrCreate([
         'name' => 'customer',
         'display_name' => 'Customer',
-        'description' => 'Customer role for registered customers'
+        'description' => 'Customer role for registered customers',
     ]);
 
     $customerData = [
@@ -95,7 +95,7 @@ test('customer registration generates unique customer code', function () {
     Role::firstOrCreate([
         'name' => 'customer',
         'display_name' => 'Customer',
-        'description' => 'Customer role for registered customers'
+        'description' => 'Customer role for registered customers',
     ]);
 
     $customerData = [

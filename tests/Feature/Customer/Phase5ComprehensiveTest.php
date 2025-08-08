@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Shipment;
+use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,6 +14,7 @@ class Phase5ComprehensiveTest extends TestCase
     use RefreshDatabase;
 
     private $customer;
+
     private $customerUser;
 
     protected function setUp(): void
@@ -23,7 +24,7 @@ class Phase5ComprehensiveTest extends TestCase
         $this->customer = Customer::factory()->create([
             'email' => 'customer@test.com',
         ]);
-        
+
         $this->customerUser = User::factory()->create([
             'email' => 'customer@test.com',
             'customer_id' => $this->customer->id,
@@ -38,11 +39,10 @@ class Phase5ComprehensiveTest extends TestCase
         $response = $this->actingAs($this->customerUser)
             ->get('/customer/rates');
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Rates/Index')
-                ->has('customer')
-                ->has('savingsThisMonth')
-                ->has('averageDiscount')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Rates/Index')
+            ->has('customer')
+            ->has('savingsThisMonth')
+            ->has('averageDiscount')
         );
 
         // Test 2: Calculate rates for domestic shipment
@@ -76,8 +76,8 @@ class Phase5ComprehensiveTest extends TestCase
             'rates' => [
                 '*' => [
                     'id', 'service', 'serviceType', 'price', 'transitTime',
-                    'deliveryDate', 'features', 'icon', 'popular', 'eco', 'guaranteed'
-                ]
+                    'deliveryDate', 'features', 'icon', 'popular', 'eco', 'guaranteed',
+                ],
             ],
             'calculation_id',
             'valid_until',
@@ -95,7 +95,7 @@ class Phase5ComprehensiveTest extends TestCase
 
         $response->assertStatus(200);
         $internationalRates = $response->json('rates');
-        
+
         // International rates should be higher
         $domesticStandardPrice = collect($rates)->firstWhere('serviceType', 'standard')['price'];
         $internationalStandardPrice = collect($internationalRates)->firstWhere('serviceType', 'standard')['price'];
@@ -122,8 +122,8 @@ class Phase5ComprehensiveTest extends TestCase
         $response->assertJson(['success' => true]);
         $response->assertJsonStructure([
             'discount' => [
-                'id', 'type', 'title', 'discountPercent'
-            ]
+                'id', 'type', 'title', 'discountPercent',
+            ],
         ]);
 
         // Test 2: Try invalid discount code
@@ -163,7 +163,7 @@ class Phase5ComprehensiveTest extends TestCase
 
         $response->assertStatus(200);
         $rates = $response->json('rates');
-        
+
         // Verify discounts are applied
         foreach ($rates as $rate) {
             if (isset($rate['originalPrice']) && isset($rate['price'])) {
@@ -176,10 +176,9 @@ class Phase5ComprehensiveTest extends TestCase
             ->get('/customer/rates');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) =>
-            $page->where('customer.total_shipments', 30)
-                ->has('customer.total_spend')
-                ->has('customer.loyalty_tier')
+        $response->assertInertia(fn ($page) => $page->where('customer.total_shipments', 30)
+            ->has('customer.total_spend')
+            ->has('customer.loyalty_tier')
         );
 
         $this->assertTrue(true, 'Phase 5 discount management workflow completed successfully!');
@@ -207,10 +206,10 @@ class Phase5ComprehensiveTest extends TestCase
         $response->assertJsonStructure([
             'suggestions' => [
                 '*' => [
-                    'id', 'type', 'title', 'description', 
-                    'savings', 'effort', 'impact'
-                ]
-            ]
+                    'id', 'type', 'title', 'description',
+                    'savings', 'effort', 'impact',
+                ],
+            ],
         ]);
 
         $suggestions = $response->json('suggestions');
@@ -219,7 +218,7 @@ class Phase5ComprehensiveTest extends TestCase
         // Test 2: Verify optimization types
         $suggestionTypes = collect($suggestions)->pluck('type')->unique()->toArray();
         $expectedTypes = ['service', 'packaging'];
-        
+
         foreach ($expectedTypes as $type) {
             $this->assertContains($type, $suggestionTypes);
         }
@@ -322,7 +321,7 @@ class Phase5ComprehensiveTest extends TestCase
         $response->assertJsonValidationErrors([
             'origin.zipCode', 'origin.country',
             'destination.zipCode', 'destination.country',
-            'packageDetails.weight', 'packageDetails.length'
+            'packageDetails.weight', 'packageDetails.length',
         ]);
 
         // Test 2: Discount code validation
@@ -419,7 +418,7 @@ class Phase5ComprehensiveTest extends TestCase
     public function test_phase_5_complete_integration()
     {
         // Test complete workflow from rates page to optimization
-        
+
         // Step 1: Customer accesses rates page
         $response = $this->actingAs($this->customerUser)
             ->get('/customer/rates');
@@ -463,7 +462,7 @@ class Phase5ComprehensiveTest extends TestCase
         // Step 5: Verify all data is consistent and properly formatted
         $this->assertNotEmpty($rates);
         $this->assertIsArray($rates);
-        
+
         foreach ($rates as $rate) {
             $this->assertArrayHasKey('price', $rate);
             $this->assertArrayHasKey('service', $rate);

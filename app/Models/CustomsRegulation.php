@@ -67,7 +67,7 @@ class CustomsRegulation extends Model
      */
     public function isEffective(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 
@@ -89,7 +89,7 @@ class CustomsRegulation extends Model
      */
     public function getApplicableDutyRate(float $value): float
     {
-        if (!$this->duty_rate) {
+        if (! $this->duty_rate) {
             return 0;
         }
 
@@ -126,7 +126,7 @@ class CustomsRegulation extends Model
      */
     public function calculateTax(float $value): float
     {
-        if (!$this->tax_rate) {
+        if (! $this->tax_rate) {
             return 0;
         }
 
@@ -147,11 +147,11 @@ class CustomsRegulation extends Model
     public function scopeEffective($query)
     {
         return $query->active()
-                    ->where('effective_date', '<=', now())
-                    ->where(function ($q) {
-                        $q->whereNull('expiry_date')
-                          ->orWhere('expiry_date', '>', now());
-                    });
+            ->where('effective_date', '<=', now())
+            ->where(function ($q) {
+                $q->whereNull('expiry_date')
+                    ->orWhere('expiry_date', '>', now());
+            });
     }
 
     /**

@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Customer;
 use App\Models\Notification;
 use App\Models\Shipment;
+use Illuminate\Console\Command;
 
 class CreateSampleNotifications extends Command
 {
@@ -29,11 +29,12 @@ class CreateSampleNotifications extends Command
     public function handle()
     {
         $customerId = $this->option('customer-id');
-        
+
         if ($customerId) {
             $customer = Customer::find($customerId);
-            if (!$customer) {
+            if (! $customer) {
                 $this->error("Customer with ID {$customerId} not found.");
+
                 return 1;
             }
             $customers = collect([$customer]);
@@ -43,6 +44,7 @@ class CreateSampleNotifications extends Command
 
         if ($customers->isEmpty()) {
             $this->error('No customers found. Please create customers first.');
+
             return 1;
         }
 
@@ -53,6 +55,7 @@ class CreateSampleNotifications extends Command
         }
 
         $this->info('Sample notifications created successfully!');
+
         return 0;
     }
 
@@ -110,7 +113,7 @@ class CreateSampleNotifications extends Command
 
         foreach ($notificationTypes as $index => $notificationType) {
             $shipment = $shipments->get($index % $shipments->count());
-            
+
             $notification = Notification::create([
                 'type' => $notificationType['type'],
                 'channel' => $notificationType['channel'],
@@ -142,17 +145,17 @@ class CreateSampleNotifications extends Command
     {
         $statuses = ['pending', 'sent', 'delivered', 'failed', 'read'];
         $weights = [10, 20, 40, 5, 25]; // Weighted distribution
-        
+
         $random = rand(1, 100);
         $cumulative = 0;
-        
+
         foreach ($statuses as $index => $status) {
             $cumulative += $weights[$index];
             if ($random <= $cumulative) {
                 return $status;
             }
         }
-        
+
         return 'delivered';
     }
 }

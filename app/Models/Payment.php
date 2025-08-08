@@ -116,7 +116,7 @@ class Payment extends Model
         $prefix = "PAY-{$year}-";
 
         // Get the last payment number for this year
-        $lastPayment = static::where('payment_number', 'like', $prefix . '%')
+        $lastPayment = static::where('payment_number', 'like', $prefix.'%')
             ->orderBy('payment_number', 'desc')
             ->first();
 
@@ -127,7 +127,7 @@ class Payment extends Model
             $newNumber = 1;
         }
 
-        return $prefix . str_pad($newNumber, 6, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($newNumber, 6, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -217,7 +217,7 @@ class Payment extends Model
     /**
      * Mark payment as failed.
      */
-    public function markAsFailed(string $reason = null): void
+    public function markAsFailed(?string $reason = null): void
     {
         $this->update([
             'status' => 'failed',
@@ -229,7 +229,7 @@ class Payment extends Model
     /**
      * Process refund.
      */
-    public function processRefund(float $amount, string $reason = null): Payment
+    public function processRefund(float $amount, ?string $reason = null): Payment
     {
         $refund = static::create([
             'invoice_id' => $this->invoice_id,

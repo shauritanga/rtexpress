@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
-use App\Models\Customer;
 use App\Models\Shipment;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class InvoiceController extends Controller
 {
@@ -25,11 +24,11 @@ class InvoiceController extends Controller
             'items',
             'payments.processor',
             'creator',
-            'sender'
+            'sender',
         ]);
 
         // Mark as viewed if not already viewed
-        if (!$invoice->viewed_at && $invoice->status === 'sent') {
+        if (! $invoice->viewed_at && $invoice->status === 'sent') {
             $invoice->markAsViewed();
         }
 
@@ -79,7 +78,7 @@ class InvoiceController extends Controller
     public function getCustomerShipments(Request $request)
     {
         $request->validate([
-            'customer_id' => 'required|exists:customers,id'
+            'customer_id' => 'required|exists:customers,id',
         ]);
 
         $shipments = Shipment::where('customer_id', $request->customer_id)
@@ -194,7 +193,7 @@ class InvoiceController extends Controller
                 ->with('success', 'Invoice created successfully. Customer has been notified.');
 
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to create invoice: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to create invoice: '.$e->getMessage()]);
         }
     }
 
@@ -216,11 +215,9 @@ class InvoiceController extends Controller
             return back()->withErrors(['error' => 'Invoice has already been sent.']);
 
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to send invoice: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to send invoice: '.$e->getMessage()]);
         }
     }
-
-
 
     /**
      * Mark invoice as paid.
@@ -258,7 +255,7 @@ class InvoiceController extends Controller
             return back()->with('success', 'Invoice marked as paid successfully.');
 
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to mark invoice as paid: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to mark invoice as paid: '.$e->getMessage()]);
         }
     }
 
@@ -276,13 +273,14 @@ class InvoiceController extends Controller
                 ]);
 
                 $statusText = $invoice->status === 'draft' ? 'Draft invoice' : 'Invoice';
+
                 return back()->with('success', "{$statusText} cancelled successfully.");
             }
 
             return back()->withErrors(['error' => 'Cannot cancel a paid invoice.']);
 
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Failed to cancel invoice: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to cancel invoice: '.$e->getMessage()]);
         }
     }
 

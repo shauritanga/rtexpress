@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Shipment;
+use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -16,7 +16,9 @@ class CommunicationTest extends TestCase
     use RefreshDatabase;
 
     private $customer;
+
     private $customerUser;
+
     private $shipment;
 
     protected function setUp(): void
@@ -26,7 +28,7 @@ class CommunicationTest extends TestCase
         $this->customer = Customer::factory()->create([
             'email' => 'customer@test.com',
         ]);
-        
+
         $this->customerUser = User::factory()->create([
             'email' => 'customer@test.com',
             'customer_id' => $this->customer->id,
@@ -44,14 +46,13 @@ class CommunicationTest extends TestCase
     public function test_customer_can_access_communication_center()
     {
         $response = $this->actingAs($this->customerUser)
-            ->get('/customer/communication?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/communication?tracking_number='.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Communication/Index')
-                ->where('trackingNumber', $this->shipment->tracking_number)
-                ->has('customer')
-                ->has('messages')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Communication/Index')
+            ->where('trackingNumber', $this->shipment->tracking_number)
+            ->has('customer')
+            ->has('messages')
         );
     }
 
@@ -130,7 +131,7 @@ class CommunicationTest extends TestCase
         $this->assertEquals('image', $responseData['attachments'][0]['type']);
 
         // Verify file was stored
-        Storage::disk('public')->assertExists('communication/attachments/' . $image->hashName());
+        Storage::disk('public')->assertExists('communication/attachments/'.$image->hashName());
     }
 
     public function test_message_validation_requires_content_or_attachments()
@@ -248,7 +249,7 @@ class CommunicationTest extends TestCase
     public function test_customer_can_get_messages_for_shipment()
     {
         $response = $this->actingAs($this->customerUser)
-            ->getJson('/api/communication/' . $this->shipment->tracking_number . '/messages');
+            ->getJson('/api/communication/'.$this->shipment->tracking_number.'/messages');
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -279,7 +280,7 @@ class CommunicationTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->customerUser)
-            ->getJson('/api/communication/' . $otherShipment->tracking_number . '/messages');
+            ->getJson('/api/communication/'.$otherShipment->tracking_number.'/messages');
 
         $response->assertStatus(404);
         $response->assertJson([
@@ -305,13 +306,12 @@ class CommunicationTest extends TestCase
         $this->shipment->update(['status' => 'out_for_delivery']);
 
         $response = $this->actingAs($this->customerUser)
-            ->get('/customer/communication?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/communication?tracking_number='.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('driver')
-                ->where('driver.name', 'Mike Johnson')
-                ->where('driver.status', 'online')
+        $response->assertInertia(fn ($page) => $page->has('driver')
+            ->where('driver.name', 'Mike Johnson')
+            ->where('driver.status', 'online')
         );
     }
 
@@ -320,11 +320,10 @@ class CommunicationTest extends TestCase
         $this->shipment->update(['status' => 'pending']);
 
         $response = $this->actingAs($this->customerUser)
-            ->get('/customer/communication?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/communication?tracking_number='.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->where('driver', null)
+        $response->assertInertia(fn ($page) => $page->where('driver', null)
         );
     }
 
@@ -333,19 +332,18 @@ class CommunicationTest extends TestCase
         $this->shipment->update(['status' => 'delivered']);
 
         $response = $this->actingAs($this->customerUser)
-            ->get('/customer/communication?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/communication?tracking_number='.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->where('deliveryStatus', 'delivered')
-                ->has('deliveryPhotos')
-                ->has('deliveryTimestamp')
+        $response->assertInertia(fn ($page) => $page->where('deliveryStatus', 'delivered')
+            ->has('deliveryPhotos')
+            ->has('deliveryTimestamp')
         );
     }
 
     public function test_communication_center_requires_authentication()
     {
-        $response = $this->get('/customer/communication?tracking_number=' . $this->shipment->tracking_number);
+        $response = $this->get('/customer/communication?tracking_number='.$this->shipment->tracking_number);
 
         $response->assertRedirect('/login');
     }
@@ -355,7 +353,7 @@ class CommunicationTest extends TestCase
         $nonCustomerUser = User::factory()->create(['customer_id' => null]);
 
         $response = $this->actingAs($nonCustomerUser)
-            ->get('/customer/communication?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/communication?tracking_number='.$this->shipment->tracking_number);
 
         $response->assertRedirect('/login');
     }
@@ -372,7 +370,7 @@ class CommunicationTest extends TestCase
             ->postJson('/api/communication/messages', $messageData);
 
         $response->assertStatus(200);
-        
+
         $timestamp = $response->json('data.timestamp');
         $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/', $timestamp);
     }

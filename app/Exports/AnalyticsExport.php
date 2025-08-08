@@ -2,24 +2,26 @@
 
 namespace App\Exports;
 
-use App\Models\Shipment;
 use App\Models\Customer;
+use App\Models\Shipment;
 use App\Models\Warehouse;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class AnalyticsExport implements WithMultipleSheets
 {
     protected $startDate;
+
     protected $endDate;
+
     protected $period;
 
     public function __construct($period = '30')
@@ -44,7 +46,9 @@ class AnalyticsExport implements WithMultipleSheets
 class AnalyticsOverviewSheet implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $startDate;
+
     protected $endDate;
+
     protected $period;
 
     public function __construct($startDate, $endDate, $period)
@@ -69,7 +73,7 @@ class AnalyticsOverviewSheet implements FromCollection, WithHeadings, WithMappin
             ->count();
 
         $deliveryRate = $totalShipments > 0 ? round(($deliveredShipments / $totalShipments) * 100, 2) : 0;
-        $activeCustomers = Customer::whereHas('shipments', function($query) {
+        $activeCustomers = Customer::whereHas('shipments', function ($query) {
             $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
         })->count();
 
@@ -79,7 +83,7 @@ class AnalyticsOverviewSheet implements FromCollection, WithHeadings, WithMappin
             (object) ['metric' => 'Pending Shipments', 'value' => $pendingShipments, 'period' => "Last {$this->period} days"],
             (object) ['metric' => 'In Transit Shipments', 'value' => $inTransitShipments, 'period' => "Last {$this->period} days"],
             (object) ['metric' => 'Overdue Shipments', 'value' => $overdueShipments, 'period' => "Last {$this->period} days"],
-            (object) ['metric' => 'Delivery Rate', 'value' => $deliveryRate . '%', 'period' => "Last {$this->period} days"],
+            (object) ['metric' => 'Delivery Rate', 'value' => $deliveryRate.'%', 'period' => "Last {$this->period} days"],
             (object) ['metric' => 'Active Customers', 'value' => $activeCustomers, 'period' => "Last {$this->period} days"],
         ]);
     }
@@ -90,7 +94,7 @@ class AnalyticsOverviewSheet implements FromCollection, WithHeadings, WithMappin
             'Metric',
             'Value',
             'Period',
-            'Generated At'
+            'Generated At',
         ];
     }
 
@@ -100,7 +104,7 @@ class AnalyticsOverviewSheet implements FromCollection, WithHeadings, WithMappin
             $row->metric,
             $row->value,
             $row->period,
-            now()->format('Y-m-d H:i:s')
+            now()->format('Y-m-d H:i:s'),
         ];
     }
 
@@ -111,13 +115,13 @@ class AnalyticsOverviewSheet implements FromCollection, WithHeadings, WithMappin
                 'font' => ['bold' => true, 'size' => 12],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '3B82F6']
+                    'startColor' => ['rgb' => '3B82F6'],
                 ],
-                'font' => ['color' => ['rgb' => 'FFFFFF'], 'bold' => true]
+                'font' => ['color' => ['rgb' => 'FFFFFF'], 'bold' => true],
             ],
             'A:D' => [
-                'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT]
-            ]
+                'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
+            ],
         ];
     }
 
@@ -130,6 +134,7 @@ class AnalyticsOverviewSheet implements FromCollection, WithHeadings, WithMappin
 class ShipmentsDataSheet implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $startDate;
+
     protected $endDate;
 
     public function __construct($startDate, $endDate)
@@ -159,7 +164,7 @@ class ShipmentsDataSheet implements FromCollection, WithHeadings, WithMapping, W
             'Declared Value',
             'Created Date',
             'Estimated Delivery',
-            'Actual Delivery'
+            'Actual Delivery',
         ];
     }
 
@@ -173,10 +178,10 @@ class ShipmentsDataSheet implements FromCollection, WithHeadings, WithMapping, W
             $shipment->originWarehouse->city ?? 'N/A',
             $shipment->destinationWarehouse->city ?? $shipment->recipient_address,
             $shipment->weight_kg,
-            '$' . number_format($shipment->declared_value, 2),
+            '$'.number_format($shipment->declared_value, 2),
             $shipment->created_at->format('Y-m-d H:i'),
             $shipment->estimated_delivery_date ? $shipment->estimated_delivery_date->format('Y-m-d') : 'N/A',
-            $shipment->actual_delivery_date ? $shipment->actual_delivery_date->format('Y-m-d H:i') : 'N/A'
+            $shipment->actual_delivery_date ? $shipment->actual_delivery_date->format('Y-m-d H:i') : 'N/A',
         ];
     }
 
@@ -187,10 +192,10 @@ class ShipmentsDataSheet implements FromCollection, WithHeadings, WithMapping, W
                 'font' => ['bold' => true, 'size' => 11],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '10B981']
+                    'startColor' => ['rgb' => '10B981'],
                 ],
-                'font' => ['color' => ['rgb' => 'FFFFFF'], 'bold' => true]
-            ]
+                'font' => ['color' => ['rgb' => 'FFFFFF'], 'bold' => true],
+            ],
         ];
     }
 
@@ -203,6 +208,7 @@ class ShipmentsDataSheet implements FromCollection, WithHeadings, WithMapping, W
 class PerformanceMetricsSheet implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $startDate;
+
     protected $endDate;
 
     public function __construct($startDate, $endDate)
@@ -237,27 +243,27 @@ class PerformanceMetricsSheet implements FromCollection, WithHeadings, WithMappi
         return collect([
             (object) [
                 'metric' => 'On-Time Delivery Rate',
-                'value' => $onTimeRate . '%',
+                'value' => $onTimeRate.'%',
                 'target' => '95%',
-                'status' => $onTimeRate >= 95 ? 'Excellent' : ($onTimeRate >= 85 ? 'Good' : 'Needs Improvement')
+                'status' => $onTimeRate >= 95 ? 'Excellent' : ($onTimeRate >= 85 ? 'Good' : 'Needs Improvement'),
             ],
             (object) [
                 'metric' => 'Overall Delivery Rate',
-                'value' => $deliveryRate . '%',
+                'value' => $deliveryRate.'%',
                 'target' => '98%',
-                'status' => $deliveryRate >= 98 ? 'Excellent' : ($deliveryRate >= 90 ? 'Good' : 'Needs Improvement')
+                'status' => $deliveryRate >= 98 ? 'Excellent' : ($deliveryRate >= 90 ? 'Good' : 'Needs Improvement'),
             ],
             (object) [
                 'metric' => 'Exception Rate',
-                'value' => $exceptionRate . '%',
+                'value' => $exceptionRate.'%',
                 'target' => '<2%',
-                'status' => $exceptionRate <= 2 ? 'Excellent' : ($exceptionRate <= 5 ? 'Good' : 'Needs Improvement')
+                'status' => $exceptionRate <= 2 ? 'Excellent' : ($exceptionRate <= 5 ? 'Good' : 'Needs Improvement'),
             ],
             (object) [
                 'metric' => 'Average Transit Time',
-                'value' => round($avgTransitTime, 1) . ' days',
+                'value' => round($avgTransitTime, 1).' days',
                 'target' => '3 days',
-                'status' => $avgTransitTime <= 3 ? 'Excellent' : ($avgTransitTime <= 5 ? 'Good' : 'Needs Improvement')
+                'status' => $avgTransitTime <= 3 ? 'Excellent' : ($avgTransitTime <= 5 ? 'Good' : 'Needs Improvement'),
             ],
         ]);
     }
@@ -268,7 +274,7 @@ class PerformanceMetricsSheet implements FromCollection, WithHeadings, WithMappi
             'Performance Metric',
             'Current Value',
             'Target',
-            'Status'
+            'Status',
         ];
     }
 
@@ -278,7 +284,7 @@ class PerformanceMetricsSheet implements FromCollection, WithHeadings, WithMappi
             $row->metric,
             $row->value,
             $row->target,
-            $row->status
+            $row->status,
         ];
     }
 
@@ -289,10 +295,10 @@ class PerformanceMetricsSheet implements FromCollection, WithHeadings, WithMappi
                 'font' => ['bold' => true, 'size' => 11],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => 'F59E0B']
+                    'startColor' => ['rgb' => 'F59E0B'],
                 ],
-                'font' => ['color' => ['rgb' => 'FFFFFF'], 'bold' => true]
-            ]
+                'font' => ['color' => ['rgb' => 'FFFFFF'], 'bold' => true],
+            ],
         ];
     }
 
@@ -305,6 +311,7 @@ class PerformanceMetricsSheet implements FromCollection, WithHeadings, WithMappi
 class WarehousePerformanceSheet implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $startDate;
+
     protected $endDate;
 
     public function __construct($startDate, $endDate)
@@ -316,20 +323,21 @@ class WarehousePerformanceSheet implements FromCollection, WithHeadings, WithMap
     public function collection()
     {
         return Warehouse::withCount([
-            'originShipments as total_shipments' => function($query) {
+            'originShipments as total_shipments' => function ($query) {
                 $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
             },
-            'originShipments as delivered_shipments' => function($query) {
+            'originShipments as delivered_shipments' => function ($query) {
                 $query->whereBetween('created_at', [$this->startDate, $this->endDate])
-                      ->where('status', 'delivered');
-            }
-        ])->get()->map(function($warehouse) {
+                    ->where('status', 'delivered');
+            },
+        ])->get()->map(function ($warehouse) {
             $deliveryRate = $warehouse->total_shipments > 0
                 ? round(($warehouse->delivered_shipments / $warehouse->total_shipments) * 100, 2)
                 : 0;
 
             $warehouse->delivery_rate = $deliveryRate;
             $warehouse->capacity_utilization = $warehouse->getCapacityUtilization();
+
             return $warehouse;
         });
     }
@@ -344,7 +352,7 @@ class WarehousePerformanceSheet implements FromCollection, WithHeadings, WithMap
             'Delivered Shipments',
             'Delivery Rate (%)',
             'Capacity Utilization (%)',
-            'Status'
+            'Status',
         ];
     }
 
@@ -356,9 +364,9 @@ class WarehousePerformanceSheet implements FromCollection, WithHeadings, WithMap
             $warehouse->city,
             $warehouse->total_shipments,
             $warehouse->delivered_shipments,
-            $warehouse->delivery_rate . '%',
-            $warehouse->capacity_utilization . '%',
-            ucfirst($warehouse->status)
+            $warehouse->delivery_rate.'%',
+            $warehouse->capacity_utilization.'%',
+            ucfirst($warehouse->status),
         ];
     }
 
@@ -369,10 +377,10 @@ class WarehousePerformanceSheet implements FromCollection, WithHeadings, WithMap
                 'font' => ['bold' => true, 'size' => 11],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '8B5CF6']
+                    'startColor' => ['rgb' => '8B5CF6'],
                 ],
-                'font' => ['color' => ['rgb' => 'FFFFFF'], 'bold' => true]
-            ]
+                'font' => ['color' => ['rgb' => 'FFFFFF'], 'bold' => true],
+            ],
         ];
     }
 
@@ -385,6 +393,7 @@ class WarehousePerformanceSheet implements FromCollection, WithHeadings, WithMap
 class TopCustomersSheet implements FromCollection, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     protected $startDate;
+
     protected $endDate;
 
     public function __construct($startDate, $endDate)
@@ -396,8 +405,8 @@ class TopCustomersSheet implements FromCollection, WithHeadings, WithMapping, Wi
     public function collection()
     {
         return Customer::withCount(['shipments' => function ($query) {
-                $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
-            }])
+            $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
+        }])
             ->orderBy('shipments_count', 'desc')
             ->limit(20)
             ->get()
@@ -417,7 +426,7 @@ class TopCustomersSheet implements FromCollection, WithHeadings, WithMapping, Wi
             'Phone',
             'City',
             'Shipments Count',
-            'Status'
+            'Status',
         ];
     }
 
@@ -435,7 +444,7 @@ class TopCustomersSheet implements FromCollection, WithHeadings, WithMapping, Wi
             $customer->phone,
             $customer->city,
             $customer->shipments_count,
-            ucfirst($customer->status)
+            ucfirst($customer->status),
         ];
     }
 
@@ -446,10 +455,10 @@ class TopCustomersSheet implements FromCollection, WithHeadings, WithMapping, Wi
                 'font' => ['bold' => true, 'size' => 11],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => 'EF4444']
+                    'startColor' => ['rgb' => 'EF4444'],
                 ],
-                'font' => ['color' => ['rgb' => 'FFFFFF'], 'bold' => true]
-            ]
+                'font' => ['color' => ['rgb' => 'FFFFFF'], 'bold' => true],
+            ],
         ];
     }
 

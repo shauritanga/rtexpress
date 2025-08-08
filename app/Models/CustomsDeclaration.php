@@ -82,7 +82,7 @@ class CustomsDeclaration extends Model
     public static function generateDeclarationNumber(): string
     {
         do {
-            $number = 'CD-' . date('Y') . '-' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
+            $number = 'CD-'.date('Y').'-'.str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
         } while (static::where('declaration_number', $number)->exists());
 
         return $number;
@@ -232,7 +232,7 @@ class CustomsDeclaration extends Model
         // Check required documents
         $requiredDocs = $this->getRequiredDocuments();
         foreach ($requiredDocs as $docType) {
-            if (!$this->documents()->where('document_type', $docType)->where('status', 'approved')->exists()) {
+            if (! $this->documents()->where('document_type', $docType)->where('status', 'approved')->exists()) {
                 return false;
             }
         }
@@ -271,12 +271,12 @@ class CustomsDeclaration extends Model
         $warnings = [];
 
         // Check value thresholds
-        if ($this->total_value > 10000 && !$this->documents()->where('document_type', 'export_license')->exists()) {
+        if ($this->total_value > 10000 && ! $this->documents()->where('document_type', 'export_license')->exists()) {
             $issues[] = 'Export license required for shipments over $10,000';
         }
 
         // Check dangerous goods
-        if ($this->contains_dangerous_goods && !$this->documents()->where('document_type', 'dangerous_goods_declaration')->exists()) {
+        if ($this->contains_dangerous_goods && ! $this->documents()->where('document_type', 'dangerous_goods_declaration')->exists()) {
             $issues[] = 'Dangerous goods declaration required';
         }
 
@@ -311,6 +311,7 @@ class CustomsDeclaration extends Model
     public function scopeByCountry($query, string $country, string $direction = 'destination')
     {
         $field = $direction === 'origin' ? 'origin_country' : 'destination_country';
+
         return $query->where($field, $country);
     }
 

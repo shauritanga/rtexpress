@@ -26,7 +26,7 @@ test('authenticated customer users can access customer routes', function () {
         ['name' => 'customer'],
         [
             'display_name' => 'Customer',
-            'description' => 'Customer role with access to customer portal'
+            'description' => 'Customer role with access to customer portal',
         ]
     );
 

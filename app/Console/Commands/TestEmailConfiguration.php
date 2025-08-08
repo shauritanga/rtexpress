@@ -38,9 +38,10 @@ class TestEmailConfiguration extends Command
 
         // Test email sending
         $email = $this->argument('email') ?? $this->ask('Enter email address to test');
-        
-        if (!$email) {
+
+        if (! $email) {
             $this->error('Email address is required');
+
             return 1;
         }
 
@@ -54,26 +55,26 @@ class TestEmailConfiguration extends Command
     private function checkMailConfiguration()
     {
         $this->info('📧 Current Mail Configuration:');
-        
+
         $mailer = config('mail.default');
         $this->line("  Driver: {$mailer}");
-        
+
         if ($mailer === 'log') {
             $this->warn('  ⚠️  Mail driver is set to "log" - emails will be written to storage/logs/laravel.log');
             $this->warn('  💡 To send real emails, set MAIL_MAILER=smtp in .env file');
         } else {
-            $this->line("  Host: " . config('mail.mailers.smtp.host'));
-            $this->line("  Port: " . config('mail.mailers.smtp.port'));
-            $this->line("  Username: " . config('mail.mailers.smtp.username'));
-            $this->line("  Encryption: " . config('mail.mailers.smtp.encryption', 'none'));
+            $this->line('  Host: '.config('mail.mailers.smtp.host'));
+            $this->line('  Port: '.config('mail.mailers.smtp.port'));
+            $this->line('  Username: '.config('mail.mailers.smtp.username'));
+            $this->line('  Encryption: '.config('mail.mailers.smtp.encryption', 'none'));
         }
-        
-        $this->line("  From: " . config('mail.from.address') . " (" . config('mail.from.name') . ")");
-        
+
+        $this->line('  From: '.config('mail.from.address').' ('.config('mail.from.name').')');
+
         // Check queue configuration
         $queueDriver = config('queue.default');
         $this->line("  Queue Driver: {$queueDriver}");
-        
+
         if ($queueDriver !== 'sync') {
             $this->warn('  ⚠️  Queue driver is not "sync" - emails may be queued');
             $this->warn('  💡 Make sure queue workers are running: php artisan queue:work');
@@ -83,23 +84,24 @@ class TestEmailConfiguration extends Command
     private function testBasicEmail(string $email)
     {
         $this->info("📤 Sending test email to: {$email}");
-        
+
         try {
             Mail::raw('This is a test email from RT Express. If you receive this, your email configuration is working!', function ($message) use ($email) {
                 $message->to($email)
-                        ->subject('RT Express - Email Configuration Test');
+                    ->subject('RT Express - Email Configuration Test');
             });
-            
+
             $this->info('✅ Test email sent successfully!');
-            
+
             if (config('mail.default') === 'log') {
                 $this->warn('💡 Check storage/logs/laravel.log for the email content');
             }
-            
+
             return 0;
         } catch (\Exception $e) {
             $this->error('❌ Failed to send test email:');
             $this->error($e->getMessage());
+
             return 1;
         }
     }
@@ -107,30 +109,30 @@ class TestEmailConfiguration extends Command
     private function testOtpEmail(string $email)
     {
         $this->info("📤 Sending test OTP email to: {$email}");
-        
+
         try {
             // Find or create a test user
             $user = User::where('email', $email)->first();
-            
-            if (!$user) {
+
+            if (! $user) {
                 $this->warn("User with email {$email} not found. Creating temporary user for test...");
                 $user = new User([
                     'name' => 'Test User',
                     'email' => $email,
                 ]);
             }
-            
+
             // Send OTP notification
             $testOtpCode = '123456';
             $user->notify(new OtpCodeNotification($testOtpCode, 'login', 5));
-            
+
             $this->info('✅ Test OTP email sent successfully!');
             $this->line("Test OTP Code: {$testOtpCode}");
-            
+
             if (config('mail.default') === 'log') {
                 $this->warn('💡 Check storage/logs/laravel.log for the email content');
             }
-            
+
             return 0;
         } catch (\Exception $e) {
             $this->error('❌ Failed to send test OTP email:');
@@ -140,6 +142,7 @@ class TestEmailConfiguration extends Command
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
+
             return 1;
         }
     }

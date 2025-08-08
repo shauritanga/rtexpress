@@ -4,8 +4,6 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -15,8 +13,11 @@ class RouteProgressUpdated implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $route;
+
     public $progress;
+
     public $currentStop;
+
     public $timestamp;
 
     /**
@@ -39,14 +40,12 @@ class RouteProgressUpdated implements ShouldBroadcast
     {
         return [
             new Channel('routes'),
-            new Channel('route.' . $this->route->id),
+            new Channel('route.'.$this->route->id),
         ];
     }
 
     /**
      * Get the data to broadcast.
-     *
-     * @return array
      */
     public function broadcastWith(): array
     {
@@ -62,14 +61,12 @@ class RouteProgressUpdated implements ShouldBroadcast
                     'id' => $this->route->driver->driver_id ?? 'N/A',
                 ],
                 'timestamp' => $this->timestamp,
-            ]
+            ],
         ];
     }
 
     /**
      * Get the broadcast event name.
-     *
-     * @return string
      */
     public function broadcastAs(): string
     {

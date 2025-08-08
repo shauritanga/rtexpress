@@ -17,21 +17,18 @@ class SanitizeInput
     {
         // Get all input data
         $input = $request->all();
-        
+
         // Sanitize the input recursively
         $sanitized = $this->sanitizeArray($input);
-        
+
         // Replace the request input with sanitized data
         $request->replace($sanitized);
-        
+
         return $next($request);
     }
 
     /**
      * Recursively sanitize an array of data.
-     *
-     * @param array $data
-     * @return array
      */
     private function sanitizeArray(array $data): array
     {
@@ -42,34 +39,31 @@ class SanitizeInput
                 $data[$key] = $this->sanitizeString($value);
             }
         }
-        
+
         return $data;
     }
 
     /**
      * Sanitize a string value.
-     *
-     * @param string $value
-     * @return string
      */
     private function sanitizeString(string $value): string
     {
         // Remove HTML tags but preserve some safe ones for rich text fields
         $allowedTags = '<p><br><strong><em><u><ol><ul><li>';
-        
+
         // For password fields, don't sanitize to preserve special characters
         if ($this->isPasswordField($value)) {
             return $value;
         }
-        
+
         // Strip tags and decode HTML entities
         $sanitized = strip_tags($value, $allowedTags);
         $sanitized = html_entity_decode($sanitized, ENT_QUOTES, 'UTF-8');
-        
+
         // Remove any remaining script tags or javascript
         $sanitized = preg_replace('/javascript:/i', '', $sanitized);
         $sanitized = preg_replace('/on\w+\s*=/i', '', $sanitized);
-        
+
         // Trim whitespace
         return trim($sanitized);
     }
@@ -78,9 +72,6 @@ class SanitizeInput
      * Check if the value might be a password field.
      * This is a simple heuristic - in production you might want to
      * check the field name or use a more sophisticated method.
-     *
-     * @param string $value
-     * @return bool
      */
     private function isPasswordField(string $value): bool
     {

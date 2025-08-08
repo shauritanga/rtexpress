@@ -16,11 +16,11 @@ class WarehouseFactory extends Factory
      */
     public function definition(): array
     {
-        $code = 'WAR-' . str_pad($this->faker->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT);
+        $code = 'WAR-'.str_pad($this->faker->unique()->numberBetween(1, 999), 3, '0', STR_PAD_LEFT);
 
         return [
             'code' => $code,
-            'name' => $this->faker->company() . ' Warehouse',
+            'name' => $this->faker->company().' Warehouse',
             'address_line_1' => $this->faker->streetAddress(),
             'address_line_2' => $this->faker->optional()->secondaryAddress(),
             'city' => $this->faker->city(),
@@ -67,7 +67,7 @@ class WarehouseFactory extends Factory
             'city' => $this->faker->randomElement(['Dar es Salaam', 'Arusha', 'Mwanza', 'Dodoma', 'Mbeya']),
             'latitude' => $this->faker->latitude(-11.7, -1.0),
             'longitude' => $this->faker->longitude(29.3, 40.5),
-            'phone' => '+255' . $this->faker->numerify('#########'),
+            'phone' => '+255'.$this->faker->numerify('#########'),
         ]);
     }
 

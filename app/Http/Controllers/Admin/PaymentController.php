@@ -33,12 +33,12 @@ class PaymentController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('payment_number', 'like', "%{$search}%")
-                  ->orWhereHas('invoice', function ($q) use ($search) {
-                      $q->where('invoice_number', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('customer', function ($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('invoice', function ($q) use ($search) {
+                        $q->where('invoice_number', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('customer', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -98,7 +98,7 @@ class PaymentController extends Controller
         $request->validate([
             'gateway' => 'required|string|in:stripe,paypal,clickpesa',
             'method' => 'required|string',
-            'amount' => 'required|numeric|min:0.01|max:' . $invoice->balance_due,
+            'amount' => 'required|numeric|min:0.01|max:'.$invoice->balance_due,
             'phone_number' => 'nullable|string',
             'reference' => 'nullable|string',
         ]);
@@ -186,7 +186,7 @@ class PaymentController extends Controller
     public function processRefund(Request $request, Payment $payment)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:0.01|max:' . $payment->amount,
+            'amount' => 'required|numeric|min:0.01|max:'.$payment->amount,
             'reason' => 'nullable|string|max:255',
         ]);
 

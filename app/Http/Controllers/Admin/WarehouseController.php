@@ -130,7 +130,7 @@ class WarehouseController extends Controller
                 if ($hours['closed']) {
                     $operatingHours[$day] = 'closed';
                 } else {
-                    $operatingHours[$day] = $hours['open'] . '-' . $hours['close'];
+                    $operatingHours[$day] = $hours['open'].'-'.$hours['close'];
                 }
             }
             $validated['operating_hours'] = $operatingHours;
@@ -142,7 +142,7 @@ class WarehouseController extends Controller
                 ->with('success', "Warehouse {$warehouse->code} created successfully!");
 
         } catch (\Exception $e) {
-            \Log::error('Warehouse creation failed: ' . $e->getMessage(), [
+            \Log::error('Warehouse creation failed: '.$e->getMessage(), [
                 'request_data' => $request->all(),
                 'user_id' => auth()->id(),
             ]);
@@ -161,9 +161,9 @@ class WarehouseController extends Controller
         $warehouse->load([
             'originShipments' => function ($query) {
                 $query->with(['customer', 'destinationWarehouse'])
-                      ->latest()
-                      ->limit(10);
-            }
+                    ->latest()
+                    ->limit(10);
+            },
         ]);
 
         // Get warehouse statistics
@@ -183,22 +183,22 @@ class WarehouseController extends Controller
                 'type' => 'shipment_received',
                 'description' => 'New shipment processed and stored',
                 'timestamp' => now()->subHours(2)->toISOString(),
-                'user' => 'John Smith'
+                'user' => 'John Smith',
             ],
             [
                 'id' => 2,
                 'type' => 'inventory_update',
                 'description' => 'Inventory levels updated for storage section',
                 'timestamp' => now()->subHours(4)->toISOString(),
-                'user' => 'Sarah Johnson'
+                'user' => 'Sarah Johnson',
             ],
             [
                 'id' => 3,
                 'type' => 'maintenance',
                 'description' => 'Scheduled maintenance completed on loading dock',
                 'timestamp' => now()->subHours(6)->toISOString(),
-                'user' => 'Mike Wilson'
-            ]
+                'user' => 'Mike Wilson',
+            ],
         ];
 
         // Get nearby warehouses (within reasonable distance)
@@ -295,7 +295,7 @@ class WarehouseController extends Controller
                 if ($hours['closed']) {
                     $operatingHours[$day] = 'closed';
                 } else {
-                    $operatingHours[$day] = $hours['open'] . '-' . $hours['close'];
+                    $operatingHours[$day] = $hours['open'].'-'.$hours['close'];
                 }
             }
             $validated['operating_hours'] = $operatingHours;
@@ -307,7 +307,7 @@ class WarehouseController extends Controller
                 ->with('success', "Warehouse {$warehouse->code} updated successfully!");
 
         } catch (\Exception $e) {
-            \Log::error('Warehouse update failed: ' . $e->getMessage(), [
+            \Log::error('Warehouse update failed: '.$e->getMessage(), [
                 'warehouse_id' => $warehouse->id,
                 'request_data' => $request->all(),
                 'user_id' => auth()->id(),
@@ -434,7 +434,7 @@ class WarehouseController extends Controller
         // Find the next available number
         $counter = 1;
         do {
-            $code = $prefix . str_pad($counter, 3, '0', STR_PAD_LEFT);
+            $code = $prefix.str_pad($counter, 3, '0', STR_PAD_LEFT);
             $exists = Warehouse::where('code', $code)->exists();
             $counter++;
         } while ($exists && $counter <= 999);

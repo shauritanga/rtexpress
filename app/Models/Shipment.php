@@ -86,7 +86,7 @@ class Shipment extends Model
                     $shipment->tracking_number = static::generateTrackingNumber();
                 } catch (\Exception $e) {
                     // Fallback if generation fails
-                    $shipment->tracking_number = 'RT-' . date('Y') . '-' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
+                    $shipment->tracking_number = 'RT-'.date('Y').'-'.str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
                 }
             }
 
@@ -222,7 +222,7 @@ class Shipment extends Model
      */
     private function extractCountryFromAddress(?string $address): ?string
     {
-        if (!$address) {
+        if (! $address) {
             return null;
         }
 
@@ -231,7 +231,7 @@ class Shipment extends Model
             'Tanzania' => 'TZ', 'Kenya' => 'KE', 'Uganda' => 'UG',
             'Canada' => 'CA', 'United States' => 'US', 'USA' => 'US',
             'United Kingdom' => 'GB', 'UK' => 'GB', 'Germany' => 'DE',
-            'Australia' => 'AU', 'South Africa' => 'ZA'
+            'Australia' => 'AU', 'South Africa' => 'ZA',
         ];
 
         foreach ($countries as $country => $code) {
@@ -262,7 +262,7 @@ class Shipment extends Model
         $year = date('Y');
         $prefix = "RT-{$year}-";
 
-        $lastShipment = static::where('tracking_number', 'like', $prefix . '%')
+        $lastShipment = static::where('tracking_number', 'like', $prefix.'%')
             ->orderBy('tracking_number', 'desc')
             ->first();
 
@@ -273,7 +273,7 @@ class Shipment extends Model
             $newNumber = 1;
         }
 
-        return $prefix . str_pad($newNumber, 6, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($newNumber, 6, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -282,6 +282,7 @@ class Shipment extends Model
     public function getVolumetricWeight(): float
     {
         $volumeCm3 = $this->dimensions_length_cm * $this->dimensions_width_cm * $this->dimensions_height_cm;
+
         return $volumeCm3 / 5000; // Standard volumetric divisor
     }
 
@@ -324,7 +325,7 @@ class Shipment extends Model
     {
         return $this->estimated_delivery_date &&
                $this->estimated_delivery_date->isPast() &&
-               !$this->isDelivered();
+               ! $this->isDelivered();
     }
 
     /**
@@ -349,7 +350,7 @@ class Shipment extends Model
      */
     public function getStatusColor(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'gray',
             'picked_up' => 'blue',
             'in_transit' => 'yellow',
@@ -384,11 +385,11 @@ class Shipment extends Model
     {
         return $query->where(function ($q) use ($search) {
             $q->where('tracking_number', 'like', "%{$search}%")
-              ->orWhere('sender_name', 'like', "%{$search}%")
-              ->orWhere('recipient_name', 'like', "%{$search}%")
-              ->orWhereHas('customer', function ($customerQuery) use ($search) {
-                  $customerQuery->where('company_name', 'like', "%{$search}%");
-              });
+                ->orWhere('sender_name', 'like', "%{$search}%")
+                ->orWhere('recipient_name', 'like', "%{$search}%")
+                ->orWhereHas('customer', function ($customerQuery) use ($search) {
+                    $customerQuery->where('company_name', 'like', "%{$search}%");
+                });
         });
     }
 
@@ -414,6 +415,6 @@ class Shipment extends Model
     public function scopeOverdue($query)
     {
         return $query->where('estimated_delivery_date', '<', now())
-                    ->whereNotIn('status', ['delivered', 'cancelled']);
+            ->whereNotIn('status', ['delivered', 'cancelled']);
     }
 }

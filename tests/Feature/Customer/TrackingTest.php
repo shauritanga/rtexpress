@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Shipment;
+use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,7 +14,9 @@ class TrackingTest extends TestCase
     use RefreshDatabase;
 
     private $customer;
+
     private $customerUser;
+
     private $shipment;
 
     protected function setUp(): void
@@ -24,7 +26,7 @@ class TrackingTest extends TestCase
         $this->customer = Customer::factory()->create([
             'email' => 'customer@test.com',
         ]);
-        
+
         $this->customerUser = User::factory()->create([
             'email' => 'customer@test.com',
             'customer_id' => $this->customer->id,
@@ -45,28 +47,26 @@ class TrackingTest extends TestCase
             ->get('/customer/tracking');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Tracking/Index')
-                ->has('customer')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Tracking/Index')
+            ->has('customer')
         );
     }
 
     public function test_customer_can_track_shipment_with_tracking_number()
     {
         $response = $this->actingAs($this->customerUser)
-            ->get('/customer/tracking?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/tracking?tracking_number='.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Tracking/Index')
-                ->where('trackingNumber', $this->shipment->tracking_number)
-                ->has('trackingData')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Tracking/Index')
+            ->where('trackingNumber', $this->shipment->tracking_number)
+            ->has('trackingData')
         );
     }
 
     public function test_api_tracking_returns_shipment_data()
     {
-        $response = $this->getJson('/api/tracking/' . $this->shipment->tracking_number);
+        $response = $this->getJson('/api/tracking/'.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -99,7 +99,7 @@ class TrackingTest extends TestCase
 
     public function test_tracking_updates_endpoint_returns_latest_data()
     {
-        $response = $this->getJson('/api/tracking/' . $this->shipment->tracking_number . '/updates');
+        $response = $this->getJson('/api/tracking/'.$this->shipment->tracking_number.'/updates');
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -120,7 +120,7 @@ class TrackingTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->customerUser)
-            ->getJson('/api/tracking/' . $otherShipment->tracking_number);
+            ->getJson('/api/tracking/'.$otherShipment->tracking_number);
 
         // Should return mock data since tracking is public
         $response->assertStatus(200);
@@ -129,7 +129,7 @@ class TrackingTest extends TestCase
 
     public function test_unauthenticated_user_can_access_public_tracking()
     {
-        $response = $this->getJson('/api/tracking/' . $this->shipment->tracking_number);
+        $response = $this->getJson('/api/tracking/'.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -148,14 +148,14 @@ class TrackingTest extends TestCase
     public function test_tracking_events_are_generated_correctly()
     {
         $response = $this->actingAs($this->customerUser)
-            ->getJson('/api/tracking/' . $this->shipment->tracking_number);
+            ->getJson('/api/tracking/'.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
-        
+
         $events = $response->json('events');
         $this->assertIsArray($events);
         $this->assertNotEmpty($events);
-        
+
         // Check that events have required structure
         foreach ($events as $event) {
             $this->assertArrayHasKey('id', $event);
@@ -171,7 +171,7 @@ class TrackingTest extends TestCase
         $this->shipment->update(['status' => 'out_for_delivery']);
 
         $response = $this->actingAs($this->customerUser)
-            ->getJson('/api/tracking/' . $this->shipment->tracking_number);
+            ->getJson('/api/tracking/'.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -189,7 +189,7 @@ class TrackingTest extends TestCase
         $this->shipment->update(['status' => 'pending']);
 
         $response = $this->actingAs($this->customerUser)
-            ->getJson('/api/tracking/' . $this->shipment->tracking_number);
+            ->getJson('/api/tracking/'.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
         $response->assertJsonMissing(['driver']);
@@ -212,29 +212,28 @@ class TrackingTest extends TestCase
             ->get('/customer/tracking');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Tracking/Index')
-                ->where('trackingNumber', null)
-                ->where('trackingData', null)
+        $response->assertInertia(fn ($page) => $page->component('Customer/Tracking/Index')
+            ->where('trackingNumber', null)
+            ->where('trackingData', null)
         );
     }
 
     public function test_tracking_coordinates_are_realistic()
     {
         $response = $this->actingAs($this->customerUser)
-            ->getJson('/api/tracking/' . $this->shipment->tracking_number);
+            ->getJson('/api/tracking/'.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
-        
+
         $currentLocation = $response->json('current_location');
         $destination = $response->json('destination');
-        
+
         // Check latitude and longitude are within realistic ranges
         $this->assertGreaterThanOrEqual(-90, $currentLocation['lat']);
         $this->assertLessThanOrEqual(90, $currentLocation['lat']);
         $this->assertGreaterThanOrEqual(-180, $currentLocation['lng']);
         $this->assertLessThanOrEqual(180, $currentLocation['lng']);
-        
+
         $this->assertGreaterThanOrEqual(-90, $destination['lat']);
         $this->assertLessThanOrEqual(90, $destination['lat']);
         $this->assertGreaterThanOrEqual(-180, $destination['lng']);
@@ -244,16 +243,16 @@ class TrackingTest extends TestCase
     public function test_tracking_timestamps_are_valid()
     {
         $response = $this->actingAs($this->customerUser)
-            ->getJson('/api/tracking/' . $this->shipment->tracking_number);
+            ->getJson('/api/tracking/'.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
-        
+
         $estimatedDelivery = $response->json('estimated_delivery');
         $this->assertNotNull($estimatedDelivery);
-        
+
         // Check that estimated delivery is a valid ISO 8601 timestamp
         $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/', $estimatedDelivery);
-        
+
         $events = $response->json('events');
         foreach ($events as $event) {
             $this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/', $event['timestamp']);
@@ -263,10 +262,10 @@ class TrackingTest extends TestCase
     public function test_tracking_status_progression_is_logical()
     {
         $response = $this->actingAs($this->customerUser)
-            ->getJson('/api/tracking/' . $this->shipment->tracking_number);
+            ->getJson('/api/tracking/'.$this->shipment->tracking_number);
 
         $response->assertStatus(200);
-        
+
         $events = $response->json('events');
         $statusOrder = ['pending', 'picked_up', 'in_transit', 'out_for_delivery', 'delivered'];
 

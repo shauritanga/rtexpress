@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\SupportTicket;
 use App\Models\TicketReply;
-use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,7 +21,7 @@ class SupportController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
@@ -36,7 +35,7 @@ class SupportController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('ticket_number', 'like', "%{$search}%")
-                  ->orWhere('subject', 'like', "%{$search}%");
+                    ->orWhere('subject', 'like', "%{$search}%");
             });
         }
 
@@ -78,7 +77,7 @@ class SupportController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
@@ -95,7 +94,7 @@ class SupportController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return redirect()->route('customer.dashboard');
         }
 
@@ -131,7 +130,7 @@ class SupportController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer || $ticket->customer_id !== $customer->id) {
+        if (! $customer || $ticket->customer_id !== $customer->id) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
@@ -140,9 +139,9 @@ class SupportController extends Controller
             'assignedTo',
             'replies' => function ($query) {
                 $query->where('is_internal', false)
-                      ->with(['user', 'customer'])
-                      ->orderBy('created_at', 'asc');
-            }
+                    ->with(['user', 'customer'])
+                    ->orderBy('created_at', 'asc');
+            },
         ]);
 
         return Inertia::render('Customer/Support/Show', [
@@ -159,7 +158,7 @@ class SupportController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer || $ticket->customer_id !== $customer->id) {
+        if (! $customer || $ticket->customer_id !== $customer->id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -193,7 +192,7 @@ class SupportController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer || $ticket->customer_id !== $customer->id) {
+        if (! $customer || $ticket->customer_id !== $customer->id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -213,7 +212,7 @@ class SupportController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Thank you for your feedback!'
+            'message' => 'Thank you for your feedback!',
         ]);
     }
 }

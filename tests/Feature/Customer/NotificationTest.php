@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -13,16 +13,17 @@ class NotificationTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     private User $customerUser;
+
     private Customer $customer;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->customerUser = User::factory()->create([
             'role' => 'customer',
         ]);
-        
+
         $this->customer = Customer::factory()->create([
             'user_id' => $this->customerUser->id,
         ]);
@@ -34,12 +35,11 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Notifications/Index')
-                ->has('customer')
-                ->has('notifications')
-                ->has('unreadCount')
-                ->has('notificationSettings')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Notifications/Index')
+            ->has('customer')
+            ->has('notifications')
+            ->has('unreadCount')
+            ->has('notificationSettings')
         );
     }
 
@@ -49,18 +49,16 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('notifications')
-                ->has('notifications.0', fn ($notification) => 
-                    $notification->has('id')
-                        ->has('type')
-                        ->has('title')
-                        ->has('message')
-                        ->has('timestamp')
-                        ->has('is_read')
-                        ->has('priority')
-                        ->hasAll(['metadata'])
-                )
+        $response->assertInertia(fn ($page) => $page->has('notifications')
+            ->has('notifications.0', fn ($notification) => $notification->has('id')
+                ->has('type')
+                ->has('title')
+                ->has('message')
+                ->has('timestamp')
+                ->has('is_read')
+                ->has('priority')
+                ->hasAll(['metadata'])
+            )
         );
     }
 
@@ -70,12 +68,12 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        
+
         $notifications = $response->viewData('page')['props']['notifications'];
         $types = collect($notifications)->pluck('type')->unique();
-        
+
         $expectedTypes = ['shipment_update', 'delivery', 'exception', 'promotion', 'system'];
-        
+
         foreach ($expectedTypes as $type) {
             $this->assertTrue($types->contains($type), "Missing notification type: {$type}");
         }
@@ -87,12 +85,12 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        
+
         $notifications = $response->viewData('page')['props']['notifications'];
         $priorities = collect($notifications)->pluck('priority')->unique();
-        
+
         $expectedPriorities = ['high', 'medium', 'low'];
-        
+
         foreach ($expectedPriorities as $priority) {
             $this->assertTrue($priorities->contains($priority), "Missing priority level: {$priority}");
         }
@@ -104,12 +102,12 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        
+
         $notifications = $response->viewData('page')['props']['notifications'];
         $unreadCount = $response->viewData('page')['props']['unreadCount'];
-        
+
         $actualUnreadCount = collect($notifications)->where('is_read', false)->count();
-        
+
         $this->assertEquals($actualUnreadCount, $unreadCount);
     }
 
@@ -119,17 +117,15 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('notificationSettings', fn ($settings) => 
-                $settings->has('email_notifications')
-                    ->has('sms_notifications')
-                    ->has('push_notifications')
-                    ->has('shipment_updates')
-                    ->has('delivery_notifications')
-                    ->has('exception_alerts')
-                    ->has('promotional_offers')
-                    ->has('system_maintenance')
-            )
+        $response->assertInertia(fn ($page) => $page->has('notificationSettings', fn ($settings) => $settings->has('email_notifications')
+            ->has('sms_notifications')
+            ->has('push_notifications')
+            ->has('shipment_updates')
+            ->has('delivery_notifications')
+            ->has('exception_alerts')
+            ->has('promotional_offers')
+            ->has('system_maintenance')
+        )
         );
     }
 
@@ -139,14 +135,14 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        
+
         $notifications = $response->viewData('page')['props']['notifications'];
         $shipmentNotifications = collect($notifications)->whereIn('type', [
-            'shipment_update', 'delivery', 'exception'
+            'shipment_update', 'delivery', 'exception',
         ]);
-        
+
         foreach ($shipmentNotifications as $notification) {
-            if (!empty($notification['metadata'])) {
+            if (! empty($notification['metadata'])) {
                 $this->assertArrayHasKey('tracking_number', $notification['metadata']);
                 $this->assertArrayHasKey('shipment_id', $notification['metadata']);
             }
@@ -159,12 +155,12 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        
+
         $notifications = $response->viewData('page')['props']['notifications'];
         $promotionNotifications = collect($notifications)->where('type', 'promotion');
-        
+
         foreach ($promotionNotifications as $notification) {
-            if (!empty($notification['metadata'])) {
+            if (! empty($notification['metadata'])) {
                 $this->assertArrayHasKey('discount_code', $notification['metadata']);
                 $this->assertStringStartsWith('SAVE', $notification['metadata']['discount_code']);
             }
@@ -177,10 +173,10 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        
+
         $notifications = $response->viewData('page')['props']['notifications'];
         $timestamps = collect($notifications)->pluck('timestamp');
-        
+
         // Verify notifications are sorted by timestamp (newest first)
         $sortedTimestamps = $timestamps->sort()->reverse()->values();
         $this->assertEquals($sortedTimestamps->toArray(), $timestamps->toArray());
@@ -211,8 +207,7 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Dashboard/NoAccess')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Dashboard/NoAccess')
         );
     }
 
@@ -222,14 +217,14 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        
+
         $notifications = $response->viewData('page')['props']['notifications'];
-        
+
         foreach ($notifications as $notification) {
             $timestamp = strtotime($notification['timestamp']);
             $now = time();
             $oneWeekAgo = $now - (7 * 24 * 60 * 60);
-            
+
             // All notifications should be within the last week
             $this->assertGreaterThanOrEqual($oneWeekAgo, $timestamp);
             $this->assertLessThanOrEqual($now, $timestamp);
@@ -242,31 +237,31 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        
+
         $notifications = $response->viewData('page')['props']['notifications'];
-        
+
         foreach ($notifications as $notification) {
             $this->assertNotEmpty($notification['title']);
             $this->assertNotEmpty($notification['message']);
             $this->assertIsString($notification['title']);
             $this->assertIsString($notification['message']);
-            
+
             // Verify title and message are appropriate for the notification type
             switch ($notification['type']) {
                 case 'shipment_update':
-                    $this->assertStringContainsStringIgnoringCase('shipment', $notification['title'] . ' ' . $notification['message']);
+                    $this->assertStringContainsStringIgnoringCase('shipment', $notification['title'].' '.$notification['message']);
                     break;
                 case 'delivery':
-                    $this->assertStringContainsStringIgnoringCase('deliver', $notification['title'] . ' ' . $notification['message']);
+                    $this->assertStringContainsStringIgnoringCase('deliver', $notification['title'].' '.$notification['message']);
                     break;
                 case 'exception':
-                    $this->assertStringContainsStringIgnoringCase('exception', $notification['title'] . ' ' . $notification['message']);
+                    $this->assertStringContainsStringIgnoringCase('exception', $notification['title'].' '.$notification['message']);
                     break;
                 case 'promotion':
-                    $this->assertStringContainsStringIgnoringCase('discount', $notification['title'] . ' ' . $notification['message']);
+                    $this->assertStringContainsStringIgnoringCase('discount', $notification['title'].' '.$notification['message']);
                     break;
                 case 'system':
-                    $this->assertStringContainsStringIgnoringCase('system', $notification['title'] . ' ' . $notification['message']);
+                    $this->assertStringContainsStringIgnoringCase('system', $notification['title'].' '.$notification['message']);
                     break;
             }
         }
@@ -278,9 +273,9 @@ class NotificationTest extends TestCase
             ->get('/customer/notifications');
 
         $response->assertStatus(200);
-        
+
         $notifications = $response->viewData('page')['props']['notifications'];
-        
+
         // Should generate 25 notifications as per the controller
         $this->assertCount(25, $notifications);
     }

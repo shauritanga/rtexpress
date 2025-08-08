@@ -63,7 +63,7 @@ test('users inherit permissions from roles', function () {
 });
 
 test('role permission seeder creates default roles and permissions', function () {
-    $seeder = new RolePermissionSeeder();
+    $seeder = new RolePermissionSeeder;
     $seeder->run();
 
     // Check that default roles exist
@@ -84,7 +84,7 @@ test('role permission seeder creates default roles and permissions', function ()
 });
 
 test('warehouse staff has limited permissions', function () {
-    $seeder = new RolePermissionSeeder();
+    $seeder = new RolePermissionSeeder;
     $seeder->run();
 
     $warehouseRole = Role::where('name', 'warehouse_staff')->first();

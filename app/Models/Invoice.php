@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
+use App\Notifications\InvoiceCreatedNotification;
+use App\Notifications\InvoiceSentNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Carbon\Carbon;
-use App\Notifications\InvoiceCreatedNotification;
-use App\Notifications\InvoiceSentNotification;
 use Illuminate\Support\Facades\Notification;
 
 class Invoice extends Model
@@ -118,7 +117,7 @@ class Invoice extends Model
         $prefix = "INV-{$year}-";
 
         // Get the last invoice number for this year
-        $lastInvoice = static::where('invoice_number', 'like', $prefix . '%')
+        $lastInvoice = static::where('invoice_number', 'like', $prefix.'%')
             ->orderBy('invoice_number', 'desc')
             ->first();
 
@@ -129,7 +128,7 @@ class Invoice extends Model
             $newNumber = 1;
         }
 
-        return $prefix . str_pad($newNumber, 6, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($newNumber, 6, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -243,7 +242,7 @@ class Invoice extends Model
      */
     public function getDaysOverdue(): int
     {
-        if (!$this->isOverdue()) {
+        if (! $this->isOverdue()) {
             return 0;
         }
 
@@ -269,7 +268,7 @@ class Invoice extends Model
     {
         $this->increment('view_count');
 
-        if (!$this->viewed_at) {
+        if (! $this->viewed_at) {
             $this->update([
                 'status' => 'viewed',
                 'viewed_at' => now(),
@@ -323,7 +322,7 @@ class Invoice extends Model
             }
 
             // Also send email directly to customer email if no user account exists
-            if (!$customerUser && $this->customer->email) {
+            if (! $customerUser && $this->customer->email) {
                 \Illuminate\Support\Facades\Notification::route('mail', $this->customer->email)
                     ->notify(new InvoiceCreatedNotification($this));
             }
@@ -344,7 +343,7 @@ class Invoice extends Model
             }
 
             // Also send email directly to customer email if no user account exists
-            if (!$customerUser && $this->customer->email) {
+            if (! $customerUser && $this->customer->email) {
                 \Illuminate\Support\Facades\Notification::route('mail', $this->customer->email)
                     ->notify(new InvoiceSentNotification($this));
             }

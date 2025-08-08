@@ -2,14 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\NotificationTemplate;
+use App\Models\Customer;
 use App\Models\Notification;
 use App\Models\NotificationPreference;
-use App\Models\User;
-use App\Models\Customer;
+use App\Models\NotificationTemplate;
 use App\Models\Shipment;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class NotificationSeeder extends Seeder
 {
@@ -23,6 +22,7 @@ class NotificationSeeder extends Seeder
 
         if ($users->isEmpty()) {
             $this->command->warn('No users found. Please seed users first.');
+
             return;
         }
 
@@ -52,7 +52,7 @@ class NotificationSeeder extends Seeder
                 ',
                 'variables' => [
                     'customer_name', 'tracking_number', 'shipment_status',
-                    'delivery_date', 'origin_address', 'destination_address', 'company_name'
+                    'delivery_date', 'origin_address', 'destination_address', 'company_name',
                 ],
                 'is_system' => true,
                 'is_active' => true,
@@ -91,7 +91,7 @@ class NotificationSeeder extends Seeder
                 ',
                 'variables' => [
                     'customer_name', 'invoice_number', 'amount',
-                    'payment_date', 'payment_method', 'company_name'
+                    'payment_date', 'payment_method', 'company_name',
                 ],
                 'is_system' => true,
                 'is_active' => true,
@@ -118,7 +118,7 @@ class NotificationSeeder extends Seeder
                 ',
                 'variables' => [
                     'customer_name', 'tracking_number', 'delivery_date',
-                    'delivery_time', 'delivery_address', 'driver_phone', 'company_name'
+                    'delivery_time', 'delivery_address', 'driver_phone', 'company_name',
                 ],
                 'is_system' => true,
                 'is_active' => true,
@@ -146,7 +146,7 @@ class NotificationSeeder extends Seeder
                 ',
                 'variables' => [
                     'customer_name', 'ticket_number', 'ticket_subject',
-                    'ticket_priority', 'ticket_status', 'response_time', 'company_name'
+                    'ticket_priority', 'ticket_status', 'response_time', 'company_name',
                 ],
                 'is_system' => true,
                 'is_active' => true,
@@ -174,7 +174,7 @@ class NotificationSeeder extends Seeder
                 ',
                 'variables' => [
                     'customer_name', 'maintenance_date', 'start_time',
-                    'end_time', 'duration', 'company_name'
+                    'end_time', 'duration', 'company_name',
                 ],
                 'is_system' => true,
                 'is_active' => true,
@@ -220,7 +220,7 @@ class NotificationSeeder extends Seeder
                     'recipient_id' => $customers->first()->id ?? 1,
                     'recipient_email' => $customers->first()->email ?? 'customer@example.com',
                     'title' => 'Shipment Created Successfully',
-                    'message' => 'Your shipment ' . $shipments->first()->tracking_number . ' has been created and is being processed.',
+                    'message' => 'Your shipment '.$shipments->first()->tracking_number.' has been created and is being processed.',
                     'priority' => 'medium',
                     'status' => 'delivered',
                     'sent_at' => now()->subHours(2),

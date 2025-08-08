@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\InventoryItem;
 use App\Models\StockMovement;
-use App\Models\WarehouseStock;
-use App\Models\StockAlert;
 use App\Models\Warehouse;
+use App\Models\WarehouseStock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -28,9 +27,9 @@ class InventoryController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%")
-                  ->orWhere('barcode', 'like', "%{$search}%")
-                  ->orWhere('brand', 'like', "%{$search}%");
+                    ->orWhere('sku', 'like', "%{$search}%")
+                    ->orWhere('barcode', 'like', "%{$search}%")
+                    ->orWhere('brand', 'like', "%{$search}%");
             });
         }
 
@@ -95,14 +94,14 @@ class InventoryController extends Controller
             'warehouseStock.warehouse',
             'stockMovements' => function ($query) {
                 $query->with(['warehouse', 'createdBy'])
-                      ->orderBy('movement_date', 'desc')
-                      ->limit(20);
+                    ->orderBy('movement_date', 'desc')
+                    ->limit(20);
             },
             'stockAlerts' => function ($query) {
                 $query->where('status', 'active')
-                      ->orderBy('priority', 'desc')
-                      ->orderBy('triggered_at', 'desc');
-            }
+                    ->orderBy('priority', 'desc')
+                    ->orderBy('triggered_at', 'desc');
+            },
         ]);
 
         return Inertia::render('Admin/Inventory/Show', [
@@ -203,8 +202,8 @@ class InventoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'sku' => 'nullable|string|unique:inventory_items,sku,' . $item->id,
-            'barcode' => 'nullable|string|unique:inventory_items,barcode,' . $item->id,
+            'sku' => 'nullable|string|unique:inventory_items,sku,'.$item->id,
+            'barcode' => 'nullable|string|unique:inventory_items,barcode,'.$item->id,
             'description' => 'nullable|string',
             'category' => 'required|string|max:255',
             'brand' => 'nullable|string|max:255',
@@ -242,7 +241,7 @@ class InventoryController extends Controller
 
             if ($hasMovements || $hasActiveStock) {
                 return back()->withErrors([
-                    'error' => "Cannot delete inventory item {$item->sku} ({$item->name}). It has stock movements or active inventory. Please remove all stock first."
+                    'error' => "Cannot delete inventory item {$item->sku} ({$item->name}). It has stock movements or active inventory. Please remove all stock first.",
                 ]);
             }
 
@@ -284,7 +283,7 @@ class InventoryController extends Controller
                 ->where('warehouse_id', $request->warehouse_id)
                 ->first();
 
-            if (!$warehouseStock) {
+            if (! $warehouseStock) {
                 $warehouseStock = WarehouseStock::create([
                     'inventory_item_id' => $item->id,
                     'warehouse_id' => $request->warehouse_id,
@@ -384,6 +383,4 @@ class InventoryController extends Controller
             ->where('inventory_items.is_active', true)
             ->sum(DB::raw('warehouse_stock.quantity_available * warehouse_stock.average_cost'));
     }
-
-
 }

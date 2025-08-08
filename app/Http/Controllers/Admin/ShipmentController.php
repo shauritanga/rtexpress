@@ -242,17 +242,17 @@ class ShipmentController extends Controller
 
                 // Send notification to customer using new global channel system
                 try {
-                    $notificationService = new NotificationService();
+                    $notificationService = new NotificationService;
                     $notificationService->sendShipmentStatusUpdate($shipment, $validated['status']);
                 } catch (\Exception $e) {
                     // Log the error but don't fail the update
-                    \Log::error("Failed to send shipment update notification: " . $e->getMessage());
+                    \Log::error('Failed to send shipment update notification: '.$e->getMessage());
                 }
             }
 
             return redirect()
                 ->route('admin.shipments.show', $shipment)
-                ->with('success', "Shipment {$shipment->tracking_number} updated successfully!" .
+                ->with('success', "Shipment {$shipment->tracking_number} updated successfully!".
                     ($oldStatus !== $validated['status'] ? ' Customer has been notified via email.' : ''));
 
         } catch (\Exception $e) {
@@ -313,11 +313,11 @@ class ShipmentController extends Controller
 
             // Send email notification to customer
             try {
-                $notificationService = new NotificationService();
+                $notificationService = new NotificationService;
                 $notificationService->sendShipmentUpdate($shipment, $validated['status']);
             } catch (\Exception $e) {
                 // Log the error but don't fail the status update
-                \Log::error("Failed to send shipment update notification: " . $e->getMessage());
+                \Log::error('Failed to send shipment update notification: '.$e->getMessage());
             }
 
             return back()->with('success', 'Shipment status updated successfully! Customer has been notified via email.');
@@ -389,14 +389,14 @@ class ShipmentController extends Controller
 
         $shipments = $query->get();
 
-        $filename = 'shipments_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $filename = 'shipments_'.now()->format('Y-m-d_H-i-s').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
-        $callback = function() use ($shipments) {
+        $callback = function () use ($shipments) {
             $file = fopen('php://output', 'w');
 
             // CSV headers

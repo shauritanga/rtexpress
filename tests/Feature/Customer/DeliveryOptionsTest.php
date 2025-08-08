@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Shipment;
+use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,7 +14,9 @@ class DeliveryOptionsTest extends TestCase
     use RefreshDatabase;
 
     private $customer;
+
     private $customerUser;
+
     private $shipment;
 
     protected function setUp(): void
@@ -24,14 +26,14 @@ class DeliveryOptionsTest extends TestCase
         $this->customer = Customer::factory()->create([
             'email' => 'customer@test.com',
         ]);
-        
+
         $this->customerUser = User::factory()->create([
             'email' => 'customer@test.com',
             'customer_id' => $this->customer->id,
         ]);
 
         $warehouses = Warehouse::factory()->count(2)->create();
-        
+
         $this->shipment = Shipment::factory()->create([
             'customer_id' => $this->customer->id,
             'origin_warehouse_id' => $warehouses[0]->id,
@@ -46,10 +48,9 @@ class DeliveryOptionsTest extends TestCase
             ->get('/customer/delivery');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Delivery/Index')
-                ->has('customer')
-                ->has('deliveryStats')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Delivery/Index')
+            ->has('customer')
+            ->has('deliveryStats')
         );
     }
 
@@ -66,11 +67,10 @@ class DeliveryOptionsTest extends TestCase
             ->get('/customer/delivery');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('deliveryStats.onTimeDeliveries')
-                ->has('deliveryStats.totalDeliveries')
-                ->has('deliveryStats.averageDeliveryTime')
-                ->has('deliveryStats.preferredTimeSlot')
+        $response->assertInertia(fn ($page) => $page->has('deliveryStats.onTimeDeliveries')
+            ->has('deliveryStats.totalDeliveries')
+            ->has('deliveryStats.averageDeliveryTime')
+            ->has('deliveryStats.preferredTimeSlot')
         );
     }
 
@@ -201,7 +201,7 @@ class DeliveryOptionsTest extends TestCase
     public function test_customer_can_apply_delivery_options_to_shipment()
     {
         $tomorrow = now()->addDay()->format('Y-m-d');
-        
+
         $deliveryOptions = [
             'shipment_id' => $this->shipment->id,
             'delivery_date' => $tomorrow,
@@ -270,7 +270,7 @@ class DeliveryOptionsTest extends TestCase
             ->getJson("/api/delivery/time-slots?date={$tomorrow}");
 
         $response->assertStatus(200);
-        
+
         $slots = $response->json('slots');
         $slotTypes = collect($slots)->pluck('type')->unique()->toArray();
 
@@ -285,7 +285,7 @@ class DeliveryOptionsTest extends TestCase
             ->getJson('/api/delivery/pickup-locations?address=123 Main St, New York, NY');
 
         $response->assertStatus(200);
-        
+
         $locations = $response->json('locations');
         $this->assertNotEmpty($locations);
 
@@ -303,7 +303,7 @@ class DeliveryOptionsTest extends TestCase
             ->getJson('/api/delivery/pickup-locations?address=123 Main St, New York, NY&type=locker');
 
         $response->assertStatus(200);
-        
+
         $locations = $response->json('locations');
         foreach ($locations as $location) {
             $this->assertEquals('locker', $location['type']);
@@ -319,7 +319,7 @@ class DeliveryOptionsTest extends TestCase
             ->getJson("/api/delivery/time-slots?date={$saturday}");
 
         $response->assertStatus(200);
-        
+
         $slots = $response->json('slots');
         $this->assertNotEmpty($slots);
 
@@ -334,9 +334,8 @@ class DeliveryOptionsTest extends TestCase
             ->get("/customer/delivery?shipment_id={$this->shipment->id}");
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('currentShipment')
-                ->where('currentShipment.id', $this->shipment->id)
+        $response->assertInertia(fn ($page) => $page->has('currentShipment')
+            ->where('currentShipment.id', $this->shipment->id)
         );
     }
 
@@ -390,9 +389,8 @@ class DeliveryOptionsTest extends TestCase
             ->get('/customer/delivery');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) =>
-            $page->has('deliveryStats.totalDeliveries')
-                ->has('deliveryStats.onTimeDeliveries')
+        $response->assertInertia(fn ($page) => $page->has('deliveryStats.totalDeliveries')
+            ->has('deliveryStats.onTimeDeliveries')
         );
     }
 
@@ -404,9 +402,9 @@ class DeliveryOptionsTest extends TestCase
             ->getJson("/api/delivery/time-slots?date={$tomorrow}");
 
         $response->assertStatus(200);
-        
+
         $slots = $response->json('slots');
-        
+
         // Standard slots should be free
         $standardSlots = collect($slots)->where('type', 'standard');
         foreach ($standardSlots as $slot) {
@@ -426,9 +424,9 @@ class DeliveryOptionsTest extends TestCase
             ->getJson('/api/delivery/pickup-locations?address=123 Main St, New York, NY');
 
         $response->assertStatus(200);
-        
+
         $locations = $response->json('locations');
-        
+
         foreach ($locations as $location) {
             $this->assertArrayHasKey('id', $location);
             $this->assertArrayHasKey('name', $location);
@@ -438,12 +436,12 @@ class DeliveryOptionsTest extends TestCase
             $this->assertArrayHasKey('rating', $location);
             $this->assertArrayHasKey('available', $location);
             $this->assertArrayHasKey('fees', $location);
-            
+
             // Verify hours structure
             $this->assertArrayHasKey('weekdays', $location['hours']);
             $this->assertArrayHasKey('saturday', $location['hours']);
             $this->assertArrayHasKey('sunday', $location['hours']);
-            
+
             // Verify fees structure
             $this->assertArrayHasKey('pickup', $location['fees']);
             $this->assertArrayHasKey('storage', $location['fees']);
@@ -485,7 +483,7 @@ class DeliveryOptionsTest extends TestCase
         // Verify all preferences were saved
         $this->customer->refresh();
         $savedPreferences = json_decode($this->customer->delivery_preferences, true);
-        
+
         $this->assertEquals(6, count($savedPreferences['delivery_preferences']));
         $this->assertEquals(4, count($savedPreferences['contact_preferences']));
         $this->assertEquals('Ring doorbell twice, leave with neighbor if not home', $savedPreferences['special_instructions']);

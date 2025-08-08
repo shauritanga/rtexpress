@@ -35,10 +35,11 @@ class NotificationPreference extends Model
      */
     public function user()
     {
-        $class = 'App\\Models\\' . ucfirst($this->user_type);
+        $class = 'App\\Models\\'.ucfirst($this->user_type);
         if (class_exists($class)) {
             return $class::find($this->user_id);
         }
+
         return null;
     }
 
@@ -49,10 +50,18 @@ class NotificationPreference extends Model
     {
         $channels = [];
 
-        if ($this->email_enabled) $channels[] = 'email';
-        if ($this->sms_enabled) $channels[] = 'sms';
-        if ($this->push_enabled) $channels[] = 'push';
-        if ($this->in_app_enabled) $channels[] = 'in_app';
+        if ($this->email_enabled) {
+            $channels[] = 'email';
+        }
+        if ($this->sms_enabled) {
+            $channels[] = 'sms';
+        }
+        if ($this->push_enabled) {
+            $channels[] = 'push';
+        }
+        if ($this->in_app_enabled) {
+            $channels[] = 'in_app';
+        }
 
         return $channels;
     }
@@ -70,7 +79,7 @@ class NotificationPreference extends Model
      */
     public function updateChannel(string $channel, bool $enabled): void
     {
-        $field = $channel . '_enabled';
+        $field = $channel.'_enabled';
         if (in_array($field, $this->fillable)) {
             $this->update([$field => $enabled]);
         }
@@ -121,7 +130,7 @@ class NotificationPreference extends Model
     public function scopeForUser($query, string $userType, int $userId)
     {
         return $query->where('user_type', $userType)
-                    ->where('user_id', $userId);
+            ->where('user_id', $userId);
     }
 
     /**
@@ -137,7 +146,8 @@ class NotificationPreference extends Model
      */
     public function scopeWithEnabledChannel($query, string $channel)
     {
-        $field = $channel . '_enabled';
+        $field = $channel.'_enabled';
+
         return $query->where($field, true);
     }
 }

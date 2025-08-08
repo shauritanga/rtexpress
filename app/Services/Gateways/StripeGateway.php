@@ -3,18 +3,19 @@
 namespace App\Services\Gateways;
 
 use App\Models\Payment;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class StripeGateway implements PaymentGatewayInterface
 {
     protected $stripe;
+
     protected array $config;
 
     public function __construct()
     {
         $this->config = config('payment.gateways.stripe', []);
-        
+
         if ($this->isConfigured()) {
             // Initialize Stripe SDK when available
             // \Stripe\Stripe::setApiKey($this->config['secret_key']);
@@ -29,14 +30,14 @@ class StripeGateway implements PaymentGatewayInterface
         try {
             // For demo purposes, simulate successful payment
             // In production, integrate with actual Stripe API
-            
-            if (!$this->isConfigured()) {
+
+            if (! $this->isConfigured()) {
                 throw new Exception('Stripe gateway not configured');
             }
 
             // Simulate Stripe payment processing
-            $transactionId = 'stripe_' . uniqid();
-            $paymentId = 'pi_' . uniqid();
+            $transactionId = 'stripe_'.uniqid();
+            $paymentId = 'pi_'.uniqid();
 
             // Simulate processing delay
             usleep(500000); // 0.5 seconds
@@ -79,13 +80,13 @@ class StripeGateway implements PaymentGatewayInterface
     public function createPaymentIntent(array $paymentData): array
     {
         try {
-            if (!$this->isConfigured()) {
+            if (! $this->isConfigured()) {
                 throw new Exception('Stripe gateway not configured');
             }
 
             // Simulate Stripe PaymentIntent creation
-            $intentId = 'pi_' . uniqid();
-            $clientSecret = $intentId . '_secret_' . uniqid();
+            $intentId = 'pi_'.uniqid();
+            $clientSecret = $intentId.'_secret_'.uniqid();
 
             return [
                 'success' => true,
@@ -122,10 +123,10 @@ class StripeGateway implements PaymentGatewayInterface
             switch ($eventType) {
                 case 'payment_intent.succeeded':
                     return $this->handlePaymentSuccess($paymentIntent);
-                
+
                 case 'payment_intent.payment_failed':
                     return $this->handlePaymentFailure($paymentIntent);
-                
+
                 default:
                     return ['status' => 'ignored', 'event_type' => $eventType];
             }
@@ -143,15 +144,15 @@ class StripeGateway implements PaymentGatewayInterface
     /**
      * Process refund for a payment.
      */
-    public function processRefund(Payment $payment, float $amount, string $reason = null): array
+    public function processRefund(Payment $payment, float $amount, ?string $reason = null): array
     {
         try {
-            if (!$this->isConfigured()) {
+            if (! $this->isConfigured()) {
                 throw new Exception('Stripe gateway not configured');
             }
 
             // Simulate Stripe refund
-            $refundId = 're_' . uniqid();
+            $refundId = 're_'.uniqid();
 
             return [
                 'status' => 'succeeded',
@@ -196,8 +197,8 @@ class StripeGateway implements PaymentGatewayInterface
      */
     public function isConfigured(): bool
     {
-        return !empty($this->config['public_key']) && 
-               !empty($this->config['secret_key']);
+        return ! empty($this->config['public_key']) &&
+               ! empty($this->config['secret_key']);
     }
 
     /**
@@ -259,7 +260,7 @@ class StripeGateway implements PaymentGatewayInterface
             $errors[] = 'Currency is required';
         }
 
-        if (!in_array($paymentData['currency'], $this->getSupportedCurrencies())) {
+        if (! in_array($paymentData['currency'], $this->getSupportedCurrencies())) {
             $errors[] = 'Currency not supported by Stripe';
         }
 

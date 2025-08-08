@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Shipment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -331,7 +331,7 @@ class MarketingController extends Controller
         // Find shipment by tracking number
         $shipment = Shipment::where('tracking_number', $trackingNumber)->first();
 
-        if (!$shipment) {
+        if (! $shipment) {
             return back()
                 ->withErrors(['tracking_number' => 'Tracking number not found. Please check and try again.'])
                 ->withInput();
@@ -399,8 +399,8 @@ class MarketingController extends Controller
 
         Mail::send([], [], function ($message) use ($adminEmail, $subject, $emailContent) {
             $message->to($adminEmail)
-                    ->subject($subject)
-                    ->html($emailContent);
+                ->subject($subject)
+                ->html($emailContent);
         });
     }
 
@@ -410,14 +410,14 @@ class MarketingController extends Controller
     private function sendContactEmail(array $data)
     {
         $adminEmail = 'admin@rtexpress.co.tz';
-        $subject = 'New Contact Form Message: ' . $data['subject'];
+        $subject = 'New Contact Form Message: '.$data['subject'];
 
         $emailContent = view('emails.marketing.contact-form', compact('data'))->render();
 
         Mail::send([], [], function ($message) use ($adminEmail, $subject, $emailContent) {
             $message->to($adminEmail)
-                    ->subject($subject)
-                    ->html($emailContent);
+                ->subject($subject)
+                ->html($emailContent);
         });
     }
 }

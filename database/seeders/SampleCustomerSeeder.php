@@ -2,16 +2,15 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Customer;
-use App\Models\Shipment;
 use App\Models\Invoice;
-use App\Models\Payment;
 use App\Models\NotificationPreference;
+use App\Models\Payment;
+use App\Models\Shipment;
+use App\Models\User;
 use App\Models\Warehouse;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
 
 class SampleCustomerSeeder extends Seeder
 {
@@ -127,22 +126,22 @@ class SampleCustomerSeeder extends Seeder
         }
 
         $this->command->info("\n=== SAMPLE CUSTOMER LOGIN CREDENTIALS ===");
-        $this->command->info("1. Tech Solutions Inc:");
-        $this->command->info("   Email: customer@demo.com");
-        $this->command->info("   Password: customer123");
-        $this->command->info("");
-        $this->command->info("2. Global Imports Ltd:");
-        $this->command->info("   Email: sarah@demo.com");
-        $this->command->info("   Password: sarah123");
-        $this->command->info("");
-        $this->command->info("3. East Africa Trading Co:");
-        $this->command->info("   Email: david@demo.com");
-        $this->command->info("   Password: david123");
-        $this->command->info("");
-        $this->command->info("Admin Login:");
-        $this->command->info("   Email: admin@rtexpress.com");
-        $this->command->info("   Password: admin123");
-        $this->command->info("==========================================");
+        $this->command->info('1. Tech Solutions Inc:');
+        $this->command->info('   Email: customer@demo.com');
+        $this->command->info('   Password: customer123');
+        $this->command->info('');
+        $this->command->info('2. Global Imports Ltd:');
+        $this->command->info('   Email: sarah@demo.com');
+        $this->command->info('   Password: sarah123');
+        $this->command->info('');
+        $this->command->info('3. East Africa Trading Co:');
+        $this->command->info('   Email: david@demo.com');
+        $this->command->info('   Password: david123');
+        $this->command->info('');
+        $this->command->info('Admin Login:');
+        $this->command->info('   Email: admin@rtexpress.com');
+        $this->command->info('   Password: admin123');
+        $this->command->info('==========================================');
     }
 
     private function createSampleWarehouses(User $adminUser): void
@@ -205,13 +204,13 @@ class SampleCustomerSeeder extends Seeder
             $packageType = $packageTypes[array_rand($packageTypes)];
 
             Shipment::create([
-                'tracking_number' => 'RT-' . date('Y') . '-' . str_pad($customer->id * 1000 + $i, 6, '0', STR_PAD_LEFT),
+                'tracking_number' => 'RT-'.date('Y').'-'.str_pad($customer->id * 1000 + $i, 6, '0', STR_PAD_LEFT),
                 'customer_id' => $customer->id,
                 'origin_warehouse_id' => 1, // Assuming warehouse ID 1 exists
                 'destination_warehouse_id' => 2, // Assuming warehouse ID 2 exists
                 'sender_name' => $customer->contact_person,
                 'sender_phone' => $customer->phone,
-                'sender_address' => $customer->address_line_1 . ', ' . $customer->city . ', ' . $customer->state_province . ' ' . $customer->postal_code . ', ' . $customer->country,
+                'sender_address' => $customer->address_line_1.', '.$customer->city.', '.$customer->state_province.' '.$customer->postal_code.', '.$customer->country,
                 'recipient_name' => 'John Recipient',
                 'recipient_phone' => '+1-555-9999',
                 'recipient_address' => '123 Destination St, Destination City, DS 54321, US',
@@ -238,16 +237,16 @@ class SampleCustomerSeeder extends Seeder
     {
         $currencies = ['TZS', 'USD', 'EUR', 'GBP'];
         $statuses = ['draft', 'sent', 'paid', 'overdue'];
-        
+
         for ($i = 1; $i <= 3; $i++) {
             $currency = $currencies[array_rand($currencies)];
             $status = $statuses[array_rand($statuses)];
             $subtotal = rand(100, 1000);
             $taxAmount = $subtotal * 0.1;
             $totalAmount = $subtotal + $taxAmount;
-            
+
             $invoice = Invoice::create([
-                'invoice_number' => 'INV-' . date('Y') . '-' . str_pad($customer->id * 100 + $i, 6, '0', STR_PAD_LEFT),
+                'invoice_number' => 'INV-'.date('Y').'-'.str_pad($customer->id * 100 + $i, 6, '0', STR_PAD_LEFT),
                 'customer_id' => $customer->id,
                 'status' => $status,
                 'currency' => $currency,
@@ -260,7 +259,7 @@ class SampleCustomerSeeder extends Seeder
                 'issue_date' => now()->subDays(rand(1, 60)),
                 'due_date' => now()->addDays(rand(1, 30)),
                 'payment_terms' => 'Net 30',
-                'billing_address' => $customer->address_line_1 . ', ' . $customer->city . ', ' . $customer->state_province . ' ' . $customer->postal_code,
+                'billing_address' => $customer->address_line_1.', '.$customer->city.', '.$customer->state_province.' '.$customer->postal_code,
                 'company_address' => 'RT Express, 123 Express Way, Shipping City, SC 12345',
                 'created_by' => $adminUser->id,
                 'created_at' => now()->subDays(rand(1, 60)),
@@ -269,7 +268,7 @@ class SampleCustomerSeeder extends Seeder
             // Create payment if invoice is paid
             if ($status === 'paid') {
                 Payment::create([
-                    'payment_number' => 'PAY-' . date('Y') . '-' . str_pad($customer->id * 100 + $i, 6, '0', STR_PAD_LEFT),
+                    'payment_number' => 'PAY-'.date('Y').'-'.str_pad($customer->id * 100 + $i, 6, '0', STR_PAD_LEFT),
                     'invoice_id' => $invoice->id,
                     'customer_id' => $customer->id,
                     'status' => 'completed',
@@ -281,7 +280,7 @@ class SampleCustomerSeeder extends Seeder
                     'fee_amount' => $totalAmount * 0.029, // 2.9% processing fee
                     'net_amount' => $totalAmount - ($totalAmount * 0.029),
                     'gateway' => 'stripe',
-                    'gateway_transaction_id' => 'txn_' . uniqid(),
+                    'gateway_transaction_id' => 'txn_'.uniqid(),
                     'payment_date' => now()->subDays(rand(0, 30)),
                     'created_by' => $adminUser->id,
                 ]);
@@ -294,7 +293,7 @@ class SampleCustomerSeeder extends Seeder
         $notificationTypes = [
             'shipment_created', 'shipment_picked_up', 'shipment_in_transit',
             'shipment_delivered', 'shipment_exception', 'payment_due',
-            'payment_received', 'account_security'
+            'payment_received', 'account_security',
         ];
 
         foreach ($notificationTypes as $type) {

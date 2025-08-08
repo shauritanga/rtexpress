@@ -4,8 +4,6 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
@@ -15,9 +13,13 @@ class ShipmentStatusUpdated implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $shipment;
+
     public $oldStatus;
+
     public $newStatus;
+
     public $location;
+
     public $timestamp;
 
     /**
@@ -41,14 +43,12 @@ class ShipmentStatusUpdated implements ShouldBroadcast
     {
         return [
             new Channel('shipments'),
-            new Channel('shipment.' . $this->shipment->tracking_number),
+            new Channel('shipment.'.$this->shipment->tracking_number),
         ];
     }
 
     /**
      * Get the data to broadcast.
-     *
-     * @return array
      */
     public function broadcastWith(): array
     {
@@ -65,14 +65,12 @@ class ShipmentStatusUpdated implements ShouldBroadcast
                     'code' => $this->shipment->customer->customer_code ?? 'N/A',
                 ],
                 'timestamp' => $this->timestamp,
-            ]
+            ],
         ];
     }
 
     /**
      * Get the broadcast event name.
-     *
-     * @return string
      */
     public function broadcastAs(): string
     {

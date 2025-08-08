@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Http\Middleware\SecurityHeaders;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -10,18 +10,18 @@ uses(RefreshDatabase::class);
 describe('CSP IPv6 Localhost Support', function () {
     test('CSP allows IPv6 localhost in development environment', function () {
         // Create middleware instance
-        $middleware = new SecurityHeaders();
+        $middleware = new SecurityHeaders;
 
         // Create mock request and response
-        $request = new Request();
-        $response = new Response();
+        $request = new Request;
+        $response = new Response;
 
         // Temporarily set environment to local
         $originalEnv = app()->environment();
         app()->instance('env', 'local');
 
         // Apply middleware
-        $result = $middleware->handle($request, function() use ($response) {
+        $result = $middleware->handle($request, function () use ($response) {
             return $response;
         });
 
@@ -46,18 +46,18 @@ describe('CSP IPv6 Localhost Support', function () {
 
     test('CSP is stricter in production environment', function () {
         // Create middleware instance
-        $middleware = new SecurityHeaders();
+        $middleware = new SecurityHeaders;
 
         // Create mock request and response
-        $request = new Request();
-        $response = new Response();
+        $request = new Request;
+        $response = new Response;
 
         // Temporarily set environment to production
         $originalEnv = app()->environment();
         app()->instance('env', 'production');
 
         // Apply middleware
-        $result = $middleware->handle($request, function() use ($response) {
+        $result = $middleware->handle($request, function () use ($response) {
             return $response;
         });
 
@@ -81,9 +81,9 @@ describe('CSP IPv6 Localhost Support', function () {
 
     test('CSP includes all necessary directives', function () {
         $response = $this->get('/login');
-        
+
         $csp = $response->headers->get('Content-Security-Policy');
-        
+
         // Check all required CSP directives are present
         expect($csp)->toContain("default-src 'self'");
         expect($csp)->toContain('script-src');

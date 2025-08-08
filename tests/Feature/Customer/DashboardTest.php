@@ -2,31 +2,32 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Shipment;
+use App\Models\User;
 use App\Models\Warehouse;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use Carbon\Carbon;
 
 class DashboardTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
     private User $customerUser;
+
     private Customer $customer;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a customer user
         $this->customerUser = User::factory()->create([
             'role' => 'customer',
         ]);
-        
+
         $this->customer = Customer::factory()->create([
             'user_id' => $this->customerUser->id,
         ]);
@@ -38,15 +39,14 @@ class DashboardTest extends TestCase
             ->get('/customer/dashboard');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Dashboard/Index')
-                ->has('customer')
-                ->has('stats')
-                ->has('recentShipments')
-                ->has('activeShipments')
-                ->has('recentActivity')
-                ->has('performanceMetrics')
-                ->has('upcomingDeliveries')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Dashboard/Index')
+            ->has('customer')
+            ->has('stats')
+            ->has('recentShipments')
+            ->has('activeShipments')
+            ->has('recentActivity')
+            ->has('performanceMetrics')
+            ->has('upcomingDeliveries')
         );
     }
 
@@ -54,21 +54,21 @@ class DashboardTest extends TestCase
     {
         // Create test shipments
         $warehouses = Warehouse::factory()->count(2)->create();
-        
+
         Shipment::factory()->count(5)->create([
             'customer_id' => $this->customer->id,
             'status' => 'delivered',
             'origin_warehouse_id' => $warehouses[0]->id,
             'destination_warehouse_id' => $warehouses[1]->id,
         ]);
-        
+
         Shipment::factory()->count(3)->create([
             'customer_id' => $this->customer->id,
             'status' => 'in_transit',
             'origin_warehouse_id' => $warehouses[0]->id,
             'destination_warehouse_id' => $warehouses[1]->id,
         ]);
-        
+
         Shipment::factory()->count(2)->create([
             'customer_id' => $this->customer->id,
             'status' => 'pending',
@@ -80,20 +80,18 @@ class DashboardTest extends TestCase
             ->get('/customer/dashboard');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('stats', fn ($stats) => 
-                $stats->where('total_shipments', 10)
-                    ->where('active_shipments', 5) // in_transit + pending
-                    ->where('delivered_shipments', 5)
-                    ->where('pending_shipments', 2)
-            )
+        $response->assertInertia(fn ($page) => $page->has('stats', fn ($stats) => $stats->where('total_shipments', 10)
+            ->where('active_shipments', 5) // in_transit + pending
+            ->where('delivered_shipments', 5)
+            ->where('pending_shipments', 2)
+        )
         );
     }
 
     public function test_dashboard_shows_recent_shipments()
     {
         $warehouses = Warehouse::factory()->count(2)->create();
-        
+
         $recentShipments = Shipment::factory()->count(3)->create([
             'customer_id' => $this->customer->id,
             'origin_warehouse_id' => $warehouses[0]->id,
@@ -105,21 +103,19 @@ class DashboardTest extends TestCase
             ->get('/customer/dashboard');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('recentShipments', 3)
-                ->has('recentShipments.0', fn ($shipment) => 
-                    $shipment->has('tracking_number')
-                        ->has('status')
-                        ->has('recipient_name')
-                        ->has('created_at')
-                )
+        $response->assertInertia(fn ($page) => $page->has('recentShipments', 3)
+            ->has('recentShipments.0', fn ($shipment) => $shipment->has('tracking_number')
+                ->has('status')
+                ->has('recipient_name')
+                ->has('created_at')
+            )
         );
     }
 
     public function test_dashboard_includes_recent_activity_timeline()
     {
         $warehouses = Warehouse::factory()->count(2)->create();
-        
+
         Shipment::factory()->count(5)->create([
             'customer_id' => $this->customer->id,
             'origin_warehouse_id' => $warehouses[0]->id,
@@ -130,18 +126,16 @@ class DashboardTest extends TestCase
             ->get('/customer/dashboard');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('recentActivity')
-                ->has('recentActivity.0', fn ($event) => 
-                    $event->has('id')
-                        ->has('tracking_number')
-                        ->has('event_type')
-                        ->has('status')
-                        ->has('description')
-                        ->has('timestamp')
-                        ->has('recipient_name')
-                        ->has('service_type')
-                )
+        $response->assertInertia(fn ($page) => $page->has('recentActivity')
+            ->has('recentActivity.0', fn ($event) => $event->has('id')
+                ->has('tracking_number')
+                ->has('event_type')
+                ->has('status')
+                ->has('description')
+                ->has('timestamp')
+                ->has('recipient_name')
+                ->has('service_type')
+            )
         );
     }
 
@@ -151,24 +145,22 @@ class DashboardTest extends TestCase
             ->get('/customer/dashboard');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('performanceMetrics', fn ($metrics) => 
-                $metrics->has('on_time_delivery_rate')
-                    ->has('average_delivery_time')
-                    ->has('total_deliveries_this_month')
-                    ->has('total_deliveries_last_month')
-                    ->has('early_deliveries')
-                    ->has('on_time_deliveries')
-                    ->has('late_deliveries')
-                    ->has('performance_trend')
-            )
+        $response->assertInertia(fn ($page) => $page->has('performanceMetrics', fn ($metrics) => $metrics->has('on_time_delivery_rate')
+            ->has('average_delivery_time')
+            ->has('total_deliveries_this_month')
+            ->has('total_deliveries_last_month')
+            ->has('early_deliveries')
+            ->has('on_time_deliveries')
+            ->has('late_deliveries')
+            ->has('performance_trend')
+        )
         );
     }
 
     public function test_dashboard_includes_upcoming_deliveries()
     {
         $warehouses = Warehouse::factory()->count(2)->create();
-        
+
         // Create shipments with future delivery dates
         Shipment::factory()->count(3)->create([
             'customer_id' => $this->customer->id,
@@ -182,15 +174,13 @@ class DashboardTest extends TestCase
             ->get('/customer/dashboard');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('upcomingDeliveries')
-                ->has('upcomingDeliveries.0', fn ($delivery) => 
-                    $delivery->has('tracking_number')
-                        ->has('recipient_name')
-                        ->has('estimated_delivery_date')
-                        ->has('priority')
-                        ->has('service_type')
-                )
+        $response->assertInertia(fn ($page) => $page->has('upcomingDeliveries')
+            ->has('upcomingDeliveries.0', fn ($delivery) => $delivery->has('tracking_number')
+                ->has('recipient_name')
+                ->has('estimated_delivery_date')
+                ->has('priority')
+                ->has('service_type')
+            )
         );
     }
 
@@ -219,15 +209,14 @@ class DashboardTest extends TestCase
             ->get('/customer/dashboard');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Dashboard/NoAccess')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Dashboard/NoAccess')
         );
     }
 
     public function test_dashboard_performance_metrics_calculation()
     {
         $warehouses = Warehouse::factory()->count(2)->create();
-        
+
         // Create delivered shipments for current month
         Shipment::factory()->count(10)->create([
             'customer_id' => $this->customer->id,
@@ -241,13 +230,11 @@ class DashboardTest extends TestCase
             ->get('/customer/dashboard');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('performanceMetrics', fn ($metrics) => 
-                $metrics->where('total_deliveries_this_month', 10)
-                    ->whereType('on_time_delivery_rate', 'double')
-                    ->whereType('average_delivery_time', 'integer')
-                    ->whereIn('performance_trend', ['up', 'down', 'stable'])
-            )
+        $response->assertInertia(fn ($page) => $page->has('performanceMetrics', fn ($metrics) => $metrics->where('total_deliveries_this_month', 10)
+            ->whereType('on_time_delivery_rate', 'double')
+            ->whereType('average_delivery_time', 'integer')
+            ->whereIn('performance_trend', ['up', 'down', 'stable'])
+        )
         );
     }
 
@@ -258,13 +245,11 @@ class DashboardTest extends TestCase
             ->get('/customer/dashboard');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('stats', fn ($stats) => 
-                $stats->where('total_shipments', 0)
-                    ->where('active_shipments', 0)
-                    ->where('delivered_shipments', 0)
-                    ->where('pending_shipments', 0)
-            )
+        $response->assertInertia(fn ($page) => $page->has('stats', fn ($stats) => $stats->where('total_shipments', 0)
+            ->where('active_shipments', 0)
+            ->where('delivered_shipments', 0)
+            ->where('pending_shipments', 0)
+        )
             ->has('recentShipments', 0)
             ->has('activeShipments', 0)
             ->has('recentActivity')

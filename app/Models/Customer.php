@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
-    use HasFactory, SoftDeletes, EncryptableAttributes;
+    use EncryptableAttributes, HasFactory, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -74,7 +74,7 @@ class Customer extends Model
         'company',
         'address',
         'state',
-        'total_spent'
+        'total_spent',
     ];
 
     /**
@@ -90,7 +90,7 @@ class Customer extends Model
                     $customer->customer_code = static::generateCustomerCode();
                 } catch (\Exception $e) {
                     // Fallback if generation fails
-                    $customer->customer_code = 'CUS-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+                    $customer->customer_code = 'CUS-'.date('Y').'-'.str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
                 }
             }
         });
@@ -167,8 +167,9 @@ class Customer extends Model
     {
         $address = $this->address_line_1 ?? '';
         if ($this->address_line_2) {
-            $address .= ', ' . $this->address_line_2;
+            $address .= ', '.$this->address_line_2;
         }
+
         return $address ?: 'No address provided';
     }
 
@@ -199,7 +200,7 @@ class Customer extends Model
         $prefix = "CUS-{$year}-";
 
         $lastCustomer = static::withTrashed()
-            ->where('customer_code', 'like', $prefix . '%')
+            ->where('customer_code', 'like', $prefix.'%')
             ->orderBy('customer_code', 'desc')
             ->first();
 
@@ -210,7 +211,7 @@ class Customer extends Model
             $newNumber = 1;
         }
 
-        return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -266,10 +267,6 @@ class Customer extends Model
         return 0.0;
     }
 
-
-
-
-
     /**
      * Get full address as string.
      */
@@ -278,13 +275,13 @@ class Customer extends Model
         $address = $this->address_line_1;
 
         if ($this->address_line_2) {
-            $address .= ', ' . $this->address_line_2;
+            $address .= ', '.$this->address_line_2;
         }
 
-        $address .= ', ' . $this->city;
-        $address .= ', ' . $this->state_province;
-        $address .= ' ' . $this->postal_code;
-        $address .= ', ' . $this->country;
+        $address .= ', '.$this->city;
+        $address .= ', '.$this->state_province;
+        $address .= ' '.$this->postal_code;
+        $address .= ', '.$this->country;
 
         return $address;
     }
@@ -304,7 +301,7 @@ class Customer extends Model
     public function scopePendingApproval($query)
     {
         return $query->where('status', 'inactive')
-                    ->where('created_at', '>=', now()->subDays(30));
+            ->where('created_at', '>=', now()->subDays(30));
     }
 
     /**
@@ -314,9 +311,9 @@ class Customer extends Model
     {
         return $query->where(function ($q) use ($search) {
             $q->where('customer_code', 'like', "%{$search}%")
-              ->orWhere('company_name', 'like', "%{$search}%")
-              ->orWhere('contact_person', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%");
+                ->orWhere('company_name', 'like', "%{$search}%")
+                ->orWhere('contact_person', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
         });
     }
 

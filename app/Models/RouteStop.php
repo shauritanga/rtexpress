@@ -170,7 +170,7 @@ class RouteStop extends Model
         $route = $this->deliveryRoute;
         $driver = $route->driver;
 
-        if (!$driver->current_latitude || !$driver->current_longitude) {
+        if (! $driver->current_latitude || ! $driver->current_longitude) {
             return $this->deliveryRoute->delivery_date
                 ->setTimeFromTimeString($this->planned_arrival_time);
         }
@@ -212,7 +212,7 @@ class RouteStop extends Model
         $timeEfficiency = $plannedDuration > 0 ?
             round((1 - abs($actualDuration - $plannedDuration) / $plannedDuration) * 100, 1) : 0;
 
-        $isOnTime = !$this->isOverdue();
+        $isOnTime = ! $this->isOverdue();
         $isCompleted = $this->status === 'completed';
 
         return [
@@ -245,9 +245,9 @@ class RouteStop extends Model
     public function scopeOverdue($query)
     {
         return $query->whereNotIn('status', ['completed', 'failed'])
-                    ->whereHas('deliveryRoute', function ($q) {
-                        $q->where('delivery_date', '<=', today());
-                    });
+            ->whereHas('deliveryRoute', function ($q) {
+                $q->where('delivery_date', '<=', today());
+            });
     }
 
     /**

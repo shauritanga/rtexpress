@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Shipment;
 use App\Models\ShipmentTracking;
-use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -73,14 +72,15 @@ class TrackingController extends Controller
     {
         // Get active shipments with latest tracking
         $activeShipments = Shipment::with(['trackingHistory' => function ($query) {
-                $query->latest('occurred_at')->limit(1);
-            }, 'customer', 'originWarehouse', 'destinationWarehouse'])
+            $query->latest('occurred_at')->limit(1);
+        }, 'customer', 'originWarehouse', 'destinationWarehouse'])
             ->whereNotIn('status', ['delivered', 'cancelled'])
             ->orderBy('updated_at', 'desc')
             ->limit(50)
             ->get()
             ->map(function ($shipment) {
                 $latestTracking = $shipment->trackingHistory->first();
+
                 return [
                     'id' => $shipment->id,
                     'tracking_number' => $shipment->tracking_number,
@@ -133,11 +133,11 @@ class TrackingController extends Controller
 
             // Send notification to customer using new global channel system
             try {
-                $notificationService = new NotificationService();
+                $notificationService = new NotificationService;
                 $notificationService->sendShipmentStatusUpdate($shipment, $validated['status']);
             } catch (\Exception $e) {
                 // Log the error but don't fail the status update
-                \Log::error("Failed to send shipment update notification: " . $e->getMessage());
+                \Log::error('Failed to send shipment update notification: '.$e->getMessage());
             }
 
             DB::commit();
@@ -155,7 +155,7 @@ class TrackingController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update tracking status',
@@ -181,10 +181,10 @@ class TrackingController extends Controller
             DB::beginTransaction();
 
             $updatedShipments = [];
-            
+
             foreach ($validated['shipment_ids'] as $shipmentId) {
                 $shipment = Shipment::findOrFail($shipmentId);
-                
+
                 $shipment->addTrackingUpdate(
                     $validated['status'],
                     $validated['location'],
@@ -199,11 +199,11 @@ class TrackingController extends Controller
 
                 // Send notification to customer using new global channel system
                 try {
-                    $notificationService = new NotificationService();
+                    $notificationService = new NotificationService;
                     $notificationService->sendShipmentStatusUpdate($shipment, $validated['status']);
                 } catch (\Exception $e) {
                     // Log the error but don't fail the bulk update
-                    \Log::error("Failed to send shipment update notification for {$shipment->tracking_number}: " . $e->getMessage());
+                    \Log::error("Failed to send shipment update notification for {$shipment->tracking_number}: ".$e->getMessage());
                 }
 
                 $updatedShipments[] = [
@@ -217,13 +217,13 @@ class TrackingController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => count($updatedShipments) . ' shipments updated successfully. Customers have been notified via email.',
+                'message' => count($updatedShipments).' shipments updated successfully. Customers have been notified via email.',
                 'updated_shipments' => $updatedShipments,
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update shipments',
@@ -273,15 +273,15 @@ class TrackingController extends Controller
 
         $query = Shipment::with(['customer', 'originWarehouse', 'destinationWarehouse'])
             ->where(function ($q) use ($validated) {
-                $q->where('tracking_number', 'like', '%' . $validated['query'] . '%')
-                  ->orWhereHas('customer', function ($customerQuery) use ($validated) {
-                      $customerQuery->where('company_name', 'like', '%' . $validated['query'] . '%');
-                  })
-                  ->orWhere('recipient_name', 'like', '%' . $validated['query'] . '%')
-                  ->orWhere('sender_name', 'like', '%' . $validated['query'] . '%');
+                $q->where('tracking_number', 'like', '%'.$validated['query'].'%')
+                    ->orWhereHas('customer', function ($customerQuery) use ($validated) {
+                        $customerQuery->where('company_name', 'like', '%'.$validated['query'].'%');
+                    })
+                    ->orWhere('recipient_name', 'like', '%'.$validated['query'].'%')
+                    ->orWhere('sender_name', 'like', '%'.$validated['query'].'%');
             });
 
-        if (!empty($validated['status'])) {
+        if (! empty($validated['status'])) {
             $query->where('status', $validated['status']);
         }
 
@@ -313,7 +313,7 @@ class TrackingController extends Controller
      */
     private function calculateProgress(Shipment $shipment): int
     {
-        return match($shipment->status) {
+        return match ($shipment->status) {
             'pending' => 5,
             'picked_up' => 25,
             'in_transit' => 60,

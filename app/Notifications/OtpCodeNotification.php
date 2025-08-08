@@ -12,7 +12,9 @@ class OtpCodeNotification extends Notification // Removed ShouldQueue for immedi
     use Queueable;
 
     public string $otpCode;
+
     public string $type;
+
     public int $expirationMinutes;
 
     /**

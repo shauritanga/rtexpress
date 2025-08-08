@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Shipment;
+use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -16,7 +16,9 @@ class Phase4ComprehensiveTest extends TestCase
     use RefreshDatabase;
 
     private $customer;
+
     private $customerUser;
+
     private $shipment;
 
     protected function setUp(): void
@@ -26,7 +28,7 @@ class Phase4ComprehensiveTest extends TestCase
         $this->customer = Customer::factory()->create([
             'email' => 'customer@test.com',
         ]);
-        
+
         $this->customerUser = User::factory()->create([
             'email' => 'customer@test.com',
             'customer_id' => $this->customer->id,
@@ -50,15 +52,14 @@ class Phase4ComprehensiveTest extends TestCase
 
         // Test 2: Track specific shipment
         $response = $this->actingAs($this->customerUser)
-            ->get('/customer/tracking?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/tracking?tracking_number='.$this->shipment->tracking_number);
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->where('trackingNumber', $this->shipment->tracking_number)
-                ->has('trackingData')
+        $response->assertInertia(fn ($page) => $page->where('trackingNumber', $this->shipment->tracking_number)
+            ->has('trackingData')
         );
 
         // Test 3: API tracking returns comprehensive data
-        $response = $this->getJson('/api/tracking/' . $this->shipment->tracking_number);
+        $response = $this->getJson('/api/tracking/'.$this->shipment->tracking_number);
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'tracking_number',
@@ -68,13 +69,13 @@ class Phase4ComprehensiveTest extends TestCase
             'destination' => ['lat', 'lng', 'address'],
             'driver' => ['name', 'phone', 'vehicle'],
             'events' => [
-                '*' => ['id', 'timestamp', 'status', 'location', 'description']
+                '*' => ['id', 'timestamp', 'status', 'location', 'description'],
             ],
             'delivery_window',
         ]);
 
         // Test 4: Real-time updates endpoint
-        $response = $this->getJson('/api/tracking/' . $this->shipment->tracking_number . '/updates');
+        $response = $this->getJson('/api/tracking/'.$this->shipment->tracking_number.'/updates');
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'current_status',
@@ -90,13 +91,12 @@ class Phase4ComprehensiveTest extends TestCase
     {
         // Test 1: Access communication center
         $response = $this->actingAs($this->customerUser)
-            ->get('/customer/communication?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/communication?tracking_number='.$this->shipment->tracking_number);
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Communication/Index')
-                ->where('trackingNumber', $this->shipment->tracking_number)
-                ->has('driver') // Should have driver for out_for_delivery status
-                ->has('messages')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Communication/Index')
+            ->where('trackingNumber', $this->shipment->tracking_number)
+            ->has('driver') // Should have driver for out_for_delivery status
+            ->has('messages')
         );
 
         // Test 2: Send text message to driver
@@ -144,12 +144,12 @@ class Phase4ComprehensiveTest extends TestCase
 
         // Test 5: Get messages for shipment
         $response = $this->actingAs($this->customerUser)
-            ->getJson('/api/communication/' . $this->shipment->tracking_number . '/messages');
+            ->getJson('/api/communication/'.$this->shipment->tracking_number.'/messages');
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success',
             'messages' => [
-                '*' => ['id', 'sender', 'content', 'timestamp', 'type', 'read']
+                '*' => ['id', 'sender', 'content', 'timestamp', 'type', 'read'],
             ],
         ]);
 
@@ -160,20 +160,20 @@ class Phase4ComprehensiveTest extends TestCase
     {
         // Test 1: Tracking page loads with mobile-friendly structure
         $response = $this->actingAs($this->customerUser)
-            ->get('/customer/tracking?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/tracking?tracking_number='.$this->shipment->tracking_number);
         $response->assertStatus(200);
 
         // Test 2: Communication center loads with mobile-friendly structure
         $response = $this->actingAs($this->customerUser)
-            ->get('/customer/communication?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/communication?tracking_number='.$this->shipment->tracking_number);
         $response->assertStatus(200);
 
         // Test 3: API endpoints work consistently across different access patterns
-        $response = $this->getJson('/api/tracking/' . $this->shipment->tracking_number);
+        $response = $this->getJson('/api/tracking/'.$this->shipment->tracking_number);
         $response->assertStatus(200);
 
         $response = $this->actingAs($this->customerUser)
-            ->getJson('/api/tracking/' . $this->shipment->tracking_number);
+            ->getJson('/api/tracking/'.$this->shipment->tracking_number);
         $response->assertStatus(200);
 
         $this->assertTrue(true, 'Phase 4 mobile responsiveness tests completed successfully!');
@@ -185,7 +185,7 @@ class Phase4ComprehensiveTest extends TestCase
         $response = $this->get('/customer/tracking');
         $response->assertRedirect('/login');
 
-        $response = $this->get('/customer/communication?tracking_number=' . $this->shipment->tracking_number);
+        $response = $this->get('/customer/communication?tracking_number='.$this->shipment->tracking_number);
         $response->assertRedirect('/login');
 
         // Test 2: Non-customer users cannot access customer features
@@ -196,7 +196,7 @@ class Phase4ComprehensiveTest extends TestCase
         $response->assertRedirect('/login');
 
         $response = $this->actingAs($nonCustomerUser)
-            ->get('/customer/communication?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/communication?tracking_number='.$this->shipment->tracking_number);
         $response->assertRedirect('/login');
 
         // Test 3: API endpoints require authentication for sensitive operations
@@ -230,7 +230,7 @@ class Phase4ComprehensiveTest extends TestCase
     public function test_phase_4_data_validation_and_integrity()
     {
         // Test 1: Tracking API returns valid data structures
-        $response = $this->getJson('/api/tracking/' . $this->shipment->tracking_number);
+        $response = $this->getJson('/api/tracking/'.$this->shipment->tracking_number);
         $response->assertStatus(200);
 
         $data = $response->json();
@@ -282,19 +282,19 @@ class Phase4ComprehensiveTest extends TestCase
     {
         // Test 1: Multiple rapid API calls don't cause issues
         for ($i = 0; $i < 5; $i++) {
-            $response = $this->getJson('/api/tracking/' . $this->shipment->tracking_number);
+            $response = $this->getJson('/api/tracking/'.$this->shipment->tracking_number);
             $response->assertStatus(200);
         }
 
         // Test 2: Updates endpoint handles rapid polling
         for ($i = 0; $i < 3; $i++) {
-            $response = $this->getJson('/api/tracking/' . $this->shipment->tracking_number . '/updates');
+            $response = $this->getJson('/api/tracking/'.$this->shipment->tracking_number.'/updates');
             $response->assertStatus(200);
         }
 
         // Test 3: Communication endpoints handle concurrent requests
         $response1 = $this->actingAs($this->customerUser)
-            ->getJson('/api/communication/' . $this->shipment->tracking_number . '/messages');
+            ->getJson('/api/communication/'.$this->shipment->tracking_number.'/messages');
         $response1->assertStatus(200);
 
         $response2 = $this->actingAs($this->customerUser)
@@ -311,19 +311,19 @@ class Phase4ComprehensiveTest extends TestCase
     public function test_phase_4_complete_integration()
     {
         // Test complete workflow from tracking to communication
-        
+
         // Step 1: Customer accesses tracking
         $response = $this->actingAs($this->customerUser)
-            ->get('/customer/tracking?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/tracking?tracking_number='.$this->shipment->tracking_number);
         $response->assertStatus(200);
 
         // Step 2: Customer views real-time updates
-        $response = $this->getJson('/api/tracking/' . $this->shipment->tracking_number . '/updates');
+        $response = $this->getJson('/api/tracking/'.$this->shipment->tracking_number.'/updates');
         $response->assertStatus(200);
 
         // Step 3: Customer accesses communication center
         $response = $this->actingAs($this->customerUser)
-            ->get('/customer/communication?tracking_number=' . $this->shipment->tracking_number);
+            ->get('/customer/communication?tracking_number='.$this->shipment->tracking_number);
         $response->assertStatus(200);
 
         // Step 4: Customer sends message to driver
@@ -345,11 +345,11 @@ class Phase4ComprehensiveTest extends TestCase
         $response->assertStatus(200);
 
         // Step 6: Verify all data is consistent
-        $trackingResponse = $this->getJson('/api/tracking/' . $this->shipment->tracking_number);
+        $trackingResponse = $this->getJson('/api/tracking/'.$this->shipment->tracking_number);
         $trackingResponse->assertStatus(200);
 
         $messagesResponse = $this->actingAs($this->customerUser)
-            ->getJson('/api/communication/' . $this->shipment->tracking_number . '/messages');
+            ->getJson('/api/communication/'.$this->shipment->tracking_number.'/messages');
         $messagesResponse->assertStatus(200);
 
         $this->assertTrue(true, 'Phase 4 complete integration test passed successfully!');

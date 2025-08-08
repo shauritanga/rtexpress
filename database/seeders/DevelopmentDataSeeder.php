@@ -155,22 +155,22 @@ class DevelopmentDataSeeder extends Seeder
             $warehouse = Warehouse::firstOrCreate(
                 ['code' => $warehouseData['code']], // Find by code
                 array_merge($warehouseData, [
-                'address_line_1' => fake()->streetAddress(),
-                'state_province' => $warehouseData['city'],
-                'postal_code' => fake()->postcode(),
-                'capacity_cubic_meters' => fake()->randomFloat(2, 5000, 20000),
-                'operating_hours' => [
-                    'monday' => '08:00-17:00',
-                    'tuesday' => '08:00-17:00',
-                    'wednesday' => '08:00-17:00',
-                    'thursday' => '08:00-17:00',
-                    'friday' => '08:00-17:00',
-                    'saturday' => '08:00-12:00',
-                    'sunday' => 'closed',
-                ],
-                'contact_person' => fake()->name(),
-                'phone' => '+255' . fake()->numerify('#########'),
-                'email' => fake()->safeEmail(),
+                    'address_line_1' => fake()->streetAddress(),
+                    'state_province' => $warehouseData['city'],
+                    'postal_code' => fake()->postcode(),
+                    'capacity_cubic_meters' => fake()->randomFloat(2, 5000, 20000),
+                    'operating_hours' => [
+                        'monday' => '08:00-17:00',
+                        'tuesday' => '08:00-17:00',
+                        'wednesday' => '08:00-17:00',
+                        'thursday' => '08:00-17:00',
+                        'friday' => '08:00-17:00',
+                        'saturday' => '08:00-12:00',
+                        'sunday' => 'closed',
+                    ],
+                    'contact_person' => fake()->name(),
+                    'phone' => '+255'.fake()->numerify('#########'),
+                    'email' => fake()->safeEmail(),
                 ])
             );
 
@@ -230,13 +230,13 @@ class DevelopmentDataSeeder extends Seeder
             $customer = Customer::firstOrCreate(
                 ['email' => $customerData['email']], // Find by email
                 array_merge($customerData, [
-                'phone' => '+255' . fake()->numerify('#########'),
-                'address_line_1' => fake()->streetAddress(),
-                'state_province' => $customerData['city'],
-                'postal_code' => fake()->postcode(),
-                'tax_number' => 'TIN-' . fake()->numerify('########'),
-                'payment_terms' => 'net_30',
-                'created_by' => $adminUser?->id ?? User::factory()->create()->id,
+                    'phone' => '+255'.fake()->numerify('#########'),
+                    'address_line_1' => fake()->streetAddress(),
+                    'state_province' => $customerData['city'],
+                    'postal_code' => fake()->postcode(),
+                    'tax_number' => 'TIN-'.fake()->numerify('########'),
+                    'payment_terms' => 'net_30',
+                    'created_by' => $adminUser?->id ?? User::factory()->create()->id,
                 ])
             );
 

@@ -2,21 +2,21 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Services\PaymentGatewayService;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Mockery;
 
 class PaymentBasicTest extends TestCase
 {
     use RefreshDatabase;
 
     private $customer;
+
     private $customerUser;
+
     private $invoice;
 
     protected function setUp(): void
@@ -44,7 +44,7 @@ class PaymentBasicTest extends TestCase
             'status' => 'active',
             'created_by' => $adminUser->id,
         ]);
-        
+
         $this->customerUser = User::create([
             'name' => 'Test Customer User',
             'email' => 'customer@test.com',
@@ -78,10 +78,9 @@ class PaymentBasicTest extends TestCase
             ->get('/customer/payments');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Payments/Index')
-                ->has('customer')
-                ->has('paymentStats')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Payments/Index')
+            ->has('customer')
+            ->has('paymentStats')
         );
     }
 
@@ -262,42 +261,41 @@ class PaymentBasicTest extends TestCase
             ->get('/customer/payments');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('paymentStats.totalPayments')
-                ->has('paymentStats.totalAmount')
-                ->has('paymentStats.successRate')
+        $response->assertInertia(fn ($page) => $page->has('paymentStats.totalPayments')
+            ->has('paymentStats.totalAmount')
+            ->has('paymentStats.successRate')
         );
     }
 
     public function test_payment_integration_basic_workflow()
     {
         // Complete basic workflow: access page, get methods, get invoices, get history
-        
+
         // Step 1: Access payments page
         $pageResponse = $this->actingAs($this->customerUser)
             ->get('/customer/payments');
         $pageResponse->assertStatus(200);
-        
+
         // Step 2: Get payment methods
         $methodsResponse = $this->actingAs($this->customerUser)
             ->getJson('/api/payments/methods');
         $methodsResponse->assertStatus(200);
-        
+
         // Step 3: Get invoices
         $invoicesResponse = $this->actingAs($this->customerUser)
             ->getJson('/api/payments/invoices');
         $invoicesResponse->assertStatus(200);
-        
+
         // Step 4: Get payment history
         $historyResponse = $this->actingAs($this->customerUser)
             ->getJson('/api/payments/history');
         $historyResponse->assertStatus(200);
-        
+
         // Verify all steps completed successfully
         $this->assertTrue($methodsResponse->json('success'));
         $this->assertTrue($invoicesResponse->json('success'));
         $this->assertTrue($historyResponse->json('success'));
-        
+
         $this->assertTrue(true, 'Phase 8 basic payment integration workflow completed successfully!');
     }
 }

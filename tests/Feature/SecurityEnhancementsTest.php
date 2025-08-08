@@ -4,9 +4,7 @@ use App\Models\Customer;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\RateLimiter;
 
 uses(RefreshDatabase::class);
 
@@ -18,7 +16,7 @@ beforeEach(function () {
 
 describe('Email Verification', function () {
     test('user model implements MustVerifyEmail', function () {
-        $user = new User();
+        $user = new User;
         expect($user)->toBeInstanceOf(\Illuminate\Contracts\Auth\MustVerifyEmail::class);
     });
 
@@ -108,7 +106,7 @@ describe('Registration Rate Limiting', function () {
         for ($i = 0; $i < 4; $i++) {
             $data['email'] = "john{$i}@example.com";
             $response = $this->post('/register/customer', $data);
-            
+
             if ($i < 3) {
                 $response->assertRedirect();
             } else {
@@ -145,7 +143,7 @@ describe('Account Approval Workflow', function () {
         $user->assignRole('customer');
 
         $customer = Customer::factory()->create([
-            'status' => 'inactive' // Inactive until admin approval
+            'status' => 'inactive', // Inactive until admin approval
         ]);
         $user->update(['customer_id' => $customer->id]);
 
@@ -200,7 +198,7 @@ describe('Phone Number Validation', function () {
 describe('Security Headers', function () {
     test('security headers are present', function () {
         $response = $this->get('/');
-        
+
         $response->assertHeader('X-Content-Type-Options', 'nosniff');
         $response->assertHeader('X-Frame-Options', 'DENY');
         $response->assertHeader('X-XSS-Protection', '1; mode=block');

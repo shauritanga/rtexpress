@@ -2,23 +2,25 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Warehouse;
+use App\Models\User;
 use App\Services\PaymentGatewayService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use Mockery;
+use Tests\TestCase;
 
 class PaymentIntegrationTest extends TestCase
 {
     use RefreshDatabase;
 
     private $customer;
+
     private $customerUser;
+
     private $invoice;
+
     private $paymentServiceMock;
 
     protected function setUp(): void
@@ -28,7 +30,7 @@ class PaymentIntegrationTest extends TestCase
         $this->customer = Customer::factory()->create([
             'email' => 'customer@test.com',
         ]);
-        
+
         $this->customerUser = User::factory()->create([
             'email' => 'customer@test.com',
             'customer_id' => $this->customer->id,
@@ -69,12 +71,11 @@ class PaymentIntegrationTest extends TestCase
             ->get('/customer/payments');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Payments/Index')
-                ->has('customer')
-                ->has('paymentStats')
-                ->has('recentInvoices')
-                ->has('paymentMethods')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Payments/Index')
+            ->has('customer')
+            ->has('paymentStats')
+            ->has('recentInvoices')
+            ->has('paymentMethods')
         );
     }
 
@@ -83,7 +84,7 @@ class PaymentIntegrationTest extends TestCase
         // Create some payments for statistics manually
         for ($i = 0; $i < 5; $i++) {
             Payment::create([
-                'payment_number' => 'PAY-TEST-' . ($i + 1),
+                'payment_number' => 'PAY-TEST-'.($i + 1),
                 'invoice_id' => $this->invoice->id,
                 'customer_id' => $this->customer->id,
                 'status' => 'completed',
@@ -102,11 +103,10 @@ class PaymentIntegrationTest extends TestCase
             ->get('/customer/payments');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('paymentStats.totalPayments')
-                ->has('paymentStats.totalAmount')
-                ->has('paymentStats.successRate')
-                ->has('paymentStats.averagePayment')
+        $response->assertInertia(fn ($page) => $page->has('paymentStats.totalPayments')
+            ->has('paymentStats.totalAmount')
+            ->has('paymentStats.successRate')
+            ->has('paymentStats.averagePayment')
         );
     }
 
@@ -129,7 +129,7 @@ class PaymentIntegrationTest extends TestCase
                     'is_default',
                     'is_verified',
                     'created_at',
-                ]
+                ],
             ],
         ]);
     }
@@ -214,7 +214,7 @@ class PaymentIntegrationTest extends TestCase
         // Create additional invoices manually
         for ($i = 0; $i < 3; $i++) {
             Invoice::create([
-                'invoice_number' => 'INV-TEST-' . ($i + 2),
+                'invoice_number' => 'INV-TEST-'.($i + 2),
                 'customer_id' => $this->customer->id,
                 'status' => 'sent',
                 'currency' => 'USD',
@@ -247,7 +247,7 @@ class PaymentIntegrationTest extends TestCase
                         'balance_due',
                         'issue_date',
                         'due_date',
-                    ]
+                    ],
                 ],
                 'meta',
                 'links',
@@ -272,7 +272,7 @@ class PaymentIntegrationTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson(['success' => true]);
-        
+
         $invoices = $response->json('invoices.data');
         foreach ($invoices as $invoice) {
             $this->assertEquals('paid', $invoice['status']);
@@ -291,7 +291,7 @@ class PaymentIntegrationTest extends TestCase
 
         $response->assertStatus(200);
         $invoices = $response->json('invoices.data');
-        
+
         $this->assertCount(1, $invoices);
         $this->assertEquals('INV-SEARCH-123', $invoices[0]['invoice_number']);
     }
@@ -321,7 +321,7 @@ class PaymentIntegrationTest extends TestCase
                         'method',
                         'gateway',
                         'payment_date',
-                    ]
+                    ],
                 ],
                 'meta',
                 'links',
@@ -348,7 +348,7 @@ class PaymentIntegrationTest extends TestCase
 
         $response->assertStatus(200);
         $payments = $response->json('payments.data');
-        
+
         foreach ($payments as $payment) {
             $this->assertEquals('completed', $payment['status']);
             $this->assertEquals('card', $payment['method']);
@@ -534,11 +534,10 @@ class PaymentIntegrationTest extends TestCase
             ->get('/customer/payments');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->where('paymentStats.totalPayments', 3)
-                ->where('paymentStats.totalAmount', 300.00)
-                ->where('paymentStats.successRate', 66.7)
-                ->where('paymentStats.averagePayment', 150.00)
+        $response->assertInertia(fn ($page) => $page->where('paymentStats.totalPayments', 3)
+            ->where('paymentStats.totalAmount', 300.00)
+            ->where('paymentStats.successRate', 66.7)
+            ->where('paymentStats.averagePayment', 150.00)
         );
     }
 
@@ -582,11 +581,11 @@ class PaymentIntegrationTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->customerUser)
-            ->getJson('/api/payments/invoices?date_from=' . now()->subDays(30)->format('Y-m-d'));
+            ->getJson('/api/payments/invoices?date_from='.now()->subDays(30)->format('Y-m-d'));
 
         $response->assertStatus(200);
         $invoices = $response->json('invoices.data');
-        
+
         // Should only include recent invoice
         $invoiceIds = array_column($invoices, 'id');
         $this->assertContains($recentInvoice->id, $invoiceIds);
@@ -606,7 +605,7 @@ class PaymentIntegrationTest extends TestCase
 
         $response->assertStatus(200);
         $payments = $response->json('payments.data');
-        
+
         $this->assertCount(1, $payments);
         $this->assertEquals('PAY-SEARCH-123', $payments[0]['payment_number']);
     }
@@ -614,7 +613,7 @@ class PaymentIntegrationTest extends TestCase
     public function test_payment_integration_workflow()
     {
         // Complete workflow: add payment method, create invoice, process payment
-        
+
         // Step 1: Add payment method
         $methodResponse = $this->actingAs($this->customerUser)
             ->postJson('/api/payments/methods', [
@@ -622,12 +621,12 @@ class PaymentIntegrationTest extends TestCase
                 'method_type' => 'card',
             ]);
         $methodResponse->assertStatus(200);
-        
+
         // Step 2: Get invoices
         $invoicesResponse = $this->actingAs($this->customerUser)
             ->getJson('/api/payments/invoices');
         $invoicesResponse->assertStatus(200);
-        
+
         // Step 3: Mock successful payment processing
         $this->paymentServiceMock
             ->shouldReceive('processPayment')
@@ -639,7 +638,7 @@ class PaymentIntegrationTest extends TestCase
                     'amount' => 150.00,
                 ]),
             ]);
-        
+
         // Step 4: Process payment
         $paymentResponse = $this->actingAs($this->customerUser)
             ->postJson("/api/payments/invoices/{$this->invoice->id}/pay", [
@@ -647,25 +646,25 @@ class PaymentIntegrationTest extends TestCase
                 'amount' => 150.00,
             ]);
         $paymentResponse->assertStatus(200);
-        
+
         // Step 5: Check payment history
         $historyResponse = $this->actingAs($this->customerUser)
             ->getJson('/api/payments/history');
         $historyResponse->assertStatus(200);
-        
+
         // Verify all steps completed successfully
         $this->assertTrue($methodResponse->json('success'));
         $this->assertTrue($invoicesResponse->json('success'));
         $this->assertTrue($paymentResponse->json('success'));
         $this->assertTrue($historyResponse->json('success'));
-        
+
         $this->assertTrue(true, 'Phase 8 payment integration workflow completed successfully!');
     }
 
     public function test_payment_security_and_validation()
     {
         // Test various security scenarios
-        
+
         // 1. Cannot process payment with negative amount
         $response = $this->actingAs($this->customerUser)
             ->postJson("/api/payments/invoices/{$this->invoice->id}/pay", [
@@ -673,14 +672,14 @@ class PaymentIntegrationTest extends TestCase
                 'amount' => -50.00,
             ]);
         $response->assertStatus(422);
-        
+
         // 2. Cannot process payment without payment method
         $response = $this->actingAs($this->customerUser)
             ->postJson("/api/payments/invoices/{$this->invoice->id}/pay", [
                 'amount' => 50.00,
             ]);
         $response->assertStatus(422);
-        
+
         // 3. Cannot add payment method with invalid gateway
         $response = $this->actingAs($this->customerUser)
             ->postJson('/api/payments/methods', [
@@ -688,7 +687,7 @@ class PaymentIntegrationTest extends TestCase
                 'method_type' => 'card',
             ]);
         $response->assertStatus(422);
-        
+
         $this->assertTrue(true, 'Payment security validations working correctly!');
     }
 }

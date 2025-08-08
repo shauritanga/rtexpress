@@ -24,7 +24,7 @@ interface PaymentGatewayInterface
     /**
      * Process refund for a payment.
      */
-    public function processRefund(Payment $payment, float $amount, string $reason = null): array;
+    public function processRefund(Payment $payment, float $amount, ?string $reason = null): array;
 
     /**
      * Get available payment methods.

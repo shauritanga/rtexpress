@@ -66,7 +66,7 @@ class DeliveryRoute extends Model
     public static function generateRouteNumber(): string
     {
         do {
-            $number = 'RT-' . date('Ymd') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
+            $number = 'RT-'.date('Ymd').'-'.str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
         } while (static::where('route_number', $number)->exists());
 
         return $number;
@@ -189,7 +189,7 @@ class DeliveryRoute extends Model
         $currentTime = now();
         $currentStop = $this->getCurrentStop();
 
-        if (!$currentStop) {
+        if (! $currentStop) {
             return true;
         }
 

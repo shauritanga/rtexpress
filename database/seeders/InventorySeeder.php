@@ -2,13 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\InventoryItem;
-use App\Models\WarehouseStock;
 use App\Models\StockMovement;
-use App\Models\Warehouse;
 use App\Models\User;
+use App\Models\Warehouse;
+use App\Models\WarehouseStock;
+use Illuminate\Database\Seeder;
 
 class InventorySeeder extends Seeder
 {
@@ -22,6 +21,7 @@ class InventorySeeder extends Seeder
 
         if ($warehouses->isEmpty() || $users->isEmpty()) {
             $this->command->warn('No warehouses or users found. Please seed warehouses and users first.');
+
             return;
         }
 

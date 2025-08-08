@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class EnableOtpForAllUsers extends Command
 {
@@ -43,6 +42,7 @@ class EnableOtpForAllUsers extends Command
 
         if ($users->isEmpty()) {
             $this->info('✅ No users found that need OTP enabled.');
+
             return Command::SUCCESS;
         }
 
@@ -58,9 +58,10 @@ class EnableOtpForAllUsers extends Command
         foreach ($users as $user) {
             try {
                 // Check if user has phone number (unless force mode)
-                if (!$this->option('force') && empty($user->phone)) {
+                if (! $this->option('force') && empty($user->phone)) {
                     $skipped++;
                     $bar->advance();
+
                     continue;
                 }
 
@@ -70,7 +71,7 @@ class EnableOtpForAllUsers extends Command
 
                 $bar->advance();
             } catch (\Exception $e) {
-                $this->error("Failed to update user {$user->email}: " . $e->getMessage());
+                $this->error("Failed to update user {$user->email}: ".$e->getMessage());
                 $skipped++;
                 $bar->advance();
             }
@@ -80,7 +81,7 @@ class EnableOtpForAllUsers extends Command
         $this->newLine(2);
 
         // Summary
-        $this->info("📊 Summary:");
+        $this->info('📊 Summary:');
         $this->info("✅ Updated: {$updated} users");
         if ($skipped > 0) {
             $this->warn("⚠️  Skipped: {$skipped} users");
@@ -91,11 +92,11 @@ class EnableOtpForAllUsers extends Command
             ->orWhere('phone', '')
             ->count();
 
-        if ($usersWithoutPhone > 0 && !$this->option('force')) {
+        if ($usersWithoutPhone > 0 && ! $this->option('force')) {
             $this->newLine();
             $this->warn("⚠️  Warning: {$usersWithoutPhone} users don't have phone numbers.");
             $this->warn("   These users won't be able to use OTP until they add a phone number.");
-            $this->warn("   Use --force flag to enable OTP for all users regardless of phone number.");
+            $this->warn('   Use --force flag to enable OTP for all users regardless of phone number.');
         }
 
         $this->newLine();

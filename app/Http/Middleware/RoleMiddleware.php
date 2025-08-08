@@ -12,16 +12,16 @@ class RoleMiddleware
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     * @param  string  ...$roles
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (!$request->user()) {
+        if (! $request->user()) {
             return redirect()->route('login');
         }
 
-        if (!$request->user()->isActive()) {
+        if (! $request->user()->isActive()) {
             auth()->logout();
+
             return redirect()->route('login')->with('error', 'Your account has been deactivated.');
         }
 
@@ -29,7 +29,7 @@ class RoleMiddleware
             return $next($request);
         }
 
-        if (!$request->user()->hasAnyRole($roles)) {
+        if (! $request->user()->hasAnyRole($roles)) {
             abort(403, 'Access denied. Insufficient permissions.');
         }
 

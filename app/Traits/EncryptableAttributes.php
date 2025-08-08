@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Crypt;
 
 trait EncryptableAttributes
 {
-
     /**
      * Get an attribute from the model.
      *
@@ -17,7 +16,7 @@ trait EncryptableAttributes
     {
         $value = parent::getAttribute($key);
 
-        if (property_exists($this, 'encryptable') && in_array($key, $this->encryptable) && !is_null($value)) {
+        if (property_exists($this, 'encryptable') && in_array($key, $this->encryptable) && ! is_null($value)) {
             try {
                 return Crypt::decryptString($value);
             } catch (\Exception $e) {
@@ -39,7 +38,7 @@ trait EncryptableAttributes
      */
     public function setAttribute($key, $value)
     {
-        if (property_exists($this, 'encryptable') && in_array($key, $this->encryptable) && !is_null($value)) {
+        if (property_exists($this, 'encryptable') && in_array($key, $this->encryptable) && ! is_null($value)) {
             try {
                 $value = Crypt::encryptString($value);
             } catch (\Exception $e) {
@@ -47,7 +46,7 @@ trait EncryptableAttributes
                 \Log::error('Failed to encrypt attribute', [
                     'model' => get_class($this),
                     'attribute' => $key,
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
@@ -68,12 +67,12 @@ trait EncryptableAttributes
     /**
      * Set the encryptable attributes for the model.
      *
-     * @param  array  $encryptable
      * @return $this
      */
     public function setEncryptableAttributes(array $encryptable)
     {
         $this->encryptable = $encryptable;
+
         return $this;
     }
 
@@ -90,7 +89,7 @@ trait EncryptableAttributes
         // Ensure encrypted attributes are decrypted in the array representation
         if (property_exists($this, 'encryptable')) {
             foreach ($this->encryptable as $key) {
-                if (array_key_exists($key, $array) && !is_null($array[$key])) {
+                if (array_key_exists($key, $array) && ! is_null($array[$key])) {
                     // Access the attribute through the accessor to ensure decryption
                     $array[$key] = $this->getAttribute($key);
                 }

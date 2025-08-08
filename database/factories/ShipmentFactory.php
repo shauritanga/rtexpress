@@ -119,7 +119,7 @@ class ShipmentFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'exception',
-            'special_instructions' => 'Exception: ' . $this->faker->sentence(),
+            'special_instructions' => 'Exception: '.$this->faker->sentence(),
         ]);
     }
 }

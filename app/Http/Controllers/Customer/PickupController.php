@@ -19,7 +19,7 @@ class PickupController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
@@ -39,7 +39,7 @@ class PickupController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -63,7 +63,7 @@ class PickupController extends Controller
             DB::beginTransaction();
 
             // Generate pickup ID
-            $pickupId = 'PU' . strtoupper(substr(uniqid(), -8));
+            $pickupId = 'PU'.strtoupper(substr(uniqid(), -8));
 
             // In a real application, you would save this to a pickups table
             // For now, we'll just simulate the creation
@@ -107,7 +107,7 @@ class PickupController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to schedule pickup: ' . $e->getMessage(),
+                'message' => 'Failed to schedule pickup: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -120,7 +120,7 @@ class PickupController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 

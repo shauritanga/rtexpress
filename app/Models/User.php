@@ -117,8 +117,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return false;
     }
 
-
-
     /**
      * Check if user has all of the given roles.
      */
@@ -157,6 +155,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasAllPermissions(array $permissions): bool
     {
         $userPermissions = $this->getAllPermissions();
+
         return count(array_intersect($permissions, $userPermissions)) === count($permissions);
     }
 
@@ -284,7 +283,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isInactive(int $minutes = 10): bool
     {
-        if (!$this->last_activity) {
+        if (! $this->last_activity) {
             return false;
         }
 

@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DeliveryRoute;
-use App\Models\RouteStop;
 use App\Models\Driver;
-use App\Models\Warehouse;
+use App\Models\RouteStop;
 use App\Models\Shipment;
+use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -28,9 +28,9 @@ class RouteController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('route_number', 'like', "%{$search}%")
-                  ->orWhereHas('driver', function ($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('driver', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -93,7 +93,7 @@ class RouteController extends Controller
                 $query->with(['shipment' => function ($q) {
                     $q->select('id', 'tracking_number', 'recipient_name', 'recipient_address');
                 }])->orderBy('stop_order');
-            }
+            },
         ]);
 
         // Transform stops data for the frontend
@@ -296,7 +296,7 @@ class RouteController extends Controller
             // Check if route is in progress or completed
             if (in_array($route->status, ['in_progress', 'completed'])) {
                 return back()->withErrors([
-                    'error' => "Cannot delete route {$route->route_number}. Routes that are in progress or completed cannot be deleted."
+                    'error' => "Cannot delete route {$route->route_number}. Routes that are in progress or completed cannot be deleted.",
                 ]);
             }
 
@@ -403,12 +403,12 @@ class RouteController extends Controller
         $route->load([
             'driver.locations' => function ($query) {
                 $query->where('recorded_at', '>=', today())
-                      ->orderBy('recorded_at', 'desc')
-                      ->limit(50);
+                    ->orderBy('recorded_at', 'desc')
+                    ->limit(50);
             },
             'stops' => function ($query) {
                 $query->orderBy('stop_order');
-            }
+            },
         ]);
 
         return response()->json([
@@ -468,7 +468,7 @@ class RouteController extends Controller
         }
 
         // Then optimize remaining stops by distance
-        while (!empty($remaining)) {
+        while (! empty($remaining)) {
             $nearest = null;
             $minDistance = PHP_FLOAT_MAX;
 

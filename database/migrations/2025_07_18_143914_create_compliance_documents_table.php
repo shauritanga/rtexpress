@@ -29,7 +29,7 @@ return new class extends Migration
                 'customs_declaration',
                 'phytosanitary_certificate',
                 'health_certificate',
-                'other'
+                'other',
             ]);
             $table->string('document_name');
             $table->text('description')->nullable();

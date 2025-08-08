@@ -65,7 +65,7 @@ class Driver extends Model
     public static function generateDriverId(): string
     {
         do {
-            $id = 'DRV-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+            $id = 'DRV-'.date('Y').'-'.str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
         } while (static::where('driver_id', $id)->exists());
 
         return $id;
@@ -113,18 +113,19 @@ class Driver extends Model
      */
     public function isWorking(): bool
     {
-        if (!$this->is_available || $this->status !== 'active') {
+        if (! $this->is_available || $this->status !== 'active') {
             return false;
         }
 
         $currentTime = now()->format('H:i');
         $currentDay = strtolower(now()->format('l'));
 
-        if (!isset($this->working_hours[$currentDay])) {
+        if (! isset($this->working_hours[$currentDay])) {
             return false;
         }
 
         $workingHours = $this->working_hours[$currentDay];
+
         return $currentTime >= $workingHours['start'] && $currentTime <= $workingHours['end'];
     }
 
@@ -154,7 +155,7 @@ class Driver extends Model
      */
     public function distanceTo(float $latitude, float $longitude): float
     {
-        if (!$this->current_latitude || !$this->current_longitude) {
+        if (! $this->current_latitude || ! $this->current_longitude) {
             return 0;
         }
 
@@ -229,7 +230,7 @@ class Driver extends Model
     public function scopeAvailable($query)
     {
         return $query->where('is_available', true)
-                    ->where('status', 'active');
+            ->where('status', 'active');
     }
 
     /**
@@ -238,9 +239,9 @@ class Driver extends Model
     public function scopeWorking($query)
     {
         return $query->available()
-                    ->whereHas('deliveryRoutes', function ($q) {
-                        $q->where('delivery_date', today())
-                          ->where('status', 'in_progress');
-                    });
+            ->whereHas('deliveryRoutes', function ($q) {
+                $q->where('delivery_date', today())
+                    ->where('status', 'in_progress');
+            });
     }
 }

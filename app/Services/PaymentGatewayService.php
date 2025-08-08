@@ -4,11 +4,11 @@ namespace App\Services;
 
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Services\Gateways\StripeGateway;
-use App\Services\Gateways\PayPalGateway;
 use App\Services\Gateways\ClickPesaGateway;
-use Illuminate\Support\Facades\Log;
+use App\Services\Gateways\PayPalGateway;
+use App\Services\Gateways\StripeGateway;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class PaymentGatewayService
 {
@@ -25,9 +25,9 @@ class PaymentGatewayService
     private function initializeGateways(): void
     {
         $this->gateways = [
-            'stripe' => new StripeGateway(),
-            'paypal' => new PayPalGateway(),
-            'clickpesa' => new ClickPesaGateway(),
+            'stripe' => new StripeGateway,
+            'paypal' => new PayPalGateway,
+            'clickpesa' => new ClickPesaGateway,
         ];
     }
 
@@ -44,7 +44,7 @@ class PaymentGatewayService
      */
     public function getGateway(string $gateway): mixed
     {
-        if (!isset($this->gateways[$gateway])) {
+        if (! isset($this->gateways[$gateway])) {
             throw new Exception("Payment gateway '{$gateway}' not found");
         }
 
@@ -58,7 +58,7 @@ class PaymentGatewayService
     {
         try {
             $gateway = $this->getGateway($paymentData['gateway']);
-            
+
             // Create payment record
             $payment = Payment::create([
                 'invoice_id' => $invoice->id,
@@ -128,7 +128,7 @@ class PaymentGatewayService
     {
         try {
             $gatewayInstance = $this->getGateway($gateway);
-            
+
             $paymentData = [
                 'amount' => $invoice->balance_due,
                 'currency' => $invoice->currency,
@@ -161,6 +161,7 @@ class PaymentGatewayService
     {
         try {
             $gatewayInstance = $this->getGateway($gateway);
+
             return $gatewayInstance->handleWebhook($payload);
 
         } catch (Exception $e) {
@@ -177,11 +178,11 @@ class PaymentGatewayService
     /**
      * Process refund for a payment.
      */
-    public function processRefund(Payment $payment, float $amount, string $reason = null): array
+    public function processRefund(Payment $payment, float $amount, ?string $reason = null): array
     {
         try {
             $gateway = $this->getGateway($payment->gateway);
-            
+
             $result = $gateway->processRefund($payment, $amount, $reason);
 
             // Create refund payment record
@@ -231,6 +232,7 @@ class PaymentGatewayService
     {
         try {
             $gatewayInstance = $this->getGateway($gateway);
+
             return $gatewayInstance->getPaymentMethods();
 
         } catch (Exception $e) {
@@ -250,6 +252,7 @@ class PaymentGatewayService
     {
         try {
             $gatewayInstance = $this->getGateway($gateway);
+
             return $gatewayInstance->isConfigured();
 
         } catch (Exception $e) {
@@ -264,6 +267,7 @@ class PaymentGatewayService
     {
         try {
             $gatewayInstance = $this->getGateway($gateway);
+
             return $gatewayInstance->calculateFees($amount, $currency);
 
         } catch (Exception $e) {

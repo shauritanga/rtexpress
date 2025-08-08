@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Models\User;
+use App\Notifications\CustomerAccountCreated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-use App\Models\User;
-use App\Notifications\CustomerAccountCreated;
 
 class CustomerController extends Controller
 {
@@ -46,6 +46,7 @@ class CustomerController extends Controller
         // Add has_user_account attribute to each customer
         $customers->getCollection()->transform(function ($customer) {
             $customer->has_user_account = $customer->hasUserAccount();
+
             return $customer;
         });
 
@@ -140,9 +141,9 @@ class CustomerController extends Controller
             'creator',
             'shipments' => function ($query) {
                 $query->with(['originWarehouse', 'destinationWarehouse'])
-                      ->latest()
-                      ->limit(10);
-            }
+                    ->latest()
+                    ->limit(10);
+            },
         ]);
 
         // Get customer statistics
@@ -225,7 +226,7 @@ class CustomerController extends Controller
 
             if ($activeShipmentsCount > 0) {
                 return back()->withErrors([
-                    'error' => "Cannot delete customer {$customerCode}. They have {$activeShipmentsCount} active shipment(s). Please complete or cancel all shipments first."
+                    'error' => "Cannot delete customer {$customerCode}. They have {$activeShipmentsCount} active shipment(s). Please complete or cancel all shipments first.",
                 ]);
             }
 
@@ -323,14 +324,14 @@ class CustomerController extends Controller
 
         $customers = $query->get();
 
-        $filename = 'customers_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $filename = 'customers_'.now()->format('Y-m-d_H-i-s').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
-        $callback = function() use ($customers) {
+        $callback = function () use ($customers) {
             $file = fopen('php://output', 'w');
 
             // CSV headers
@@ -419,7 +420,7 @@ class CustomerController extends Controller
         try {
             $user = $customer->user;
 
-            if (!$user) {
+            if (! $user) {
                 return back()->withErrors(['error' => 'Customer does not have a user account.']);
             }
 

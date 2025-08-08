@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Shipment;
+use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,7 +14,9 @@ class CustomsManagementTest extends TestCase
     use RefreshDatabase;
 
     private $customer;
+
     private $customerUser;
+
     private $shipment;
 
     protected function setUp(): void
@@ -30,7 +32,7 @@ class CustomsManagementTest extends TestCase
         $this->customer = $this->customerUser->customer;
 
         $warehouses = Warehouse::factory()->count(2)->create();
-        
+
         $this->shipment = Shipment::factory()->create([
             'customer_id' => $this->customer->id,
             'origin_warehouse_id' => $warehouses[0]->id,
@@ -46,11 +48,10 @@ class CustomsManagementTest extends TestCase
             ->get('/customer/customs');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Customs/Index')
-                ->has('customer')
-                ->has('customsStats')
-                ->has('destinationCountry')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Customs/Index')
+            ->has('customer')
+            ->has('customsStats')
+            ->has('destinationCountry')
         );
     }
 
@@ -67,11 +68,10 @@ class CustomsManagementTest extends TestCase
             ->get('/customer/customs');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('customsStats.totalDocuments')
-                ->has('customsStats.complianceRate')
-                ->has('customsStats.averageDutyRate')
-                ->has('customsStats.commonDestinations')
+        $response->assertInertia(fn ($page) => $page->has('customsStats.totalDocuments')
+            ->has('customsStats.complianceRate')
+            ->has('customsStats.averageDutyRate')
+            ->has('customsStats.commonDestinations')
         );
     }
 
@@ -162,13 +162,13 @@ class CustomsManagementTest extends TestCase
             ->postJson('/api/customs/check-compliance', $prohibitedItemData);
 
         $response->assertStatus(200);
-        
+
         $compliance = $response->json('compliance');
         $this->assertEquals('violation', $compliance['status']);
         $this->assertNotEmpty($compliance['issues']);
-        
+
         // Check that at least one issue is about prohibited items
-        $prohibitedIssues = array_filter($compliance['issues'], function($issue) {
+        $prohibitedIssues = array_filter($compliance['issues'], function ($issue) {
             return $issue['type'] === 'prohibited';
         });
         $this->assertNotEmpty($prohibitedIssues);
@@ -185,7 +185,7 @@ class CustomsManagementTest extends TestCase
             ->postJson('/api/customs/check-compliance', $restrictedItemData);
 
         $response->assertStatus(200);
-        
+
         $compliance = $response->json('compliance');
         $this->assertContains($compliance['status'], ['warning', 'violation']);
         $this->assertNotEmpty($compliance['issues']);
@@ -401,7 +401,7 @@ class CustomsManagementTest extends TestCase
             ->postJson('/api/customs/check-compliance', $highValueData);
 
         $response->assertStatus(200);
-        
+
         $compliance = $response->json('compliance');
         $this->assertContains('Insurance Certificate', $compliance['requiredDocuments']);
     }
@@ -412,9 +412,8 @@ class CustomsManagementTest extends TestCase
             ->get("/customer/customs?shipment_id={$this->shipment->id}");
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->has('currentShipment')
-                ->where('currentShipment.id', $this->shipment->id)
+        $response->assertInertia(fn ($page) => $page->has('currentShipment')
+            ->where('currentShipment.id', $this->shipment->id)
         );
     }
 
@@ -511,7 +510,7 @@ class CustomsManagementTest extends TestCase
             ->postJson('/api/customs/check-compliance', $complexItemData);
 
         $response->assertStatus(200);
-        
+
         $compliance = $response->json('compliance');
         $this->assertGreaterThan(1, count($compliance['issues']));
         $this->assertNotEmpty($compliance['additionalRequirements']);
@@ -536,7 +535,7 @@ class CustomsManagementTest extends TestCase
     public function test_customs_integration_workflow()
     {
         // Complete workflow: compliance check, duty calculation, document creation
-        
+
         // Step 1: Check compliance
         $complianceResponse = $this->actingAs($this->customerUser)
             ->postJson('/api/customs/check-compliance', [
@@ -544,7 +543,7 @@ class CustomsManagementTest extends TestCase
                 'destination_country' => 'CA',
             ]);
         $complianceResponse->assertStatus(200);
-        
+
         // Step 2: Calculate duty and tax
         $calculationResponse = $this->actingAs($this->customerUser)
             ->postJson('/api/customs/calculate-duty-tax', [
@@ -553,7 +552,7 @@ class CustomsManagementTest extends TestCase
                 'destination_country' => 'CA',
             ]);
         $calculationResponse->assertStatus(200);
-        
+
         // Step 3: Save customs document
         $documentResponse = $this->actingAs($this->customerUser)
             ->postJson('/api/customs/save-document', [
@@ -571,7 +570,7 @@ class CustomsManagementTest extends TestCase
                 ],
             ]);
         $documentResponse->assertStatus(200);
-        
+
         // Step 4: Generate document
         $generateResponse = $this->actingAs($this->customerUser)
             ->postJson('/api/customs/generate-document', [
@@ -579,13 +578,13 @@ class CustomsManagementTest extends TestCase
                 'document_data' => ['invoice_number' => 'INV-WORKFLOW-001'],
             ]);
         $generateResponse->assertStatus(200);
-        
+
         // Verify all steps completed successfully
         $this->assertTrue($complianceResponse->json('success'));
         $this->assertTrue($calculationResponse->json('success'));
         $this->assertTrue($documentResponse->json('success'));
         $this->assertTrue($generateResponse->json('success'));
-        
+
         $this->assertTrue(true, 'Phase 7 customs management integration workflow completed successfully!');
     }
 }

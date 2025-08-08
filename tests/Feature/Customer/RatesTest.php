@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Shipment;
+use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -14,6 +14,7 @@ class RatesTest extends TestCase
     use RefreshDatabase;
 
     private $customer;
+
     private $customerUser;
 
     protected function setUp(): void
@@ -23,7 +24,7 @@ class RatesTest extends TestCase
         $this->customer = Customer::factory()->create([
             'email' => 'customer@test.com',
         ]);
-        
+
         $this->customerUser = User::factory()->create([
             'email' => 'customer@test.com',
             'customer_id' => $this->customer->id,
@@ -38,11 +39,10 @@ class RatesTest extends TestCase
             ->get('/customer/rates');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Rates/Index')
-                ->has('customer')
-                ->has('savingsThisMonth')
-                ->has('averageDiscount')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Rates/Index')
+            ->has('customer')
+            ->has('savingsThisMonth')
+            ->has('averageDiscount')
         );
     }
 
@@ -58,10 +58,9 @@ class RatesTest extends TestCase
             ->get('/customer/rates');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->where('customer.total_shipments', 5)
-                ->where('customer.total_spend', 129.95)
-                ->has('customer.loyalty_tier')
+        $response->assertInertia(fn ($page) => $page->where('customer.total_shipments', 5)
+            ->where('customer.total_spend', 129.95)
+            ->has('customer.loyalty_tier')
         );
     }
 
@@ -168,10 +167,10 @@ class RatesTest extends TestCase
             ->postJson('/api/rates/calculate', $rateData);
 
         $response->assertStatus(200);
-        
+
         $rates = $response->json('rates');
         $this->assertNotEmpty($rates);
-        
+
         // Check that discounts are applied
         foreach ($rates as $rate) {
             if (isset($rate['originalPrice']) && isset($rate['price'])) {
@@ -312,7 +311,7 @@ class RatesTest extends TestCase
                 Shipment::factory()->create([
                     'customer_id' => $this->customer->id,
                     'total_cost' => 25.00,
-                    'tracking_number' => 'RT-TEST-' . uniqid() . '-' . $i,
+                    'tracking_number' => 'RT-TEST-'.uniqid().'-'.$i,
                 ]);
             }
 
@@ -320,8 +319,7 @@ class RatesTest extends TestCase
                 ->get('/customer/rates');
 
             $response->assertStatus(200);
-            $response->assertInertia(fn ($page) => 
-                $page->where('customer.loyalty_tier', $case['expected_tier'])
+            $response->assertInertia(fn ($page) => $page->where('customer.loyalty_tier', $case['expected_tier'])
             );
         }
     }
@@ -402,7 +400,7 @@ class RatesTest extends TestCase
             ->postJson('/api/rates/calculate', $rateData);
 
         $response->assertStatus(200);
-        
+
         $rates = $response->json('rates');
         $serviceTypes = collect($rates)->pluck('serviceType')->toArray();
 
@@ -427,9 +425,9 @@ class RatesTest extends TestCase
             ->postJson('/api/rates/calculate', $rateData);
 
         $response->assertStatus(200);
-        
+
         $rates = collect($response->json('rates'));
-        
+
         $economyPrice = $rates->firstWhere('serviceType', 'economy')['price'];
         $standardPrice = $rates->firstWhere('serviceType', 'standard')['price'];
         $expressPrice = $rates->firstWhere('serviceType', 'express')['price'];
@@ -456,9 +454,9 @@ class RatesTest extends TestCase
             ->postJson('/api/rates/calculate', $rateData);
 
         $response->assertStatus(200);
-        
+
         $rates = collect($response->json('rates'));
-        
+
         // Check that overnight service has appropriate features
         $overnightRate = $rates->firstWhere('serviceType', 'overnight');
         $this->assertContains('Next day delivery', $overnightRate['features']);

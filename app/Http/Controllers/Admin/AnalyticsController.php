@@ -8,7 +8,6 @@ use App\Models\Shipment;
 use App\Models\Warehouse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class AnalyticsController extends Controller
@@ -19,7 +18,7 @@ class AnalyticsController extends Controller
     public function index(Request $request)
     {
         $period = $request->get('period', '30'); // Default to 30 days
-        $startDate = now()->subDays((int)$period);
+        $startDate = now()->subDays((int) $period);
 
         $data = [
             'overview' => $this->getOverviewStats($startDate),
@@ -46,7 +45,7 @@ class AnalyticsController extends Controller
         $totalShipments = Shipment::where('created_at', '>=', $startDate)->count();
         $previousPeriodShipments = Shipment::whereBetween('created_at', [
             $startDate->copy()->subDays($startDate->diffInDays(now())),
-            $startDate
+            $startDate,
         ])->count();
 
         $deliveredShipments = Shipment::where('created_at', '>=', $startDate)
@@ -119,8 +118,8 @@ class AnalyticsController extends Controller
     private function getTopCustomers(Carbon $startDate): array
     {
         return Customer::withCount(['shipments' => function ($query) use ($startDate) {
-                $query->where('created_at', '>=', $startDate);
-            }])
+            $query->where('created_at', '>=', $startDate);
+        }])
             ->orderBy('shipments_count', 'desc')
             ->limit(10)
             ->get()
@@ -146,8 +145,8 @@ class AnalyticsController extends Controller
     private function getWarehousePerformance(Carbon $startDate): array
     {
         return Warehouse::withCount(['originShipments' => function ($query) use ($startDate) {
-                $query->where('created_at', '>=', $startDate);
-            }])
+            $query->where('created_at', '>=', $startDate);
+        }])
             ->get()
             ->map(function ($warehouse) use ($startDate) {
                 $deliveredCount = $warehouse->originShipments()
@@ -368,20 +367,20 @@ class AnalyticsController extends Controller
     public function export(Request $request)
     {
         $period = $request->get('period', '30');
-        $startDate = now()->subDays((int)$period);
+        $startDate = now()->subDays((int) $period);
 
         $shipments = Shipment::with(['customer', 'originWarehouse', 'destinationWarehouse'])
             ->where('created_at', '>=', $startDate)
             ->get();
 
-        $filename = 'analytics_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $filename = 'analytics_'.now()->format('Y-m-d_H-i-s').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
-        $callback = function() use ($shipments) {
+        $callback = function () use ($shipments) {
             $file = fopen('php://output', 'w');
 
             // CSV headers

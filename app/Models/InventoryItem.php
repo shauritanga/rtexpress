@@ -71,7 +71,7 @@ class InventoryItem extends Model
     public static function generateSKU(): string
     {
         do {
-            $sku = 'RT-' . strtoupper(substr(uniqid(), -8));
+            $sku = 'RT-'.strtoupper(substr(uniqid(), -8));
         } while (static::where('sku', $sku)->exists());
 
         return $sku;
@@ -170,11 +170,12 @@ class InventoryItem extends Model
      */
     public function getFormattedDimensionsAttribute(): ?string
     {
-        if (!$this->dimensions) {
+        if (! $this->dimensions) {
             return null;
         }
 
         $dims = $this->dimensions;
+
         return "{$dims['length']}L x {$dims['width']}W x {$dims['height']}H cm";
     }
 
@@ -201,10 +202,10 @@ class InventoryItem extends Model
     {
         return $query->whereExists(function ($q) {
             $q->selectRaw('1')
-              ->from('warehouse_stock')
-              ->whereColumn('warehouse_stock.inventory_item_id', 'inventory_items.id')
-              ->groupBy('inventory_item_id')
-              ->havingRaw('SUM(quantity_available) <= (SELECT reorder_point FROM inventory_items WHERE id = warehouse_stock.inventory_item_id)');
+                ->from('warehouse_stock')
+                ->whereColumn('warehouse_stock.inventory_item_id', 'inventory_items.id')
+                ->groupBy('inventory_item_id')
+                ->havingRaw('SUM(quantity_available) <= (SELECT reorder_point FROM inventory_items WHERE id = warehouse_stock.inventory_item_id)');
         });
     }
 
@@ -215,10 +216,10 @@ class InventoryItem extends Model
     {
         return $query->whereExists(function ($q) {
             $q->selectRaw('1')
-              ->from('warehouse_stock')
-              ->whereColumn('warehouse_stock.inventory_item_id', 'inventory_items.id')
-              ->groupBy('inventory_item_id')
-              ->havingRaw('SUM(quantity_available) <= 0');
+                ->from('warehouse_stock')
+                ->whereColumn('warehouse_stock.inventory_item_id', 'inventory_items.id')
+                ->groupBy('inventory_item_id')
+                ->havingRaw('SUM(quantity_available) <= 0');
         });
     }
 }

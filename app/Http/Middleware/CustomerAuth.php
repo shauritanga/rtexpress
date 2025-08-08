@@ -17,24 +17,25 @@ class CustomerAuth
     public function handle(Request $request, Closure $next): Response
     {
         // Check if user is authenticated
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect('/login');
         }
 
         $user = Auth::user();
 
         // Check if user has customer role
-        if (!$user->hasRole('customer')) {
+        if (! $user->hasRole('customer')) {
             return redirect('/login')->withErrors([
-                'access' => 'You do not have permission to access the customer portal.'
+                'access' => 'You do not have permission to access the customer portal.',
             ]);
         }
 
         // Check if customer account is approved
         if ($user->customer && $user->customer->status !== 'active') {
             Auth::logout();
+
             return redirect('/login')->withErrors([
-                'access' => 'Your account is pending approval. Please contact support for assistance.'
+                'access' => 'Your account is pending approval. Please contact support for assistance.',
             ]);
         }
 

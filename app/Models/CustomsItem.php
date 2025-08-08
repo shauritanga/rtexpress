@@ -80,7 +80,7 @@ class CustomsItem extends Model
             ->where('is_active', true)
             ->where(function ($query) {
                 $query->where('hs_code', $this->hs_code)
-                      ->orWhereNull('hs_code');
+                    ->orWhereNull('hs_code');
             })
             ->get();
 
@@ -115,7 +115,7 @@ class CustomsItem extends Model
             ->where('is_active', true)
             ->where(function ($query) {
                 $query->where('hs_code', $this->hs_code)
-                      ->orWhere('product_category', $this->getProductCategory());
+                    ->orWhere('product_category', $this->getProductCategory());
             })
             ->get();
 
@@ -126,13 +126,13 @@ class CustomsItem extends Model
                 $warnings[] = "Item has restrictions: {$regulation->description}";
             }
 
-            if ($regulation->requires_permit && !$this->permit_number) {
+            if ($regulation->requires_permit && ! $this->permit_number) {
                 $restrictions[] = "Permit required from {$regulation->permit_authority}";
             }
         }
 
         return [
-            'is_restricted' => !empty($restrictions),
+            'is_restricted' => ! empty($restrictions),
             'restrictions' => $restrictions,
             'warnings' => $warnings,
         ];
@@ -143,7 +143,7 @@ class CustomsItem extends Model
      */
     public function getProductCategory(): string
     {
-        if (!$this->hs_code) {
+        if (! $this->hs_code) {
             return 'general';
         }
 
@@ -200,13 +200,14 @@ class CustomsItem extends Model
      */
     public function getFormattedHsCodeAttribute(): string
     {
-        if (!$this->hs_code) {
+        if (! $this->hs_code) {
             return 'N/A';
         }
 
         // Format as XX.XX.XX.XXXX
         $code = str_pad($this->hs_code, 10, '0', STR_PAD_RIGHT);
-        return substr($code, 0, 2) . '.' . substr($code, 2, 2) . '.' . substr($code, 4, 2) . '.' . substr($code, 6, 4);
+
+        return substr($code, 0, 2).'.'.substr($code, 2, 2).'.'.substr($code, 4, 2).'.'.substr($code, 6, 4);
     }
 
     /**

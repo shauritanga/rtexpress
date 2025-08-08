@@ -63,7 +63,7 @@ class ShipmentTracking extends Model
      */
     public function getStatusDisplayName(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'Pending Pickup',
             'picked_up' => 'Picked Up',
             'in_transit' => 'In Transit',
@@ -80,7 +80,7 @@ class ShipmentTracking extends Model
      */
     public function getStatusIcon(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'clock',
             'picked_up' => 'truck',
             'in_transit' => 'plane',

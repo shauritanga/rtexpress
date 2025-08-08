@@ -66,7 +66,7 @@ class CustomerFactory extends Factory
             'country' => 'Tanzania',
             'state_province' => $this->faker->randomElement(['Dar es Salaam', 'Arusha', 'Mwanza', 'Dodoma', 'Mbeya']),
             'city' => $this->faker->randomElement(['Dar es Salaam', 'Arusha', 'Mwanza', 'Dodoma', 'Mbeya']),
-            'phone' => '+255' . $this->faker->numerify('#########'),
+            'phone' => '+255'.$this->faker->numerify('#########'),
         ]);
     }
 

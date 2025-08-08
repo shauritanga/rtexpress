@@ -25,7 +25,7 @@ class InvoiceFactory extends Factory
         $totalAmount = $subtotal + $taxAmount - $discountAmount;
 
         return [
-            'invoice_number' => 'INV-' . date('Y') . '-' . str_pad($this->faker->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
+            'invoice_number' => 'INV-'.date('Y').'-'.str_pad($this->faker->unique()->numberBetween(1, 9999), 4, '0', STR_PAD_LEFT),
             'customer_id' => Customer::factory(),
             'status' => $this->faker->randomElement(['draft', 'sent', 'viewed', 'partial', 'paid', 'overdue', 'cancelled']),
             'currency' => 'TZS',
@@ -74,6 +74,7 @@ class InvoiceFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             $partialAmount = $attributes['total_amount'] * 0.5;
+
             return [
                 'status' => 'partial',
                 'paid_amount' => $partialAmount,

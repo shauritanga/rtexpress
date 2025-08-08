@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
 use App\Models\Shipment;
+use App\Models\User;
 use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -15,7 +15,9 @@ class ReturnsManagementTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     private User $customerUser;
+
     private Customer $customer;
+
     private Shipment $shipment;
 
     protected function setUp(): void
@@ -47,10 +49,9 @@ class ReturnsManagementTest extends TestCase
             ->get('/customer/returns');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Returns/Index')
-                ->has('customer')
-                ->has('returns')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Returns/Index')
+            ->has('customer')
+            ->has('returns')
         );
     }
 
@@ -147,7 +148,7 @@ class ReturnsManagementTest extends TestCase
     {
         $otherCustomer = Customer::factory()->create();
         $warehouses = Warehouse::factory()->count(2)->create();
-        
+
         $otherShipment = Shipment::factory()->create([
             'customer_id' => $otherCustomer->id,
             'origin_warehouse_id' => $warehouses[0]->id,
@@ -184,7 +185,7 @@ class ReturnsManagementTest extends TestCase
             ->postJson('/customer/returns', $returnData);
 
         $response->assertStatus(200);
-        
+
         $responseData = $response->json();
         $this->assertStringStartsWith('RET', $responseData['return_tracking_number']);
         $this->assertEquals(11, strlen($responseData['return_tracking_number'])); // RET + 8 characters
@@ -203,13 +204,13 @@ class ReturnsManagementTest extends TestCase
             ->postJson('/customer/returns', $returnData);
 
         $response->assertStatus(200);
-        
+
         $responseData = $response->json();
-        
+
         // Return sender should be original recipient
         $this->assertEquals($this->shipment->recipient_name, $responseData['return_data']['sender_name']);
         $this->assertEquals($this->shipment->recipient_address, $responseData['return_data']['sender_address']);
-        
+
         // Return recipient should be original sender
         $this->assertEquals($this->shipment->sender_name, $responseData['return_data']['recipient_name']);
         $this->assertEquals($this->shipment->sender_address, $responseData['return_data']['recipient_address']);
@@ -237,7 +238,7 @@ class ReturnsManagementTest extends TestCase
     public function test_return_types_validation()
     {
         $validTypes = ['refund', 'exchange', 'repair'];
-        
+
         foreach ($validTypes as $type) {
             $returnData = [
                 'original_tracking_number' => $this->shipment->tracking_number,
@@ -250,7 +251,7 @@ class ReturnsManagementTest extends TestCase
                 ->postJson('/customer/returns', $returnData);
 
             $response->assertStatus(200);
-            
+
             $responseData = $response->json();
             $this->assertEquals($type, $responseData['return_data']['return_type']);
         }
@@ -281,7 +282,7 @@ class ReturnsManagementTest extends TestCase
             ->postJson('/customer/returns', $returnData);
 
         $response->assertStatus(200);
-        
+
         $responseData = $response->json();
         $this->assertEquals('pending', $responseData['return_data']['status']);
     }
@@ -299,7 +300,7 @@ class ReturnsManagementTest extends TestCase
             ->postJson('/customer/returns', $returnData);
 
         $response->assertStatus(200);
-        
+
         $responseData = $response->json();
         $this->assertEquals($this->shipment->id, $responseData['return_data']['original_shipment_id']);
         $this->assertEquals($this->shipment->tracking_number, $responseData['return_data']['original_tracking_number']);
@@ -329,10 +330,9 @@ class ReturnsManagementTest extends TestCase
             ->get('/customer/returns');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Returns/Index')
-                ->has('returns')
-                ->where('returns', fn ($returns) => count($returns) > 0)
+        $response->assertInertia(fn ($page) => $page->component('Customer/Returns/Index')
+            ->has('returns')
+            ->where('returns', fn ($returns) => count($returns) > 0)
         );
     }
 }

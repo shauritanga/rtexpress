@@ -19,7 +19,7 @@ class DeliveryController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return redirect()->route('customer.dashboard')
                 ->with('error', 'Customer account required');
         }
@@ -72,7 +72,7 @@ class DeliveryController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to load time slots: ' . $e->getMessage(),
+                'message' => 'Failed to load time slots: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -103,7 +103,7 @@ class DeliveryController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to load pickup locations: ' . $e->getMessage(),
+                'message' => 'Failed to load pickup locations: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -142,7 +142,7 @@ class DeliveryController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to save preferences: ' . $e->getMessage(),
+                'message' => 'Failed to save preferences: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -189,7 +189,7 @@ class DeliveryController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to apply delivery options: ' . $e->getMessage(),
+                'message' => 'Failed to apply delivery options: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -343,13 +343,13 @@ class DeliveryController extends Controller
 
         // Filter by type if specified
         if ($type) {
-            $allLocations = array_filter($allLocations, function($location) use ($type) {
+            $allLocations = array_filter($allLocations, function ($location) use ($type) {
                 return $location['type'] === $type;
             });
         }
 
         // Filter by radius (mock - in real app would use geospatial queries)
-        return array_filter($allLocations, function($location) use ($radius) {
+        return array_filter($allLocations, function ($location) use ($radius) {
             return $location['distance'] <= $radius;
         });
     }

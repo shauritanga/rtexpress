@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Services\NotificationService;
 use App\Models\Notification;
+use App\Services\NotificationService;
+use Illuminate\Console\Command;
 
 class ProcessNotificationsCommand extends Command
 {
@@ -37,6 +37,7 @@ class ProcessNotificationsCommand extends Command
 
         if ($pendingCount === 0) {
             $this->info('No pending notifications to process.');
+
             return 0;
         }
 
@@ -59,7 +60,8 @@ class ProcessNotificationsCommand extends Command
             return 0;
 
         } catch (\Exception $e) {
-            $this->error("Failed to process notifications: " . $e->getMessage());
+            $this->error('Failed to process notifications: '.$e->getMessage());
+
             return 1;
         }
     }

@@ -24,8 +24,10 @@ class EmailVerificationPromptController extends Controller
                 if ($user->customer && $user->customer->status !== 'active') {
                     return redirect()->route('customer.pending-approval');
                 }
+
                 return redirect()->intended('/customer/dashboard');
             }
+
             return redirect()->intended(route('dashboard', absolute: false));
         }
 

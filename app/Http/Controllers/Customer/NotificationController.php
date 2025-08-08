@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Notification;
 use App\Models\NotificationPreference;
-use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -21,7 +21,7 @@ class NotificationController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return redirect()->route('customer.dashboard')
                 ->with('error', 'Customer profile not found.');
         }
@@ -43,7 +43,7 @@ class NotificationController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Customer not found'], 404);
         }
 
@@ -58,7 +58,7 @@ class NotificationController extends Controller
             $defaultTypes = [
                 'shipment_created', 'shipment_picked_up', 'shipment_in_transit',
                 'shipment_delivered', 'shipment_exception', 'payment_due',
-                'payment_received', 'account_security'
+                'payment_received', 'account_security',
             ];
 
             foreach ($defaultTypes as $type) {
@@ -124,7 +124,7 @@ class NotificationController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Customer not found'], 404);
         }
 
@@ -203,7 +203,7 @@ class NotificationController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Customer not found'], 404);
         }
 
@@ -258,12 +258,12 @@ class NotificationController extends Controller
             }
         }
 
-        if ($request->has('search') && !empty($request->search)) {
+        if ($request->has('search') && ! empty($request->search)) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('message', 'like', "%{$search}%")
-                  ->orWhere('notification_id', 'like', "%{$search}%");
+                    ->orWhere('message', 'like', "%{$search}%")
+                    ->orWhere('notification_id', 'like', "%{$search}%");
             });
         }
 
@@ -277,13 +277,13 @@ class NotificationController extends Controller
         $formattedNotifications = $notifications->items();
         foreach ($formattedNotifications as &$notification) {
             // Add mock fields that the frontend expects
-            $notification->read = !empty($notification->read_at);
+            $notification->read = ! empty($notification->read_at);
             $notification->archived = false;
             $notification->channels = [
                 'email' => [
-                    'sent' => !empty($notification->sent_at),
-                    'delivered' => !empty($notification->delivered_at),
-                    'opened' => !empty($notification->read_at),
+                    'sent' => ! empty($notification->sent_at),
+                    'delivered' => ! empty($notification->delivered_at),
+                    'opened' => ! empty($notification->read_at),
                 ],
             ];
             $notification->metadata = [];
@@ -310,7 +310,7 @@ class NotificationController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Customer not found'], 404);
         }
 
@@ -319,7 +319,7 @@ class NotificationController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$notification) {
+        if (! $notification) {
             return response()->json(['error' => 'Notification not found'], 404);
         }
 
@@ -357,7 +357,7 @@ class NotificationController extends Controller
 
             $enabled = false;
             if ($preference) {
-                $enabled = $preference->{$channel . '_enabled'} ?? false;
+                $enabled = $preference->{$channel.'_enabled'} ?? false;
             }
 
             $channels[$channel] = [

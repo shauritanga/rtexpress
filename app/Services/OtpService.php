@@ -42,13 +42,14 @@ class OtpService
             ->where('is_used', false)
             ->first();
 
-        if (!$otp || $otp->isExpired()) {
+        if (! $otp || $otp->isExpired()) {
             Log::warning('Invalid OTP attempt', [
                 'user_id' => $user->id,
                 'otp_code' => $otpCode,
                 'type' => $type,
                 'ip' => request()->ip(),
             ]);
+
             return false;
         }
 
@@ -100,6 +101,7 @@ class OtpService
                 'trace' => $e->getTraceAsString(),
                 'mail_driver' => config('mail.default'),
             ]);
+
             return false;
         }
     }
@@ -128,7 +130,7 @@ class OtpService
             ->where('created_at', '>', now()->subMinute())
             ->first();
 
-        return !$recentOtp;
+        return ! $recentOtp;
     }
 
     /**
@@ -142,7 +144,7 @@ class OtpService
             ->orderBy('created_at', 'desc')
             ->first();
 
-        if (!$recentOtp) {
+        if (! $recentOtp) {
             return 0;
         }
 

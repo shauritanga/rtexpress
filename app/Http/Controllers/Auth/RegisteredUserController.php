@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -41,7 +41,7 @@ class RegisteredUserController extends Controller
                 'string',
                 'regex:/^[\+]?[1-9][\d]{0,15}$/', // International format
                 'min:10',
-                'max:20'
+                'max:20',
             ],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'address_line_1' => 'required|string|max:255',
@@ -104,7 +104,7 @@ class RegisteredUserController extends Controller
                 'success' => 'Registration successful! Welcome to RT Express.',
                 'email_sent' => true,
                 'user_email' => $request->email,
-                'company_name' => $request->company_name
+                'company_name' => $request->company_name,
             ]);
 
         } catch (\Exception $e) {

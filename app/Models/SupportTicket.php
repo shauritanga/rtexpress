@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class SupportTicket extends Model
 {
     use HasFactory;
@@ -56,7 +57,7 @@ class SupportTicket extends Model
     public static function generateTicketNumber(): string
     {
         do {
-            $number = 'RT-' . date('Y') . '-' . str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
+            $number = 'RT-'.date('Y').'-'.str_pad(rand(1, 99999), 5, '0', STR_PAD_LEFT);
         } while (static::where('ticket_number', $number)->exists());
 
         return $number;
@@ -154,7 +155,7 @@ class SupportTicket extends Model
         $diff = now()->diff($dueTime);
 
         if ($diff->invert) {
-            return 'Overdue by ' . $diff->format('%h hours %i minutes');
+            return 'Overdue by '.$diff->format('%h hours %i minutes');
         }
 
         return $diff->format('%h hours %i minutes remaining');
@@ -195,7 +196,7 @@ class SupportTicket extends Model
      */
     public function getResponseTimeAttribute(): ?float
     {
-        if (!$this->first_response_at) {
+        if (! $this->first_response_at) {
             return null;
         }
 
@@ -207,7 +208,7 @@ class SupportTicket extends Model
      */
     public function getResolutionTimeAttribute(): ?float
     {
-        if (!$this->resolved_at) {
+        if (! $this->resolved_at) {
             return null;
         }
 
@@ -236,21 +237,21 @@ class SupportTicket extends Model
     public function scopeOverdue($query)
     {
         return $query->whereNotIn('status', ['resolved', 'closed'])
-                    ->where(function ($q) {
-                        $q->where(function ($sq) {
-                            $sq->where('priority', 'urgent')
-                               ->where('created_at', '<', now()->subHours(2));
-                        })->orWhere(function ($sq) {
-                            $sq->where('priority', 'high')
-                               ->where('created_at', '<', now()->subHours(8));
-                        })->orWhere(function ($sq) {
-                            $sq->where('priority', 'medium')
-                               ->where('created_at', '<', now()->subHours(24));
-                        })->orWhere(function ($sq) {
-                            $sq->where('priority', 'low')
-                               ->where('created_at', '<', now()->subHours(72));
-                        });
-                    });
+            ->where(function ($q) {
+                $q->where(function ($sq) {
+                    $sq->where('priority', 'urgent')
+                        ->where('created_at', '<', now()->subHours(2));
+                })->orWhere(function ($sq) {
+                    $sq->where('priority', 'high')
+                        ->where('created_at', '<', now()->subHours(8));
+                })->orWhere(function ($sq) {
+                    $sq->where('priority', 'medium')
+                        ->where('created_at', '<', now()->subHours(24));
+                })->orWhere(function ($sq) {
+                    $sq->where('priority', 'low')
+                        ->where('created_at', '<', now()->subHours(72));
+                });
+            });
     }
 
     /**

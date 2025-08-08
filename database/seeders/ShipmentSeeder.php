@@ -19,8 +19,9 @@ class ShipmentSeeder extends Seeder
         $warehouses = Warehouse::all();
         $adminUser = User::where('email', 'admin@rtexpress.com')->first();
 
-        if ($customers->isEmpty() || $warehouses->isEmpty() || !$adminUser) {
+        if ($customers->isEmpty() || $warehouses->isEmpty() || ! $adminUser) {
             $this->command->error('Please run CustomerSeeder and WarehouseSeeder first!');
+
             return;
         }
 
@@ -54,10 +55,10 @@ class ShipmentSeeder extends Seeder
                 'status' => $status,
                 'sender_name' => $customer->contact_person,
                 'sender_phone' => $customer->phone,
-                'sender_address' => $customer->address_line_1 . ($customer->address_line_2 ? ', ' . $customer->address_line_2 : ''),
-                'recipient_name' => 'Recipient ' . $i,
-                'recipient_phone' => '+255' . rand(700000000, 799999999),
-                'recipient_address' => 'Address ' . $i . ', ' . $destinationWarehouse->city,
+                'sender_address' => $customer->address_line_1.($customer->address_line_2 ? ', '.$customer->address_line_2 : ''),
+                'recipient_name' => 'Recipient '.$i,
+                'recipient_phone' => '+255'.rand(700000000, 799999999),
+                'recipient_address' => 'Address '.$i.', '.$destinationWarehouse->city,
                 'weight_kg' => rand(1, 50),
                 'dimensions_length_cm' => rand(10, 100),
                 'dimensions_width_cm' => rand(10, 100),

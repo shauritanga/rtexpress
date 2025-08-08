@@ -56,11 +56,11 @@ class CheckEmailVerificationStatus extends Command
             $this->warn('  ⚠️  Mail driver is set to "log" - emails will be written to storage/logs/laravel.log');
             $this->line('  💡 To send real emails, configure SMTP settings in .env file');
         } else {
-            $this->line("  Host: " . config('mail.mailers.smtp.host'));
-            $this->line("  Port: " . config('mail.mailers.smtp.port'));
+            $this->line('  Host: '.config('mail.mailers.smtp.host'));
+            $this->line('  Port: '.config('mail.mailers.smtp.port'));
         }
 
-        $this->line("  From: " . config('mail.from.address') . " (" . config('mail.from.name') . ")");
+        $this->line('  From: '.config('mail.from.address').' ('.config('mail.from.name').')');
     }
 
     private function checkSpecificUser(string $email)
@@ -69,8 +69,9 @@ class CheckEmailVerificationStatus extends Command
 
         $user = User::where('email', $email)->first();
 
-        if (!$user) {
+        if (! $user) {
             $this->error("  ❌ User not found with email: {$email}");
+
             return;
         }
 
@@ -85,6 +86,7 @@ class CheckEmailVerificationStatus extends Command
 
         if ($unverifiedUsers->isEmpty()) {
             $this->line('  ✅ All users have verified their email addresses!');
+
             return;
         }
 
@@ -101,21 +103,21 @@ class CheckEmailVerificationStatus extends Command
     {
         $this->line("  📧 Email: {$user->email}");
         $this->line("  👤 Name: {$user->name}");
-        $this->line("  📅 Registered: " . $user->created_at->format('Y-m-d H:i:s'));
+        $this->line('  📅 Registered: '.$user->created_at->format('Y-m-d H:i:s'));
 
         if ($user->email_verified_at) {
-            $this->line("  ✅ Verified: " . $user->email_verified_at->format('Y-m-d H:i:s'));
+            $this->line('  ✅ Verified: '.$user->email_verified_at->format('Y-m-d H:i:s'));
         } else {
-            $this->line("  ❌ Not verified");
-            $this->line("  ⏰ Days since registration: " . $user->created_at->diffInDays(now()));
+            $this->line('  ❌ Not verified');
+            $this->line('  ⏰ Days since registration: '.$user->created_at->diffInDays(now()));
         }
 
         // Check if user has customer role
         if ($user->hasRole('customer')) {
-            $this->line("  🏢 Role: Customer");
+            $this->line('  🏢 Role: Customer');
             if ($user->customer) {
-                $this->line("  🏢 Company: " . $user->customer->company_name);
-                $this->line("  📊 Status: " . $user->customer->status);
+                $this->line('  🏢 Company: '.$user->customer->company_name);
+                $this->line('  📊 Status: '.$user->customer->status);
             }
         }
     }

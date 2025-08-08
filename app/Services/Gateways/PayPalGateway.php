@@ -3,8 +3,8 @@
 namespace App\Services\Gateways;
 
 use App\Models\Payment;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class PayPalGateway implements PaymentGatewayInterface
 {
@@ -21,13 +21,13 @@ class PayPalGateway implements PaymentGatewayInterface
     public function processPayment(Payment $payment, array $paymentData): array
     {
         try {
-            if (!$this->isConfigured()) {
+            if (! $this->isConfigured()) {
                 throw new Exception('PayPal gateway not configured');
             }
 
             // Simulate PayPal payment processing
-            $transactionId = 'paypal_' . uniqid();
-            $paymentId = 'PAYID-' . strtoupper(uniqid());
+            $transactionId = 'paypal_'.uniqid();
+            $paymentId = 'PAYID-'.strtoupper(uniqid());
 
             // Simulate processing delay
             usleep(750000); // 0.75 seconds
@@ -73,12 +73,12 @@ class PayPalGateway implements PaymentGatewayInterface
     public function createPaymentIntent(array $paymentData): array
     {
         try {
-            if (!$this->isConfigured()) {
+            if (! $this->isConfigured()) {
                 throw new Exception('PayPal gateway not configured');
             }
 
             // Simulate PayPal Order creation
-            $orderId = 'ORDER-' . strtoupper(uniqid());
+            $orderId = 'ORDER-'.strtoupper(uniqid());
             $approvalUrl = "https://www.sandbox.paypal.com/checkoutnow?token={$orderId}";
 
             return [
@@ -113,11 +113,11 @@ class PayPalGateway implements PaymentGatewayInterface
             switch ($eventType) {
                 case 'PAYMENT.CAPTURE.COMPLETED':
                     return $this->handlePaymentSuccess($resource);
-                
+
                 case 'PAYMENT.CAPTURE.DENIED':
                 case 'PAYMENT.CAPTURE.DECLINED':
                     return $this->handlePaymentFailure($resource);
-                
+
                 default:
                     return ['status' => 'ignored', 'event_type' => $eventType];
             }
@@ -135,15 +135,15 @@ class PayPalGateway implements PaymentGatewayInterface
     /**
      * Process refund for a payment.
      */
-    public function processRefund(Payment $payment, float $amount, string $reason = null): array
+    public function processRefund(Payment $payment, float $amount, ?string $reason = null): array
     {
         try {
-            if (!$this->isConfigured()) {
+            if (! $this->isConfigured()) {
                 throw new Exception('PayPal gateway not configured');
             }
 
             // Simulate PayPal refund
-            $refundId = 'REFUND-' . strtoupper(uniqid());
+            $refundId = 'REFUND-'.strtoupper(uniqid());
 
             return [
                 'status' => 'COMPLETED',
@@ -190,8 +190,8 @@ class PayPalGateway implements PaymentGatewayInterface
      */
     public function isConfigured(): bool
     {
-        return !empty($this->config['client_id']) && 
-               !empty($this->config['client_secret']);
+        return ! empty($this->config['client_id']) &&
+               ! empty($this->config['client_secret']);
     }
 
     /**
@@ -259,7 +259,7 @@ class PayPalGateway implements PaymentGatewayInterface
             $errors[] = 'Currency is required';
         }
 
-        if (!in_array($paymentData['currency'], $this->getSupportedCurrencies())) {
+        if (! in_array($paymentData['currency'], $this->getSupportedCurrencies())) {
             $errors[] = 'Currency not supported by PayPal';
         }
 
@@ -279,12 +279,12 @@ class PayPalGateway implements PaymentGatewayInterface
                 'status' => 'completed',
                 'completed_at' => now(),
             ]);
-            
+
             // Update invoice payment status
             if ($payment->invoice) {
                 $payment->invoice->increment('paid_amount', $payment->amount);
                 $payment->invoice->decrement('balance_due', $payment->amount);
-                
+
                 if ($payment->invoice->balance_due <= 0) {
                     $payment->invoice->update([
                         'status' => 'paid',

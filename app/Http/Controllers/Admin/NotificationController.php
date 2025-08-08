@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\NotificationTemplate;
-use App\Models\NotificationPreference;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,8 +32,8 @@ class NotificationController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('message', 'like', "%{$search}%")
-                  ->orWhere('notification_id', 'like', "%{$search}%");
+                    ->orWhere('message', 'like', "%{$search}%")
+                    ->orWhere('notification_id', 'like', "%{$search}%");
             });
         }
 
@@ -59,7 +58,7 @@ class NotificationController extends Controller
         }
 
         if ($request->filled('date_to')) {
-            $query->where('created_at', '<=', $request->date_to . ' 23:59:59');
+            $query->where('created_at', '<=', $request->date_to.' 23:59:59');
         }
 
         $notifications = $query->paginate(15)->withQueryString();
@@ -123,7 +122,7 @@ class NotificationController extends Controller
                 ->when($search, function ($query, $search) {
                     $query->where(function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%");
+                            ->orWhere('email', 'like', "%{$search}%");
                     });
                 })
                 ->select('id', 'name', 'email', 'phone')
@@ -147,8 +146,8 @@ class NotificationController extends Controller
                 ->when($search, function ($query, $search) {
                     $query->where(function ($q) use ($search) {
                         $q->where('company_name', 'like', "%{$search}%")
-                          ->orWhere('email', 'like', "%{$search}%")
-                          ->orWhere('contact_person', 'like', "%{$search}%");
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('contact_person', 'like', "%{$search}%");
                     });
                 })
                 ->select('id', 'company_name', 'contact_person', 'email', 'phone')
@@ -193,7 +192,7 @@ class NotificationController extends Controller
         // Validate that the recipient exists
         if ($validated['recipient_type'] === 'user') {
             $recipient = \App\Models\User::find($validated['recipient_id']);
-            if (!$recipient) {
+            if (! $recipient) {
                 return redirect()
                     ->back()
                     ->withErrors(['recipient_id' => 'Selected user does not exist'])
@@ -201,7 +200,7 @@ class NotificationController extends Controller
             }
         } elseif ($validated['recipient_type'] === 'customer') {
             $recipient = \App\Models\Customer::find($validated['recipient_id']);
-            if (!$recipient) {
+            if (! $recipient) {
                 return redirect()
                     ->back()
                     ->withErrors(['recipient_id' => 'Selected customer does not exist'])
@@ -233,7 +232,7 @@ class NotificationController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->back()
-                ->withErrors(['error' => 'Failed to create notification: ' . $e->getMessage()])
+                ->withErrors(['error' => 'Failed to create notification: '.$e->getMessage()])
                 ->withInput();
         }
     }
@@ -279,7 +278,7 @@ class NotificationController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->back()
-                ->withErrors(['error' => 'Failed to send notification: ' . $e->getMessage()])
+                ->withErrors(['error' => 'Failed to send notification: '.$e->getMessage()])
                 ->withInput();
         }
     }
@@ -313,7 +312,7 @@ class NotificationController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->back()
-                ->withErrors(['error' => 'Failed to resend notification: ' . $e->getMessage()]);
+                ->withErrors(['error' => 'Failed to resend notification: '.$e->getMessage()]);
         }
     }
 
@@ -341,7 +340,7 @@ class NotificationController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->back()
-                ->with('error', 'Failed to archive notification: ' . $e->getMessage());
+                ->with('error', 'Failed to archive notification: '.$e->getMessage());
         }
     }
 
@@ -359,7 +358,7 @@ class NotificationController extends Controller
         } catch (\Exception $e) {
             return redirect()
                 ->back()
-                ->with('error', 'Failed to delete notification: ' . $e->getMessage());
+                ->with('error', 'Failed to delete notification: '.$e->getMessage());
         }
     }
 
@@ -380,7 +379,7 @@ class NotificationController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to process notifications: ' . $e->getMessage(),
+                'message' => 'Failed to process notifications: '.$e->getMessage(),
             ], 500);
         }
     }

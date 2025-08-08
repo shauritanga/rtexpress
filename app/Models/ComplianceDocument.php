@@ -61,7 +61,7 @@ class ComplianceDocument extends Model
     public static function generateDocumentNumber(): string
     {
         do {
-            $number = 'DOC-' . date('Y') . '-' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
+            $number = 'DOC-'.date('Y').'-'.str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
         } while (static::where('document_number', $number)->exists());
 
         return $number;
@@ -145,7 +145,7 @@ class ComplianceDocument extends Model
      */
     public function getFormattedFileSizeAttribute(): string
     {
-        if (!$this->file_size) {
+        if (! $this->file_size) {
             return 'N/A';
         }
 
@@ -156,7 +156,7 @@ class ComplianceDocument extends Model
             $bytes /= 1024;
         }
 
-        return round($bytes, 2) . ' ' . $units[$i];
+        return round($bytes, 2).' '.$units[$i];
     }
 
     /**
@@ -219,12 +219,12 @@ class ComplianceDocument extends Model
         }
 
         // Check if verified
-        if ($this->is_required && !$this->is_verified) {
+        if ($this->is_required && ! $this->is_verified) {
             $issues[] = 'Required document not verified';
         }
 
         // Check file existence
-        if ($this->file_path && !file_exists(storage_path('app/' . $this->file_path))) {
+        if ($this->file_path && ! file_exists(storage_path('app/'.$this->file_path))) {
             $issues[] = 'Document file not found';
         }
 
@@ -265,7 +265,7 @@ class ComplianceDocument extends Model
     public function scopeExpired($query)
     {
         return $query->whereNotNull('expiry_date')
-                    ->where('expiry_date', '<', now());
+            ->where('expiry_date', '<', now());
     }
 
     /**
@@ -274,8 +274,8 @@ class ComplianceDocument extends Model
     public function scopeExpiringSoon($query, int $days = 30)
     {
         return $query->whereNotNull('expiry_date')
-                    ->where('expiry_date', '<=', now()->addDays($days))
-                    ->where('expiry_date', '>=', now());
+            ->where('expiry_date', '<=', now()->addDays($days))
+            ->where('expiry_date', '>=', now());
     }
 
     /**

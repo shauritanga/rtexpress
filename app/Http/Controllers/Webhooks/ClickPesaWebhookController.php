@@ -6,20 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Services\ClickPesaChecksumService;
 use App\Services\Gateways\ClickPesaGateway;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class ClickPesaWebhookController extends Controller
 {
     protected ClickPesaChecksumService $checksumService;
+
     protected ClickPesaGateway $gateway;
 
     public function __construct()
     {
-        $this->checksumService = new ClickPesaChecksumService();
-        $this->gateway = new ClickPesaGateway();
+        $this->checksumService = new ClickPesaChecksumService;
+        $this->gateway = new ClickPesaGateway;
     }
 
     /**
@@ -36,21 +37,21 @@ class ClickPesaWebhookController extends Controller
 
             // Get the raw payload
             $payload = $request->all();
-            
+
             // Verify webhook signature if provided
             $signature = $request->header('X-ClickPesa-Signature');
-            if ($signature && !$this->verifyWebhookSignature($payload, $signature)) {
+            if ($signature && ! $this->verifyWebhookSignature($payload, $signature)) {
                 Log::warning('ClickPesa webhook signature verification failed', [
                     'signature' => $signature,
                     'payload' => $payload,
                 ]);
-                
+
                 return response('Unauthorized', 401);
             }
 
             // Process the webhook
             $result = $this->processWebhook($payload);
-            
+
             if ($result['success']) {
                 return response('OK', 200);
             } else {
@@ -58,7 +59,7 @@ class ClickPesaWebhookController extends Controller
                     'error' => $result['error'],
                     'payload' => $payload,
                 ]);
-                
+
                 return response('Processing failed', 400);
             }
 
@@ -67,7 +68,7 @@ class ClickPesaWebhookController extends Controller
                 'error' => $e->getMessage(),
                 'payload' => $request->all(),
             ]);
-            
+
             return response('Internal server error', 500);
         }
     }
@@ -83,7 +84,7 @@ class ClickPesaWebhookController extends Controller
             $status = $payload['status'] ?? null;
             $transactionId = $payload['id'] ?? null;
 
-            if (!$orderReference) {
+            if (! $orderReference) {
                 return [
                     'success' => false,
                     'error' => 'Missing order reference in webhook payload',
@@ -92,15 +93,15 @@ class ClickPesaWebhookController extends Controller
 
             // Find the payment by order reference
             $payment = Payment::where('gateway_payment_id', $orderReference)
-                             ->orWhere('gateway_transaction_id', $orderReference)
-                             ->first();
+                ->orWhere('gateway_transaction_id', $orderReference)
+                ->first();
 
-            if (!$payment) {
+            if (! $payment) {
                 Log::warning('ClickPesa webhook: Payment not found', [
                     'order_reference' => $orderReference,
                     'payload' => $payload,
                 ]);
-                
+
                 return [
                     'success' => true, // Return success to avoid retries
                     'message' => 'Payment not found',
@@ -148,7 +149,7 @@ class ClickPesaWebhookController extends Controller
             case 'COMPLETED':
                 $updateData['status'] = 'completed';
                 $updateData['completed_at'] = now();
-                
+
                 // Update invoice if payment is completed
                 if ($payment->invoice) {
                     $this->updateInvoicePayment($payment);
@@ -173,6 +174,7 @@ class ClickPesaWebhookController extends Controller
                     'payment_id' => $payment->id,
                     'webhook_data' => $webhookData,
                 ]);
+
                 return;
         }
 
@@ -192,8 +194,8 @@ class ClickPesaWebhookController extends Controller
     protected function updateInvoicePayment(Payment $payment): void
     {
         $invoice = $payment->invoice;
-        
-        if (!$invoice) {
+
+        if (! $invoice) {
             return;
         }
 
@@ -222,7 +224,7 @@ class ClickPesaWebhookController extends Controller
                 'error' => $e->getMessage(),
                 'signature' => $signature,
             ]);
-            
+
             return false;
         }
     }

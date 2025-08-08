@@ -34,7 +34,7 @@ class TicketReply extends Model
         static::created(function ($reply) {
             // Update ticket's first response time if this is the first response
             $ticket = $reply->ticket;
-            if (!$ticket->first_response_at && $reply->user_id) {
+            if (! $ticket->first_response_at && $reply->user_id) {
                 $ticket->update(['first_response_at' => $reply->created_at]);
             }
         });
@@ -93,7 +93,7 @@ class TicketReply extends Model
      */
     public function isFromStaff(): bool
     {
-        return !is_null($this->user_id);
+        return ! is_null($this->user_id);
     }
 
     /**
@@ -101,7 +101,7 @@ class TicketReply extends Model
      */
     public function isFromCustomer(): bool
     {
-        return !is_null($this->customer_id);
+        return ! is_null($this->customer_id);
     }
 
     /**
@@ -109,7 +109,7 @@ class TicketReply extends Model
      */
     public function markAsRead(): void
     {
-        if (!$this->read_at) {
+        if (! $this->read_at) {
             $this->update(['read_at' => now()]);
         }
     }

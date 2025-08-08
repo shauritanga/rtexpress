@@ -4,28 +4,30 @@ namespace App\Exports;
 
 use App\Models\Shipment;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\Exportable;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ShipmentsExport implements FromQuery, WithHeadings, WithMapping, WithStyles, WithTitle
 {
     use Exportable;
 
     protected $filters;
+
     protected $startDate;
+
     protected $endDate;
 
     public function __construct($filters = [])
     {
         $this->filters = $filters;
-        
+
         // Set date range
         if (isset($filters['start_date']) && isset($filters['end_date'])) {
             $this->startDate = Carbon::parse($filters['start_date']);
@@ -42,30 +44,30 @@ class ShipmentsExport implements FromQuery, WithHeadings, WithMapping, WithStyle
             ->whereBetween('created_at', [$this->startDate, $this->endDate]);
 
         // Apply filters
-        if (!empty($this->filters['status'])) {
+        if (! empty($this->filters['status'])) {
             $query->where('status', $this->filters['status']);
         }
 
-        if (!empty($this->filters['service_type'])) {
+        if (! empty($this->filters['service_type'])) {
             $query->where('service_type', $this->filters['service_type']);
         }
 
-        if (!empty($this->filters['customer_id'])) {
+        if (! empty($this->filters['customer_id'])) {
             $query->where('customer_id', $this->filters['customer_id']);
         }
 
-        if (!empty($this->filters['warehouse_id'])) {
+        if (! empty($this->filters['warehouse_id'])) {
             $query->where('origin_warehouse_id', $this->filters['warehouse_id']);
         }
 
-        if (!empty($this->filters['search'])) {
+        if (! empty($this->filters['search'])) {
             $search = $this->filters['search'];
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('tracking_number', 'like', "%{$search}%")
-                  ->orWhere('recipient_name', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function($customerQuery) use ($search) {
-                      $customerQuery->where('company_name', 'like', "%{$search}%");
-                  });
+                    ->orWhere('recipient_name', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($customerQuery) use ($search) {
+                        $customerQuery->where('company_name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -98,7 +100,7 @@ class ShipmentsExport implements FromQuery, WithHeadings, WithMapping, WithStyle
             'Actual Delivery',
             'Created By',
             'Days in Transit',
-            'On Time Status'
+            'On Time Status',
         ];
     }
 
@@ -150,7 +152,7 @@ class ShipmentsExport implements FromQuery, WithHeadings, WithMapping, WithStyle
             $shipment->actual_delivery_date ? $shipment->actual_delivery_date->format('Y-m-d H:i:s') : 'N/A',
             $shipment->createdBy->name ?? 'System',
             $daysInTransit ?? 'N/A',
-            $onTimeStatus
+            $onTimeStatus,
         ];
     }
 
@@ -162,27 +164,28 @@ class ShipmentsExport implements FromQuery, WithHeadings, WithMapping, WithStyle
                 'font' => [
                     'bold' => true,
                     'size' => 11,
-                    'color' => ['rgb' => 'FFFFFF']
+                    'color' => ['rgb' => 'FFFFFF'],
                 ],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '1F2937']
+                    'startColor' => ['rgb' => '1F2937'],
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical' => Alignment::VERTICAL_CENTER
-                ]
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
             ],
             // Auto-size columns
             'A:X' => [
-                'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT]
-            ]
+                'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT],
+            ],
         ];
     }
 
     public function title(): string
     {
-        $dateRange = $this->startDate->format('M d') . ' - ' . $this->endDate->format('M d, Y');
+        $dateRange = $this->startDate->format('M d').' - '.$this->endDate->format('M d, Y');
+
         return "Shipments Export ({$dateRange})";
     }
 }
@@ -193,6 +196,7 @@ class PerformanceReportExport implements FromQuery, WithHeadings, WithMapping, W
     use Exportable;
 
     protected $startDate;
+
     protected $endDate;
 
     public function __construct($startDate = null, $endDate = null)
@@ -221,7 +225,7 @@ class PerformanceReportExport implements FromQuery, WithHeadings, WithMapping, W
             'Actual Delivery',
             'Days to Deliver',
             'On Time Status',
-            'Performance Score'
+            'Performance Score',
         ];
     }
 
@@ -230,10 +234,10 @@ class PerformanceReportExport implements FromQuery, WithHeadings, WithMapping, W
         $daysToDeliver = $shipment->created_at->diffInDays($shipment->actual_delivery_date);
         $onTime = $shipment->actual_delivery_date <= $shipment->estimated_delivery_date;
         $onTimeStatus = $onTime ? 'On Time' : 'Late';
-        
+
         // Calculate performance score (100 for on-time, decreasing for late deliveries)
         $performanceScore = 100;
-        if (!$onTime && $shipment->estimated_delivery_date) {
+        if (! $onTime && $shipment->estimated_delivery_date) {
             $daysLate = $shipment->actual_delivery_date->diffInDays($shipment->estimated_delivery_date);
             $performanceScore = max(0, 100 - ($daysLate * 10));
         }
@@ -248,7 +252,7 @@ class PerformanceReportExport implements FromQuery, WithHeadings, WithMapping, W
             $shipment->actual_delivery_date->format('Y-m-d'),
             $daysToDeliver,
             $onTimeStatus,
-            $performanceScore . '%'
+            $performanceScore.'%',
         ];
     }
 
@@ -259,9 +263,9 @@ class PerformanceReportExport implements FromQuery, WithHeadings, WithMapping, W
                 'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '059669']
-                ]
-            ]
+                    'startColor' => ['rgb' => '059669'],
+                ],
+            ],
         ];
     }
 

@@ -20,8 +20,6 @@ Route::post('/marketing/shipment-request', [MarketingController::class, 'shipmen
 Route::post('/marketing/track', [MarketingController::class, 'track'])->name('marketing.track');
 Route::post('/marketing/contact', [MarketingController::class, 'marketingContact'])->name('marketing.contact');
 
-
-
 // Customer Registration with rate limiting
 Route::get('/register/customer', [App\Http\Controllers\Auth\CustomerRegistrationController::class, 'show'])->name('customer.register');
 Route::post('/register/customer', [App\Http\Controllers\Auth\CustomerRegistrationController::class, 'store'])
@@ -38,11 +36,12 @@ Route::middleware(['auth'])->group(function () {
             if ($user->customer && $user->customer->status !== 'active') {
                 return redirect()->route('customer.pending-approval');
             }
+
             return redirect('/customer/dashboard');
         }
 
         // For admin users, require email verification
-        if (!$user->hasVerifiedEmail()) {
+        if (! $user->hasVerifiedEmail()) {
             return redirect()->route('verification.notice');
         }
 
@@ -53,8 +52,9 @@ Route::middleware(['auth'])->group(function () {
 
         // If user has no roles, logout and redirect to login with error
         Auth::logout();
+
         return redirect()->route('login')->withErrors([
-            'email' => 'Your account does not have the necessary permissions to access the system.'
+            'email' => 'Your account does not have the necessary permissions to access the system.',
         ]);
     })->name('dashboard');
 });
@@ -127,6 +127,7 @@ Route::middleware(['auth', 'verified', 'role:admin,warehouse_staff'])->group(fun
         $dashboardData = [
             'daily_shipments' => collect(range(6, 0))->map(function ($daysAgo) {
                 $date = now()->subDays($daysAgo);
+
                 return [
                     'date' => $date->format('M j'),
                     'shipments' => \App\Models\Shipment::whereDate('created_at', $date)->count(),
@@ -139,14 +140,14 @@ Route::middleware(['auth', 'verified', 'role:admin,warehouse_staff'])->group(fun
                 ['name' => 'In Transit', 'value' => $inTransitShipments, 'color' => '#3b82f6'],
                 ['name' => 'Pending', 'value' => $pendingShipments, 'color' => '#f59e0b'],
                 ['name' => 'Overdue', 'value' => $overdueShipments, 'color' => '#ef4444'],
-            ], fn($item) => $item['value'] > 0)) ?: [['name' => 'No Data', 'value' => 1, 'color' => '#e5e7eb']],
+            ], fn ($item) => $item['value'] > 0)) ?: [['name' => 'No Data', 'value' => 1, 'color' => '#e5e7eb']],
 
             'service_type_distribution' => array_values(array_filter([
                 ['name' => 'Standard', 'value' => \App\Models\Shipment::where('service_type', 'standard')->count(), 'color' => '#3b82f6'],
                 ['name' => 'Express', 'value' => \App\Models\Shipment::where('service_type', 'express')->count(), 'color' => '#10b981'],
                 ['name' => 'Overnight', 'value' => \App\Models\Shipment::where('service_type', 'overnight')->count(), 'color' => '#f59e0b'],
                 ['name' => 'International', 'value' => \App\Models\Shipment::where('service_type', 'international')->count(), 'color' => '#ef4444'],
-            ], fn($item) => $item['value'] > 0)) ?: [['name' => 'No Data', 'value' => 1, 'color' => '#e5e7eb']],
+            ], fn ($item) => $item['value'] > 0)) ?: [['name' => 'No Data', 'value' => 1, 'color' => '#e5e7eb']],
 
             'warehouse_performance' => \App\Models\Warehouse::take(5)->get()->map(function ($warehouse) {
                 // Count shipments originating from this warehouse only (to avoid double counting)
@@ -178,10 +179,10 @@ Route::middleware(['auth', 'verified', 'role:admin,warehouse_staff'])->group(fun
 
         // Apply filters if provided
         if (request('search')) {
-            $query->where('tracking_number', 'like', '%' . request('search') . '%')
-                  ->orWhereHas('customer', function($q) {
-                      $q->where('company_name', 'like', '%' . request('search') . '%');
-                  });
+            $query->where('tracking_number', 'like', '%'.request('search').'%')
+                ->orWhereHas('customer', function ($q) {
+                    $q->where('company_name', 'like', '%'.request('search').'%');
+                });
         }
 
         if (request('status')) {
@@ -354,16 +355,12 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::post('customs/{declaration}/upload-document', [\App\Http\Controllers\Admin\CustomsController::class, 'uploadDocument'])->name('customs.upload-document');
     Route::get('customs/{declaration}/compliance-check', [\App\Http\Controllers\Admin\CustomsController::class, 'complianceCheck'])->name('customs.compliance-check');
 
-
-
     // Tracking
     Route::get('tracking/live', [\App\Http\Controllers\Admin\TrackingController::class, 'live'])->name('tracking.live');
     Route::post('tracking/{shipment}/update-status', [\App\Http\Controllers\Admin\TrackingController::class, 'updateStatus'])->name('tracking.update-status');
     Route::post('tracking/bulk-update', [\App\Http\Controllers\Admin\TrackingController::class, 'bulkUpdate'])->name('tracking.bulk-update');
     Route::get('tracking/{shipment}/history', [\App\Http\Controllers\Admin\TrackingController::class, 'history'])->name('tracking.history');
     Route::get('tracking/search', [\App\Http\Controllers\Admin\TrackingController::class, 'search'])->name('tracking.search');
-
-
 
 });
 
@@ -387,11 +384,12 @@ Route::middleware(['auth'])->group(function () {
         ]);
 
         // Only allow customers to access this page
-        if (!$user || !$user->hasRole('customer')) {
+        if (! $user || ! $user->hasRole('customer')) {
             Log::warning('Unauthorized access to pending approval page', [
                 'user_id' => $user ? $user->id : null,
                 'has_customer_role' => $user ? $user->hasRole('customer') : false,
             ]);
+
             return redirect()->route('login');
         }
 
@@ -463,8 +461,6 @@ Route::middleware(['auth', 'customer.auth'])->prefix('customer')->group(function
     Route::get('notifications/stats', [App\Http\Controllers\Customer\NotificationsController::class, 'getStats'])->name('customer.notifications.stats');
     Route::post('notifications/test', [App\Http\Controllers\Customer\NotificationsController::class, 'testNotification'])->name('customer.notifications.test');
 
-
-
     // Flexible Delivery Options Routes
     Route::get('delivery', [App\Http\Controllers\Customer\DeliveryController::class, 'index'])->name('customer.delivery.index');
 
@@ -495,10 +491,6 @@ Route::middleware(['auth', 'customer.auth'])->prefix('customer')->group(function
     Route::get('support/{ticket}', [App\Http\Controllers\Customer\SupportController::class, 'show'])->name('customer.support.show');
     Route::post('support/{ticket}/reply', [App\Http\Controllers\Customer\SupportController::class, 'reply'])->name('customer.support.reply');
     Route::post('support/{ticket}/satisfaction', [App\Http\Controllers\Customer\SupportController::class, 'satisfaction'])->name('customer.support.satisfaction');
-
-
-
-
 
     Route::get('profile', [App\Http\Controllers\Customer\ProfileController::class, 'show'])->name('customer.profile.show');
     Route::get('profile/edit', [App\Http\Controllers\Customer\ProfileController::class, 'edit'])->name('customer.profile.edit');

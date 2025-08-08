@@ -4,17 +4,16 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
-use App\Models\Payment;
 use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\User;
+use App\Notifications\PaymentSuccessNotification;
 use App\Services\PaymentGatewayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
-use App\Models\User;
-use App\Notifications\PaymentSuccessNotification;
 use Inertia\Inertia;
 
 class PaymentController extends Controller
@@ -34,7 +33,7 @@ class PaymentController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return redirect()->route('customer.dashboard')
                 ->with('error', 'Customer account required');
         }
@@ -68,7 +67,7 @@ class PaymentController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Customer account required'], 403);
         }
 
@@ -95,14 +94,14 @@ class PaymentController extends Controller
             $user = Auth::user();
             $customer = $user->customer;
 
-            if (!$customer) {
+            if (! $customer) {
                 return response()->json(['error' => 'Customer account required'], 403);
             }
 
             // In a real implementation, this would integrate with the payment gateway
             // to securely store payment method details
             $paymentMethod = [
-                'id' => 'pm_' . uniqid(),
+                'id' => 'pm_'.uniqid(),
                 'type' => $validated['method_type'],
                 'gateway' => $validated['gateway'],
                 'name' => $this->generatePaymentMethodName($validated['gateway'], $validated['method_type']),
@@ -147,7 +146,7 @@ class PaymentController extends Controller
             $user = Auth::user();
             $customer = $user->customer;
 
-            if (!$customer) {
+            if (! $customer) {
                 return response()->json(['error' => 'Customer account required'], 403);
             }
 
@@ -184,7 +183,7 @@ class PaymentController extends Controller
             $user = Auth::user();
             $customer = $user->customer;
 
-            if (!$customer) {
+            if (! $customer) {
                 return response()->json(['error' => 'Customer account required'], 403);
             }
 
@@ -220,7 +219,7 @@ class PaymentController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Customer account required'], 403);
         }
 
@@ -234,7 +233,7 @@ class PaymentController extends Controller
             if ($request->status === 'unpaid') {
                 // For payments page, show only invoices that need payment
                 $query->whereIn('status', ['sent', 'viewed', 'overdue'])
-                      ->where('balance_due', '>', 0);
+                    ->where('balance_due', '>', 0);
             } else {
                 $query->where('status', $request->status);
             }
@@ -244,7 +243,7 @@ class PaymentController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhere('notes', 'like', "%{$search}%");
+                    ->orWhere('notes', 'like', "%{$search}%");
             });
         }
 
@@ -272,7 +271,7 @@ class PaymentController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['error' => 'Customer account required'], 403);
         }
 
@@ -297,10 +296,10 @@ class PaymentController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('payment_number', 'like', "%{$search}%")
-                  ->orWhere('gateway_transaction_id', 'like', "%{$search}%")
-                  ->orWhereHas('invoice', function ($q) use ($search) {
-                      $q->where('invoice_number', 'like', "%{$search}%");
-                  });
+                    ->orWhere('gateway_transaction_id', 'like', "%{$search}%")
+                    ->orWhereHas('invoice', function ($q) use ($search) {
+                        $q->where('invoice_number', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -327,7 +326,7 @@ class PaymentController extends Controller
     {
         $validated = $request->validate([
             'payment_method_id' => 'required|string',
-            'amount' => 'required|numeric|min:0.01|max:' . $invoice->balance_due,
+            'amount' => 'required|numeric|min:0.01|max:'.$invoice->balance_due,
             'phone_number' => 'nullable|regex:/^(\+255|0)[67][0-9]{8}$/',
         ]);
 
@@ -335,7 +334,7 @@ class PaymentController extends Controller
             $user = Auth::user();
             $customer = $user->customer;
 
-            if (!$customer || $invoice->customer_id !== $customer->id) {
+            if (! $customer || $invoice->customer_id !== $customer->id) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
@@ -431,7 +430,7 @@ class PaymentController extends Controller
             $user = Auth::user();
             $customer = $user->customer;
 
-            if (!$customer || $invoice->customer_id !== $customer->id) {
+            if (! $customer || $invoice->customer_id !== $customer->id) {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
@@ -558,9 +557,9 @@ class PaymentController extends Controller
         ]);
 
         // Additional phone number validation for ClickPesa
-        if ($validated['payment_method'] === 'clickpesa' && !empty($validated['phone_number'])) {
+        if ($validated['payment_method'] === 'clickpesa' && ! empty($validated['phone_number'])) {
             $phone = $validated['phone_number'];
-            if (!preg_match('/^(\+255|0)[67][0-9]{8}$/', $phone)) {
+            if (! preg_match('/^(\+255|0)[67][0-9]{8}$/', $phone)) {
                 return redirect()->back()
                     ->withErrors(['phone_number' => 'Invalid phone number format. Please use +255XXXXXXXXX or 0XXXXXXXXX format.'])
                     ->withInput();
@@ -595,9 +594,9 @@ class PaymentController extends Controller
                 // Check ClickPesa configuration first
                 $clickpesaConfig = config('payment.gateways.clickpesa');
                 Log::info('ClickPesa configuration check', [
-                    'client_id_set' => !empty($clickpesaConfig['client_id']),
-                    'api_key_set' => !empty($clickpesaConfig['api_key']),
-                    'checksum_secret_set' => !empty($clickpesaConfig['checksum_secret']),
+                    'client_id_set' => ! empty($clickpesaConfig['client_id']),
+                    'api_key_set' => ! empty($clickpesaConfig['api_key']),
+                    'checksum_secret_set' => ! empty($clickpesaConfig['checksum_secret']),
                     'enabled' => $clickpesaConfig['enabled'] ?? false,
                 ]);
 
@@ -608,7 +607,7 @@ class PaymentController extends Controller
                 ]);
 
                 // Check if ClickPesa is properly configured
-                if (!$this->paymentService->validateGatewayConfig('clickpesa')) {
+                if (! $this->paymentService->validateGatewayConfig('clickpesa')) {
                     Log::error('ClickPesa not configured', [
                         'invoice_id' => $invoice->id,
                         'config' => $clickpesaConfig,
@@ -650,7 +649,7 @@ class PaymentController extends Controller
             Log::error('Payment processing failed', [
                 'invoice_id' => $invoice->id,
                 'customer_id' => $customer->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return redirect()->back()
@@ -658,8 +657,6 @@ class PaymentController extends Controller
                 ->withInput();
         }
     }
-
-
 
     /**
      * Handle successful payment callback
@@ -669,16 +666,16 @@ class PaymentController extends Controller
         $transactionId = $request->get('vendor_order_id');
         $payment = Payment::where('transaction_id', $transactionId)->first();
 
-        if (!$payment) {
+        if (! $payment) {
             return redirect()->route('customer.invoices.index')
-                           ->with('error', 'Payment record not found.');
+                ->with('error', 'Payment record not found.');
         }
 
         // Update payment status
         $payment->update([
             'status' => 'completed',
             'paid_at' => now(),
-            'gateway_response' => json_encode($request->all())
+            'gateway_response' => json_encode($request->all()),
         ]);
 
         // Update invoice
@@ -686,14 +683,14 @@ class PaymentController extends Controller
         $invoice->update([
             'paid_amount' => $invoice->paid_amount + $payment->amount,
             'balance_due' => $invoice->total_amount - ($invoice->paid_amount + $payment->amount),
-            'status' => 'paid'
+            'status' => 'paid',
         ]);
 
         // Notify admins of successful payment
         $this->notifyAdminsOfPayment($payment);
 
         return redirect()->route('customer.invoices.index')
-                       ->with('success', 'Payment completed successfully!');
+            ->with('success', 'Payment completed successfully!');
     }
 
     /**
@@ -707,12 +704,12 @@ class PaymentController extends Controller
         if ($payment) {
             $payment->update([
                 'status' => 'failed',
-                'gateway_response' => json_encode($request->all())
+                'gateway_response' => json_encode($request->all()),
             ]);
         }
 
         return redirect()->route('customer.invoices.index')
-                       ->with('error', 'Payment failed. Please try again.');
+            ->with('error', 'Payment failed. Please try again.');
     }
 
     /**
@@ -730,7 +727,7 @@ class PaymentController extends Controller
             'payment_id' => $payment->id,
             'invoice_id' => $payment->invoice_id,
             'amount' => $payment->amount,
-            'customer_id' => $payment->customer_id
+            'customer_id' => $payment->customer_id,
         ]);
     }
 }

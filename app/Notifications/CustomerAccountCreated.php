@@ -37,7 +37,7 @@ class CustomerAccountCreated extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('Welcome to RT Express - Your Account Has Been Created')
             ->greeting('Welcome to RT Express!')
-            ->line("Your customer account has been successfully created by our admin team.")
+            ->line('Your customer account has been successfully created by our admin team.')
             ->line("**Company:** {$this->customer->company_name}")
             ->line("**Customer Code:** {$this->customer->customer_code}")
             ->line("**Contact Person:** {$this->customer->contact_person}")

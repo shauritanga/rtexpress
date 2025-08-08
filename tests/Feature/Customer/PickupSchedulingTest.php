@@ -2,18 +2,19 @@
 
 namespace Tests\Feature\Customer;
 
-use App\Models\User;
 use App\Models\Customer;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use Carbon\Carbon;
 
 class PickupSchedulingTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
     private User $customerUser;
+
     private Customer $customer;
 
     protected function setUp(): void
@@ -36,17 +37,16 @@ class PickupSchedulingTest extends TestCase
             ->get('/customer/pickups/schedule');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Pickups/Schedule')
-                ->has('customer')
-                ->has('shipmentIds')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Pickups/Schedule')
+            ->has('customer')
+            ->has('shipmentIds')
         );
     }
 
     public function test_customer_can_schedule_pickup()
     {
         $pickupDate = Carbon::tomorrow()->toDateString();
-        
+
         $pickupData = [
             'pickup_date' => $pickupDate,
             'pickup_time_window' => '8-17',
@@ -97,7 +97,7 @@ class PickupSchedulingTest extends TestCase
     public function test_pickup_date_must_be_in_future()
     {
         $pastDate = Carbon::yesterday()->toDateString();
-        
+
         $pickupData = [
             'pickup_date' => $pastDate,
             'pickup_time_window' => '8-17',
@@ -120,7 +120,7 @@ class PickupSchedulingTest extends TestCase
     public function test_pickup_time_window_validation()
     {
         $pickupDate = Carbon::tomorrow()->toDateString();
-        
+
         $pickupData = [
             'pickup_date' => $pickupDate,
             'pickup_time_window' => 'invalid-window',
@@ -143,7 +143,7 @@ class PickupSchedulingTest extends TestCase
     public function test_package_count_must_be_positive()
     {
         $pickupDate = Carbon::tomorrow()->toDateString();
-        
+
         $pickupData = [
             'pickup_date' => $pickupDate,
             'pickup_time_window' => '8-17',
@@ -166,7 +166,7 @@ class PickupSchedulingTest extends TestCase
     public function test_total_weight_cannot_be_negative()
     {
         $pickupDate = Carbon::tomorrow()->toDateString();
-        
+
         $pickupData = [
             'pickup_date' => $pickupDate,
             'pickup_time_window' => '8-17',
@@ -192,10 +192,9 @@ class PickupSchedulingTest extends TestCase
             ->get('/customer/pickups');
 
         $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => 
-            $page->component('Customer/Pickups/Index')
-                ->has('customer')
-                ->has('pickups')
+        $response->assertInertia(fn ($page) => $page->component('Customer/Pickups/Index')
+            ->has('customer')
+            ->has('pickups')
         );
     }
 
@@ -203,7 +202,7 @@ class PickupSchedulingTest extends TestCase
     {
         $pickupDate = Carbon::tomorrow()->toDateString();
         $shipmentIds = [1, 2, 3];
-        
+
         $pickupData = [
             'pickup_date' => $pickupDate,
             'pickup_time_window' => '8-17',
@@ -224,7 +223,7 @@ class PickupSchedulingTest extends TestCase
         $response->assertJson([
             'success' => true,
         ]);
-        
+
         $responseData = $response->json();
         $this->assertEquals($shipmentIds, $responseData['pickup_data']['shipment_ids']);
     }
@@ -232,7 +231,7 @@ class PickupSchedulingTest extends TestCase
     public function test_residential_pickup_flag()
     {
         $pickupDate = Carbon::tomorrow()->toDateString();
-        
+
         $pickupData = [
             'pickup_date' => $pickupDate,
             'pickup_time_window' => '8-17',
@@ -250,7 +249,7 @@ class PickupSchedulingTest extends TestCase
             ->postJson('/customer/pickups', $pickupData);
 
         $response->assertStatus(200);
-        
+
         $responseData = $response->json();
         $this->assertTrue($responseData['pickup_data']['residential_pickup']);
     }
@@ -258,7 +257,7 @@ class PickupSchedulingTest extends TestCase
     public function test_special_instructions_are_optional()
     {
         $pickupDate = Carbon::tomorrow()->toDateString();
-        
+
         $pickupData = [
             'pickup_date' => $pickupDate,
             'pickup_time_window' => '8-17',
@@ -284,7 +283,7 @@ class PickupSchedulingTest extends TestCase
     public function test_pickup_id_generation()
     {
         $pickupDate = Carbon::tomorrow()->toDateString();
-        
+
         $pickupData = [
             'pickup_date' => $pickupDate,
             'pickup_time_window' => '8-17',
@@ -301,7 +300,7 @@ class PickupSchedulingTest extends TestCase
             ->postJson('/customer/pickups', $pickupData);
 
         $response->assertStatus(200);
-        
+
         $responseData = $response->json();
         $this->assertStringStartsWith('PU', $responseData['pickup_id']);
         $this->assertEquals(10, strlen($responseData['pickup_id'])); // PU + 8 characters

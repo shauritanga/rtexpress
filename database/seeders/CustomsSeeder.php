@@ -2,14 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use App\Models\ComplianceDocument;
 use App\Models\CustomsDeclaration;
 use App\Models\CustomsItem;
-use App\Models\ComplianceDocument;
 use App\Models\CustomsRegulation;
 use App\Models\Shipment;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class CustomsSeeder extends Seeder
 {
@@ -23,6 +22,7 @@ class CustomsSeeder extends Seeder
 
         if ($shipments->isEmpty() || $users->isEmpty()) {
             $this->command->warn('No shipments or users found. Please seed shipments and users first.');
+
             return;
         }
 
@@ -288,7 +288,7 @@ class CustomsSeeder extends Seeder
                     'shipment_id' => $declaration->shipment_id,
                     'customs_declaration_id' => $declaration->id,
                     'document_type' => 'commercial_invoice',
-                    'document_name' => 'Commercial Invoice - ' . $declaration->declaration_number,
+                    'document_name' => 'Commercial Invoice - '.$declaration->declaration_number,
                     'status' => 'approved',
                     'is_required' => true,
                     'is_verified' => true,
@@ -301,7 +301,7 @@ class CustomsSeeder extends Seeder
                     'shipment_id' => $declaration->shipment_id,
                     'customs_declaration_id' => $declaration->id,
                     'document_type' => 'packing_list',
-                    'document_name' => 'Packing List - ' . $declaration->declaration_number,
+                    'document_name' => 'Packing List - '.$declaration->declaration_number,
                     'status' => 'approved',
                     'is_required' => true,
                     'is_verified' => true,

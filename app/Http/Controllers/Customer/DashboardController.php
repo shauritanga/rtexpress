@@ -4,10 +4,8 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Shipment;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,7 +19,7 @@ class DashboardController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
@@ -97,11 +95,11 @@ class DashboardController extends Controller
         ];
 
         // Filter out zero values and add fallback
-        $filteredStatusData = array_values(array_filter($statusData, fn($item) => $item['value'] > 0));
+        $filteredStatusData = array_values(array_filter($statusData, fn ($item) => $item['value'] > 0));
 
         if (empty($filteredStatusData)) {
             $filteredStatusData = [
-                ['name' => 'No Data', 'value' => 1, 'color' => '#e5e7eb']
+                ['name' => 'No Data', 'value' => 1, 'color' => '#e5e7eb'],
             ];
         }
 

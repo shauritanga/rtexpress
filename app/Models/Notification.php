@@ -68,7 +68,7 @@ class Notification extends Model
     public static function generateNotificationId(): string
     {
         do {
-            $id = 'NOTIF-' . date('Ymd') . '-' . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
+            $id = 'NOTIF-'.date('Ymd').'-'.str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
         } while (static::where('notification_id', $id)->exists());
 
         return $id;
@@ -103,10 +103,11 @@ class Notification extends Model
      */
     public function recipient()
     {
-        $class = 'App\\Models\\' . ucfirst($this->recipient_type);
+        $class = 'App\\Models\\'.ucfirst($this->recipient_type);
         if (class_exists($class)) {
             return $class::find($this->recipient_id);
         }
+
         return null;
     }
 
@@ -196,7 +197,7 @@ class Notification extends Model
     public function isReadyToSend(): bool
     {
         return $this->status === 'pending' &&
-               (!$this->scheduled_at || $this->scheduled_at <= now());
+               (! $this->scheduled_at || $this->scheduled_at <= now());
     }
 
     /**
@@ -259,10 +260,10 @@ class Notification extends Model
     public function scopeReadyToSend($query)
     {
         return $query->pending()
-                    ->where(function ($q) {
-                        $q->whereNull('scheduled_at')
-                          ->orWhere('scheduled_at', '<=', now());
-                    });
+            ->where(function ($q) {
+                $q->whereNull('scheduled_at')
+                    ->orWhere('scheduled_at', '<=', now());
+            });
     }
 
     /**
@@ -287,7 +288,7 @@ class Notification extends Model
     public function scopeForRecipient($query, string $type, int $id)
     {
         return $query->where('recipient_type', $type)
-                    ->where('recipient_id', $id);
+            ->where('recipient_id', $id);
     }
 
     /**
@@ -336,7 +337,7 @@ class Notification extends Model
     public function scopeUnread($query)
     {
         return $query->whereIn('status', ['sent', 'delivered'])
-                    ->whereNull('read_at');
+            ->whereNull('read_at');
     }
 
     /**
@@ -345,7 +346,7 @@ class Notification extends Model
     public function scopeForCustomer($query, int $customerId)
     {
         return $query->where('recipient_type', 'customer')
-                    ->where('recipient_id', $customerId);
+            ->where('recipient_id', $customerId);
     }
 
     /**
@@ -354,7 +355,7 @@ class Notification extends Model
     public function scopeForUser($query, int $userId)
     {
         return $query->where('recipient_type', 'user')
-                    ->where('recipient_id', $userId);
+            ->where('recipient_id', $userId);
     }
 
     /**
@@ -386,7 +387,7 @@ class Notification extends Model
      */
     public function isRead(): bool
     {
-        return !is_null($this->read_at);
+        return ! is_null($this->read_at);
     }
 
     /**
@@ -446,7 +447,7 @@ class Notification extends Model
      */
     public function isArchived(): bool
     {
-        return !is_null($this->archived_at);
+        return ! is_null($this->archived_at);
     }
 
     /**
@@ -527,7 +528,7 @@ class Notification extends Model
                 ->first();
 
             if ($preference) {
-                $channelEnabled = match($data['channel']) {
+                $channelEnabled = match ($data['channel']) {
                     'email' => $preference->email_enabled,
                     'sms' => $preference->sms_enabled,
                     'push' => $preference->push_enabled,
@@ -535,7 +536,7 @@ class Notification extends Model
                     default => true
                 };
 
-                if (!$channelEnabled) {
+                if (! $channelEnabled) {
                     // Channel is disabled for this notification type
                     return null;
                 }
@@ -553,7 +554,7 @@ class Notification extends Model
     public static function createForCustomer(int $customerId, string $type, array $baseData): array
     {
         $customer = \App\Models\Customer::find($customerId);
-        if (!$customer) {
+        if (! $customer) {
             return [];
         }
 
@@ -563,7 +564,7 @@ class Notification extends Model
             ->first();
 
         // If no preference found or notification type is disabled, don't create any notifications
-        if (!$preference || (!$preference->email_enabled && !$preference->sms_enabled && !$preference->push_enabled && !$preference->in_app_enabled)) {
+        if (! $preference || (! $preference->email_enabled && ! $preference->sms_enabled && ! $preference->push_enabled && ! $preference->in_app_enabled)) {
             return [];
         }
 

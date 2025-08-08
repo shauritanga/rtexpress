@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Customer;
-use App\Models\Shipment;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
-use Carbon\Carbon;
 
 class BillingController extends Controller
 {
@@ -63,12 +60,12 @@ class BillingController extends Controller
         // Apply filters
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
-                $q->where('invoice_number', 'like', '%' . $request->search . '%')
-                  ->orWhereHas('customer', function ($customerQuery) use ($request) {
-                      $customerQuery->where('company_name', 'like', '%' . $request->search . '%')
-                                  ->orWhere('contact_person', 'like', '%' . $request->search . '%')
-                                  ->orWhere('email', 'like', '%' . $request->search . '%');
-                  });
+                $q->where('invoice_number', 'like', '%'.$request->search.'%')
+                    ->orWhereHas('customer', function ($customerQuery) use ($request) {
+                        $customerQuery->where('company_name', 'like', '%'.$request->search.'%')
+                            ->orWhere('contact_person', 'like', '%'.$request->search.'%')
+                            ->orWhere('email', 'like', '%'.$request->search.'%');
+                    });
             });
         }
 
@@ -113,11 +110,11 @@ class BillingController extends Controller
         // Apply filters
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
-                $q->where('payment_number', 'like', '%' . $request->search . '%')
-                  ->orWhere('reference_number', 'like', '%' . $request->search . '%')
-                  ->orWhereHas('customer', function ($customerQuery) use ($request) {
-                      $customerQuery->where('name', 'like', '%' . $request->search . '%');
-                  });
+                $q->where('payment_number', 'like', '%'.$request->search.'%')
+                    ->orWhere('reference_number', 'like', '%'.$request->search.'%')
+                    ->orWhereHas('customer', function ($customerQuery) use ($request) {
+                        $customerQuery->where('name', 'like', '%'.$request->search.'%');
+                    });
             });
         }
 

@@ -12,7 +12,7 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     // Use existing admin role from seeder
     $adminRole = Role::where('name', 'admin')->first();
-    if (!$adminRole) {
+    if (! $adminRole) {
         $adminRole = Role::create([
             'name' => 'admin',
             'display_name' => 'Administrator',

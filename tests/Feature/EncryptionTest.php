@@ -1,9 +1,7 @@
 <?php
 
 use App\Models\Customer;
-use App\Traits\EncryptableAttributes;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Crypt;
 
 uses(RefreshDatabase::class);
 
@@ -30,7 +28,7 @@ describe('Encryptable Attributes Trait', function () {
         // Check that the phone number is encrypted in the database
         $rawPhone = \DB::table('customers')->where('id', $customer->id)->value('phone');
         expect($rawPhone)->not->toBe('+1234567890');
-        
+
         // But when accessed through the model, it should be decrypted
         expect($customer->phone)->toBe('+1234567890');
     });
@@ -82,7 +80,7 @@ describe('Encryptable Attributes Trait', function () {
         // Check that non-encryptable fields are stored as-is
         $rawEmail = \DB::table('customers')->where('id', $customer->id)->value('email');
         expect($rawEmail)->toBe('bob@example.com');
-        
+
         $rawCompanyName = \DB::table('customers')->where('id', $customer->id)->value('company_name');
         expect($rawCompanyName)->toBe('Test Company 3');
     });

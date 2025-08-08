@@ -42,12 +42,12 @@ class CustomerRegistrationController extends Controller
                 'string',
                 'regex:/^[\+]?[1-9][\d]{0,15}$/', // International format
                 'min:10',
-                'max:20'
+                'max:20',
             ],
-            
+
             // Company Information
             'company_name' => 'required|string|max:255',
-            
+
             // Address Information
             'address_line_1' => 'required|string|max:255',
             'address_line_2' => 'nullable|string|max:255',
@@ -65,7 +65,7 @@ class CustomerRegistrationController extends Controller
 
         // Create user account with OTP enabled by default
         $user = User::create([
-            'name' => $validated['first_name'] . ' ' . $validated['last_name'],
+            'name' => $validated['first_name'].' '.$validated['last_name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'phone' => $validated['phone'],
@@ -79,7 +79,7 @@ class CustomerRegistrationController extends Controller
         $customer = Customer::create([
             'customer_code' => $customerCode,
             'company_name' => $validated['company_name'],
-            'contact_person' => $validated['first_name'] . ' ' . $validated['last_name'],
+            'contact_person' => $validated['first_name'].' '.$validated['last_name'],
             'email' => $validated['email'],
             'phone' => $validated['phone'],
             'address_line_1' => $validated['address_line_1'],
@@ -117,7 +117,7 @@ class CustomerRegistrationController extends Controller
             'success' => 'Registration successful! Welcome to RT Express.',
             'email_sent' => true,
             'user_email' => $validated['email'],
-            'company_name' => $validated['company_name']
+            'company_name' => $validated['company_name'],
         ]);
     }
 
@@ -135,7 +135,7 @@ class CustomerRegistrationController extends Controller
         // Find next available number
         $counter = 1;
         do {
-            $code = $prefix . str_pad($counter, 3, '0', STR_PAD_LEFT);
+            $code = $prefix.str_pad($counter, 3, '0', STR_PAD_LEFT);
             $exists = Customer::where('customer_code', $code)->exists();
             $counter++;
         } while ($exists && $counter <= 999);

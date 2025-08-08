@@ -35,7 +35,7 @@ class ClickPesaChecksumService
         $requiredFields = ['amount', 'currency', 'orderReference'];
 
         foreach ($requiredFields as $field) {
-            if (!isset($paymentData[$field])) {
+            if (! isset($paymentData[$field])) {
                 throw new Exception("Missing required field for checksum: {$field}");
             }
         }
@@ -73,7 +73,7 @@ class ClickPesaChecksumService
     public function verifyWebhookChecksum(array $webhookData, string $receivedChecksum): bool
     {
         $calculatedChecksum = $this->generateWebhookChecksum($webhookData);
-        
+
         return hash_equals($calculatedChecksum, $receivedChecksum);
     }
 
@@ -88,7 +88,8 @@ class ClickPesaChecksumService
         $randomString = strtoupper(substr(uniqid(), -6));
 
         // Remove any non-alphanumeric characters and ensure it's alphanumeric only
-        $reference = $prefix . $timestamp . $randomString;
+        $reference = $prefix.$timestamp.$randomString;
+
         return preg_replace('/[^A-Za-z0-9]/', '', $reference);
     }
 

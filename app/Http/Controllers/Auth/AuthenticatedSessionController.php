@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Services\OtpService;
 use App\Models\User;
+use App\Services\OtpService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -69,6 +69,7 @@ class AuthenticatedSessionController extends Controller
             if ($user->customer && $user->customer->status !== 'active') {
                 return redirect()->route('customer.pending-approval');
             }
+
             return redirect()->intended('/customer/dashboard');
         }
 
@@ -79,8 +80,9 @@ class AuthenticatedSessionController extends Controller
 
         // If user has no roles, logout and redirect to login with error
         Auth::logout();
+
         return redirect()->route('login')->withErrors([
-            'email' => 'Your account does not have the necessary permissions to access the system.'
+            'email' => 'Your account does not have the necessary permissions to access the system.',
         ]);
     }
 
@@ -91,13 +93,13 @@ class AuthenticatedSessionController extends Controller
     {
         $userId = $request->session()->get('otp_user_id');
 
-        if (!$userId) {
+        if (! $userId) {
             return redirect()->route('login');
         }
 
         $user = User::find($userId);
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
@@ -123,18 +125,18 @@ class AuthenticatedSessionController extends Controller
 
         $userId = $request->session()->get('otp_user_id');
 
-        if (!$userId) {
+        if (! $userId) {
             return redirect()->route('login');
         }
 
         $user = User::find($userId);
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
         // Verify OTP
-        if (!$this->otpService->verifyOtp($user, $request->otp_code, 'login')) {
+        if (! $this->otpService->verifyOtp($user, $request->otp_code, 'login')) {
             throw ValidationException::withMessages([
                 'otp_code' => 'The verification code is invalid or has expired.',
             ]);
@@ -165,8 +167,10 @@ class AuthenticatedSessionController extends Controller
                     'user_id' => $user->id,
                     'customer_status' => $user->customer->status,
                 ]);
+
                 return redirect()->route('customer.pending-approval');
             }
+
             return redirect()->intended('/customer/dashboard');
         }
 
@@ -177,8 +181,9 @@ class AuthenticatedSessionController extends Controller
 
         // If user has no roles, logout and redirect to login with error
         Auth::logout();
+
         return redirect()->route('login')->withErrors([
-            'email' => 'Your account does not have the necessary permissions to access the system.'
+            'email' => 'Your account does not have the necessary permissions to access the system.',
         ]);
     }
 
@@ -189,17 +194,17 @@ class AuthenticatedSessionController extends Controller
     {
         $userId = $request->session()->get('otp_user_id');
 
-        if (!$userId) {
+        if (! $userId) {
             return redirect()->route('login');
         }
 
         $user = User::find($userId);
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
-        if (!$this->otpService->canRequestOtp($user, 'login')) {
+        if (! $this->otpService->canRequestOtp($user, 'login')) {
             return back()->withErrors(['otp_code' => 'Please wait before requesting a new code.']);
         }
 

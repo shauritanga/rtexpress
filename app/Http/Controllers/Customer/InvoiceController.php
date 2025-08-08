@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,7 +18,7 @@ class InvoiceController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer) {
+        if (! $customer) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
@@ -29,7 +28,7 @@ class InvoiceController extends Controller
 
         // Apply search filter
         if (request('search')) {
-            $query->where('invoice_number', 'like', '%' . request('search') . '%');
+            $query->where('invoice_number', 'like', '%'.request('search').'%');
         }
 
         // Apply status filter
@@ -80,12 +79,12 @@ class InvoiceController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer || $invoice->customer_id !== $customer->id) {
+        if (! $customer || $invoice->customer_id !== $customer->id) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
         // Only allow access to sent, viewed, paid, and overdue invoices
-        if (!in_array($invoice->status, ['sent', 'viewed', 'paid', 'overdue'])) {
+        if (! in_array($invoice->status, ['sent', 'viewed', 'paid', 'overdue'])) {
             return Inertia::render('Customer/Dashboard/NoAccess');
         }
 
@@ -106,12 +105,12 @@ class InvoiceController extends Controller
         $user = Auth::user();
         $customer = $user->customer;
 
-        if (!$customer || $invoice->customer_id !== $customer->id) {
+        if (! $customer || $invoice->customer_id !== $customer->id) {
             abort(403, 'Unauthorized access to invoice');
         }
 
         // Only allow access to sent, viewed, paid, and overdue invoices
-        if (!in_array($invoice->status, ['sent', 'viewed', 'paid', 'overdue'])) {
+        if (! in_array($invoice->status, ['sent', 'viewed', 'paid', 'overdue'])) {
             abort(403, 'Invoice not available');
         }
 

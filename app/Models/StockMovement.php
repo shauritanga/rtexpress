@@ -62,11 +62,11 @@ class StockMovement extends Model
      */
     public function reference()
     {
-        if (!$this->reference_type || !$this->reference_id) {
+        if (! $this->reference_type || ! $this->reference_id) {
             return null;
         }
 
-        $class = 'App\\Models\\' . $this->reference_type;
+        $class = 'App\\Models\\'.$this->reference_type;
         if (class_exists($class)) {
             return $class::find($this->reference_id);
         }

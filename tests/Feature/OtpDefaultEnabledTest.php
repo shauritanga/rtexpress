@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Customer;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -32,7 +31,7 @@ describe('OTP Default Enabled', function () {
         ]);
 
         $response->assertRedirect(route('verification.notice'));
-        
+
         // Verify user was created with OTP enabled
         $user = User::where('email', 'john@example.com')->first();
         expect($user)->not->toBeNull();
@@ -58,7 +57,7 @@ describe('OTP Default Enabled', function () {
         ]);
 
         $response->assertRedirect(route('verification.notice'));
-        
+
         // Verify user was created with OTP enabled
         $user = User::where('email', 'jane@example.com')->first();
         expect($user)->not->toBeNull();
@@ -69,7 +68,7 @@ describe('OTP Default Enabled', function () {
     test('user model has otp_enabled field with correct default', function () {
         // Create a user using the factory
         $user = User::factory()->create([
-            'phone' => '+1111111111'
+            'phone' => '+1111111111',
         ]);
 
         // Check that OTP is enabled by default
