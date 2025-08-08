@@ -10,15 +10,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Public tracking page
+// Main route redirects to login
 Route::get('/', function () {
-    return Inertia::render('Public/Track');
+    return redirect()->route('login');
 })->name('home');
 
-// Public tracking route
-Route::get('/track', function () {
-    return Inertia::render('Public/Track');
-})->name('public.track');
+
 
 // Customer Registration with rate limiting
 Route::get('/register/customer', [App\Http\Controllers\Auth\CustomerRegistrationController::class, 'show'])->name('customer.register');

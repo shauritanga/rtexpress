@@ -76,26 +76,6 @@ export default function VerifyOtp({ user, canResend, cooldownSeconds, status }: 
             {/* Left side - Particle Background */}
             <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
                 <ParticleBackground />
-                <div className="relative z-10 flex flex-col justify-center px-12 text-white">
-                    <div className="max-w-md">
-                        <h1 className="text-4xl font-bold mb-6">
-                            Secure Access
-                        </h1>
-                        <p className="text-xl mb-8 text-white/90">
-                            Enter the verification code sent to your email to complete the login process.
-                        </p>
-                        <div className="space-y-4">
-                            <div className="flex items-center space-x-3">
-                                <Shield className="h-5 w-5 text-green-300" />
-                                <span>Two-factor authentication enabled</span>
-                            </div>
-                            <div className="flex items-center space-x-3">
-                                <Mail className="h-5 w-5 text-blue-300" />
-                                <span>Code sent to your email</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {/* Right side - Content */}
