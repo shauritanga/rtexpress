@@ -46,6 +46,8 @@ test('admin can create shipment', function () {
     $shipmentData = [
         'customer_id' => $this->customer->id,
         'origin_warehouse_id' => $this->warehouse->id,
+        'origin_address' => '123 Main St, Dar es Salaam',
+        'destination_address' => '456 Oak Ave, Arusha',
         'sender_name' => 'John Doe',
         'sender_phone' => '+255123456789',
         'sender_address' => '123 Main St, Dar es Salaam',

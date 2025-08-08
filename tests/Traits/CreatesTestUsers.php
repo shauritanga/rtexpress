@@ -11,9 +11,9 @@ trait CreatesTestUsers
     /**
      * Create a customer user with proper role assignment.
      */
-    protected function createCustomerUser(array $attributes = []): User
+    protected function createCustomerUser(array $userAttributes = [], array $customerAttributes = []): User
     {
-        $user = User::factory()->create($attributes);
+        $user = User::factory()->create($userAttributes);
 
         // Assign customer role
         $customerRole = Role::where('name', 'customer')->first();
