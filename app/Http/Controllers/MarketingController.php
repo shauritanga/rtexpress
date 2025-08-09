@@ -420,4 +420,180 @@ class MarketingController extends Controller
                 ->html($emailContent);
         });
     }
+
+    /**
+     * Show standalone shipment form for WordPress integration
+     */
+    public function standaloneShipmentForm()
+    {
+        return view('forms.standalone-shipment');
+    }
+
+    /**
+     * Handle standalone shipment form submission (for WordPress integration)
+     */
+    public function standaloneShipmentRequest(Request $request)
+    {
+        // Use the same validation as the main form
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'item_description' => 'required|string|max:1000',
+            'pickup_location' => 'required|string|max:255',
+            'delivery_location' => 'required|string|max:255',
+            'additional_notes' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $data = $validator->validated();
+
+        try {
+            // Send email to admin (reuse existing method)
+            $this->sendShipmentRequestEmail($data);
+
+            Log::info('Standalone shipment request submitted', [
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'pickup_location' => $data['pickup_location'],
+                'delivery_location' => $data['delivery_location'],
+                'source' => 'WordPress Integration'
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Thank you! Your shipment request has been submitted. We will contact you shortly with a quote.'
+                ]);
+            }
+
+            return back()->with('success',
+                'Thank you! Your shipment request has been submitted. We will contact you shortly with a quote.');
+
+        } catch (\Exception $e) {
+            Log::error('Failed to send standalone shipment request email', [
+                'error' => $e->getMessage(),
+                'data' => $data,
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to submit request. Please try again or contact us directly.'
+                ], 500);
+            }
+
+            return back()
+                ->withErrors(['email' => 'Failed to submit request. Please try again or contact us directly.'])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Show standalone tracking form for WordPress integration
+     */
+    public function standaloneTrackingForm()
+    {
+        return view('forms.standalone-tracking');
+    }
+
+    /**
+     * Handle standalone tracking form submission (for WordPress integration)
+     */
+    public function standaloneTrackingRequest(Request $request)
+    {
+        // Use the same validation as the main tracking form
+        $validator = Validator::make($request->all(), [
+            'tracking_number' => 'required|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $trackingNumber = $request->tracking_number;
+
+        try {
+            // Find shipment by tracking number (reuse existing logic)
+            $shipment = Shipment::where('tracking_number', $trackingNumber)->first();
+
+            if (!$shipment) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Tracking number not found. Please check and try again.'
+                    ], 404);
+                }
+
+                return back()
+                    ->withErrors(['tracking_number' => 'Tracking number not found. Please check and try again.'])
+                    ->withInput();
+            }
+
+            Log::info('Standalone tracking request', [
+                'tracking_number' => $trackingNumber,
+                'shipment_id' => $shipment->id,
+                'source' => 'WordPress Integration'
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'shipment' => [
+                        'tracking_number' => $shipment->tracking_number,
+                        'status' => $shipment->status,
+                        'origin_address' => $shipment->origin_address,
+                        'destination_address' => $shipment->destination_address,
+                        'sender_name' => $shipment->sender_name,
+                        'recipient_name' => $shipment->recipient_name,
+                        'service_type' => $shipment->service_type,
+                        'created_at' => $shipment->created_at->format('F j, Y'),
+                        'updated_at' => $shipment->updated_at->format('F j, Y g:i A'),
+                    ]
+                ]);
+            }
+
+            // Return to tracking results view
+            return view('forms.standalone-tracking-result', compact('shipment'));
+
+        } catch (\Exception $e) {
+            Log::error('Failed to process standalone tracking request', [
+                'error' => $e->getMessage(),
+                'tracking_number' => $trackingNumber,
+            ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while tracking your shipment. Please try again.'
+                ], 500);
+            }
+
+            return back()
+                ->withErrors(['tracking_number' => 'An error occurred while tracking your shipment. Please try again.'])
+                ->withInput();
+        }
+    }
 }

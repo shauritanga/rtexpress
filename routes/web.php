@@ -20,6 +20,18 @@ Route::post('/marketing/shipment-request', [MarketingController::class, 'shipmen
 Route::post('/marketing/track', [MarketingController::class, 'track'])->name('marketing.track');
 Route::post('/marketing/contact', [MarketingController::class, 'marketingContact'])->name('marketing.contact');
 
+// Standalone shipment form for WordPress integration
+Route::get('/shipment-form', [MarketingController::class, 'standaloneShipmentForm'])->name('shipment.form.standalone');
+Route::post('/shipment-form', [MarketingController::class, 'standaloneShipmentRequest'])
+    ->middleware('throttle:5,1') // 5 submissions per minute
+    ->name('shipment.form.submit');
+
+// Standalone tracking form for WordPress integration
+Route::get('/track-shipment', [MarketingController::class, 'standaloneTrackingForm'])->name('tracking.form.standalone');
+Route::post('/track-shipment', [MarketingController::class, 'standaloneTrackingRequest'])
+    ->middleware('throttle:10,1') // 10 tracking requests per minute
+    ->name('tracking.form.submit');
+
 // Customer Registration with rate limiting
 Route::get('/register/customer', [App\Http\Controllers\Auth\CustomerRegistrationController::class, 'show'])->name('customer.register');
 Route::post('/register/customer', [App\Http\Controllers\Auth\CustomerRegistrationController::class, 'store'])
