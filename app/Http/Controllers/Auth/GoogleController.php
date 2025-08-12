@@ -129,8 +129,8 @@ class GoogleController extends Controller
                 'city' => '',
                 'state_province' => '',
                 'postal_code' => '',
-                'country' => 'Tanzania', // Default country
-                'status' => 'pending_approval', // Requires admin approval
+                'country' => '', // Will be filled in profile completion
+                'status' => 'pending_completion', // Requires profile completion
             ]);
 
             // Create user account
@@ -153,8 +153,8 @@ class GoogleController extends Controller
                 'google_id' => $googleUser->getId(),
             ]);
 
-            return redirect()->route('customer.profile.complete')
-                ->with('success', 'Welcome to RT Express! Please complete your profile to start using our services.');
+            return redirect()->route('customer.dashboard')
+                ->with('success', 'Welcome to RT Express! Your account has been created successfully.');
 
         } catch (\Exception $e) {
             Log::error('Error creating customer from Google OAuth', [

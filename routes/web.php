@@ -512,4 +512,8 @@ Route::middleware(['auth', 'customer.auth'])->prefix('customer')->group(function
     Route::get('profile/edit', [App\Http\Controllers\Customer\ProfileController::class, 'edit'])->name('customer.profile.edit');
     Route::put('profile', [App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('customer.profile.update');
     Route::put('profile/password', [App\Http\Controllers\Customer\ProfileController::class, 'updatePassword'])->name('customer.profile.password');
+
+    // Profile completion for Google OAuth users
+    Route::get('profile/complete', [App\Http\Controllers\Customer\ProfileController::class, 'complete'])->name('customer.profile.complete');
+    Route::post('profile/complete', [App\Http\Controllers\Customer\ProfileController::class, 'storeComplete'])->name('customer.profile.complete.store');
 });
