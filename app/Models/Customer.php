@@ -24,6 +24,8 @@ class Customer extends Model
         'company_name',
         'contact_person',
         'email',
+        'google_id',
+        'email_verified_at',
         'phone',
         'address_line_1',
         'address_line_2',
@@ -59,6 +61,7 @@ class Customer extends Model
     protected $casts = [
         'credit_limit' => 'decimal:2',
         'delivery_preferences' => 'array',
+        'email_verified_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',

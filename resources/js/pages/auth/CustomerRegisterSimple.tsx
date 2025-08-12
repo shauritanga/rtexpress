@@ -2,6 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, ArrowRight, CheckCircle, Eye, EyeOff, LoaderCircle, Truck } from 'lucide-react';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
 
+import GoogleOAuthButton, { OAuthDivider } from '@/components/GoogleOAuthButton';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -307,6 +308,12 @@ export default function CustomerRegisterSimple({ countries = {} }: CustomerRegis
                         {/* Registration Form */}
                         <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm">
                             <CardContent className="p-8">
+                                {/* Google OAuth Button */}
+                                <div className="mb-6">
+                                    <GoogleOAuthButton variant="register" />
+                                    <OAuthDivider />
+                                </div>
+
                                 <form className="space-y-6" onSubmit={submit}>
                                     {currentStep === 1 && (
                                         <div className="space-y-5">

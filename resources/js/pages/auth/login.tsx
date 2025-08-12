@@ -2,6 +2,7 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowRight, CheckCircle, Eye, EyeOff, LoaderCircle, Truck } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
+import GoogleOAuthButton, { OAuthDivider } from '@/components/GoogleOAuthButton';
 import InputError from '@/components/input-error';
 import ParticleBackground from '@/components/ParticleBackground';
 import TextLink from '@/components/text-link';
@@ -79,6 +80,13 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         {/* Login Form */}
                         <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm">
                             <CardContent className="p-8">
+                                <div className="space-y-6">
+                                    {/* Google OAuth Button */}
+                                    <GoogleOAuthButton variant="login" />
+
+                                    <OAuthDivider />
+                                </div>
+
                                 <form className="space-y-6" onSubmit={submit}>
                                     <div className="space-y-5">
                                         <div>
