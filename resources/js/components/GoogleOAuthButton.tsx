@@ -21,22 +21,21 @@ export default function GoogleOAuthButton({
         ? 'Continue with Google'
         : 'Sign up with Google';
 
-    const handleClick = () => {
+    const handleClick = (e: React.MouseEvent) => {
+        e.preventDefault();
         setIsLoading(true);
-        // The loading state will be reset when the page redirects
+        // Use window.location for proper browser navigation
+        window.location.href = route('auth.google');
     };
 
 
 
     return (
-        <Button
-            asChild
-            variant="outline"
-            className={`h-12 w-full border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 ${className}`}
+        <a
+            href={route('auth.google')}
+            className={`h-12 w-full border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 border rounded-md flex items-center justify-center font-medium ${className} ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             onClick={handleClick}
-            disabled={isLoading}
         >
-            <Link href={route('auth.google')} className="flex items-center justify-center">
                 {isLoading ? (
                     <>
                         <LoaderCircle className="mr-3 h-5 w-5 animate-spin" />
@@ -65,8 +64,7 @@ export default function GoogleOAuthButton({
                         {text || defaultText}
                     </>
                 )}
-            </Link>
-        </Button>
+        </a>
     );
 }
 
