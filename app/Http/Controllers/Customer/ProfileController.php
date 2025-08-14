@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Notifications\NewCustomerRegistrationNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -169,11 +173,26 @@ class ProfileController extends Controller
                 'postal_code' => $validated['postal_code'],
                 'country' => $validated['country'],
                 'company_name' => $validated['company_name'] ?: $customer->company_name,
-                'status' => 'active', // Activate the customer account
+                'status' => 'pending_approval', // Move to pending approval after profile completion
             ]);
 
-            return redirect()->route('customer.dashboard')
-                ->with('success', 'Profile completed successfully! Welcome to RT Express.');
+            Log::info('Customer profile completed', [
+                'customer_id' => $customer->id,
+                'user_id' => $user->id,
+                'email' => $customer->email,
+                'status' => 'pending_approval',
+            ]);
+
+            // Notify admins of completed registration (for Google OAuth users)
+            if ($customer->google_id) {
+                $this->notifyAdminsOfNewRegistration($customer, $user, 'google');
+            }
+
+            // Log out the user after profile completion
+            Auth::logout();
+
+            return redirect()->route('login')
+                ->with('success', 'Profile completed successfully! Your account is now pending admin approval. You will be able to log in once approved.');
 
         } catch (\Exception $e) {
             return back()
@@ -195,7 +214,8 @@ class ProfileController extends Controller
             }
         }
 
-        return true;
+        // Also check if status is still pending_completion (indicating incomplete profile)
+        return $customer->status !== 'pending_completion';
     }
 
     /**
@@ -225,5 +245,37 @@ class ProfileController extends Controller
             'Canada' => 'Canada',
             'Brazil' => 'Brazil',
         ];
+    }
+
+    /**
+     * Notify admins of new customer registration
+     */
+    private function notifyAdminsOfNewRegistration($customer, $user, string $registrationType): void
+    {
+        try {
+            // Get all admin users
+            $admins = User::whereHas('roles', function ($query) {
+                $query->where('name', 'admin');
+            })->get();
+
+            if ($admins->isNotEmpty()) {
+                Notification::send($admins, new NewCustomerRegistrationNotification($customer, $user, $registrationType));
+
+                Log::info('Admin notification sent for new customer registration', [
+                    'customer_id' => $customer->id,
+                    'registration_type' => $registrationType,
+                    'admin_count' => $admins->count(),
+                ]);
+            } else {
+                Log::warning('No admin users found to notify of new customer registration', [
+                    'customer_id' => $customer->id,
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send admin notification for new customer registration', [
+                'customer_id' => $customer->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

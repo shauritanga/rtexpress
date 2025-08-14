@@ -40,9 +40,19 @@ export default function VerifyEmail({ status, success, email_sent, user_email, c
         <div className="flex min-h-screen bg-gray-50">
             <Head title="Email Verification Required" />
 
-            {/* Left side - Particle Background */}
-            <div className="relative hidden overflow-hidden lg:flex lg:w-1/2">
+            {/* Left side - Logo with Particle Background */}
+            <div className="relative hidden overflow-hidden lg:flex lg:w-1/2 lg:items-center lg:justify-center">
                 <ParticleBackground />
+                {/* Centered Logo */}
+                <div className="relative z-10 flex flex-col items-center space-y-4">
+                    <div className="rounded-2xl bg-white/10 p-8 backdrop-blur-sm">
+                        <AppLogoIcon className="h-24 w-24 rounded-xl" />
+                    </div>
+                    <div className="text-center">
+                        <h1 className="text-3xl font-bold text-white drop-shadow-lg">RT EXPRESS</h1>
+                        <p className="text-lg text-white/90 italic font-medium drop-shadow-md">On Time, The First Time</p>
+                    </div>
+                </div>
             </div>
 
             {/* Right side - Content */}

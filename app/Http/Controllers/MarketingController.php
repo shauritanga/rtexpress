@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shipment;
+use App\Models\ShipmentRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -12,62 +13,6 @@ use Inertia\Response;
 
 class MarketingController extends Controller
 {
-    /**
-     * Display the marketing home page.
-     */
-    public function home(): Response
-    {
-        return Inertia::render('Marketing/Home', [
-            'stats' => [
-                'total_shipments' => '50,000+',
-                'countries_served' => '25+',
-                'satisfied_customers' => '5,000+',
-                'years_experience' => '10+',
-            ],
-            'features' => [
-                [
-                    'title' => 'Real-Time Tracking',
-                    'description' => 'Track your shipments in real-time with our advanced GPS technology',
-                    'icon' => 'MapPin',
-                ],
-                [
-                    'title' => 'Global Coverage',
-                    'description' => 'We deliver to over 25 countries worldwide with reliable service',
-                    'icon' => 'Globe',
-                ],
-                [
-                    'title' => 'Secure Shipping',
-                    'description' => 'Your packages are protected with our comprehensive insurance coverage',
-                    'icon' => 'Shield',
-                ],
-                [
-                    'title' => '24/7 Support',
-                    'description' => 'Our customer support team is available around the clock',
-                    'icon' => 'HeadphonesIcon',
-                ],
-            ],
-            'testimonials' => [
-                [
-                    'name' => 'Sarah Johnson',
-                    'company' => 'Global Imports Ltd',
-                    'content' => 'RT Express has transformed our shipping operations. Fast, reliable, and excellent customer service.',
-                    'rating' => 5,
-                ],
-                [
-                    'name' => 'Michael Chen',
-                    'company' => 'Tech Solutions Inc',
-                    'content' => 'The real-time tracking and professional dashboard make managing shipments effortless.',
-                    'rating' => 5,
-                ],
-                [
-                    'name' => 'Emma Rodriguez',
-                    'company' => 'Fashion Forward',
-                    'content' => 'Competitive pricing and reliable delivery times. RT Express is our go-to shipping partner.',
-                    'rating' => 5,
-                ],
-            ],
-        ]);
-    }
 
     /**
      * Display the about page.
@@ -285,10 +230,24 @@ class MarketingController extends Controller
         $data = $validator->validated();
 
         try {
+            // Store request in database
+            $shipmentRequest = ShipmentRequest::create([
+                'name' => $data['name'],
+                'phone' => $data['phone'],
+                'email' => $data['email'],
+                'item_description' => $data['item_description'],
+                'pickup_location' => $data['pickup_location'],
+                'delivery_location' => $data['delivery_location'],
+                'additional_notes' => $data['additional_notes'] ?? null,
+                'source' => 'marketing_page',
+                'status' => 'pending',
+            ]);
+
             // Send email to admin
             $this->sendShipmentRequestEmail($data);
 
             Log::info('Marketing shipment request submitted', [
+                'id' => $shipmentRequest->id,
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'phone' => $data['phone'],
@@ -461,10 +420,24 @@ class MarketingController extends Controller
         $data = $validator->validated();
 
         try {
+            // Store request in database
+            $shipmentRequest = ShipmentRequest::create([
+                'name' => $data['name'],
+                'phone' => $data['phone'],
+                'email' => $data['email'],
+                'item_description' => $data['item_description'],
+                'pickup_location' => $data['pickup_location'],
+                'delivery_location' => $data['delivery_location'],
+                'additional_notes' => $data['additional_notes'] ?? null,
+                'source' => 'standalone_form',
+                'status' => 'pending',
+            ]);
+
             // Send email to admin (reuse existing method)
             $this->sendShipmentRequestEmail($data);
 
             Log::info('Standalone shipment request submitted', [
+                'id' => $shipmentRequest->id,
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'phone' => $data['phone'],

@@ -24,15 +24,26 @@ export default function GoogleOAuthButton({
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
         setIsLoading(true);
+
+        // Debug: Check if route function exists
+        console.log('Route function exists:', typeof route);
+        console.log('Auth google route:', route('auth.google'));
+
         // Use window.location for proper browser navigation
-        window.location.href = route('auth.google');
+        try {
+            window.location.href = route('auth.google');
+        } catch (error) {
+            console.error('Route function failed:', error);
+            // Fallback to hardcoded URL
+            window.location.href = '/auth/google';
+        }
     };
 
 
 
     return (
         <a
-            href={route('auth.google')}
+            href="/auth/google"
             className={`h-12 w-full border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 border rounded-md flex items-center justify-center font-medium ${className} ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             onClick={handleClick}
         >

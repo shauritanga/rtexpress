@@ -6,6 +6,7 @@ import GoogleOAuthButton, { OAuthDivider } from '@/components/GoogleOAuthButton'
 import InputError from '@/components/input-error';
 import ParticleBackground from '@/components/ParticleBackground';
 import TextLink from '@/components/text-link';
+import AppLogoIcon from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -43,9 +44,19 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             <Head title="Sign In - RT Express" />
 
             <div className="flex min-h-screen">
-                {/* Left Side - Pure Particle Animation */}
-                <div className="relative hidden overflow-hidden lg:flex lg:w-1/2">
+                {/* Left Side - Logo with Particle Background */}
+                <div className="relative hidden overflow-hidden lg:flex lg:w-1/2 lg:items-center lg:justify-center">
                     <ParticleBackground />
+                    {/* Centered Logo */}
+                    <div className="relative z-10 flex flex-col items-center space-y-4">
+                        <div className="rounded-2xl bg-white/10 p-8 backdrop-blur-sm">
+                            <AppLogoIcon className="h-24 w-24 rounded-xl" />
+                        </div>
+                        <div className="text-center">
+                            <h1 className="text-3xl font-bold text-white drop-shadow-lg">RT EXPRESS</h1>
+                            <p className="text-lg text-white/90 italic font-medium drop-shadow-md">On Time, The First Time</p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Right Side - Login Form */}
@@ -55,12 +66,12 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         <div className="text-center">
                             <div className="mb-8 lg:hidden">
                                 <div className="mb-4 flex items-center justify-center space-x-3">
-                                    <div className="rounded-xl bg-blue-600 p-3">
-                                        <Truck className="h-8 w-8 text-white" />
+                                    <div className="rounded-xl bg-white p-2 shadow-lg">
+                                        <AppLogoIcon className="h-12 w-12 rounded-lg" />
                                     </div>
                                     <div className="text-left">
-                                        <h1 className="text-2xl font-bold text-gray-900">RT Express</h1>
-                                        <p className="text-sm text-gray-600">Global Shipping Solutions</p>
+                                        <h1 className="text-2xl font-bold text-rt-red">RT EXPRESS</h1>
+                                        <p className="text-sm text-rt-red italic font-medium">On Time, The First Time</p>
                                     </div>
                                 </div>
                             </div>

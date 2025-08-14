@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Link, usePage } from '@inertiajs/react';
 import { Facebook, Instagram, Linkedin, Mail, MapPin, Menu, Package, Phone, Twitter, X } from 'lucide-react';
+import AppLogoIcon from '@/components/app-logo-icon';
 import React, { useEffect, useState } from 'react';
 
 interface Props {
@@ -89,8 +90,8 @@ export default function MarketingLayout({ children }: Props) {
                         <div className="flex items-center">
                             <Link href="/" className="group flex items-center space-x-3">
                                 <div className="relative">
-                                    <div className="rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 p-2.5 shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
-                                        <Package className="h-7 w-7 text-white" />
+                                    <div className="rounded-xl bg-white p-2 shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl">
+                                        <AppLogoIcon className="h-8 w-8 rounded-lg" />
                                     </div>
                                     <div className="absolute -top-1 -right-1 h-3 w-3 animate-pulse rounded-full bg-orange-500"></div>
                                 </div>
@@ -176,8 +177,8 @@ export default function MarketingLayout({ children }: Props) {
                         {/* Company Info */}
                         <div className="space-y-4">
                             <div className="flex items-center space-x-2">
-                                <div className="rounded-lg bg-blue-600 p-2">
-                                    <Package className="h-5 w-5 text-white" />
+                                <div className="rounded-lg bg-white p-1">
+                                    <AppLogoIcon className="h-6 w-6 rounded" />
                                 </div>
                                 <span className="text-lg font-bold">RT Express</span>
                             </div>

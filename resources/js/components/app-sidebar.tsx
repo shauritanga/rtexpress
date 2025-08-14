@@ -19,6 +19,7 @@ import {
     Activity,
     BarChart3,
     Bell,
+    Calendar,
     CreditCard,
     DollarSign,
     FileText,
@@ -41,6 +42,11 @@ const coreOperationsNavItems: NavItem[] = [
         title: 'Dashboard',
         href: '/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Bookings',
+        href: '/admin/bookings',
+        icon: Calendar,
     },
     {
         title: 'Shipments',

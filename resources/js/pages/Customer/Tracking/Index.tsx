@@ -83,14 +83,14 @@ export default function TrackingIndex({ customer, trackingNumber, trackingData }
         return (
             <AppLayout customer={customer}>
                 <Head title="Track Shipment" />
-                <div className="container mx-auto px-4 py-8">
-                    <div className="mb-8 text-center">
-                        <h1 className="mb-4 text-2xl font-bold text-gray-900">Package Tracking</h1>
-                        <p className="text-gray-600">Search for your shipment using tracking number or scan barcode.</p>
+                <div className="space-y-6 px-4 pb-8 sm:px-6 lg:px-8">
+                    <div className="text-center">
+                        <h1 className="text-2xl font-bold text-gray-900">Package Tracking</h1>
+                        <p className="mt-2 text-gray-600">Search for your shipment using tracking number or scan barcode.</p>
                     </div>
 
                     {/* Tracking Methods Tabs */}
-                    <div className="mx-auto max-w-4xl">
+                    <div>
                         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                             <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="search" className="flex items-center gap-2">

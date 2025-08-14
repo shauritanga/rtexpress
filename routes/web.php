@@ -11,11 +11,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Marketing landing page
-Route::get('/', [MarketingController::class, 'landing'])->name('home');
-Route::get('/marketing', [MarketingController::class, 'landing'])->name('marketing.landing');
+// Redirect root to login (no marketing UI needed)
+Route::get('/', function () {
+    return redirect()->route('login');
+})->name('home');
 
-// Marketing functionality
+// Keep all marketing functionality for API/form processing
 Route::post('/marketing/shipment-request', [MarketingController::class, 'shipmentRequest'])->name('marketing.shipment.request');
 Route::post('/marketing/track', [MarketingController::class, 'track'])->name('marketing.track');
 Route::post('/marketing/contact', [MarketingController::class, 'marketingContact'])->name('marketing.contact');
@@ -36,6 +37,79 @@ Route::post('track-shipment', [MarketingController::class, 'standaloneTrackingRe
 Route::get('auth/google', [App\Http\Controllers\Auth\GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [App\Http\Controllers\Auth\GoogleController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
+// Mock Google OAuth callback for testing (only in local environment)
+if (app()->environment('local')) {
+    Route::get('test-google-oauth', function() {
+        try {
+            // Create a mock Google user object
+            $mockGoogleUser = new class {
+                public function getId() { return 'mock_google_id_' . time(); }
+                public function getEmail() { return 'test-' . time() . '@example.com'; }
+                public function getName() { return 'Test User'; }
+            };
+
+            // Check if customer already exists with this email
+            $customer = \App\Models\Customer::where('email', $mockGoogleUser->getEmail())->first();
+
+            if ($customer) {
+                // Link Google account to existing customer
+                $customer->update([
+                    'google_id' => $mockGoogleUser->getId(),
+                    'email_verified_at' => now(),
+                ]);
+
+                // Log the user in
+                $user = $customer->user;
+                if ($user) {
+                    \Illuminate\Support\Facades\Auth::login($user);
+                    return redirect()->route('customer.dashboard')
+                        ->with('success', 'Google OAuth successful! You are now logged in.');
+                }
+            }
+
+            // Create new customer with minimal data
+            $customer = \App\Models\Customer::create([
+                'company_name' => $mockGoogleUser->getName() . "'s Company",
+                'contact_person' => $mockGoogleUser->getName(),
+                'email' => $mockGoogleUser->getEmail(),
+                'google_id' => $mockGoogleUser->getId(),
+                'email_verified_at' => now(),
+                'phone' => '',
+                'address_line_1' => '',
+                'city' => '',
+                'state_province' => '',
+                'postal_code' => '',
+                'country' => '',
+                'status' => 'pending_completion',
+            ]);
+
+            // Create user account
+            $user = \App\Models\User::create([
+                'name' => $mockGoogleUser->getName(),
+                'email' => $mockGoogleUser->getEmail(),
+                'password' => \Illuminate\Support\Facades\Hash::make(str()->random(32)),
+                'customer_id' => $customer->id,
+                'role' => 'customer',
+                'email_verified_at' => now(),
+            ]);
+
+            // Log the user in
+            \Illuminate\Support\Facades\Auth::login($user);
+
+            return redirect()->route('customer.profile.complete')
+                ->with('success', 'Welcome to RT Express! Please complete your profile to start using our services.');
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+    });
+}
+
+
+
 // Customer Registration with rate limiting
 Route::get('/register/customer', [App\Http\Controllers\Auth\CustomerRegistrationController::class, 'show'])->name('customer.register');
 Route::post('/register/customer', [App\Http\Controllers\Auth\CustomerRegistrationController::class, 'store'])
@@ -50,19 +124,28 @@ Route::middleware(['auth'])->group(function () {
         if ($user->hasRole('customer')) {
             // Check if customer account needs approval
             if ($user->customer && $user->customer->status !== 'active') {
-                return redirect()->route('customer.pending-approval');
+                Auth::logout();
+
+                $message = match($user->customer->status) {
+                    'pending_completion' => 'Please complete your profile to continue.',
+                    'pending_approval' => 'Your account is pending admin approval. You will be able to access the system once approved.',
+                    'suspended' => 'Your account has been suspended. Please contact support for assistance.',
+                    default => 'Your account is not active. Please contact support for assistance.',
+                };
+
+                return redirect()->route('login')->withErrors(['access' => $message]);
             }
 
             return redirect('/customer/dashboard');
         }
 
-        // For admin users, require email verification
-        if (! $user->hasVerifiedEmail()) {
-            return redirect()->route('verification.notice');
-        }
-
         // Check if user has any admin role
         if ($user->hasAnyRole(['admin', 'warehouse_staff', 'billing_admin', 'customer_support'])) {
+            // For admin users, require email verification
+            if (! $user->hasVerifiedEmail()) {
+                return redirect()->route('verification.notice');
+            }
+
             return redirect()->route('admin.dashboard');
         }
 
@@ -290,6 +373,12 @@ Route::middleware(['auth', 'verified', 'role:admin,warehouse_staff'])->prefix('a
     Route::post('notifications/process-pending', [\App\Http\Controllers\Admin\NotificationController::class, 'processPending'])->name('notifications.process-pending');
     Route::get('notifications/analytics/data', [\App\Http\Controllers\Admin\NotificationController::class, 'analytics'])->name('notifications.analytics');
 
+    // Booking Management (Shipment Requests)
+    Route::get('bookings', [\App\Http\Controllers\Admin\BookingController::class, 'index'])->name('bookings.index');
+    Route::get('bookings/{booking}', [\App\Http\Controllers\Admin\BookingController::class, 'show'])->name('bookings.show');
+    Route::post('bookings/{booking}/mark-done', [\App\Http\Controllers\Admin\BookingController::class, 'markAsDone'])->name('bookings.mark-done');
+    Route::delete('bookings/{booking}', [\App\Http\Controllers\Admin\BookingController::class, 'destroy'])->name('bookings.destroy');
+
 });
 
 // Admin-only routes (higher privilege required)
@@ -428,6 +517,12 @@ Route::middleware(['auth'])->group(function () {
     })->name('customer.pending-approval');
 });
 
+// Profile completion routes for Google OAuth users (no customer.auth middleware)
+Route::middleware(['auth'])->group(function () {
+    Route::get('customer/profile/complete', [App\Http\Controllers\Customer\ProfileController::class, 'complete'])->name('customer.profile.complete');
+    Route::post('customer/profile/complete', [App\Http\Controllers\Customer\ProfileController::class, 'storeComplete'])->name('customer.profile.complete.store');
+});
+
 // Customer Dashboard Routes
 Route::middleware(['auth', 'customer.auth'])->prefix('customer')->group(function () {
     Route::get('dashboard', [App\Http\Controllers\Customer\DashboardController::class, 'index'])->name('customer.dashboard');
@@ -513,7 +608,5 @@ Route::middleware(['auth', 'customer.auth'])->prefix('customer')->group(function
     Route::put('profile', [App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('customer.profile.update');
     Route::put('profile/password', [App\Http\Controllers\Customer\ProfileController::class, 'updatePassword'])->name('customer.profile.password');
 
-    // Profile completion for Google OAuth users
-    Route::get('profile/complete', [App\Http\Controllers\Customer\ProfileController::class, 'complete'])->name('customer.profile.complete');
-    Route::post('profile/complete', [App\Http\Controllers\Customer\ProfileController::class, 'storeComplete'])->name('customer.profile.complete.store');
+
 });

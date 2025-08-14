@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import CustomerLayout from '@/layouts/customer-layout';
+import AppLayout from '@/layouts/app-layout';
 import { Customer, User as UserType } from '@/types';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
@@ -48,7 +48,7 @@ export default function ProfileComplete({ user, customer, countries }: ProfileCo
     };
 
     return (
-        <CustomerLayout>
+        <AppLayout>
             <Head title="Complete Your Profile" />
 
             <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-12">
@@ -253,6 +253,6 @@ export default function ProfileComplete({ user, customer, countries }: ProfileCo
                     </div>
                 </div>
             </div>
-        </CustomerLayout>
+        </AppLayout>
     );
 }

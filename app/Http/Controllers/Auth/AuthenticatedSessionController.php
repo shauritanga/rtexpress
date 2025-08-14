@@ -163,12 +163,21 @@ class AuthenticatedSessionController extends Controller
         if ($user->hasRole('customer')) {
             // Check if customer account needs approval
             if ($user->customer && $user->customer->status !== 'active') {
-                Log::info('Redirecting customer to pending approval', [
+                Log::info('Customer account not active, logging out', [
                     'user_id' => $user->id,
                     'customer_status' => $user->customer->status,
                 ]);
 
-                return redirect()->route('customer.pending-approval');
+                Auth::logout();
+
+                $message = match($user->customer->status) {
+                    'pending_completion' => 'Please complete your profile to continue.',
+                    'pending_approval' => 'Your account is pending admin approval. You will be able to access the system once approved.',
+                    'suspended' => 'Your account has been suspended. Please contact support for assistance.',
+                    default => 'Your account is not active. Please contact support for assistance.',
+                };
+
+                return redirect()->route('login')->withErrors(['access' => $message]);
             }
 
             return redirect()->intended('/customer/dashboard');
